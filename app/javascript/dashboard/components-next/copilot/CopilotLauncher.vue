@@ -5,10 +5,11 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import ButtonGroup from 'dashboard/components-next/buttonGroup/ButtonGroup.vue';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useMapGetter } from 'dashboard/composables/store';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
+import { useCaptain } from 'dashboard/composables/useCaptain';
 const route = useRoute();
 
 const { uiSettings, updateUISettings } = useUISettings();
+const { captainEnabled } = useCaptain();
 
 const isConversationRoute = computed(() => {
   const CONVERSATION_ROUTES = [
@@ -25,18 +26,9 @@ const isConversationRoute = computed(() => {
   return CONVERSATION_ROUTES.includes(route.name);
 });
 
-const currentAccountId = useMapGetter('getCurrentAccountId');
-const isFeatureEnabledonAccount = useMapGetter(
-  'accounts/isFeatureEnabledonAccount'
-);
-
 const showCopilotLauncher = computed(() => {
-  const isCaptainEnabled = isFeatureEnabledonAccount.value(
-    currentAccountId.value,
-    FEATURE_FLAGS.CAPTAIN
-  );
   return (
-    isCaptainEnabled &&
+    captainEnabled.value &&
     !uiSettings.value.is_copilot_panel_open &&
     !isConversationRoute.value
   );

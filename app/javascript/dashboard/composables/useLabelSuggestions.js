@@ -1,7 +1,7 @@
 import { computed, onMounted } from 'vue';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { useAccount } from 'dashboard/composables/useAccount';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
+import { useCaptain } from 'dashboard/composables/useCaptain';
 import TasksAPI from 'dashboard/api/captain/tasks';
 
 /**
@@ -21,13 +21,10 @@ const cleanLabels = labels => {
 export function useLabelSuggestions() {
   const store = useStore();
   const { isCloudFeatureEnabled } = useAccount();
+  const { captainTasksEnabled } = useCaptain();
   const appIntegrations = useMapGetter('integrations/getAppIntegrations');
   const currentChat = useMapGetter('getSelectedChat');
   const conversationId = computed(() => currentChat.value?.id);
-
-  const captainTasksEnabled = computed(() => {
-    return isCloudFeatureEnabled(FEATURE_FLAGS.CAPTAIN_TASKS);
-  });
 
   const aiIntegration = computed(
     () =>

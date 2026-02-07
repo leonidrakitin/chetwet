@@ -72,6 +72,11 @@ export function usePolicy() {
     if (!checkPermissions(perms)) return false;
     if (!checkInstallationType(installation)) return false;
 
+    // Unlock mode: show all when PREMIUM_FEATURES is empty (self-hosted dev)
+    if (PREMIUM_FEATURES.length === 0 && !isOnChatwootCloud.value) {
+      return true;
+    }
+
     if (isACustomBrandedInstance.value) {
       // if this is a custom branded instance, we just use the feature flag as a reference
       return isFeatureFlagEnabled(flag);
