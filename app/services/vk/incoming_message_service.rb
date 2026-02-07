@@ -23,6 +23,10 @@ class Vk::IncomingMessageService
 
     process_message_attachments
     @message.save!
+  rescue StandardError => e
+    Rails.logger.error "[VK] IncomingMessageService error: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    raise
   end
 
   private

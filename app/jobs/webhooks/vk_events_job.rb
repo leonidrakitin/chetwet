@@ -8,6 +8,8 @@ class Webhooks::VkEventsJob < ApplicationJob
     return if params[:type] == 'confirmation'
 
     group_id = params[:group_id]&.to_s
+    Rails.logger.info "[VK] Processing event type=#{params[:type]} for group_id=#{group_id}"
+    
     channel = Channel::Vk.find_by(group_id: group_id)
 
     if channel_is_inactive?(channel)
@@ -15,6 +17,7 @@ class Webhooks::VkEventsJob < ApplicationJob
       return
     end
 
+    Rails.logger.info "[VK] Found active channel #{channel.id} for inbox #{channel.inbox.id}"
     process_event_params(channel, params)
   end
 
@@ -40,10 +43,15 @@ class Webhooks::VkEventsJob < ApplicationJob
     case params[:type]
     when 'message_new'
       object = params[:object] || {}
+      Rails.logger.info "[VK] Processing message_new for inbox #{channel.inbox.id}"
       Vk::IncomingMessageService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform
     when 'message_typing_state'
       object = params[:object] || {}
       Vk::TypingStatusService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform
     end
+  rescue StandardError => e
+    Rails.logger.error "[VK] Event processing error: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    raise
   end
 end
