@@ -7,6 +7,7 @@ class Vk::IncomingMessageService
 
   def perform
     return unless message_params?
+    return if duplicate_message?
 
     set_contact
     update_contact_avatar
@@ -30,6 +31,10 @@ class Vk::IncomingMessageService
   end
 
   private
+
+  def duplicate_message?
+    inbox.messages.exists?(source_id: vk_params_message_id.to_s)
+  end
 
   def set_contact
     user_info = inbox.channel.get_vk_user_info(vk_params_from_id)

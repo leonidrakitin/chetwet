@@ -39,6 +39,11 @@ class Channel::Vk < ApplicationRecord
   end
 
   def send_message_on_vk(message)
+    if peer_id(message).blank?
+      Rails.logger.warn "[VK] Cannot send: peer_id missing for conversation #{message.conversation_id}"
+      return nil
+    end
+
     return Vk::SendAttachmentsService.new(message: message).perform if message.attachments.present?
 
     send_message(message) if message.outgoing_content.present?
@@ -93,7 +98,8 @@ class Channel::Vk < ApplicationRecord
   end
 
   def peer_id(message)
-    message.conversation[:additional_attributes]['peer_id']
+    conv = message.conversation
+    conv.additional_attributes&.dig('peer_id') || conv.additional_attributes&.dig(:peer_id)
   end
 
   def reply_to_message_id(message)

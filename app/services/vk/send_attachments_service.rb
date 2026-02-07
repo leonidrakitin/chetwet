@@ -4,6 +4,8 @@ class Vk::SendAttachmentsService
   pattr_initialize [:message!]
 
   def perform
+    return nil unless channel.peer_id(message).present?
+
     attachment_ids = []
     message.attachments.each do |attachment|
       id = send_attachment(attachment)
@@ -19,6 +21,8 @@ class Vk::SendAttachmentsService
   private
 
   def send_attachment(attachment)
+    return nil unless attachment.with_attached_file?
+
     case attachment.file_type
     when 'image'
       upload_and_send_photo(attachment)
@@ -27,6 +31,9 @@ class Vk::SendAttachmentsService
     else
       upload_and_send_doc(attachment)
     end
+  rescue StandardError => e
+    Rails.logger.warn "[VK] Send attachment failed: #{e.message}"
+    nil
   end
 
   def upload_and_send_photo(attachment)
@@ -44,15 +51,29 @@ class Vk::SendAttachmentsService
 
   def upload_and_send_doc(attachment)
     upload_url = get_doc_upload_server
-    return unless upload_url
+    unless upload_url
+      Rails.logger.warn '[VK] Failed to get doc upload server'
+      return
+    end
 
     upload_result = upload_file(upload_url, attachment, 'file')
-    return unless upload_result
+    unless upload_result
+      Rails.logger.warn "[VK] Failed to upload doc for attachment #{attachment.id}"
+      return
+    end
+
+    unless upload_result['file'].present?
+      Rails.logger.warn "[VK] Upload response missing file field: #{upload_result.keys}"
+      return
+    end
 
     doc_data = save_messages_doc(upload_result)
     return unless doc_data
 
-    send_message_with_attachment("doc#{doc_data['doc']['owner_id']}_#{doc_data['doc']['id']}")
+    doc = doc_data.dig('response', 'doc') || doc_data.dig('response', 0) || doc_data['doc']
+    return unless doc
+
+    send_message_with_attachment("doc#{doc['owner_id']}_#{doc['id']}")
   end
 
   def get_photo_upload_server
@@ -105,15 +126,28 @@ class Vk::SendAttachmentsService
   end
 
   def save_attachment_to_tempfile(attachment)
+    return nil unless attachment.file.attached?
+
+    filename = attachment.file.filename.to_s.presence || attachment_filename_for_type(attachment)
     temp_dir = Rails.root.join('tmp/uploads', "vk-#{attachment.message_id}")
     FileUtils.mkdir_p(temp_dir)
-    temp_path = File.join(temp_dir, attachment.file.filename.to_s)
+    temp_path = File.join(temp_dir, filename)
 
     File.open(temp_path, 'wb') do |file|
       attachment.file.blob.open { |blob_file| IO.copy_stream(blob_file, file) }
     end
 
     temp_path
+  end
+
+  def attachment_filename_for_type(attachment)
+    ext = case attachment.file_type
+          when 'audio' then 'mp3'
+          when 'image' then 'jpg'
+          when 'video' then 'mp4'
+          else 'bin'
+          end
+    "attachment.#{ext}"
   end
 
   def save_messages_photo(upload_result)
@@ -141,7 +175,10 @@ class Vk::SendAttachmentsService
         v: '5.199'
       }
     )
-    return nil unless response.success?
+    unless response.success?
+      Rails.logger.warn "[VK] docs.save failed: #{response.parsed_response}"
+      return nil
+    end
 
     response.parsed_response
   end
