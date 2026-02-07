@@ -40,7 +40,7 @@ class Attachment < ApplicationRecord
   validate :acceptable_file
   validates :external_url, length: { maximum: Limits::URL_LENGTH_LIMIT }
   enum file_type: { :image => 0, :audio => 1, :video => 2, :file => 3, :location => 4, :fallback => 5, :share => 6, :story_mention => 7,
-                    :contact => 8, :ig_reel => 9, :ig_post => 10, :ig_story => 11, :embed => 12 }
+                    :contact => 8, :ig_reel => 9, :ig_post => 10, :ig_story => 11, :embed => 12, :market => 13 }
 
   def push_event_data
     return unless file_type
@@ -84,6 +84,8 @@ class Attachment < ApplicationRecord
       fallback_data
     when :contact
       contact_metadata
+    when :market
+      market_metadata
     when :audio
       audio_metadata
     when :embed
@@ -150,6 +152,14 @@ class Attachment < ApplicationRecord
   def contact_metadata
     {
       fallback_title: fallback_title,
+      meta: meta || {}
+    }
+  end
+
+  def market_metadata
+    {
+      fallback_title: fallback_title,
+      data_url: external_url,
       meta: meta || {}
     }
   end

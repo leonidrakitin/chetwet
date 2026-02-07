@@ -53,6 +53,7 @@ export const ATTACHMENT_TYPES = {
   IG_POST: 'ig_post',
   IG_STORY: 'ig_story',
   IG_STORY_REPLY: 'ig_story_reply',
+  MARKET: 'market',
 };
 
 export const CONTENT_TYPES = {

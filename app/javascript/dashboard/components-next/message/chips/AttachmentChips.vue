@@ -5,6 +5,7 @@ import ImageChip from 'next/message/chips/Image.vue';
 import VideoChip from 'next/message/chips/Video.vue';
 import AudioChip from 'next/message/chips/Audio.vue';
 import FileChip from 'next/message/chips/File.vue';
+import MarketChip from 'next/message/chips/Market.vue';
 import { useMessageContext } from '../provider.js';
 
 import { ATTACHMENT_TYPES } from '../constants';
@@ -73,6 +74,12 @@ const files = computed(() => {
     attachment => attachment.fileType === ATTACHMENT_TYPES.FILE
   );
 });
+
+const markets = computed(() => {
+  return allAttachments.value.filter(
+    attachment => attachment.fileType === ATTACHMENT_TYPES.MARKET
+  );
+});
 </script>
 
 <template>
@@ -99,6 +106,13 @@ const files = computed(() => {
   <div v-if="files.length" :class="classToApply">
     <FileChip
       v-for="attachment in files"
+      :key="attachment.id"
+      :attachment="attachment"
+    />
+  </div>
+  <div v-if="markets.length" :class="classToApply">
+    <MarketChip
+      v-for="attachment in markets"
       :key="attachment.id"
       :attachment="attachment"
     />

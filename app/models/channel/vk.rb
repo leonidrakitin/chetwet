@@ -66,6 +66,23 @@ class Channel::Vk < ApplicationRecord
     get_vk_user_info(user_id)['photo_100']
   end
 
+  def get_message_by_id(message_id, peer_id: nil)
+    query = { message_ids: message_id, extended: 1, access_token: access_token, v: '5.199' }
+    query[:peer_id] = peer_id if peer_id.present?
+
+    response = HTTParty.get(
+      "#{vk_api_url}/messages.getById",
+      query: query
+    )
+    return {} unless response.success?
+
+    parsed = response.parsed_response
+    return {} if parsed['response'].blank?
+
+    items = parsed.dig('response', 'items') || parsed.dig('response', 'messages')
+    items&.first&.stringify_keys || {}
+  end
+
   def process_error(message, response)
     error = response.parsed_response['error']
     return unless error

@@ -105,6 +105,9 @@
       },
       "embed": {
         "CONTENT": "Embedded content"
+      },
+      "market": {
+        "CONTENT": "Product"
       }
     },
     "CHAT_SORT_BY_FILTER": {

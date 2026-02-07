@@ -268,6 +268,7 @@ export default {
         this.isAnEmailChannel ||
         this.isASmsInbox ||
         this.isATelegramChannel ||
+        this.isAVkChannel ||
         this.isALineChannel ||
         this.isAnInstagramChannel
       );
@@ -323,7 +324,8 @@ export default {
         this.isAWebWidgetInbox ||
         this.isAPIInbox ||
         this.isAWhatsAppChannel ||
-        this.isATelegramChannel
+        this.isATelegramChannel ||
+        this.isAVkChannel
       );
     },
     isSignatureEnabledForInbox() {
@@ -345,7 +347,7 @@ export default {
       return `draft-${this.conversationIdByRoute}-${this.replyType}`;
     },
     audioRecordFormat() {
-      if (this.isAWhatsAppChannel || this.isATelegramChannel) {
+      if (this.isAWhatsAppChannel || this.isATelegramChannel || this.isAVkChannel) {
         return AUDIO_FORMATS.MP3;
       }
       if (this.isAPIInbox) {

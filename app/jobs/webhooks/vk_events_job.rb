@@ -45,6 +45,12 @@ class Webhooks::VkEventsJob < ApplicationJob
       object = params[:object] || {}
       Rails.logger.info "[VK] Processing message_new for inbox #{channel.inbox.id}"
       Vk::IncomingMessageService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform
+    when 'message_reply'
+      object = params[:object] || {}
+      return unless object['out'] == 1 || object[:out] == 1
+
+      Rails.logger.info "[VK] Processing message_reply (admin) for inbox #{channel.inbox.id}"
+      Vk::OutgoingMessageSyncService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform
     when 'message_typing_state'
       object = params[:object] || {}
       Vk::TypingStatusService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform

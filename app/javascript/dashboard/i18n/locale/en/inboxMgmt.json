@@ -1074,6 +1074,7 @@
       "SMS": "SMS",
       "EMAIL": "Email",
       "TELEGRAM": "Telegram",
+      "VK": "VK",
       "LINE": "Line",
       "API": "API Channel",
       "INSTAGRAM": "Instagram",

@@ -26,6 +26,7 @@ const i18nMap = {
   'Channel::Sms': 'SMS',
   'Channel::Email': 'EMAIL',
   'Channel::Telegram': 'TELEGRAM',
+  'Channel::Vk': 'VK',
   'Channel::Line': 'LINE',
   'Channel::Api': 'API',
   'Channel::Instagram': 'INSTAGRAM',
@@ -47,7 +48,8 @@ const readableChannelName = computed(() => {
   if (props.channelType === 'Channel::TwilioSms') {
     return twilioChannelName();
   }
-  return t(`INBOX_MGMT.CHANNELS.${i18nMap[props.channelType]}`);
+  const key = i18nMap[props.channelType];
+  return key ? t(`INBOX_MGMT.CHANNELS.${key}`) : props.channelType;
 });
 </script>
 

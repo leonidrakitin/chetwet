@@ -158,6 +158,7 @@ export const ATTACHMENT_ICONS = {
   file: 'document',
   location: 'location',
   fallback: 'link',
+  market: 'link',
 };
 
 export const TWILIO_CONTENT_TEMPLATE_TYPES = {
