@@ -441,12 +441,12 @@
         "DESC": "Integrate with VK (VKontakte) community and start supporting your customers.",
         "GROUP_ID": {
           "LABEL": "Group ID",
-          "SUBTITLE": "Your VK community ID (numeric, can be negative).",
+          "SUBTITLE": "Numeric ID from your group URL (e.g. vk.com/club123456789 → 123456789). With or without minus.",
           "PLACEHOLDER": "123456789"
         },
         "ACCESS_TOKEN": {
           "LABEL": "Access Token",
-          "SUBTITLE": "Community access token from VK API settings.",
+          "SUBTITLE": "Community access token from VK: Manage → API usage → Access token. Needs 'Manage community' permission.",
           "PLACEHOLDER": "Access Token"
         },
         "SECRET": {

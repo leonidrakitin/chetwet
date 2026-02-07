@@ -94,6 +94,9 @@ en:
       invalid_message_type: 'Invalid message type. Action not permitted'
     slack:
       invalid_channel_id: 'Invalid slack channel. Please try again'
+    channel:
+      vk:
+        group_not_found: "Community not found. Check that the group ID is correct (numeric ID from the group URL) and the access token has 'Manage community' permission."
     whatsapp:
       token_exchange_failed: 'Failed to exchange code for access token. Please try again.'
       invalid_token_permissions: 'The access token does not have the required permissions for WhatsApp.'

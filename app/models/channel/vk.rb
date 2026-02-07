@@ -103,22 +103,33 @@ class Channel::Vk < ApplicationRecord
   private
 
   def ensure_valid_credentials
+    normalized_group_id = group_id.to_s.sub(/\A-/, '')
     response = HTTParty.get(
       "#{vk_api_url}/groups.getById",
       query: {
-        group_id: group_id.to_s.sub(/\A-/, ''),
+        group_id: normalized_group_id,
         access_token: access_token,
         v: '5.199'
       }
     )
 
     unless response.success?
-      errors.add(:access_token, 'invalid token or group_id')
+      errors.add(:access_token, 'invalid token or network error')
       return
     end
 
-    group = response.parsed_response.dig('response', 0)
-    return errors.add(:group_id, 'group not found') if group.blank?
+    parsed = response.parsed_response
+    if (err = parsed['error'])
+      msg = err['error_msg'] || 'unknown error'
+      errors.add(:base, msg)
+      return
+    end
+
+    group = parsed.dig('response', 0)
+    if group.blank?
+      errors.add(:base, I18n.t('errors.channel.vk.group_not_found'))
+      return
+    end
 
     self.group_name = group['name']
   end
