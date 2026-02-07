@@ -7,6 +7,7 @@ export const INBOX_TYPES = {
   API: 'Channel::Api',
   EMAIL: 'Channel::Email',
   TELEGRAM: 'Channel::Telegram',
+  VK: 'Channel::Vk',
   LINE: 'Channel::Line',
   SMS: 'Channel::Sms',
   INSTAGRAM: 'Channel::Instagram',
@@ -27,6 +28,7 @@ const INBOX_ICON_MAP_FILL = {
   [INBOX_TYPES.API]: 'i-ri-cloudy-fill',
   [INBOX_TYPES.EMAIL]: 'i-ri-mail-fill',
   [INBOX_TYPES.TELEGRAM]: 'i-ri-telegram-fill',
+  [INBOX_TYPES.VK]: 'i-woot-vk',
   [INBOX_TYPES.LINE]: 'i-ri-line-fill',
   [INBOX_TYPES.INSTAGRAM]: 'i-ri-instagram-fill',
   [INBOX_TYPES.TIKTOK]: 'i-ri-tiktok-fill',
@@ -43,6 +45,7 @@ const INBOX_ICON_MAP_LINE = {
   [INBOX_TYPES.API]: 'i-ri-cloudy-line',
   [INBOX_TYPES.EMAIL]: 'i-ri-mail-line',
   [INBOX_TYPES.TELEGRAM]: 'i-ri-telegram-line',
+  [INBOX_TYPES.VK]: 'i-woot-vk',
   [INBOX_TYPES.LINE]: 'i-ri-line-line',
   [INBOX_TYPES.INSTAGRAM]: 'i-ri-instagram-line',
   [INBOX_TYPES.TIKTOK]: 'i-ri-tiktok-line',
@@ -94,6 +97,9 @@ export const getReadableInboxByType = (type, phoneNumber) => {
     case INBOX_TYPES.TELEGRAM:
       return 'telegram';
 
+    case INBOX_TYPES.VK:
+      return 'vk';
+
     case INBOX_TYPES.LINE:
       return 'line';
 
@@ -132,6 +138,9 @@ export const getInboxClassByType = (type, phoneNumber) => {
 
     case INBOX_TYPES.TELEGRAM:
       return 'brand-telegram';
+
+    case INBOX_TYPES.VK:
+      return 'vk';
 
     case INBOX_TYPES.LINE:
       return 'brand-line';
