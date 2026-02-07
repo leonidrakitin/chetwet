@@ -37,9 +37,13 @@ class Webhooks::VkEventsJob < ApplicationJob
   end
 
   def process_event_params(channel, params)
-    return unless params[:type] == 'message_new'
-
-    object = params[:object] || {}
-    Vk::IncomingMessageService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform
+    case params[:type]
+    when 'message_new'
+      object = params[:object] || {}
+      Vk::IncomingMessageService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform
+    when 'message_typing_state'
+      object = params[:object] || {}
+      Vk::TypingStatusService.new(inbox: channel.inbox, params: object.with_indifferent_access).perform
+    end
   end
 end
