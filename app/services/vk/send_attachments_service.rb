@@ -11,7 +11,7 @@ class Vk::SendAttachmentsService
     end
 
     return attachment_ids.last if attachment_ids.one?
-    return attachment_ids.first if attachment_ids.many?
+    return attachment_ids.last if attachment_ids.many?
 
     nil
   end

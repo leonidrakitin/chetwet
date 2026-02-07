@@ -39,9 +39,9 @@ class Channel::Vk < ApplicationRecord
   end
 
   def send_message_on_vk(message)
-    message_id = send_message(message) if message.outgoing_content.present?
-    message_id = Vk::SendAttachmentsService.new(message: message).perform if message.attachments.present?
-    message_id
+    return Vk::SendAttachmentsService.new(message: message).perform if message.attachments.present?
+
+    send_message(message) if message.outgoing_content.present?
   end
 
   def get_vk_user_info(user_id)
@@ -121,12 +121,14 @@ class Channel::Vk < ApplicationRecord
     parsed = response.parsed_response
     if (err = parsed['error'])
       msg = err['error_msg'] || 'unknown error'
+      Rails.logger.info "[VK] groups.getById error: #{msg} (code: #{err['error_code']})"
       errors.add(:base, msg)
       return
     end
 
-    group = parsed.dig('response', 0)
+    group = parsed.dig('response', 'groups', 0) || parsed.dig('response', 0)
     if group.blank?
+      Rails.logger.info "[VK] groups.getById empty response for group_id=#{normalized_group_id}"
       errors.add(:base, I18n.t('errors.channel.vk.group_not_found'))
       return
     end
