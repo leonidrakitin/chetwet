@@ -2,6 +2,7 @@ import AuthAPI from '../api/auth';
 import BaseActionCableConnector from '../../shared/helpers/BaseActionCableConnector';
 import DashboardAudioNotificationHelper from './AudioAlerts/DashboardAudioNotificationHelper';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
+import { MESSAGE_TYPE } from 'shared/constants/messages';
 import { emitter } from 'shared/helpers/mitt';
 import { useImpersonation } from 'dashboard/composables/useImpersonation';
 
@@ -97,13 +98,26 @@ class ActionCableConnector extends BaseActionCableConnector {
     const {
       conversation: { last_activity_at: lastActivityAt },
       conversation_id: conversationId,
+      message_type: messageType,
     } = data;
+
     DashboardAudioNotificationHelper.onNewMessage(data);
     this.app.$store.dispatch('addMessage', data);
-    this.app.$store.dispatch('updateConversationLastActivity', {
-      lastActivityAt,
-      conversationId,
-    });
+
+    // Only update last_activity / move conversation to top for incoming messages
+    // Skip for typing, bot broadcasts, and outgoing messages
+    if (messageType === MESSAGE_TYPE.INCOMING) {
+      const conversation = this.app.$store.getters.getConversationById(
+        conversationId
+      );
+      if (!conversation) {
+        this.app.$store.dispatch('getConversation', conversationId);
+      }
+      this.app.$store.dispatch('updateConversationLastActivity', {
+        lastActivityAt,
+        conversationId,
+      });
+    }
   };
 
   // eslint-disable-next-line class-methods-use-this

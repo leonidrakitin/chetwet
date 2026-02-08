@@ -356,6 +356,9 @@ const actions = {
   },
 
   addConversation({ commit, state, dispatch, rootState }, conversation) {
+    // Skip campaign-initiated (bot broadcast) conversations - only show when client sends a message
+    if (conversation.campaign_id) return;
+
     const { currentInbox, appliedFilters } = state;
     const {
       inbox_id: inboxId,

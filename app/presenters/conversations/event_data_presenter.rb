@@ -2,6 +2,7 @@ class Conversations::EventDataPresenter < SimpleDelegator
   def push_data
     {
       additional_attributes: additional_attributes,
+      campaign_id: campaign_id,
       can_reply: can_reply?,
       channel: inbox.try(:channel_type),
       contact_inbox: contact_inbox,
