@@ -174,10 +174,10 @@
       },
       "TELEGRAM_CONNECT": {
         "TITLE": "Telegram Notifications",
-        "DESCRIPTION": "Enter your Telegram chat ID to receive notifications in Telegram. Message @userinfobot on Telegram to get your chat ID.",
+        "DESCRIPTION": "Enter your Telegram chat ID to receive notifications in Telegram. Message t.me/userinfobot on Telegram to get your chat ID.",
         "LABEL": "Telegram Chat ID",
         "PLACEHOLDER": "e.g. 123456789",
-        "HINT": "Send /start to @userinfobot on Telegram to get your chat ID.",
+        "HINT": "Send /start to t.me/userinfobot on Telegram to get your chat ID.",
         "SAVE": "Save",
         "UPDATE_SUCCESS": "Telegram Chat ID saved successfully",
         "UPDATE_ERROR": "Failed to save Telegram Chat ID"
