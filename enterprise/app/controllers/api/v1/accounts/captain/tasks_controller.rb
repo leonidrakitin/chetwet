@@ -57,6 +57,7 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
     if result.nil?
       render json: { message: nil }
     elsif result[:error]
+      Rails.logger.warn("[Captain Tasks] Error: #{result[:error]} (code: #{result[:error_code]})")
       render json: { error: result[:error] }, status: :unprocessable_entity
     else
       response_data = { message: result[:message] }

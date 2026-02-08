@@ -19,7 +19,7 @@ module Llm::Config
       @initialized = false
     end
 
-    def     with_api_key(api_key, api_base: nil)
+    def with_api_key(api_key, api_base: nil)
       context = RubyLLM.context do |config|
         config.openai_api_key = api_key
         config.openai_api_base = api_base

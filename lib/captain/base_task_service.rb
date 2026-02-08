@@ -7,7 +7,7 @@ class Captain::BaseTaskService
   # sticking with 120000 to be safe
   # 120000 * 4 = 480,000 characters (rounding off downwards to 400,000 to be safe)
   TOKEN_LIMIT = 400_000
-  GPT_MODEL = Llm::Config::DEFAULT_MODEL
+  DEFAULT_MODEL = Llm::Config::DEFAULT_MODEL
 
   # Prepend enterprise module to subclasses when they're defined.
   # This ensures the enterprise perform wrapper is applied even when
@@ -34,6 +34,10 @@ class Captain::BaseTaskService
     endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
     endpoint = endpoint.chomp('/')
     "#{endpoint}/v1"
+  end
+
+  def model
+    InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || DEFAULT_MODEL
   end
 
   def make_api_call(model:, messages:, tools: [])
