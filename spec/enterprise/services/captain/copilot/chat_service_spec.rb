@@ -21,6 +21,11 @@ RSpec.describe Captain::Copilot::ChatService do
 
   # RubyLLM mocks
   let(:mock_chat) { instance_double(RubyLLM::Chat) }
+  let(:mock_context) do
+    instance_double(RubyLLM::Context).tap do |ctx|
+      allow(ctx).to receive(:chat).and_return(mock_chat)
+    end
+  end
   let(:mock_response) do
     instance_double(RubyLLM::Message, content: '{ "content": "Hey", "reasoning": "Test reasoning", "reply_suggestion": false }')
   end
@@ -30,7 +35,7 @@ RSpec.describe Captain::Copilot::ChatService do
       c.value = 'test-key'
     end
 
-    allow(RubyLLM).to receive(:chat).and_return(mock_chat)
+    allow(Llm::Config).to receive(:with_api_key).and_yield(mock_context)
     allow(mock_chat).to receive(:with_temperature).and_return(mock_chat)
     allow(mock_chat).to receive(:with_params).and_return(mock_chat)
     allow(mock_chat).to receive(:with_tool).and_return(mock_chat)

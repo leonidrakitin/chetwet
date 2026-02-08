@@ -6,15 +6,16 @@ module Captain::ChatHelper
   def request_chat_completion
     log_chat_completion_request
 
-    chat = build_chat
+    Llm::Config.with_api_key(captain_api_key, api_base: captain_api_base) do |context|
+      chat = build_chat(context)
+      add_messages_to_chat(chat)
+      with_agent_session do
+        last_content = conversation_messages.last[:content]
+        text, attachments = Captain::OpenAiMessageBuilderService.extract_text_and_attachments(last_content)
 
-    add_messages_to_chat(chat)
-    with_agent_session do
-      last_content = conversation_messages.last[:content]
-      text, attachments = Captain::OpenAiMessageBuilderService.extract_text_and_attachments(last_content)
-
-      response = attachments.any? ? chat.ask(text, with: attachments) : chat.ask(text)
-      build_response(response)
+        response = attachments.any? ? chat.ask(text, with: attachments) : chat.ask(text)
+        build_response(response)
+      end
     end
   rescue StandardError => e
     Rails.logger.error "#{self.class.name} Assistant: #{@assistant.id}, Error in chat completion: #{e}"
@@ -23,8 +24,30 @@ module Captain::ChatHelper
 
   private
 
-  def build_chat
-    llm_chat = chat(model: @model, temperature: temperature)
+  def captain_api_key
+    @captain_api_key ||= openai_hook&.settings&.dig('api_key') || system_api_key
+  end
+
+  def captain_api_base
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
+    endpoint = endpoint.chomp('/')
+    "#{endpoint}/v1"
+  end
+
+  def openai_hook
+    @openai_hook ||= resolved_account&.hooks&.find_by(app_id: 'openai', status: 'enabled')
+  end
+
+  def system_api_key
+    InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  end
+
+  def resolved_account
+    @account || @assistant&.account
+  end
+
+  def build_chat(context)
+    llm_chat = context.chat(model: @model, provider: :openai, assume_model_exists: true).with_temperature(temperature)
     llm_chat = llm_chat.with_params(response_format: { type: 'json_object' })
 
     llm_chat = setup_tools(llm_chat)
