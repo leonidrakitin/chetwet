@@ -141,6 +141,8 @@ class Captain::BaseTaskService
   end
 
   def captain_tasks_enabled?
+    return true unless ChatwootApp.chatwoot_cloud?
+
     account.feature_enabled?('captain_tasks')
   end
 
