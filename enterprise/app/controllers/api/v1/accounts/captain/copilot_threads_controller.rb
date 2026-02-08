@@ -2,20 +2,39 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
   before_action :ensure_message, only: :create
 
   def index
-    @copilot_threads = Current.account.copilot_threads
-                              .where(user_id: Current.user.id)
-                              .includes(:user, :assistant)
-                              .order(created_at: :desc)
-                              .page(permitted_params[:page] || 1)
-                              .per(5)
+    scope = Current.account.copilot_threads
+                   .where(user_id: Current.user.id)
+                   .includes(:user, :assistant)
+                   .order(created_at: :desc)
+    scope = scope.for_source(permitted_params[:source]) if permitted_params[:source].present?
+    @copilot_threads = scope.page(permitted_params[:page] || 1).per(5)
   end
 
   def create
+    source = copilot_thread_params[:source].presence || 'default'
+    existing = Current.account.copilot_threads
+                      .where(user_id: Current.user.id, assistant_id: assistant.id)
+                      .for_source(source)
+                      .order(created_at: :desc)
+                      .first
+
+    if existing
+      @copilot_thread = existing
+      copilot_message = @copilot_thread.copilot_messages.create!(
+        message_type: :user,
+        message: { content: copilot_thread_params[:message] }
+      )
+      build_copilot_response(copilot_message)
+      render
+      return
+    end
+
     ActiveRecord::Base.transaction do
       @copilot_thread = Current.account.copilot_threads.create!(
         title: copilot_thread_params[:message],
         user: Current.user,
-        assistant: assistant
+        assistant: assistant,
+        source: source
       )
 
       copilot_message = @copilot_thread.copilot_messages.create!(
@@ -49,10 +68,10 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
   end
 
   def copilot_thread_params
-    params.permit(:message, :assistant_id, :conversation_id)
+    params.permit(:message, :assistant_id, :conversation_id, :source)
   end
 
   def permitted_params
-    params.permit(:page)
+    params.permit(:page, :source)
   end
 end

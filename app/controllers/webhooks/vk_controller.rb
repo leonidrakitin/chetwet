@@ -6,12 +6,10 @@ class Webhooks::VkController < ActionController::API
 
     if params_hash[:type] == 'confirmation'
       handle_confirmation(params_hash)
-    elsif %w[message_new message_reply].include?(params_hash[:type])
-      # Process critical message events synchronously to minimize latency
-      Webhooks::VkEventsJob.new.perform(params_hash)
-      head :ok
     else
-      # Other events (typing, etc.) can be processed asynchronously
+      # Process all events asynchronously. VK expects webhook response within ~15 seconds.
+      # Synchronous processing (API calls, attachment downloads) can exceed that timeout,
+      # causing VK to retry with exponential backoff (30–40 min delays reported).
       Webhooks::VkEventsJob.perform_later(params_hash)
       head :ok
     end

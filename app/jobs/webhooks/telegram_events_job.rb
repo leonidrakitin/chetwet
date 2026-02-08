@@ -2,6 +2,7 @@ class Webhooks::TelegramEventsJob < ApplicationJob
   queue_as :default
 
   def perform(params = {})
+    params = params.with_indifferent_access
     return unless params[:bot_token]
 
     channel = Channel::Telegram.find_by(bot_token: params[:bot_token])
@@ -33,12 +34,14 @@ class Webhooks::TelegramEventsJob < ApplicationJob
   end
 
   def process_event_params(channel, params)
-    return unless params[:telegram]
+    # Payload is the raw Telegram update (message, callback_query, etc.); bot_token comes from the URL
+    telegram_params = params.except(:controller, :action, :bot_token).with_indifferent_access
+    return if telegram_params.blank?
 
-    if params.dig(:telegram, :edited_message).present? || params.dig(:telegram, :edited_business_message).present?
-      Telegram::UpdateMessageService.new(inbox: channel.inbox, params: params['telegram'].with_indifferent_access).perform
+    if telegram_params.dig(:edited_message).present? || telegram_params.dig(:edited_business_message).present?
+      Telegram::UpdateMessageService.new(inbox: channel.inbox, params: telegram_params).perform
     else
-      Telegram::IncomingMessageService.new(inbox: channel.inbox, params: params['telegram'].with_indifferent_access).perform
+      Telegram::IncomingMessageService.new(inbox: channel.inbox, params: telegram_params).perform
     end
   end
 end

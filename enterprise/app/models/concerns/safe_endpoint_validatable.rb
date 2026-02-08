@@ -32,7 +32,7 @@ module Concerns::SafeEndpointValidatable
   end
 
   def validate_endpoint_scheme(uri)
-    return if uri.scheme == 'https'
+    return if uri.scheme == 'https' || uri.scheme == 'http'
 
     errors.add(:endpoint_url, 'must use HTTPS protocol')
   end

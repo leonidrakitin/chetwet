@@ -17,6 +17,11 @@
 #  index_copilot_threads_on_user_id       (user_id)
 #
 class CopilotThread < ApplicationRecord
+  scope :for_source, ->(source) {
+    val = source.presence || 'default'
+    where("COALESCE(copilot_threads.source, 'default') = ?", val)
+  }
+
   belongs_to :user
   belongs_to :account
   belongs_to :assistant, class_name: 'Captain::Assistant'

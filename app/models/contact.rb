@@ -179,9 +179,14 @@ class Contact < ApplicationRecord
   end
 
   def self.resolved_contacts(use_crm_v2: false)
-    return where(contact_type: 'lead') if use_crm_v2
+    identified = "contacts.email <> '' OR contacts.phone_number <> '' OR contacts.identifier <> ''"
+    from_channel = "EXISTS (SELECT 1 FROM contact_inboxes WHERE contact_inboxes.contact_id = contacts.id)"
 
-    where("contacts.email <> '' OR contacts.phone_number <> '' OR contacts.identifier <> ''")
+    if use_crm_v2
+      where(contact_type: 'lead').or(where(from_channel))
+    else
+      where("#{identified} OR #{from_channel}")
+    end
   end
 
   def discard_invalid_attrs

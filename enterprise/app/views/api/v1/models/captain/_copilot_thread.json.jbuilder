@@ -1,5 +1,6 @@
 json.id resource.id
 json.title resource.title
+json.source resource.source
 json.created_at resource.created_at.to_i
 json.user resource.user.push_event_data
 json.assistant resource.assistant.push_event_data

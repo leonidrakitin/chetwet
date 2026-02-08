@@ -4,7 +4,10 @@ RSpec.describe Webhooks::TelegramEventsJob do
   subject(:job) { described_class.perform_later(params) }
 
   let!(:telegram_channel) { create(:channel_telegram) }
-  let!(:params) { { :bot_token => telegram_channel.bot_token, 'telegram' => { test: 'test' } } }
+  # Real webhook payload: bot_token from URL, body is Telegram update (message, update_id, etc.)
+  let!(:params) do
+    { bot_token: telegram_channel.bot_token, message: { chat: { type: 'private' }, from: { id: 123, first_name: 'Test' } } }
+  end
 
   it 'enqueues the job' do
     expect { job }.to have_enqueued_job(described_class)
@@ -28,8 +31,8 @@ RSpec.describe Webhooks::TelegramEventsJob do
       process_service = double
       allow(Telegram::IncomingMessageService).to receive(:new).and_return(process_service)
       allow(process_service).to receive(:perform)
-      expect(Telegram::IncomingMessageService).to receive(:new).with(inbox: telegram_channel.inbox,
-                                                                     params: params['telegram'].with_indifferent_access)
+      telegram_payload = params.except(:bot_token).with_indifferent_access
+      expect(Telegram::IncomingMessageService).to receive(:new).with(inbox: telegram_channel.inbox, params: telegram_payload)
       expect(process_service).to receive(:perform)
       described_class.perform_now(params.with_indifferent_access)
     end
@@ -49,14 +52,14 @@ RSpec.describe Webhooks::TelegramEventsJob do
   end
 
   context 'when update message params' do
-    let!(:params) { { :bot_token => telegram_channel.bot_token, 'telegram' => { edited_message: 'test' } } }
+    let!(:params) { { bot_token: telegram_channel.bot_token, edited_message: 'test' } }
 
     it 'calls Telegram::UpdateMessageService' do
       process_service = double
       allow(Telegram::UpdateMessageService).to receive(:new).and_return(process_service)
       allow(process_service).to receive(:perform)
-      expect(Telegram::UpdateMessageService).to receive(:new).with(inbox: telegram_channel.inbox,
-                                                                   params: params['telegram'].with_indifferent_access)
+      telegram_payload = params.except(:bot_token).with_indifferent_access
+      expect(Telegram::UpdateMessageService).to receive(:new).with(inbox: telegram_channel.inbox, params: telegram_payload)
       expect(process_service).to receive(:perform)
       described_class.perform_now(params.with_indifferent_access)
     end

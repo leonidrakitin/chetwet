@@ -9,8 +9,10 @@ class Webhooks::VkEventsJob < ApplicationJob
 
     group_id = params[:group_id]&.to_s
     Rails.logger.info "[VK] Processing event type=#{params[:type]} for group_id=#{group_id}"
-    
-    channel = Channel::Vk.find_by(group_id: group_id)
+
+    # VK sends positive group_id in callbacks; channel may be stored with or without leading minus
+    normalized_id = group_id.to_s.sub(/\A-/, '')
+    channel = find_vk_channel(normalized_id)
 
     if channel_is_inactive?(channel)
       log_inactive_channel(channel, params)
@@ -22,6 +24,13 @@ class Webhooks::VkEventsJob < ApplicationJob
   end
 
   private
+
+  def find_vk_channel(normalized_id)
+    return nil if normalized_id.blank?
+
+    Channel::Vk.find_by(group_id: normalized_id) ||
+      Channel::Vk.find_by(group_id: "-#{normalized_id}")
+  end
 
   def channel_is_inactive?(channel)
     return true if channel.blank?
