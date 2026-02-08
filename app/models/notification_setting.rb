@@ -29,7 +29,9 @@ class NotificationSetting < ApplicationRecord
 
   EMAIL_NOTIFICATION_FLAGS = ::Notification::NOTIFICATION_TYPES.transform_keys { |key| "email_#{key}".to_sym }.invert.freeze
   PUSH_NOTIFICATION_FLAGS = ::Notification::NOTIFICATION_TYPES.transform_keys { |key| "push_#{key}".to_sym }.invert.freeze
+  TELEGRAM_NOTIFICATION_FLAGS = ::Notification::NOTIFICATION_TYPES.transform_keys { |key| "telegram_#{key}".to_sym }.invert.freeze
 
   has_flags EMAIL_NOTIFICATION_FLAGS.merge(column: 'email_flags').merge(DEFAULT_QUERY_SETTING)
   has_flags PUSH_NOTIFICATION_FLAGS.merge(column: 'push_flags').merge(DEFAULT_QUERY_SETTING)
+  has_flags TELEGRAM_NOTIFICATION_FLAGS.merge(column: 'telegram_flags').merge(DEFAULT_QUERY_SETTING)
 end

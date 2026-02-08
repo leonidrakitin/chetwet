@@ -16,6 +16,7 @@ import UserLanguageSelect from './UserLanguageSelect.vue';
 import HotKeyCard from './HotKeyCard.vue';
 import ChangePassword from './ChangePassword.vue';
 import NotificationPreferences from './NotificationPreferences.vue';
+import TelegramConnect from './TelegramConnect.vue';
 import AudioNotifications from './AudioNotifications.vue';
 import FormSection from 'dashboard/components/FormSection.vue';
 import AccessToken from './AccessToken.vue';
@@ -38,6 +39,7 @@ export default {
     HotKeyCard,
     ChangePassword,
     NotificationPreferences,
+    TelegramConnect,
     AudioNotifications,
     AccessToken,
     MfaSettingsCard,
@@ -309,6 +311,12 @@ export default {
     <Policy :permissions="notificationPermissions">
       <FormSection :title="$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TITLE')">
         <NotificationPreferences />
+      </FormSection>
+      <FormSection
+        :title="$t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.TITLE')"
+        :description="$t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.DESCRIPTION')"
+      >
+        <TelegramConnect />
       </FormSection>
     </Policy>
     <FormSection

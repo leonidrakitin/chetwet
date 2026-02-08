@@ -151,6 +151,7 @@
         "TYPE_TITLE": "Notification type",
         "EMAIL": "Email",
         "PUSH": "Push notification",
+        "TELEGRAM": "Telegram",
         "TYPES": {
           "CONVERSATION_CREATED": "A new conversation is created",
           "CONVERSATION_ASSIGNED": "A conversation is assigned to you",
@@ -166,6 +167,20 @@
       "API": {
         "UPDATE_SUCCESS": "Your notification preferences are updated successfully",
         "UPDATE_ERROR": "There is an error while updating the preferences, please try again"
+      },
+      "TELEGRAM_NOTIFICATIONS_SECTION": {
+        "TITLE": "Telegram Notifications",
+        "NOTE": "Connect your Telegram below to receive notifications"
+      },
+      "TELEGRAM_CONNECT": {
+        "TITLE": "Telegram Notifications",
+        "DESCRIPTION": "Enter your Telegram chat ID to receive notifications in Telegram. Message @userinfobot on Telegram to get your chat ID.",
+        "LABEL": "Telegram Chat ID",
+        "PLACEHOLDER": "e.g. 123456789",
+        "HINT": "Send /start to @userinfobot on Telegram to get your chat ID.",
+        "SAVE": "Save",
+        "UPDATE_SUCCESS": "Telegram Chat ID saved successfully",
+        "UPDATE_ERROR": "Failed to save Telegram Chat ID"
       },
       "PUSH_NOTIFICATIONS_SECTION": {
         "TITLE": "Push Notifications",
