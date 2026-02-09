@@ -10,6 +10,7 @@ class Telegram::IncomingMessageService
     # chatwoot doesn't support group conversations at the moment
     transform_business_message!
     return unless private_message?
+    return if duplicate_message?
 
     set_contact
     update_contact_avatar
@@ -76,17 +77,21 @@ class Telegram::IncomingMessageService
     }
   end
 
-  def set_conversation
-    # if lock to single conversation is disabled, we will create a new conversation if previous conversation is resolved
-    @conversation = if @inbox.lock_to_single_conversation
-                      @contact_inbox.conversations.last
-                    else
-                      @contact_inbox.conversations
-                                    .where.not(status: :resolved).last
-                    end
-    return if @conversation
+  def duplicate_message?
+    inbox.messages.exists?(source_id: telegram_params_message_id.to_s)
+  end
 
-    @conversation = ::Conversation.create!(conversation_params)
+  def set_conversation
+    ActiveRecord::Base.transaction do
+      @contact_inbox.lock!
+      # if lock to single conversation is disabled, we will create a new conversation if previous conversation is resolved
+      @conversation = if @inbox.lock_to_single_conversation
+                        @contact_inbox.conversations.last
+                      else
+                        @contact_inbox.conversations.where.not(status: :resolved).last
+                      end
+      @conversation ||= ::Conversation.create!(conversation_params)
+    end
   end
 
   def contact_attributes

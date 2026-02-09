@@ -14,6 +14,8 @@ class Vk::OutgoingMessageSyncService
     set_conversation
     return unless @conversation
 
+    return if update_pending_chatwoot_message
+
     create_outgoing_message
   rescue StandardError => e
     Rails.logger.error "[VK] OutgoingMessageSyncService error: #{e.message}"
@@ -25,6 +27,28 @@ class Vk::OutgoingMessageSyncService
 
   def duplicate_message?
     inbox.messages.exists?(source_id: vk_params_message_id.to_s)
+  end
+
+  # When we send from Chatwoot, VK sends message_reply webhook. It can arrive before
+  # SendReplyJob updates our message with source_id, causing a duplicate. Find our
+  # pending message and update it instead of creating a new one.
+  def update_pending_chatwoot_message
+    pending = find_pending_chatwoot_message
+    return false unless pending
+
+    pending.update!(source_id: vk_params_message_id.to_s)
+    true
+  end
+
+  def find_pending_chatwoot_message
+    return unless @conversation
+
+    @conversation.messages.outgoing
+                 .where(source_id: [nil, ''])
+                 .where(content: vk_params_message_content)
+                 .where('created_at > ?', 2.minutes.ago)
+                 .order(created_at: :desc)
+                 .first
   end
 
   def set_contact

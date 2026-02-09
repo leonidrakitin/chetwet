@@ -84,9 +84,16 @@ class Vk::IncomingMessageService
                     else
                       @contact_inbox.conversations.where.not(status: :resolved).last
                     end
-    return if @conversation
 
-    @conversation = ::Conversation.create!(conversation_params)
+    if @conversation.nil?
+      last_resolved = @contact_inbox.conversations.where(status: :resolved).order(updated_at: :desc).first
+      if last_resolved
+        last_resolved.open!
+        @conversation = last_resolved
+      end
+    end
+
+    @conversation ||= ::Conversation.create!(conversation_params)
   end
 
   def process_message_attachments
