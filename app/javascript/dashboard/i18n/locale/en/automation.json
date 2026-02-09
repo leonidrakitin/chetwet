@@ -96,7 +96,10 @@
       "TEAM_MESSAGE_INPUT_PLACEHOLDER": "Enter your message here",
       "TEAM_DROPDOWN_PLACEHOLDER": "Select teams",
       "EMAIL_INPUT_PLACEHOLDER": "Enter email",
-      "URL_INPUT_PLACEHOLDER": "Enter URL"
+      "URL_INPUT_PLACEHOLDER": "Enter URL",
+      "MESSAGE_LABEL": "Message",
+      "ADD_MESSAGE": "Add message",
+      "PREVIEW_LABEL": "Preview"
     },
     "TOGGLE": {
       "ACTIVATION_TITLE": "Activate Automation Rule",

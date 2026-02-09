@@ -130,11 +130,21 @@ const validateSingleAction = action => {
     'pending_conversation',
   ];
 
-  if (
-    !noParamActions.includes(action.action_name) &&
-    (!action.action_params || action.action_params.length === 0)
-  ) {
+  if (noParamActions.includes(action.action_name)) {
+    return null;
+  }
+
+  if (!action.action_params || action.action_params.length === 0) {
     return ACTION_PARAMETERS_REQUIRED;
+  }
+
+  if (action.action_name === 'send_message') {
+    const hasContent = action.action_params.some(
+      p => typeof p === 'string' && p.trim().length > 0
+    );
+    if (!hasContent) {
+      return ACTION_PARAMETERS_REQUIRED;
+    }
   }
 
   return null;

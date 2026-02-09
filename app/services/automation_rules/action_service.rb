@@ -43,14 +43,27 @@ class AutomationRules::ActionService < ActionService
   def send_message(message)
     return if conversation_a_tweet?
 
-    params = { content: message[0], private: false, content_attributes: { automation_rule_id: @rule.id } }
-    Messages::MessageBuilder.new(nil, @conversation, params).perform
+    messages = Array(message).compact.reject(&:blank?)
+    return if messages.empty?
+
+    template_service = Liquid::AutomationTemplateService.new(conversation: @conversation)
+    messages.each do |content|
+      rendered = template_service.call(content)
+      next if rendered.blank?
+
+      params = { content: rendered, private: false, content_attributes: { automation_rule_id: @rule.id } }
+      Messages::MessageBuilder.new(nil, @conversation, params).perform
+    end
   end
 
   def add_private_note(message)
     return if conversation_a_tweet?
 
-    params = { content: message[0], private: true, content_attributes: { automation_rule_id: @rule.id } }
+    content = Array(message).compact.first
+    return if content.blank?
+
+    rendered = Liquid::AutomationTemplateService.new(conversation: @conversation).call(content)
+    params = { content: rendered, private: true, content_attributes: { automation_rule_id: @rule.id } }
     Messages::MessageBuilder.new(nil, @conversation.reload, params).perform
   end
 
