@@ -76,7 +76,6 @@ const computedColor = computed(() => {
   if (attrs.amber || attrs.amber === '') return 'amber';
   if (attrs.slate || attrs.slate === '') return 'slate';
   if (attrs.teal || attrs.teal === '') return 'teal';
-  if (attrs.terracotta || attrs.terracotta === '') return 'terracotta';
   return 'blue'; // Default color
 });
 
@@ -153,17 +152,6 @@ const STYLE_CONFIG = {
       link: 'text-n-teal-9 hover:enabled:underline focus-visible:underline outline-transparent',
       ghost:
         'text-n-teal-9 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
-    },
-    terracotta: {
-      solid:
-        'bg-claude-terracotta text-white hover:enabled:brightness-110 focus-visible:brightness-110 outline-transparent',
-      faded:
-        'bg-claude-terracotta/10 text-claude-charcoal hover:enabled:bg-claude-terracotta/20 focus-visible:bg-claude-terracotta/20 outline-transparent',
-      outline:
-        'text-claude-terracotta outline-claude-terracotta hover:enabled:bg-claude-terracotta/10 focus-visible:bg-claude-terracotta/10',
-      link: 'text-claude-terracotta hover:enabled:underline focus-visible:underline outline-transparent',
-      ghost:
-        'text-claude-terracotta hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
     },
   },
   sizes: {

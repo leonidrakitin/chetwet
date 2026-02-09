@@ -19,11 +19,6 @@ const defaultSansFonts = [
   'sans-serif !important',
 ];
 
-// Claude design system (Anthropic-style)
-const claudeFonts = {
-  serif: ['Lora', 'Georgia', 'Cambria', 'serif'],
-};
-
 const tailwindConfig = {
   darkMode: 'class',
   content: [
@@ -45,7 +40,6 @@ const tailwindConfig = {
     extend: {
       fontFamily: {
         sans: defaultSansFonts,
-        serif: claudeFonts.serif,
         inter: ['Inter', ...defaultSansFonts],
         interDisplay: ['InterDisplay', ...defaultSansFonts],
       },
@@ -208,15 +202,6 @@ const tailwindConfig = {
     colors: {
       transparent: 'transparent',
       white: '#fff',
-      // Claude design system
-      claude: {
-        'warm-beige': '#F4F3EE',
-        surface: '#FFFCF5',
-        terracotta: '#D97757',
-        'border-soft': '#E6E4DD',
-        charcoal: '#3F3E3A',
-        'warm-gray': '#767470',
-      },
       'modal-backdrop-light': 'rgba(0, 0, 0, 0.4)',
       'modal-backdrop-dark': 'rgba(0, 0, 0, 0.6)',
       current: 'currentColor',

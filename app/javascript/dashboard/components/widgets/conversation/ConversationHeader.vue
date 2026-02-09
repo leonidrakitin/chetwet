@@ -118,7 +118,7 @@ const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
       >
         <div class="flex flex-row items-center max-w-full gap-1 p-0 m-0">
           <span
-            class="text-sm font-medium font-serif truncate leading-tight text-claude-charcoal tracking-tight"
+            class="text-sm font-medium truncate leading-tight text-n-slate-12 tracking-tight"
           >
             {{ currentContact.name }}
           </span>
