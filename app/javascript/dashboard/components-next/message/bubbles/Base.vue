@@ -38,7 +38,7 @@ const orientationMap = {
     'left-bubble rounded-xl ltr:rounded-bl-sm rtl:rounded-br-sm',
   [ORIENTATION.RIGHT]:
     'right-bubble rounded-xl ltr:rounded-br-sm rtl:rounded-bl-sm',
-  [ORIENTATION.CENTER]: 'rounded-md',
+  [ORIENTATION.CENTER]: 'rounded-xl',
 };
 
 const flexOrientationClass = computed(() => {
