@@ -9,6 +9,7 @@ json.sender do
   json.partial! 'api/v1/models/agent', formats: [:json], resource: resource.sender if resource.sender.present?
 end
 json.message resource.message
+json.messages resource.messages if resource.respond_to?(:messages) && resource.messages.present?
 json.template_params resource.template_params
 json.campaign_status resource.campaign_status
 json.enabled resource.enabled

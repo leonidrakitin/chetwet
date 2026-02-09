@@ -34,7 +34,7 @@ class Campaign < ApplicationRecord
   validates :account_id, presence: true
   validates :inbox_id, presence: true
   validates :title, presence: true
-  validates :message, presence: true
+  validate :validate_message_or_messages
   validate :validate_campaign_inbox
   validate :validate_url
   validate :prevent_completed_campaign_from_update, on: :update
@@ -52,6 +52,7 @@ class Campaign < ApplicationRecord
   has_many :conversations, dependent: :nullify, autosave: true
 
   before_validation :ensure_correct_campaign_attributes
+  before_validation :sync_message_from_messages
   after_commit :set_display_id, unless: :display_id?
 
   def trigger!
@@ -61,7 +62,32 @@ class Campaign < ApplicationRecord
     execute_campaign
   end
 
+  # Returns array of message strings to send (supports multiple messages per campaign).
+  def campaign_messages
+    return messages if messages.present? && messages.is_a?(Array)
+    return [message] if message.present?
+
+    []
+  end
+
   private
+
+  def validate_message_or_messages
+    if messages.present? && messages.is_a?(Array)
+      return if messages.any? { |m| m.to_s.strip.present? }
+
+      errors.add(:messages, :blank)
+    else
+      errors.add(:message, :blank) if message.blank?
+    end
+  end
+
+  def sync_message_from_messages
+    return unless messages.present? && messages.is_a?(Array)
+    return if messages.all?(&:blank?)
+
+    self.message = messages.find { |m| m.to_s.strip.present? } || message
+  end
 
   def execute_campaign
     case inbox.inbox_type

@@ -22,8 +22,13 @@ class Sms::OneoffSmsCampaignService
     campaign.account.contacts.tagged_with(audience_labels, any: true).each do |contact|
       next if contact.phone_number.blank?
 
-      content = Liquid::CampaignTemplateService.new(campaign: campaign, contact: contact).call(campaign.message)
-      send_message(to: contact.phone_number, content: content)
+      template_service = Liquid::CampaignTemplateService.new(campaign: campaign, contact: contact)
+      campaign.campaign_messages.each do |content|
+        rendered = template_service.call(content)
+        next if rendered.blank?
+
+        send_message(to: contact.phone_number, content: rendered)
+      end
     end
   end
 

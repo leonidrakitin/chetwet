@@ -10,7 +10,7 @@ import { URLPattern } from 'urlpattern-polyfill';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
-import Editor from 'dashboard/components-next/Editor/Editor.vue';
+import CampaignMessageBlock from 'dashboard/components-next/Campaigns/CampaignMessageBlock.vue';
 
 const props = defineProps({
   mode: {
@@ -42,7 +42,7 @@ const senderList = ref([]);
 
 const initialState = {
   title: '',
-  message: '',
+  messages: [''],
   inboxId: null,
   senderId: 0,
   enabled: true,
@@ -69,17 +69,21 @@ const urlValidators = {
 
 const validationRules = {
   title: { required, minLength: minLength(1) },
-  message: { required, minLength: minLength(1) },
   inboxId: { required },
   senderId: { required },
   endPoint: { required, ...urlValidators },
   timeOnPage: { required },
 };
 
+const hasValidMessages = () => {
+  const list = state.messages;
+  return Array.isArray(list) && list.some(m => typeof m === 'string' && m.trim().length > 0);
+};
+
 const v$ = useVuelidate(validationRules, state);
 
 const isCreating = computed(() => formState.uiFlags.value.isCreating);
-const isSubmitDisabled = computed(() => v$.value.$invalid);
+const isSubmitDisabled = computed(() => v$.value.$invalid || !hasValidMessages());
 
 const mapToOptions = (items, valueKey, labelKey) =>
   items?.map(item => ({
@@ -103,7 +107,7 @@ const getErrorMessage = (field, errorKey) => {
 
 const formErrors = computed(() => ({
   title: getErrorMessage('title', 'TITLE'),
-  message: getErrorMessage('message', 'MESSAGE'),
+  messages: !hasValidMessages() && (state.messages?.length ? t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.ERROR') : ''),
   inbox: getErrorMessage('inboxId', 'INBOX'),
   endPoint: getErrorMessage('endPoint', 'END_POINT'),
   timeOnPage: getErrorMessage('timeOnPage', 'TIME_ON_PAGE'),
@@ -132,18 +136,21 @@ const handleInboxChange = async inboxId => {
   }
 };
 
-const prepareCampaignDetails = () => ({
-  title: state.title,
-  message: state.message,
-  inbox_id: state.inboxId,
-  sender_id: state.senderId || null,
-  enabled: state.enabled,
-  trigger_only_during_business_hours: state.triggerOnlyDuringBusinessHours,
-  trigger_rules: {
-    url: state.endPoint,
-    time_on_page: state.timeOnPage,
-  },
-});
+const prepareCampaignDetails = () => {
+  const messageList = (state.messages || []).filter(m => typeof m === 'string' && m.trim().length > 0);
+  return {
+    title: state.title,
+    messages: messageList.length ? messageList : null,
+    inbox_id: state.inboxId,
+    sender_id: state.senderId || null,
+    enabled: state.enabled,
+    trigger_only_during_business_hours: state.triggerOnlyDuringBusinessHours,
+    trigger_rules: {
+      url: state.endPoint,
+      time_on_page: state.timeOnPage,
+    },
+  };
+};
 
 const handleSubmit = async () => {
   const isFormValid = await v$.value.$validate();
@@ -162,6 +169,7 @@ const updateStateFromCampaign = campaign => {
   const {
     title,
     message,
+    messages: campaignMessages,
     inbox: { id: inboxId },
     sender,
     enabled,
@@ -169,9 +177,13 @@ const updateStateFromCampaign = campaign => {
     trigger_rules: { url: endPoint, time_on_page: timeOnPage },
   } = campaign;
 
+  const messages = Array.isArray(campaignMessages) && campaignMessages.length
+    ? campaignMessages
+    : (message ? [message] : ['']);
+
   Object.assign(state, {
     title,
-    message,
+    messages,
     inboxId,
     senderId: sender?.id ?? 0,
     enabled,
@@ -214,13 +226,19 @@ defineExpose({ prepareCampaignDetails, isSubmitDisabled });
       :message-type="formErrors.title ? 'error' : 'info'"
     />
 
-    <Editor
-      v-model="state.message"
-      :label="t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.LABEL')"
-      :placeholder="t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.PLACEHOLDER')"
-      :message="formErrors.message"
-      :message-type="formErrors.message ? 'error' : 'info'"
-    />
+    <div class="flex flex-col gap-1">
+      <label class="mb-0.5 text-sm font-medium text-n-slate-12">
+        {{ t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.LABEL') }}
+      </label>
+      <CampaignMessageBlock
+        v-model="state.messages"
+        :use-rich-editor="true"
+        :message-placeholder="t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.PLACEHOLDER')"
+      />
+      <p v-if="formErrors.messages" class="text-xs text-n-ruby-9 dark:text-n-ruby-9 mt-1">
+        {{ formErrors.messages }}
+      </p>
+    </div>
 
     <div class="flex flex-col gap-1">
       <label for="inbox" class="mb-0.5 text-sm font-medium text-n-slate-12">
