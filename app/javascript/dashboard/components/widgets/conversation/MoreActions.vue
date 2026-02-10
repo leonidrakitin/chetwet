@@ -30,7 +30,10 @@ const accountId = useMapGetter('getCurrentAccountId');
 const isFeatureEnabledonAccount = (id, flag) =>
   store.getters['accounts/isFeatureEnabledonAccount'](id, flag);
 const hideResolveAssign = computed(() =>
-  isFeatureEnabledonAccount(accountId.value, FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE)
+  isFeatureEnabledonAccount(
+    accountId.value,
+    FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
+  )
 );
 
 const actionMenuItems = computed(() => {

@@ -298,10 +298,7 @@ export default {
       <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
     </template>
     <template
-      v-if="
-        !hideResolveAssignUi &&
-        isAllowed([MENU.STATUS, MENU.SNOOZE])
-      "
+      v-if="!hideResolveAssignUi && isAllowed([MENU.STATUS, MENU.SNOOZE])"
     >
       <template v-for="option in statusMenuConfig">
         <MenuItem

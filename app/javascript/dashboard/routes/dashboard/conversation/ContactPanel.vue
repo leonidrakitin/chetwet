@@ -78,7 +78,10 @@ const accountId = useMapGetter('getCurrentAccountId');
 const isFeatureEnabledonAccount = (id, flag) =>
   store.getters['accounts/isFeatureEnabledonAccount'](id, flag);
 const hideResolveAssignUi = computed(() =>
-  isFeatureEnabledonAccount(accountId.value, FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE)
+  isFeatureEnabledonAccount(
+    accountId.value,
+    FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
+  )
 );
 const currentChat = useMapGetter('getSelectedChat');
 const conversationId = computed(() => props.conversationId);
@@ -156,7 +159,9 @@ onMounted(() => {
       >
         <template #item="{ element }">
           <div
-            v-if="element.name === 'conversation_actions' && !hideResolveAssignUi"
+            v-if="
+              element.name === 'conversation_actions' && !hideResolveAssignUi
+            "
             class="conversation--actions"
           >
             <AccordionItem

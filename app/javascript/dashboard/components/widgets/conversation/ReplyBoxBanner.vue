@@ -26,7 +26,10 @@ const accountId = useMapGetter('getCurrentAccountId');
 const isFeatureEnabledonAccount = (id, flag) =>
   store.getters['accounts/isFeatureEnabledonAccount'](id, flag);
 const hideResolveAssignUi = computed(() =>
-  isFeatureEnabledonAccount(accountId.value, FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE)
+  isFeatureEnabledonAccount(
+    accountId.value,
+    FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
+  )
 );
 
 const currentChat = useMapGetter('getSelectedChat');
@@ -114,9 +117,7 @@ const onClickBotHandoff = async () => {
 
 <template>
   <Banner
-    v-if="
-      showSelfAssignBanner && !showBotHandoffBanner && !hideResolveAssignUi
-    "
+    v-if="showSelfAssignBanner && !showBotHandoffBanner && !hideResolveAssignUi"
     action-button-variant="ghost"
     color-scheme="secondary"
     class="mx-2 mb-2 rounded-lg !py-2"
