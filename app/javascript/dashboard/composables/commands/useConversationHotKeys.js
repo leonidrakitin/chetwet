@@ -6,6 +6,7 @@ import { emitter } from 'shared/helpers/mitt';
 import { useConversationLabels } from 'dashboard/composables/useConversationLabels';
 import { useCaptain } from 'dashboard/composables/useCaptain';
 import { useAgentsList } from 'dashboard/composables/useAgentsList';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { CMD_AI_ASSIST } from 'dashboard/helper/commandbar/events';
 import { REPLY_EDITOR_MODES } from 'dashboard/components/widgets/WootWriter/constants';
 
@@ -150,10 +151,18 @@ export function useConversationHotKeys() {
   const { agentsList } = useAgentsList();
 
   const currentChat = useMapGetter('getSelectedChat');
+  const accountId = useMapGetter('getCurrentAccountId');
   const replyMode = useMapGetter('draftMessages/getReplyEditorMode');
   const contextMenuChatId = useMapGetter('getContextMenuChatId');
   const teams = useMapGetter('teams/getTeams');
   const getDraftMessage = useMapGetter('draftMessages/get');
+
+  const hideResolveAssignUi = computed(() =>
+    store.getters['accounts/isFeatureEnabledonAccount'](
+      accountId.value,
+      FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
+    )
+  );
 
   const conversationId = computed(() => currentChat.value?.id);
   const draftKey = computed(
@@ -373,11 +382,16 @@ export function useConversationHotKeys() {
   });
 
   const getDefaultConversationHotKeys = computed(() => {
+    const statusAndAssignActions = hideResolveAssignUi.value
+      ? []
+      : [
+          ...statusActions.value,
+          ...assignAgentActions.value,
+          ...assignTeamActions.value,
+        ];
     const defaultConversationHotKeys = [
-      ...statusActions.value,
+      ...statusAndAssignActions,
       ...conversationAdditionalActions.value,
-      ...assignAgentActions.value,
-      ...assignTeamActions.value,
       ...labelActions.value,
       ...assignPriorityActions.value,
     ];

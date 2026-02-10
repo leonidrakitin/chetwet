@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useMapGetter } from 'dashboard/composables/store';
+import { useStore, useMapGetter } from 'dashboard/composables/store';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import wootConstants from 'dashboard/constants/globals';
 
 import {
@@ -58,9 +59,18 @@ const OPEN_CONVERSATION_BULK_ACTIONS = [
 
 export function useBulkActionsHotKeys() {
   const { t } = useI18n();
+  const store = useStore();
 
   const selectedConversations = useMapGetter(
     'bulkActions/getSelectedConversationIds'
+  );
+  const accountId = useMapGetter('getCurrentAccountId');
+
+  const hideResolveAssignUi = computed(() =>
+    store.getters['accounts/isFeatureEnabledonAccount'](
+      accountId.value,
+      FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
+    )
   );
 
   const prepareActions = actions => {
@@ -74,11 +84,14 @@ export function useBulkActionsHotKeys() {
   const bulkActionsHotKeys = computed(() => {
     let actions = [];
     if (selectedConversations.value.length > 0) {
-      actions = [
-        ...SNOOZE_CONVERSATION_BULK_ACTIONS,
-        ...RESOLVED_CONVERSATION_BULK_ACTIONS,
-        ...OPEN_CONVERSATION_BULK_ACTIONS,
-      ];
+      actions = [...SNOOZE_CONVERSATION_BULK_ACTIONS];
+      if (!hideResolveAssignUi.value) {
+        actions = [
+          ...actions,
+          ...RESOLVED_CONVERSATION_BULK_ACTIONS,
+          ...OPEN_CONVERSATION_BULK_ACTIONS,
+        ];
+      }
     }
     return prepareActions(actions);
   });

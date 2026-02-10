@@ -69,6 +69,7 @@ import {
 import { matchesFilters } from '../store/modules/conversations/helpers/filterHelpers';
 import { CONVERSATION_EVENTS } from '../helper/AnalyticsHelper/events';
 import { ASSIGNEE_TYPE_TAB_PERMISSIONS } from 'dashboard/constants/permissions.js';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
@@ -221,6 +222,13 @@ const showAssigneeInConversationCard = computed(() => {
     activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.ALL
   );
 });
+
+const hideResolveAssignUi = computed(() =>
+  store.getters['accounts/isFeatureEnabledonAccount'](
+    currentAccountId.value,
+    FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
+  )
+);
 
 const currentPageFilterKey = computed(() => {
   return hasAppliedFiltersOrActiveFolders.value
@@ -967,6 +975,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       :show-open-action="allSelectedConversationsStatus('open')"
       :show-resolved-action="allSelectedConversationsStatus('resolved')"
       :show-snoozed-action="allSelectedConversationsStatus('snoozed')"
+      :hide-status-and-assign="hideResolveAssignUi"
       @select-all-conversations="toggleSelectAll"
       @assign-agent="onAssignAgent"
       @update-conversations="onUpdateConversations"
@@ -1008,6 +1017,7 @@ watch(conversationFilters, (newVal, oldVal) => {
               :folders-id="foldersId"
               :conversation-type="conversationType"
               :show-assignee="showAssigneeInConversationCard"
+              :hide-resolve-assign-ui="hideResolveAssignUi"
               @select-conversation="selectConversation"
               @de-select-conversation="deSelectConversation"
             />

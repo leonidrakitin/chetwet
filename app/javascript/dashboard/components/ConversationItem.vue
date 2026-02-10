@@ -43,6 +43,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hideResolveAssignUi: {
+      type: Boolean,
+      default: false,
+    },
   },
 };
 </script>
@@ -57,6 +61,7 @@ export default {
     :conversation-type="conversationType"
     :selected="isConversationSelected(source.id)"
     :show-assignee="showAssignee"
+    :hide-resolve-assign-ui="hideResolveAssignUi"
     enable-context-menu
     @select-conversation="selectConversation"
     @de-select-conversation="deSelectConversation"

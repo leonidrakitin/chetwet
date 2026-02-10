@@ -14,10 +14,15 @@ const isFeatureEnabledonAccount = useMapGetter(
 );
 
 const showAutoResolutionConfig = computed(() => {
-  return isFeatureEnabledonAccount.value(
+  const autoResolveEnabled = isFeatureEnabledonAccount.value(
     accountId.value,
     FEATURE_FLAGS.AUTO_RESOLVE_CONVERSATIONS
   );
+  const notifyAllAgentsEnabled = isFeatureEnabledonAccount.value(
+    accountId.value,
+    FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
+  );
+  return autoResolveEnabled && !notifyAllAgentsEnabled;
 });
 
 const showRequiredAttributes = computed(() => {

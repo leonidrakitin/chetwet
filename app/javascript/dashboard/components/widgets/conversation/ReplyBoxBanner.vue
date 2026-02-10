@@ -4,6 +4,7 @@ import { useStore } from 'vuex';
 import { useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import wootConstants from 'dashboard/constants/globals';
 
 import Banner from 'dashboard/components/ui/Banner.vue';
@@ -21,6 +22,12 @@ const props = defineProps({
 
 const store = useStore();
 const { t } = useI18n();
+const accountId = useMapGetter('getCurrentAccountId');
+const isFeatureEnabledonAccount = (id, flag) =>
+  store.getters['accounts/isFeatureEnabledonAccount'](id, flag);
+const hideResolveAssignUi = computed(() =>
+  isFeatureEnabledonAccount(accountId.value, FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE)
+);
 
 const currentChat = useMapGetter('getSelectedChat');
 const currentUser = useMapGetter('getCurrentUser');
@@ -107,7 +114,9 @@ const onClickBotHandoff = async () => {
 
 <template>
   <Banner
-    v-if="showSelfAssignBanner && !showBotHandoffBanner"
+    v-if="
+      showSelfAssignBanner && !showBotHandoffBanner && !hideResolveAssignUi
+    "
     action-button-variant="ghost"
     color-scheme="secondary"
     class="mx-2 mb-2 rounded-lg !py-2"
@@ -117,7 +126,7 @@ const onClickBotHandoff = async () => {
     @primary-action="onClickSelfAssign"
   />
   <Banner
-    v-if="showBotHandoffBanner"
+    v-if="showBotHandoffBanner && !hideResolveAssignUi"
     action-button-variant="ghost"
     color-scheme="secondary"
     class="mx-2 mb-2 rounded-lg !py-2"

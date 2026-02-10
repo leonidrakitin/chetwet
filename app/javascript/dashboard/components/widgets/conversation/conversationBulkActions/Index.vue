@@ -49,6 +49,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hideStatusAndAssign: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     'selectAllConversations',
@@ -181,30 +185,32 @@ export default {
           faded
           @click="toggleLabelActions"
         />
-        <NextButton
-          v-tooltip="$t('BULK_ACTION.UPDATE.CHANGE_STATUS')"
-          icon="i-lucide-repeat"
-          slate
-          xs
-          faded
-          @click="toggleUpdateActions"
-        />
-        <NextButton
-          v-tooltip="$t('BULK_ACTION.ASSIGN_AGENT_TOOLTIP')"
-          icon="i-lucide-user-round-plus"
-          slate
-          xs
-          faded
-          @click="toggleAgentList"
-        />
-        <NextButton
-          v-tooltip="$t('BULK_ACTION.ASSIGN_TEAM_TOOLTIP')"
-          icon="i-lucide-users-round"
-          slate
-          xs
-          faded
-          @click="toggleTeamsList"
-        />
+        <template v-if="!hideStatusAndAssign">
+          <NextButton
+            v-tooltip="$t('BULK_ACTION.UPDATE.CHANGE_STATUS')"
+            icon="i-lucide-repeat"
+            slate
+            xs
+            faded
+            @click="toggleUpdateActions"
+          />
+          <NextButton
+            v-tooltip="$t('BULK_ACTION.ASSIGN_AGENT_TOOLTIP')"
+            icon="i-lucide-user-round-plus"
+            slate
+            xs
+            faded
+            @click="toggleAgentList"
+          />
+          <NextButton
+            v-tooltip="$t('BULK_ACTION.ASSIGN_TEAM_TOOLTIP')"
+            icon="i-lucide-users-round"
+            slate
+            xs
+            faded
+            @click="toggleTeamsList"
+          />
+        </template>
       </div>
       <transition name="popover-animation">
         <LabelActions
@@ -216,7 +222,7 @@ export default {
       </transition>
       <transition name="popover-animation">
         <UpdateActions
-          v-if="showUpdateActions"
+          v-if="showUpdateActions && !hideStatusAndAssign"
           class="update-actions-box"
           :selected-inboxes="selectedInboxes"
           :conversation-count="conversations.length"
@@ -229,7 +235,7 @@ export default {
       </transition>
       <transition name="popover-animation">
         <AgentSelector
-          v-if="showAgentsList"
+          v-if="showAgentsList && !hideStatusAndAssign"
           class="agent-actions-box"
           :selected-inboxes="selectedInboxes"
           :conversation-count="conversations.length"
@@ -239,7 +245,7 @@ export default {
       </transition>
       <transition name="popover-animation">
         <TeamActions
-          v-if="showTeamsList"
+          v-if="showTeamsList && !hideStatusAndAssign"
           class="team-actions-box"
           @assign-team="assignTeam"
           @close="showTeamsList = false"

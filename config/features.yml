@@ -226,3 +226,6 @@
 - name: conversation_required_attributes
   display_name: Required Conversation Attributes
   enabled: true
+- name: notify_all_agents_new_message
+  display_name: Notify all agents on new message
+  enabled: false

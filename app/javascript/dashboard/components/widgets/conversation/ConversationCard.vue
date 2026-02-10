@@ -28,6 +28,7 @@ const props = defineProps({
   compact: { type: Boolean, default: false },
   enableContextMenu: { type: Boolean, default: false },
   allowedContextMenuOptions: { type: Array, default: () => [] },
+  hideResolveAssignUi: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
@@ -381,6 +382,7 @@ const deleteConversation = () => {
         :has-unread-messages="hasUnread"
         :conversation-url="conversationPath"
         :allowed-options="allowedContextMenuOptions"
+        :hide-resolve-assign-ui="hideResolveAssignUi"
         @update-conversation="onUpdateConversation"
         @assign-agent="onAssignAgent"
         @assign-label="onAssignLabel"

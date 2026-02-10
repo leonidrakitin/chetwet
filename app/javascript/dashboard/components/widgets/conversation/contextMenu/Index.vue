@@ -61,6 +61,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    hideResolveAssignUi: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     'updateConversation',
@@ -293,7 +297,12 @@ export default {
       />
       <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
     </template>
-    <template v-if="isAllowed([MENU.STATUS, MENU.SNOOZE])">
+    <template
+      v-if="
+        !hideResolveAssignUi &&
+        isAllowed([MENU.STATUS, MENU.SNOOZE])
+      "
+    >
       <template v-for="option in statusMenuConfig">
         <MenuItem
           v-if="show(option.key) && isAllowed([MENU.STATUS])"
@@ -339,7 +348,7 @@ export default {
         />
       </MenuItemWithSubmenu>
       <MenuItemWithSubmenu
-        v-if="isAllowed([MENU.AGENT])"
+        v-if="!hideResolveAssignUi && isAllowed([MENU.AGENT])"
         :option="agentMenuConfig"
         :sub-menu-available="!!assignableAgents.length"
       >
@@ -355,7 +364,7 @@ export default {
         </template>
       </MenuItemWithSubmenu>
       <MenuItemWithSubmenu
-        v-if="isAllowed([MENU.TEAM])"
+        v-if="!hideResolveAssignUi && isAllowed([MENU.TEAM])"
         :option="teamMenuConfig"
         :sub-menu-available="!!teams.length"
       >

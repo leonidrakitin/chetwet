@@ -5,8 +5,12 @@ class Messages::NewMessageNotificationService
     return unless message.notifiable?
     return unless message.incoming?
 
-    notify_conversation_assignee
-    notify_participating_users
+    if account.feature_enabled?('notify_all_agents_new_message')
+      notify_all_inbox_members
+    else
+      notify_conversation_assignee
+      notify_participating_users
+    end
   end
 
   private
@@ -25,6 +29,21 @@ class Messages::NewMessageNotificationService
       primary_actor: message.conversation,
       secondary_actor: message
     ).perform
+  end
+
+  def notify_all_inbox_members
+    conversation.inbox.members.each do |user|
+      next if user == sender
+      next if already_notified?(user)
+
+      NotificationBuilder.new(
+        notification_type: 'assigned_conversation_new_message',
+        user: user,
+        account: account,
+        primary_actor: message.conversation,
+        secondary_actor: message
+      ).perform
+    end
   end
 
   def notify_participating_users
