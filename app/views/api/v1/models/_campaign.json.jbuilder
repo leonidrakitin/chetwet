@@ -18,6 +18,7 @@ if resource.campaign_type == 'one_off'
   json.scheduled_at resource.scheduled_at.to_i
   json.audience resource.audience
 end
+json.segment_id resource.segment_id
 json.trigger_rules resource.trigger_rules
 json.trigger_only_during_business_hours resource.trigger_only_during_business_hours
 json.created_at resource.created_at

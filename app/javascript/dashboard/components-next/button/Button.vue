@@ -72,7 +72,6 @@ const computedVariant = computed(() => {
 const computedColor = computed(() => {
   if (props.color) return props.color;
   if (attrs.blue || attrs.blue === '') return 'blue';
-  if (attrs.black || attrs.black === '') return 'black';
   if (attrs.ruby || attrs.ruby === '') return 'ruby';
   if (attrs.amber || attrs.amber === '') return 'amber';
   if (attrs.slate || attrs.slate === '') return 'slate';
@@ -109,16 +108,6 @@ const STYLE_CONFIG = {
       ghost:
         'text-n-blue-11 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
       link: 'text-n-blue-11 hover:enabled:underline focus-visible:underline outline-transparent',
-    },
-    black: {
-      solid:
-        'bg-[#141413] text-white hover:enabled:brightness-110 focus-visible:brightness-110 outline-transparent',
-      faded:
-        'bg-[#141413]/10 text-n-slate-12 hover:enabled:bg-[#141413]/20 focus-visible:bg-[#141413]/20 outline-transparent',
-      outline: 'text-n-slate-12 outline-[#141413] hover:enabled:bg-[#141413]/10 focus-visible:bg-[#141413]/10',
-      ghost:
-        'text-n-slate-12 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
-      link: 'text-[#141413] hover:enabled:underline focus-visible:underline outline-transparent',
     },
     ruby: {
       solid:

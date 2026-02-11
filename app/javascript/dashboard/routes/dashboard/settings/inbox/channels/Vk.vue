@@ -39,17 +39,14 @@ export default {
       }
 
       try {
-        const vkChannel = await this.$store.dispatch(
-          'inboxes/createChannel',
-          {
-            channel: {
-              type: 'vk',
-              group_id: this.groupId,
-              access_token: this.accessToken,
-              secret: this.secret || undefined,
-            },
-          }
-        );
+        const vkChannel = await this.$store.dispatch('inboxes/createChannel', {
+          channel: {
+            type: 'vk',
+            group_id: this.groupId,
+            access_token: this.accessToken,
+            secret: this.secret || undefined,
+          },
+        });
 
         router.replace({
           name: 'settings_inboxes_add_agents',

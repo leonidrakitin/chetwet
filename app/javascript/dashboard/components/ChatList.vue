@@ -25,7 +25,6 @@ import ChatListHeader from './ChatListHeader.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import ConversationFilter from 'next/filter/ConversationFilter.vue';
 import SaveCustomView from 'next/filter/SaveCustomView.vue';
-import ChatTypeTabs from './widgets/ChatTypeTabs.vue';
 import ConversationItem from './ConversationItem.vue';
 import DeleteCustomViews from 'dashboard/routes/dashboard/customviews/DeleteCustomViews.vue';
 import ConversationBulkActions from './widgets/conversation/conversationBulkActions/Index.vue';
@@ -49,8 +48,6 @@ import { useEmitter } from 'dashboard/composables/emitter';
 import { useEventListener } from '@vueuse/core';
 import { useConversationRequiredAttributes } from 'dashboard/composables/useConversationRequiredAttributes';
 
-import { emitter } from 'shared/helpers/mitt';
-
 import wootConstants from 'dashboard/constants/globals';
 import advancedFilterOptions from './widgets/conversation/advancedFilterItems';
 import filterQueryGenerator from '../helper/filterQueryGenerator.js';
@@ -62,13 +59,8 @@ import {
   isOnMentionsView,
   isOnUnattendedView,
 } from '../store/modules/conversations/helpers/actionHelpers';
-import {
-  getUserPermissions,
-  filterItemsByPermission,
-} from 'dashboard/helper/permissionsHelper.js';
 import { matchesFilters } from '../store/modules/conversations/helpers/filterHelpers';
 import { CONVERSATION_EVENTS } from '../helper/AnalyticsHelper/events';
-import { ASSIGNEE_TYPE_TAB_PERMISSIONS } from 'dashboard/constants/permissions.js';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -96,7 +88,7 @@ const conversationDynamicScroller = ref(null);
 
 provide('contextMenuElementTarget', conversationDynamicScroller);
 
-const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
+const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ALL);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
@@ -117,9 +109,7 @@ const advancedFilterTypes = ref(
 
 const currentUser = useMapGetter('getCurrentUser');
 const chatLists = useMapGetter('getFilteredConversations');
-const mineChatsList = useMapGetter('getMineChats');
 const allChatList = useMapGetter('getAllStatusChats');
-const unAssignedChatsList = useMapGetter('getUnAssignedChats');
 const chatListLoading = useMapGetter('getChatListLoadingStatus');
 const activeInbox = useMapGetter('getSelectedInbox');
 const conversationStats = useMapGetter('conversationStats/getStats');
@@ -200,28 +190,7 @@ const currentUserDetails = computed(() => {
   return { id, name };
 });
 
-const userPermissions = computed(() => {
-  return getUserPermissions(currentUser.value, currentAccountId.value);
-});
-
-const assigneeTabItems = computed(() => {
-  return filterItemsByPermission(
-    ASSIGNEE_TYPE_TAB_PERMISSIONS,
-    userPermissions.value,
-    item => item.permissions
-  ).map(({ key, count: countKey }) => ({
-    key,
-    name: t(`CHAT_LIST.ASSIGNEE_TYPE_TABS.${key}`),
-    count: conversationStats.value[countKey] || 0,
-  }));
-});
-
-const showAssigneeInConversationCard = computed(() => {
-  return (
-    hasAppliedFiltersOrActiveFolders.value ||
-    activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.ALL
-  );
-});
+const showAssigneeInConversationCard = computed(() => true);
 
 const hideResolveAssignUi = computed(() =>
   store.getters['accounts/isFeatureEnabledonAccount'](
@@ -230,11 +199,9 @@ const hideResolveAssignUi = computed(() =>
   )
 );
 
-const currentPageFilterKey = computed(() => {
-  return hasAppliedFiltersOrActiveFolders.value
-    ? 'appliedFilters'
-    : activeAssigneeTab.value;
-});
+const currentPageFilterKey = computed(() =>
+  hasAppliedFiltersOrActiveFolders.value ? 'appliedFilters' : 'all'
+);
 
 const inbox = useFunctionGetter('inboxes/getInbox', activeInbox);
 const currentPage = useFunctionGetter(
@@ -255,12 +222,9 @@ const conversationCustomAttributes = useFunctionGetter(
   'conversation_attribute'
 );
 
-const activeAssigneeTabCount = computed(() => {
-  const count = assigneeTabItems.value.find(
-    item => item.key === activeAssigneeTab.value
-  ).count;
-  return count;
-});
+const activeAssigneeTabCount = computed(
+  () => conversationStats.value?.allCount ?? 0
+);
 
 const conversationListPagination = computed(() => {
   const conversationsPerPage = 25;
@@ -335,13 +299,7 @@ const conversationList = computed(() => {
 
   if (!hasAppliedFiltersOrActiveFolders.value) {
     const filters = conversationFilters.value;
-    if (activeAssigneeTab.value === 'me') {
-      localConversationList = [...mineChatsList.value(filters)];
-    } else if (activeAssigneeTab.value === 'unassigned') {
-      localConversationList = [...unAssignedChatsList.value(filters)];
-    } else {
-      localConversationList = [...allChatList.value(filters)];
-    }
+    localConversationList = [...allChatList.value(filters)];
   } else {
     localConversationList = [...chatLists.value];
   }
@@ -621,17 +579,6 @@ function handleScroll() {
     const { scrollTop, scrollHeight, clientHeight } = scroller.$el;
     if (scrollHeight - (scrollTop + clientHeight) < 100) {
       loadMoreConversations();
-    }
-  }
-}
-
-function updateAssigneeTab(selectedTab) {
-  if (activeAssigneeTab.value !== selectedTab) {
-    resetBulkActions();
-    emitter.emit('clearSearchInput');
-    activeAssigneeTab.value = selectedTab;
-    if (!currentPage.value) {
-      fetchConversations();
     }
   }
 }
@@ -951,14 +898,6 @@ watch(conversationFilters, (newVal, oldVal) => {
       :custom-views-id="foldersId"
       :open-last-item-after-delete="openLastItemAfterDeleteInFolder"
       @close="onCloseDeleteFoldersModal"
-    />
-
-    <ChatTypeTabs
-      v-if="!hasAppliedFiltersOrActiveFolders"
-      :items="assigneeTabItems"
-      :active-tab="activeAssigneeTab"
-      is-compact
-      @chat-tab-change="updateAssigneeTab"
     />
 
     <p

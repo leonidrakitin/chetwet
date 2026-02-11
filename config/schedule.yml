@@ -68,6 +68,13 @@ remove_old_notification_job:
   class: 'Notification::RemoveOldNotificationJob'
   queue: purgable
 
+# executed every 15 minutes
+# to recalculate segment memberships
+segment_membership_recalculation_job:
+  cron: '*/15 * * * *'
+  class: 'ContactSegments::MembershipRecalculationJob'
+  queue: scheduled_jobs
+
 # executed every 12 hours
 # to remove orphan conversations without contact
 remove_orphan_conversations_job:

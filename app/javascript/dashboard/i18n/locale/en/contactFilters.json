@@ -1,4 +1,39 @@
 {
+  "SEGMENT_BUILDER": {
+    "CREATE_TITLE": "Create Segment",
+    "EDIT_TITLE": "Edit Segment",
+    "NAME_LABEL": "Segment Name",
+    "NAME_PLACEHOLDER": "Enter segment name",
+    "DESCRIPTION_LABEL": "Description",
+    "DESCRIPTION_PLACEHOLDER": "Enter segment description",
+    "CONDITIONS_TITLE": "Conditions",
+    "ADD_GROUP": "Add Group",
+    "PREVIEW": "Preview",
+    "PREVIEW_COUNT": "{count} contacts match",
+    "SAVE": "Save Segment",
+    "CANCEL": "Cancel",
+    "CHANGE_HISTORY": {
+      "TITLE": "Change History",
+      "CONTACT": "Contact",
+      "ACTION": "Action",
+      "TRIGGER_SOURCE": "Source",
+      "REASON": "Reason",
+      "DETECTED_AT": "Time",
+      "ENTER": "Entered",
+      "EXIT": "Exited",
+      "NO_LOGS": "No change history yet",
+      "LOADING": "Loading...",
+      "CLOSE": "Close",
+      "TOTAL_ENTRIES": "{count} entries",
+      "SOURCES": {
+        "inbound_message": "Inbound message",
+        "outbound_campaign": "Outbound campaign",
+        "reminder_message": "Reminder",
+        "manual_edit": "Manual edit",
+        "cron_recalc": "Scheduled recalc"
+      }
+    }
+  },
   "CONTACTS_FILTER": {
     "TITLE": "Filter Contacts",
     "SUBTITLE": "Add filters below and hit 'Submit' to filter contacts.",

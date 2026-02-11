@@ -28,6 +28,7 @@ const emit = defineEmits([
   'export',
   'createSegment',
   'deleteSegment',
+  'changeHistory',
 ]);
 </script>
 
@@ -92,6 +93,15 @@ const emit = defineEmits([
               size="sm"
               variant="ghost"
               @click="emit('createSegment')"
+            />
+            <Button
+              v-if="isSegmentsView && !isLabelView && !isActiveView"
+              icon="i-lucide-history"
+              color="slate"
+              size="sm"
+              variant="ghost"
+              :title="$t('CONTACT_FILTERS.SEGMENT_BUILDER.CHANGE_HISTORY.TITLE')"
+              @click="emit('changeHistory')"
             />
             <Button
               v-if="isSegmentsView && !isLabelView && !isActiveView"

@@ -1,0 +1,14 @@
+json.payload do
+  json.array! @segments do |segment|
+    json.id segment.id
+    json.name segment.name
+    json.description segment.description
+    json.query segment.query
+    json.active segment.active
+    json.triggers_enabled segment.triggers_enabled
+    json.account_id segment.account_id
+    json.created_by_id segment.created_by_id
+    json.created_at segment.created_at
+    json.updated_at segment.updated_at
+  end
+end

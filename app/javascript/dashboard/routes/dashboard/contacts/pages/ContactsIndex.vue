@@ -29,7 +29,6 @@ const { updateUISettings, uiSettings } = useUISettings();
 const contacts = useMapGetter('contacts/getContactsList');
 const uiFlags = useMapGetter('contacts/getUIFlags');
 const customViewsUiFlags = useMapGetter('customViews/getUIFlags');
-const segments = useMapGetter('customViews/getContactCustomViews');
 const appliedFilters = useMapGetter('contacts/getAppliedContactFilters');
 const meta = useMapGetter('contacts/getMeta');
 
@@ -59,7 +58,6 @@ const sortState = reactive({
 });
 
 const activeLabel = computed(() => route.params.label);
-const activeSegmentId = computed(() => route.params.segmentId);
 const isFetchingList = computed(
   () => uiFlags.value.isFetching || customViewsUiFlags.value.isFetching
 );
@@ -90,10 +88,6 @@ const bulkDeleteDialogConfirmLabel = computed(() =>
     : t('CONTACTS_BULK_ACTIONS.DELETE_DIALOG.CONFIRM_SINGLE')
 );
 const hasSelection = computed(() => selectedCount.value > 0);
-const activeSegment = computed(() => {
-  if (!activeSegmentId.value) return undefined;
-  return segments.value.find(view => view.id === Number(activeSegmentId.value));
-});
 
 const hasContacts = computed(() => contacts.value.length > 0);
 const isContactIndexView = computed(
@@ -124,7 +118,6 @@ const showEmptyText = computed(() => {
 const headerTitle = computed(() => {
   if (searchQuery.value) return t('CONTACTS_LAYOUT.HEADER.SEARCH_TITLE');
   if (isActiveView.value) return t('CONTACTS_LAYOUT.HEADER.ACTIVE_TITLE');
-  if (activeSegmentId.value) return activeSegment.value?.name;
   if (activeLabel.value) return `#${activeLabel.value}`;
   return t('CONTACTS_LAYOUT.HEADER.TITLE');
 });
@@ -198,7 +191,7 @@ const fetchContacts = async (page = 1) => {
 };
 
 const fetchSavedOrAppliedFilteredContact = async (payload, page = 1) => {
-  if (!activeSegmentId.value && !hasAppliedFilters.value) return;
+  if (!hasAppliedFilters.value) return;
   clearSelection();
   await store.dispatch('contacts/filter', {
     ...getCommonFetchParams(page),
@@ -271,13 +264,9 @@ const fetchContactsBasedOnContext = async page => {
     await fetchActiveContacts(page);
     return;
   }
-  // If there are applied filters or active segment with query
-  if (
-    (hasAppliedFilters.value || activeSegment.value?.query) &&
-    !activeLabel.value
-  ) {
-    const queryPayload =
-      activeSegment.value?.query || filterQueryGenerator(appliedFilters.value);
+  // If there are applied filters
+  if (hasAppliedFilters.value && !activeLabel.value) {
+    const queryPayload = filterQueryGenerator(appliedFilters.value);
     await fetchSavedOrAppliedFilteredContact(queryPayload, page);
     return;
   }
@@ -347,11 +336,9 @@ const handleSort = async ({ sort, order }) => {
     return;
   }
 
-  await (activeSegmentId.value || hasAppliedFilters.value
+  await (hasAppliedFilters.value
     ? fetchSavedOrAppliedFilteredContact(
-        activeSegmentId.value
-          ? activeSegment.value?.query
-          : filterQueryGenerator(appliedFilters.value)
+        filterQueryGenerator(appliedFilters.value)
       )
     : fetchContacts());
 };
@@ -390,7 +377,7 @@ watch(
 );
 
 watch(
-  [activeLabel, activeSegment, isActiveView],
+  [activeLabel, isActiveView],
   () => {
     fetchContactsBasedOnContext(pageNumber.value);
   },
@@ -405,7 +392,6 @@ watch(searchQuery, value => {
     if (
       isActiveView.value ||
       activeLabel.value ||
-      activeSegment.value ||
       hasAppliedFilters.value
     )
       return;
@@ -414,22 +400,15 @@ watch(searchQuery, value => {
 });
 
 onMounted(async () => {
-  if (!activeSegmentId.value) {
-    if (searchQuery.value) {
-      await searchContacts(searchQuery.value, pageNumber.value);
-      return;
-    }
-    if (isActiveView.value) {
-      await fetchActiveContacts(pageNumber.value);
-      return;
-    }
-    await fetchContacts(pageNumber.value);
-  } else if (activeSegment.value && activeSegmentId.value) {
-    await fetchSavedOrAppliedFilteredContact(
-      activeSegment.value.query,
-      pageNumber.value
-    );
+  if (searchQuery.value) {
+    await searchContacts(searchQuery.value, pageNumber.value);
+    return;
   }
+  if (isActiveView.value) {
+    await fetchActiveContacts(pageNumber.value);
+    return;
+  }
+  await fetchContacts(pageNumber.value);
 });
 </script>
 
@@ -445,8 +424,6 @@ onMounted(async () => {
       :show-pagination-footer="!isFetchingList && hasContacts && !isSearchView"
       :active-sort="sortState.activeSort"
       :active-ordering="sortState.activeOrdering"
-      :active-segment="activeSegment"
-      :segments-id="activeSegmentId"
       :is-fetching-list="isFetchingList"
       :has-applied-filters="hasAppliedFilters"
       :use-infinite-scroll="isSearchView"

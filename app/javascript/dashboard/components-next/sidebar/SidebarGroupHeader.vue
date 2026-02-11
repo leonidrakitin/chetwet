@@ -25,18 +25,18 @@ const count = computed(() =>
 
 <template>
   <component
-    :is="to ? 'router-link' : 'div'"
+    :is="to && !expandable ? 'router-link' : 'div'"
     class="flex items-center gap-2 px-1.5 py-1 rounded-lg h-8 min-w-0"
     role="button"
     draggable="false"
-    :to="to"
+    :to="to && !expandable ? to : undefined"
     :title="label"
     :class="{
       'text-n-slate-12 bg-n-alpha-2 font-medium': isActive && !hasActiveChild,
       'text-n-slate-12 font-medium': hasActiveChild,
       'text-n-slate-11 hover:bg-n-alpha-2': !isActive && !hasActiveChild,
     }"
-    @click.stop="emit('toggle')"
+    @click.stop.prevent="expandable ? emit('toggle') : undefined"
   >
     <div v-if="icon" class="relative flex items-center gap-2">
       <Icon v-if="icon" :icon="icon" class="size-4" />

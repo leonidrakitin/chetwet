@@ -24,6 +24,7 @@ import ContactExportDialog from 'dashboard/components-next/Contacts/ContactsForm
 import ContactImportDialog from 'dashboard/components-next/Contacts/ContactsForm/ContactImportDialog.vue';
 import CreateSegmentDialog from 'dashboard/components-next/Contacts/ContactsForm/CreateSegmentDialog.vue';
 import DeleteSegmentDialog from 'dashboard/components-next/Contacts/ContactsForm/DeleteSegmentDialog.vue';
+import ChangeHistoryDialog from 'dashboard/components-next/Contacts/ContactsForm/ChangeHistoryDialog.vue';
 import ContactsFilter from 'dashboard/components-next/filter/ContactsFilter.vue';
 
 const props = defineProps({
@@ -55,6 +56,7 @@ const contactExportDialogRef = ref(null);
 const contactImportDialogRef = ref(null);
 const createSegmentDialogRef = ref(null);
 const deleteSegmentDialogRef = ref(null);
+const changeHistoryDialogRef = ref(null);
 
 const showFiltersModal = ref(false);
 const appliedFilter = ref([]);
@@ -80,6 +82,7 @@ const openCreateSegmentDialog = () =>
   createSegmentDialogRef.value?.dialogRef.open();
 const openDeleteSegmentDialog = () =>
   deleteSegmentDialogRef.value?.dialogRef.open();
+const openChangeHistoryDialog = () => changeHistoryDialogRef.value?.open();
 
 const onCreate = async contact => {
   try {
@@ -291,6 +294,7 @@ defineExpose({
     @filter="onToggleFilters"
     @create-segment="openCreateSegmentDialog"
     @delete-segment="openDeleteSegmentDialog"
+    @change-history="openChangeHistoryDialog"
   >
     <template #filter>
       <div
@@ -315,4 +319,9 @@ defineExpose({
   <ContactImportDialog ref="contactImportDialogRef" @import="onImport" />
   <CreateSegmentDialog ref="createSegmentDialogRef" @create="onCreateSegment" />
   <DeleteSegmentDialog ref="deleteSegmentDialogRef" @delete="onDeleteSegment" />
+  <ChangeHistoryDialog
+    ref="changeHistoryDialogRef"
+    :segment-id="segmentsId"
+    :segment-name="activeSegmentName"
+  />
 </template>

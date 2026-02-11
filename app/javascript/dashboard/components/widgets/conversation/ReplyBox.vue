@@ -347,7 +347,11 @@ export default {
       return `draft-${this.conversationIdByRoute}-${this.replyType}`;
     },
     audioRecordFormat() {
-      if (this.isAWhatsAppChannel || this.isATelegramChannel || this.isAVkChannel) {
+      if (
+        this.isAWhatsAppChannel ||
+        this.isATelegramChannel ||
+        this.isAVkChannel
+      ) {
         return AUDIO_FORMATS.MP3;
       }
       if (this.isAPIInbox) {

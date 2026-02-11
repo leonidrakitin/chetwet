@@ -87,9 +87,7 @@ const setAssistant = async assistant => {
 const shouldShowCopilotPanel = computed(() => {
   const { is_copilot_panel_open: isCopilotPanelOpen } = uiSettings.value;
   return (
-    captainEnabled.value &&
-    isCopilotPanelOpen &&
-    !uiFlags.value.fetchingList
+    captainEnabled.value && isCopilotPanelOpen && !uiFlags.value.fetchingList
   );
 });
 

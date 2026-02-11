@@ -17,7 +17,9 @@ import categories from './modules/helpCenterCategories';
 import contactConversations from './modules/contactConversations';
 import contactLabels from './modules/contactLabels';
 import contactNotes from './modules/contactNotes';
+import contactSegments from './modules/contactSegments';
 import contacts from './modules/contacts';
+import segmentNotificationTypes from './modules/segmentNotificationTypes';
 import conversationLabels from './modules/conversationLabels';
 import conversationMetadata from './modules/conversationMetadata';
 import conversationPage from './modules/conversationPage';
@@ -80,7 +82,9 @@ export default createStore({
     contactConversations,
     contactLabels,
     contactNotes,
+    contactSegments,
     contacts,
+    segmentNotificationTypes,
     conversationLabels,
     conversationMetadata,
     conversationPage,

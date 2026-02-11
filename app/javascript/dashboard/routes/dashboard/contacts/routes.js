@@ -1,4 +1,5 @@
 import { frontendURL } from '../../../helper/URLHelper';
+import ContactsWrapper from './pages/ContactsWrapper.vue';
 import ContactsIndex from './pages/ContactsIndex.vue';
 import ContactManageView from './pages/ContactManageView.vue';
 import { FEATURE_FLAGS } from '../../../featureFlags';
@@ -11,18 +12,12 @@ const commonMeta = {
 export const routes = [
   {
     path: frontendURL('accounts/:accountId/contacts'),
-    component: ContactsIndex,
+    component: ContactsWrapper,
     meta: commonMeta,
     children: [
       {
         path: '',
         name: 'contacts_dashboard_index',
-        component: ContactsIndex,
-        meta: commonMeta,
-      },
-      {
-        path: 'segments/:segmentId',
-        name: 'contacts_dashboard_segments_index',
         component: ContactsIndex,
         meta: commonMeta,
       },
@@ -48,12 +43,6 @@ export const routes = [
       {
         path: '',
         name: 'contacts_edit',
-        component: ContactManageView,
-        meta: commonMeta,
-      },
-      {
-        path: 'segments/:segmentId',
-        name: 'contacts_edit_segment',
         component: ContactManageView,
         meta: commonMeta,
       },

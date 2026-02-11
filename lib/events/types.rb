@@ -55,6 +55,10 @@ module Events::Types
   AGENT_ADDED = 'agent.added'
   AGENT_REMOVED = 'agent.removed'
 
+  # segment events
+  SEGMENT_CONTACT_ENTERED = 'segment.contact_entered'
+  SEGMENT_CONTACT_EXITED = 'segment.contact_exited'
+
   # copilot events
   COPILOT_MESSAGE_CREATED = 'copilot.message.created'
 end

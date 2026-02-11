@@ -192,7 +192,6 @@ const handleCreateAssistant = () => {
                   :label="buttonLabel"
                   icon="i-lucide-plus"
                   size="sm"
-                  color="black"
                   class="group-hover/captain-button:brightness-110"
                   @click="handleButtonClick"
                 />

@@ -17,12 +17,12 @@ const messages = computed({
     if (!Array.isArray(p) || p.length === 0) return [''];
     return [...p];
   },
-  set: (val) => emit('update:modelValue', val),
+  set: val => emit('update:modelValue', val),
 });
 
 watch(
   () => props.modelValue,
-  (p) => {
+  p => {
     if ((!p || !Array.isArray(p) || p.length === 0) && messages.value.length) {
       emit('update:modelValue', ['']);
     }
@@ -118,7 +118,9 @@ const firstMessagePreview = computed(() => {
       class="rounded-lg p-2 bg-n-slate-3 dark:bg-n-solid-3 border border-n-weak text-sm text-n-slate-8 dark:text-n-slate-6"
     >
       <span class="font-medium">{{ $t('AUTOMATION.ACTION.PREVIEW_LABEL') }}:</span>
-      <div class="mt-1 whitespace-pre-wrap break-words">{{ firstMessagePreview }}</div>
+      <div class="mt-1 whitespace-pre-wrap break-words">
+        {{ firstMessagePreview }}
+      </div>
     </div>
   </div>
 </template>

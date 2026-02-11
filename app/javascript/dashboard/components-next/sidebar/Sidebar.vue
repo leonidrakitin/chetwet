@@ -147,10 +147,10 @@ useEventListener(document, 'touchend', onResizeEnd);
 const inboxes = useMapGetter('inboxes/getInboxes');
 const labels = useMapGetter('labels/getLabelsOnSidebar');
 const teams = useMapGetter('teams/getMyTeams');
-const contactCustomViews = useMapGetter('customViews/getContactCustomViews');
 const conversationCustomViews = useMapGetter(
   'customViews/getConversationCustomViews'
 );
+const contactSegments = useMapGetter('contactSegments/getSegments');
 
 onMounted(() => {
   store.dispatch('labels/get');
@@ -160,6 +160,7 @@ onMounted(() => {
   store.dispatch('attributes/get');
   store.dispatch('customViews/get', 'conversation');
   store.dispatch('customViews/get', 'contact');
+  store.dispatch('contactSegments/get');
 });
 
 const sortedInboxes = computed(() =>
@@ -211,19 +212,26 @@ const reportRoutes = computed(() => newReportRoutes());
 const menuItems = computed(() => {
   return [
     {
-      name: 'Inbox',
-      label: t('SIDEBAR.INBOX'),
+      name: 'Incoming',
+      label: t('SIDEBAR.INCOMING'),
       icon: 'i-lucide-inbox',
-      to: accountScopedRoute('inbox_view'),
-      activeOn: ['inbox_view', 'inbox_view_conversation'],
+      activeOn: [
+        'inbox_view',
+        'inbox_view_conversation',
+        'home',
+        'inbox_conversation',
+        'conversation_mentions',
+        'conversation_through_mentions',
+        'conversation_unattended',
+        'conversation_through_unattended',
+        'conversation_through_inbox',
+        'conversations_through_folders',
+        'conversations_through_team',
+        'conversations_through_label',
+      ],
       getterKeys: {
         count: 'notifications/getUnreadCount',
       },
-    },
-    {
-      name: 'Conversation',
-      label: t('SIDEBAR.CONVERSATIONS'),
-      icon: 'i-lucide-message-circle',
       children: [
         {
           name: 'All',
@@ -232,8 +240,17 @@ const menuItems = computed(() => {
           to: accountScopedRoute('home'),
         },
         {
+          name: 'Unread',
+          label: t('SIDEBAR.UNREAD'),
+          activeOn: ['inbox_view', 'inbox_view_conversation'],
+          to: accountScopedRoute('inbox_view'),
+          getterKeys: {
+            count: 'notifications/getUnreadCount',
+          },
+        },
+        {
           name: 'Mentions',
-          label: t('SIDEBAR.MENTIONED_CONVERSATIONS'),
+          label: t('SIDEBAR.FAVORITES_MENTIONS'),
           activeOn: ['conversation_through_mentions'],
           to: accountScopedRoute('conversation_mentions'),
         },
@@ -243,6 +260,19 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.UNATTENDED_CONVERSATIONS'),
           to: accountScopedRoute('conversation_unattended'),
         },
+        ...sortedInboxes.value.map(inbox => ({
+          name: `${inbox.name}-${inbox.id}`,
+          label: inbox.name,
+          icon: h(ChannelIcon, { inbox, class: 'size-[12px]' }),
+          activeOn: ['conversation_through_inbox'],
+          to: accountScopedRoute('inbox_dashboard', { inbox_id: inbox.id }),
+          component: leafProps =>
+            h(ChannelLeaf, {
+              label: leafProps.label,
+              active: leafProps.active,
+              inbox,
+            }),
+        })),
         {
           name: 'Folders',
           label: t('SIDEBAR.CUSTOM_VIEWS_FOLDER'),
@@ -263,24 +293,6 @@ const menuItems = computed(() => {
             name: `${team.name}-${team.id}`,
             label: team.name,
             to: accountScopedRoute('team_conversations', { teamId: team.id }),
-          })),
-        },
-        {
-          name: 'Channels',
-          label: t('SIDEBAR.CHANNELS'),
-          icon: 'i-lucide-mailbox',
-          activeOn: ['conversation_through_inbox'],
-          children: sortedInboxes.value.map(inbox => ({
-            name: `${inbox.name}-${inbox.id}`,
-            label: inbox.name,
-            icon: h(ChannelIcon, { inbox, class: 'size-[12px]' }),
-            to: accountScopedRoute('inbox_dashboard', { inbox_id: inbox.id }),
-            component: leafProps =>
-              h(ChannelLeaf, {
-                label: leafProps.label,
-                active: leafProps.active,
-                inbox,
-              }),
           })),
         },
         {
@@ -395,24 +407,6 @@ const menuItems = computed(() => {
           activeOn: ['contacts_dashboard_active'],
         },
         {
-          name: 'Segments',
-          icon: 'i-lucide-group',
-          label: t('SIDEBAR.CUSTOM_VIEWS_SEGMENTS'),
-          children: contactCustomViews.value.map(view => ({
-            name: `${view.name}-${view.id}`,
-            label: view.name,
-            to: accountScopedRoute(
-              'contacts_dashboard_segments_index',
-              { segmentId: view.id },
-              { page: 1 }
-            ),
-            activeOn: [
-              'contacts_dashboard_segments_index',
-              'contacts_edit_segment',
-            ],
-          })),
-        },
-        {
           name: 'Tagged With',
           icon: 'i-lucide-tag',
           label: t('SIDEBAR.TAGGED_WITH'),
@@ -437,21 +431,17 @@ const menuItems = computed(() => {
       ],
     },
     {
-      name: 'Companies',
-      label: t('SIDEBAR.COMPANIES'),
-      icon: 'i-lucide-building-2',
-      children: [
-        {
-          name: 'All Companies',
-          label: t('SIDEBAR.ALL_COMPANIES'),
-          to: accountScopedRoute(
-            'companies_dashboard_index',
-            {},
-            { page: 1, search: undefined }
-          ),
-          activeOn: ['companies_dashboard_index'],
-        },
-      ],
+      name: 'Segments',
+      label: t('SIDEBAR.CUSTOM_VIEWS_SEGMENTS'),
+      icon: 'i-lucide-group',
+      to: accountScopedRoute('segments_dashboard'),
+      activeOn: ['segments_dashboard', 'segment_show'],
+      children: contactSegments.value.map(segment => ({
+        name: `segment-${segment.id}`,
+        label: segment.name,
+        to: accountScopedRoute('segment_show', { segmentId: segment.id }),
+        activeOn: ['segment_show'],
+      })),
     },
     {
       name: 'Reports',

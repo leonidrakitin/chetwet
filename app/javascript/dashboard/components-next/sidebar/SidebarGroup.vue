@@ -168,7 +168,9 @@ const hasActiveChild = computed(() => {
 });
 
 const handleCollapsedClick = () => {
-  if (hasChildren.value && hasAccessibleChildren.value) {
+  if (props.to) {
+    router.push(props.to);
+  } else if (hasChildren.value && hasAccessibleChildren.value) {
     const firstItem = accessibleItems.value[0];
     router.push(firstItem.to);
   }
@@ -176,6 +178,7 @@ const handleCollapsedClick = () => {
 
 const toggleTrigger = () => {
   if (
+    !props.to &&
     hasAccessibleChildren.value &&
     !isExpanded.value &&
     !hasActiveChild.value
@@ -183,6 +186,10 @@ const toggleTrigger = () => {
     // if not already expanded, navigate to the first child
     const firstItem = accessibleItems.value[0];
     router.push(firstItem.to);
+  }
+  // When item has its own route (e.g. Segments dashboard), ensure we navigate on click
+  if (props.to && !isActive.value) {
+    router.push(props.to);
   }
   setExpandedItem(props.name);
 };

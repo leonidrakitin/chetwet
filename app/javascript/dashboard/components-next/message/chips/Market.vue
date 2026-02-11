@@ -63,7 +63,10 @@ const product = computed(() => {
     v-else
     class="flex overflow-hidden rounded-xl border border-n-container bg-n-alpha-white max-w-[280px] p-3"
   >
-    <div v-if="product.thumb" class="shrink-0 w-16 h-16 rounded-lg overflow-hidden">
+    <div
+      v-if="product.thumb"
+      class="shrink-0 w-16 h-16 rounded-lg overflow-hidden"
+    >
       <img
         :src="product.thumb"
         :alt="product.title"

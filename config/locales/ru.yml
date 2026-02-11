@@ -18,6 +18,12 @@
 #available at https://guides.rubyonrails.org/i18n.html.
 ru:
   hello: 'Привет мир'
+  dashboard:
+    sidebar:
+      incoming: Входящие
+      unread: Непрочитанные
+      favorites_mentions: Избранные (Упоминания)
+      all_conversations: Все
   inbox:
     reauthorization:
       success: 'Канал успешно повторно авторизирован'

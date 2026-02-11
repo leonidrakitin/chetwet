@@ -651,5 +651,64 @@
         "SEND": "Отправить ({keyCode})"
       }
     }
+  },
+  "SEGMENTS_DASHBOARD": {
+    "TITLE": "Дашборд сегментов",
+    "SEGMENTS_LIST": "Список сегментов",
+    "EMPTY_STATE": "Сегменты ещё не созданы",
+    "ACTIVE": "Активен",
+    "INACTIVE": "Неактивен",
+    "DELETE_SUCCESS": "Сегмент удалён",
+    "DELETE_ERROR": "Не удалось удалить сегмент",
+    "DELETE_DIALOG": {
+      "TITLE": "Удалить сегмент",
+      "DESCRIPTION": "Вы уверены, что хотите удалить этот сегмент? Это действие нельзя отменить.",
+      "CONFIRM": "Удалить"
+    },
+    "METRICS": {
+      "TOTAL_SEGMENTS": "Всего сегментов",
+      "TOTAL_MEMBERS": "Всего участников",
+      "TOTAL_ENTERED": "Пришли (30 дней)",
+      "TOTAL_EXITED": "Ушли (30 дней)"
+    },
+    "TABLE": {
+      "NAME": "Название",
+      "MEMBERS": "Участники",
+      "ENTERED": "Пришли",
+      "EXITED": "Ушли",
+      "PERCENT": "% от всех"
+    }
+  },
+  "SEGMENT_SHOW": {
+    "LOADING": "Загрузка...",
+    "PARAMETERS": "Параметры сегмента",
+    "VIEW_CONTACTS": "Смотреть контакты"
+  },
+  "SEGMENT_STATISTICS": {
+    "TITLE": "Статистика",
+    "MEMBERS": "Контактов в сегменте",
+    "PERCENT_OF_TOTAL": "% от общего числа",
+    "ENTERED": "Вошли (за {days} дн.)",
+    "EXITED": "Вышли (за {days} дн.)"
+  },
+  "NOTIFICATION_TYPES": {
+    "TITLE": "Типы уведомлений сегмента",
+    "ADD": "Добавить тип",
+    "SAVE": "Сохранить",
+    "CANCEL": "Отмена",
+    "NAME_PLACEHOLDER": "Название типа уведомления",
+    "LOADING": "Загрузка...",
+    "EMPTY": "Типы уведомлений не настроены",
+    "CREATE_SUCCESS": "Тип уведомления создан",
+    "CREATE_ERROR": "Не удалось создать тип уведомления",
+    "UPDATE_SUCCESS": "Тип уведомления обновлён",
+    "UPDATE_ERROR": "Не удалось обновить тип уведомления",
+    "DELETE_SUCCESS": "Тип уведомления удалён",
+    "DELETE_ERROR": "Не удалось удалить тип уведомления",
+    "DELETE_DIALOG": {
+      "TITLE": "Удалить тип уведомления",
+      "DESCRIPTION": "Вы уверены, что хотите удалить этот тип уведомления?",
+      "CONFIRM": "Удалить"
+    }
   }
 }

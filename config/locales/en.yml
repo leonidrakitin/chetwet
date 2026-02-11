@@ -31,6 +31,12 @@
 
 en:
   hello: 'Hello world'
+  dashboard:
+    sidebar:
+      incoming: Incoming
+      unread: Unread
+      favorites_mentions: Favorites (Mentions)
+      all_conversations: All
   inbox:
     reauthorization:
       success: 'Channel reauthorized successfully'

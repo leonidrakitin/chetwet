@@ -40,7 +40,10 @@ const rules = {
 
 const hasValidMessages = () => {
   const list = state.messages;
-  return Array.isArray(list) && list.some(m => typeof m === 'string' && m.trim().length > 0);
+  return (
+    Array.isArray(list) &&
+    list.some(m => typeof m === 'string' && m.trim().length > 0)
+  );
 };
 
 const v$ = useVuelidate(rules, state);
@@ -75,13 +78,17 @@ const getErrorMessage = (field, errorKey) => {
 
 const formErrors = computed(() => ({
   title: getErrorMessage('title', 'TITLE'),
-  messages: !hasValidMessages() && (state.messages?.length ? t('CAMPAIGN.SMS.CREATE.FORM.MESSAGE.ERROR') : ''),
+  messages:
+    !hasValidMessages() &&
+    (state.messages?.length ? t('CAMPAIGN.SMS.CREATE.FORM.MESSAGE.ERROR') : ''),
   inbox: getErrorMessage('inboxId', 'INBOX'),
   scheduledAt: getErrorMessage('scheduledAt', 'SCHEDULED_AT'),
   audience: getErrorMessage('selectedAudience', 'AUDIENCE'),
 }));
 
-const isSubmitDisabled = computed(() => v$.value.$invalid || !hasValidMessages());
+const isSubmitDisabled = computed(
+  () => v$.value.$invalid || !hasValidMessages()
+);
 
 const formatToUTCString = localDateTime =>
   localDateTime ? new Date(localDateTime).toISOString() : null;
@@ -93,7 +100,9 @@ const resetState = () => {
 const handleCancel = () => emit('cancel');
 
 const prepareCampaignDetails = () => {
-  const messageList = (state.messages || []).filter(m => typeof m === 'string' && m.trim().length > 0);
+  const messageList = (state.messages || []).filter(
+    m => typeof m === 'string' && m.trim().length > 0
+  );
   return {
     title: state.title,
     messages: messageList.length ? messageList : null,
@@ -135,7 +144,10 @@ const handleSubmit = async () => {
         :use-rich-editor="false"
         :message-placeholder="t('CAMPAIGN.SMS.CREATE.FORM.MESSAGE.PLACEHOLDER')"
       />
-      <p v-if="formErrors.messages" class="text-xs text-n-ruby-9 dark:text-n-ruby-9 mt-1">
+      <p
+        v-if="formErrors.messages"
+        class="text-xs text-n-ruby-9 dark:text-n-ruby-9 mt-1"
+      >
         {{ formErrors.messages }}
       </p>
     </div>

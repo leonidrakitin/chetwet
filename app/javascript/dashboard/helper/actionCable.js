@@ -107,9 +107,8 @@ class ActionCableConnector extends BaseActionCableConnector {
     // Only update last_activity / move conversation to top for incoming messages
     // Skip for typing, bot broadcasts, and outgoing messages
     if (messageType === MESSAGE_TYPE.INCOMING) {
-      const conversation = this.app.$store.getters.getConversationById(
-        conversationId
-      );
+      const conversation =
+        this.app.$store.getters.getConversationById(conversationId);
       if (!conversation) {
         this.app.$store.dispatch('getConversation', conversationId);
       }
