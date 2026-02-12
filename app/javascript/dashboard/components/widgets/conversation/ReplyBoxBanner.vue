@@ -41,7 +41,10 @@ const assignedAgent = computed({
   },
   set(agent) {
     const agentId = agent ? agent.id : null;
-    store.dispatch('setCurrentChatAssignee', agent);
+    store.dispatch('setCurrentChatAssignee', {
+      conversationId: currentChat.value?.id,
+      assignee: agent,
+    });
     store.dispatch('assignAgent', {
       conversationId: currentChat.value?.id,
       agentId,

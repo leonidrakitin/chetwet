@@ -229,3 +229,7 @@
 - name: notify_all_agents_new_message
   display_name: Notify all agents on new message
   enabled: false
+  premium: true
+- name: advanced_assignment
+  display_name: Advanced Assignment
+  enabled: true
