@@ -25,7 +25,6 @@ import ChatListHeader from './ChatListHeader.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import ConversationFilter from 'next/filter/ConversationFilter.vue';
 import SaveCustomView from 'next/filter/SaveCustomView.vue';
-import ChatTypeTabs from './widgets/ChatTypeTabs.vue';
 import ConversationItem from './ConversationItem.vue';
 import DeleteCustomViews from 'dashboard/routes/dashboard/customviews/DeleteCustomViews.vue';
 import ConversationBulkActions from './widgets/conversation/conversationBulkActions/Index.vue';
@@ -48,8 +47,6 @@ import {
 import { useEmitter } from 'dashboard/composables/emitter';
 import { useEventListener } from '@vueuse/core';
 import { useConversationRequiredAttributes } from 'dashboard/composables/useConversationRequiredAttributes';
-
-import { emitter } from 'shared/helpers/mitt';
 
 import wootConstants from 'dashboard/constants/globals';
 import advancedFilterOptions from './widgets/conversation/advancedFilterItems';
@@ -96,7 +93,7 @@ const conversationDynamicScroller = ref(null);
 
 provide('contextMenuElementTarget', conversationDynamicScroller);
 
-const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
+const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ALL);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
@@ -216,12 +213,7 @@ const assigneeTabItems = computed(() => {
   }));
 });
 
-const showAssigneeInConversationCard = computed(() => {
-  return (
-    hasAppliedFiltersOrActiveFolders.value ||
-    activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.ALL
-  );
-});
+const showAssigneeInConversationCard = computed(() => true);
 
 const hideResolveAssignUi = computed(() =>
   store.getters['accounts/isFeatureEnabledonAccount'](
@@ -354,6 +346,57 @@ const conversationList = computed(() => {
   }
 
   return localConversationList;
+});
+
+const collapsedSections = ref(new Set());
+
+const toggleSection = sectionId => {
+  const next = new Set(collapsedSections.value);
+  if (next.has(sectionId)) next.delete(sectionId);
+  else next.add(sectionId);
+  collapsedSections.value = next;
+};
+
+const groupedItems = computed(() => {
+  const all = conversationList.value;
+  const currentUserID = currentUser.value?.id;
+
+  const unread = all.filter(c => c.unread_count > 0);
+  const inProgress = all.filter(
+    c => c.unread_count === 0 && c.meta?.assignee?.id === currentUserID
+  );
+  const rest = all.filter(c => !unread.includes(c) && !inProgress.includes(c));
+
+  const items = [];
+
+  items.push({
+    id: '__header_unread',
+    _sectionHeader: true,
+    label: t('CHAT_LIST.SECTIONS.UNREAD'),
+    count: unread.length,
+    sectionId: 'unread',
+  });
+  if (!collapsedSections.value.has('unread')) items.push(...unread);
+
+  items.push({
+    id: '__header_mine',
+    _sectionHeader: true,
+    label: t('CHAT_LIST.SECTIONS.IN_PROGRESS'),
+    count: inProgress.length,
+    sectionId: 'mine',
+  });
+  if (!collapsedSections.value.has('mine')) items.push(...inProgress);
+
+  items.push({
+    id: '__header_all',
+    _sectionHeader: true,
+    label: t('CHAT_LIST.SECTIONS.ALL'),
+    count: rest.length,
+    sectionId: 'all',
+  });
+  if (!collapsedSections.value.has('all')) items.push(...rest);
+
+  return items;
 });
 
 const showEndOfListMessage = computed(() => {
@@ -621,17 +664,6 @@ function handleScroll() {
     const { scrollTop, scrollHeight, clientHeight } = scroller.$el;
     if (scrollHeight - (scrollTop + clientHeight) < 100) {
       loadMoreConversations();
-    }
-  }
-}
-
-function updateAssigneeTab(selectedTab) {
-  if (activeAssigneeTab.value !== selectedTab) {
-    resetBulkActions();
-    emitter.emit('clearSearchInput');
-    activeAssigneeTab.value = selectedTab;
-    if (!currentPage.value) {
-      fetchConversations();
     }
   }
 }
@@ -953,14 +985,6 @@ watch(conversationFilters, (newVal, oldVal) => {
       @close="onCloseDeleteFoldersModal"
     />
 
-    <ChatTypeTabs
-      v-if="!hasAppliedFiltersOrActiveFolders"
-      :items="assigneeTabItems"
-      :active-tab="activeAssigneeTab"
-      is-compact
-      @chat-tab-change="updateAssigneeTab"
-    />
-
     <p
       v-if="!chatListLoading && !conversationList.length"
       class="flex overflow-auto justify-center items-center p-4"
@@ -989,28 +1013,42 @@ watch(conversationFilters, (newVal, oldVal) => {
     >
       <DynamicScroller
         ref="conversationDynamicScroller"
-        :items="conversationList"
+        :items="groupedItems"
         :min-item-size="24"
         class="overflow-auto w-full h-full"
       >
         <template #default="{ item, index, active }">
-          <!--
-            If we encounter resizing issues, we can set the `watchData` prop to true
-            this will deeply watch the entire object instead of just size dependencies
-            But it can impact performance
-          -->
           <DynamicScrollerItem
             :item="item"
             :active="active"
             :data-index="index"
-            :size-dependencies="[
-              item.messages,
-              item.labels,
-              item.uuid,
-              item.inbox_id,
-            ]"
+            :size-dependencies="
+              item._sectionHeader
+                ? [item.label, item.count]
+                : [item.messages, item.labels, item.uuid, item.inbox_id]
+            "
           >
+            <div
+              v-if="item._sectionHeader"
+              class="flex items-center justify-between px-4 py-2 cursor-pointer select-none"
+              @click="toggleSection(item.sectionId)"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="text-sm font-medium text-n-slate-12 bg-n-alpha-2 px-2 py-0.5 rounded"
+                >
+                  {{ item.label }}
+                </span>
+                <span class="text-sm text-n-slate-10">{{ item.count }}</span>
+              </div>
+              <span
+                v-if="!collapsedSections.has(item.sectionId)"
+                class="i-lucide-minus text-n-slate-10 size-4"
+              />
+              <span v-else class="i-lucide-plus text-n-slate-10 size-4" />
+            </div>
             <ConversationItem
+              v-else
               :source="item"
               :label="label"
               :team-id="teamId"
