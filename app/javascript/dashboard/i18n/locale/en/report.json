@@ -1,4 +1,15 @@
 {
+  "SEGMENT_REPORTS": {
+    "TITLE": "Segment Reports",
+    "REFRESH": "Refresh",
+    "LOADING": "Loading data...",
+    "RETRY": "Try again",
+    "ERROR": "Failed to load report data",
+    "DONUT_TITLE": "Distribution by segments",
+    "BAR_TITLE": "Clients per segment",
+    "TOTAL_CLIENTS": "Total clients",
+    "CLIENTS_SUFFIX": "clients"
+  },
   "REPORT": {
     "HEADER": "Conversations",
     "LOADING_CHART": "Loading chart data...",

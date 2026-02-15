@@ -487,6 +487,11 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.REPORTS_BOT'),
           to: accountScopedRoute('bot_reports'),
         },
+        {
+          name: 'Reports Segments',
+          label: t('SIDEBAR.REPORTS_SEGMENTS'),
+          to: accountScopedRoute('segment_reports'),
+        },
       ],
     },
     {

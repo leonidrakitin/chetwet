@@ -368,6 +368,7 @@
     "ONE_OFF": "One off",
     "REPORTS_SLA": "SLA",
     "REPORTS_BOT": "Bot",
+    "REPORTS_SEGMENTS": "Segments",
     "REPORTS_AGENT": "Agents",
     "REPORTS_LABEL": "Labels",
     "REPORTS_INBOX": "Inbox",
