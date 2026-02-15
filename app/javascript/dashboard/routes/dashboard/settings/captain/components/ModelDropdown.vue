@@ -23,6 +23,7 @@ const PROVIDER_ICONS = {
   anthropic: 'i-ri-anthropic-line',
   mistral: 'i-logos-mistral-icon',
   gemini: 'i-woot-gemini',
+  deepseek: 'i-ri-deepseek-fill',
 };
 
 const iconForModel = model => {

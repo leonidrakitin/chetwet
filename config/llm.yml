@@ -5,6 +5,8 @@ aproviders:
     display_name: 'Anthropic'
   gemini:
     display_name: 'Gemini'
+  deepseek:
+    display_name: 'DeepSeek'
 
 models:
   gpt-4.1:
@@ -55,6 +57,14 @@ models:
     display_name: 'Gemini 3 Pro'
     coming_soon: true
     credit_multiplier: 3
+  deepseek-chat:
+    provider: deepseek
+    display_name: 'DeepSeek V3'
+    credit_multiplier: 1
+  deepseek-reasoner:
+    provider: deepseek
+    display_name: 'DeepSeek R1'
+    credit_multiplier: 2
   whisper-1:
     provider: openai
     display_name: 'Whisper'
@@ -77,6 +87,8 @@ features:
         claude-haiku-4.5,
         gemini-3-flash,
         gemini-3-pro,
+        deepseek-chat,
+        deepseek-reasoner,
       ]
     default: gpt-4.1-mini
   assistant:
@@ -90,6 +102,8 @@ features:
         claude-sonnet-4.5,
         gemini-3-flash,
         gemini-3-pro,
+        deepseek-chat,
+        deepseek-reasoner,
       ]
     default: gpt-5.1
   copilot:
@@ -103,11 +117,13 @@ features:
         claude-sonnet-4.5,
         gemini-3-flash,
         gemini-3-pro,
+        deepseek-chat,
+        deepseek-reasoner,
       ]
     default: gpt-5.1
   label_suggestion:
     models:
-      [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5]
+      [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5, deepseek-chat, deepseek-reasoner]
     default: gpt-4.1-nano
   audio_transcription:
     models: [whisper-1]
