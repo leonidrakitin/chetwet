@@ -39,24 +39,6 @@
         </button>
       </div>
     </div>
-    <% if ChatwootApp.enterprise_directory_exists? %>
-      <div class="flex p-4 outline outline-1 outline-n-container rounded-lg items-center shadow-sm mb-4 justify-between">
-        <div class="flex flex-col gap-1">
-          <h2 class="h-5 leading-5 text-n-slate-12 text-sm font-medium">Enterprise Features</h2>
-          <p class="text-n-slate-11 m-0 text-sm">Enable or disable Enterprise features for this installation</p>
-        </div>
-        <%= form_tag super_admin_settings_path, method: :patch do %>
-          <%= hidden_field_tag :enterprise_enabled, '0' %>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <%= check_box_tag :enterprise_enabled, '1', ChatwootApp.enterprise?,
-              class: 'sr-only peer',
-              onchange: 'this.form.submit()' %>
-            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-woot-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-woot-500"></div>
-          </label>
-        <% end %>
-      </div>
-    <% end %>
-
     <% if ChatwootApp.enterprise? %>
       <div class="flex p-4 outline outline-1 outline-n-container rounded-lg items-start md:items-center shadow-sm flex-col md:flex-row">
         <div class="flex flex-col flex-grow gap-1">

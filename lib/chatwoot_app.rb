@@ -13,13 +13,8 @@ module ChatwootApp
 
   def self.enterprise?
     return if ENV.fetch('DISABLE_ENTERPRISE', false)
-    return false unless enterprise_directory_exists?
 
-    enterprise_enabled_in_config?
-  end
-
-  def self.enterprise_directory_exists?
-    @enterprise_directory ||= root.join('enterprise').exist?
+    @enterprise ||= root.join('enterprise').exist?
   end
 
   def self.chatwoot_cloud?
@@ -41,7 +36,7 @@ module ChatwootApp
   def self.extensions
     if custom?
       %w[enterprise custom]
-    elsif enterprise_directory_exists?
+    elsif enterprise?
       %w[enterprise]
     else
       %w[]
@@ -51,16 +46,6 @@ module ChatwootApp
   def self.advanced_search_allowed?
     enterprise? && ENV.fetch('OPENSEARCH_URL', nil).present?
   end
-
-  def self.enterprise_enabled_in_config?
-    value = GlobalConfig.get_value('ENTERPRISE_ENABLED')
-    return true if value.nil?
-
-    ActiveModel::Type::Boolean.new.cast(value)
-  rescue StandardError
-    true
-  end
-  private_class_method :enterprise_enabled_in_config?
 
   def self.otel_enabled?
     otel_provider = InstallationConfig.find_by(name: 'OTEL_PROVIDER')&.value
