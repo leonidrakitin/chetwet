@@ -359,44 +359,61 @@ const toggleSection = sectionId => {
 
 const groupedItems = computed(() => {
   const all = conversationList.value;
-  const currentUserID = currentUser.value?.id;
 
   const unread = all.filter(c => c.unread_count > 0);
-  const inProgress = all.filter(
-    c => c.unread_count === 0 && c.meta?.assignee?.id === currentUserID
+  const snoozed = all.filter(
+    c => c.unread_count === 0 && c.status === 'snoozed'
   );
-  const rest = all.filter(c => !unread.includes(c) && !inProgress.includes(c));
+  const inProgress = all.filter(
+    c =>
+      c.unread_count === 0 && c.status !== 'snoozed' && c.status !== 'resolved'
+  );
+  const rest = all.filter(c => c.status === 'resolved' && c.unread_count === 0);
 
-  const items = [];
+  const sections = [
+    {
+      id: '__header_unread',
+      sectionId: 'unread',
+      label: t('CHAT_LIST.SECTIONS.UNREAD'),
+      badgeClass: 'bg-n-blue-3 text-n-blue-11',
+      items: unread,
+    },
+    {
+      id: '__header_snoozed',
+      sectionId: 'snoozed',
+      label: t('CHAT_LIST.SECTIONS.SNOOZED'),
+      badgeClass: 'bg-n-amber-3 text-n-amber-11',
+      items: snoozed,
+    },
+    {
+      id: '__header_mine',
+      sectionId: 'mine',
+      label: t('CHAT_LIST.SECTIONS.IN_PROGRESS'),
+      badgeClass: 'bg-n-teal-3 text-n-teal-11',
+      items: inProgress,
+    },
+    {
+      id: '__header_all',
+      sectionId: 'all',
+      label: t('CHAT_LIST.SECTIONS.ALL'),
+      badgeClass: 'bg-n-alpha-2 text-n-slate-12',
+      items: rest,
+    },
+  ];
 
-  items.push({
-    id: '__header_unread',
-    _sectionHeader: true,
-    label: t('CHAT_LIST.SECTIONS.UNREAD'),
-    count: unread.length,
-    sectionId: 'unread',
+  const result = [];
+  sections.forEach(({ items: sectionItems, ...header }) => {
+    result.push({
+      ...header,
+      _sectionHeader: true,
+      count: sectionItems.length,
+    });
+    if (!collapsedSections.value.has(header.sectionId)) {
+      result.push(...sectionItems);
+    }
   });
-  if (!collapsedSections.value.has('unread')) items.push(...unread);
 
-  items.push({
-    id: '__header_mine',
-    _sectionHeader: true,
-    label: t('CHAT_LIST.SECTIONS.IN_PROGRESS'),
-    count: inProgress.length,
-    sectionId: 'mine',
-  });
-  if (!collapsedSections.value.has('mine')) items.push(...inProgress);
-
-  items.push({
-    id: '__header_all',
-    _sectionHeader: true,
-    label: t('CHAT_LIST.SECTIONS.ALL'),
-    count: rest.length,
-    sectionId: 'all',
-  });
-  if (!collapsedSections.value.has('all')) items.push(...rest);
-
-  return items;
+  return result;
 });
 
 const showEndOfListMessage = computed(() => {
@@ -1035,7 +1052,8 @@ watch(conversationFilters, (newVal, oldVal) => {
             >
               <div class="flex items-center gap-2">
                 <span
-                  class="text-sm font-medium text-n-slate-12 bg-n-alpha-2 px-2 py-0.5 rounded"
+                  class="text-sm font-medium px-2 py-0.5 rounded"
+                  :class="item.badgeClass"
                 >
                   {{ item.label }}
                 </span>

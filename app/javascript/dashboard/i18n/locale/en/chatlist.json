@@ -143,6 +143,7 @@
     "SENDING": "Sending",
     "SECTIONS": {
       "UNREAD": "Unread",
+      "SNOOZED": "Snoozed",
       "IN_PROGRESS": "In progress",
       "ALL": "All"
     }

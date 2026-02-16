@@ -140,6 +140,7 @@
     "SENDING": "Отправка",
     "SECTIONS": {
       "UNREAD": "Непрочитанные",
+      "SNOOZED": "Отложенные",
       "IN_PROGRESS": "В работе",
       "ALL": "Все"
     }
