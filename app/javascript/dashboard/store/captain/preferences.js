@@ -20,7 +20,13 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
       const feature = state.features[featureKey];
       const models = feature?.models || [];
 
-      const providerOrder = { openai: 0, anthropic: 1, deepseek: 2, gemini: 3 };
+      const providerOrder = {
+        openai: 0,
+        anthropic: 1,
+        deepseek: 2,
+        qwen: 3,
+        gemini: 4,
+      };
 
       return [...models].sort((a, b) => {
         // Move coming_soon items to the end

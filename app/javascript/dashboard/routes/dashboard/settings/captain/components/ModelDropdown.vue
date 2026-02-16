@@ -24,6 +24,7 @@ const PROVIDER_ICONS = {
   mistral: 'i-logos-mistral-icon',
   gemini: 'i-woot-gemini',
   deepseek: 'i-ri-deepseek-fill',
+  qwen: 'i-lucide-sparkles',
 };
 
 const iconForModel = model => {

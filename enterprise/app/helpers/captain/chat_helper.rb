@@ -46,14 +46,20 @@ module Captain::ChatHelper
     Llm::Models.models.dig(model_name, 'provider') == 'deepseek'
   end
 
+  def qwen_model?(model_name)
+    Llm::Models.models.dig(model_name, 'provider') == 'qwen'
+  end
+
   def resolve_captain_api_key
     return deepseek_api_key if deepseek_model?(@model) && deepseek_api_key.present?
+    return qwen_api_key if qwen_model?(@model) && qwen_api_key.present?
 
     captain_api_key
   end
 
   def resolve_captain_api_base
     return deepseek_api_base if deepseek_model?(@model) && deepseek_api_key.present?
+    return qwen_api_base if qwen_model?(@model) && qwen_api_key.present?
 
     captain_api_base
   end
@@ -64,6 +70,16 @@ module Captain::ChatHelper
 
   def deepseek_api_base
     endpoint = InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_ENDPOINT')&.value.presence || 'https://api.deepseek.com/'
+    endpoint = endpoint.chomp('/')
+    "#{endpoint}/v1"
+  end
+
+  def qwen_api_key
+    @qwen_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_QWEN_API_KEY')&.value
+  end
+
+  def qwen_api_base
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_QWEN_ENDPOINT')&.value.presence || 'https://dashscope.aliyuncs.com/compatible-mode/'
     endpoint = endpoint.chomp('/')
     "#{endpoint}/v1"
   end

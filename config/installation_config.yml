@@ -204,6 +204,15 @@
   display_title: 'DeepSeek API Endpoint (optional)'
   description: 'The DeepSeek endpoint for Captain AI. Default: https://api.deepseek.com/'
   locked: false
+- name: CAPTAIN_QWEN_API_KEY
+  display_title: 'Qwen API Key'
+  description: 'The API key for Qwen services in Captain AI.'
+  locked: false
+  type: secret
+- name: CAPTAIN_QWEN_ENDPOINT
+  display_title: 'Qwen API Endpoint (optional)'
+  description: 'The Qwen endpoint for Captain AI. Default: https://dashscope.aliyuncs.com/compatible-mode/'
+  locked: false
 - name: CAPTAIN_EMBEDDING_MODEL
   display_title: 'Embedding Model (optional)'
   description: 'The embedding model configured for use in Captain AI. Default: text-embedding-3-small'
