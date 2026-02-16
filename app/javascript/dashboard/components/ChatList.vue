@@ -360,29 +360,14 @@ const toggleSection = sectionId => {
 const groupedItems = computed(() => {
   const all = conversationList.value;
 
-  const unreadSet = new Set();
-  const snoozedSet = new Set();
-  const inProgressSet = new Set();
-
-  const unread = [];
-  const snoozed = [];
-  const inProgress = [];
-
-  all.forEach(c => {
-    if (c.unread_count > 0) {
-      unread.push(c);
-      unreadSet.add(c.id);
-    } else if (c.status === 'snoozed') {
-      snoozed.push(c);
-      snoozedSet.add(c.id);
-    } else if (c.status !== 'resolved') {
-      inProgress.push(c);
-      inProgressSet.add(c.id);
-    }
-  });
-
-  const assigned = new Set([...unreadSet, ...snoozedSet, ...inProgressSet]);
-  const rest = all.filter(c => !assigned.has(c.id));
+  const unread = all.filter(c => c.unread_count > 0);
+  const snoozed = all.filter(
+    c => c.unread_count === 0 && c.status === 'snoozed'
+  );
+  const inProgress = all.filter(
+    c =>
+      c.unread_count === 0 && c.status !== 'snoozed' && c.status !== 'resolved'
+  );
 
   const sections = [
     {
@@ -411,19 +396,26 @@ const groupedItems = computed(() => {
       sectionId: 'all',
       label: t('CHAT_LIST.SECTIONS.ALL'),
       badgeClass: 'bg-n-alpha-2 text-n-slate-12',
-      items: rest,
+      items: all,
     },
   ];
 
   const result = [];
   sections.forEach(({ items: sectionItems, ...header }) => {
+    if (sectionItems.length === 0) return;
     result.push({
       ...header,
       _sectionHeader: true,
       count: sectionItems.length,
+      _scrollerId: header.id,
     });
     if (!collapsedSections.value.has(header.sectionId)) {
-      result.push(...sectionItems);
+      result.push(
+        ...sectionItems.map(c => ({
+          ...c,
+          _scrollerId: `${header.sectionId}_${c.id}`,
+        }))
+      );
     }
   });
 
@@ -1053,6 +1045,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       <DynamicScroller
         ref="conversationDynamicScroller"
         :items="scrollerItems"
+        :key-field="showSections ? '_scrollerId' : 'id'"
         :min-item-size="24"
         class="overflow-auto w-full h-full"
       >
