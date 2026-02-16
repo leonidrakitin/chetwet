@@ -241,12 +241,6 @@ const menuItems = computed(() => {
           to: accountScopedRoute('conversation_mentions'),
         },
         {
-          name: 'Unattended',
-          activeOn: ['conversation_through_unattended'],
-          label: t('SIDEBAR.UNATTENDED_CONVERSATIONS'),
-          to: accountScopedRoute('conversation_unattended'),
-        },
-        {
           name: 'Folders',
           label: t('SIDEBAR.CUSTOM_VIEWS_FOLDER'),
           icon: 'i-lucide-folder',
