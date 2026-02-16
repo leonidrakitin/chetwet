@@ -195,6 +195,9 @@ Rails.application.routes.draw do
           resources :segment_reports, only: [] do
             collection do
               get :summary
+              get :trends
+              get 'details/:segment_name', action: :details, as: :details
+              get 'export/:segment_name', action: :export, as: :export
             end
           end
           resources :csat_survey_responses, only: [:index] do
