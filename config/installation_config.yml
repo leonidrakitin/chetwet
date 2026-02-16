@@ -307,6 +307,15 @@
   locked: false
 # ------- End of Compliance Related Config ----#
 
+## ------ Enterprise Toggle ------ ##
+- name: ENTERPRISE_ENABLED
+  display_title: 'Enable Enterprise Features'
+  value: true
+  description: 'Toggle Enterprise features on/off for the entire installation'
+  locked: false
+  type: boolean
+## ------ End of Enterprise Toggle ------ ##
+
 ## ------ Configs added for enterprise clients ------ ##
 - name: API_CHANNEL_NAME
   value:
