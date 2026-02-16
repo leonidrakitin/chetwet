@@ -360,15 +360,29 @@ const toggleSection = sectionId => {
 const groupedItems = computed(() => {
   const all = conversationList.value;
 
-  const unread = all.filter(c => c.unread_count > 0);
-  const snoozed = all.filter(
-    c => c.unread_count === 0 && c.status === 'snoozed'
-  );
-  const inProgress = all.filter(
-    c =>
-      c.unread_count === 0 && c.status !== 'snoozed' && c.status !== 'resolved'
-  );
-  const rest = all.filter(c => c.status === 'resolved' && c.unread_count === 0);
+  const unreadSet = new Set();
+  const snoozedSet = new Set();
+  const inProgressSet = new Set();
+
+  const unread = [];
+  const snoozed = [];
+  const inProgress = [];
+
+  all.forEach(c => {
+    if (c.unread_count > 0) {
+      unread.push(c);
+      unreadSet.add(c.id);
+    } else if (c.status === 'snoozed') {
+      snoozed.push(c);
+      snoozedSet.add(c.id);
+    } else if (c.status !== 'resolved') {
+      inProgress.push(c);
+      inProgressSet.add(c.id);
+    }
+  });
+
+  const assigned = new Set([...unreadSet, ...snoozedSet, ...inProgressSet]);
+  const rest = all.filter(c => !assigned.has(c.id));
 
   const sections = [
     {
