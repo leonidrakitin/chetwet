@@ -6,7 +6,7 @@ module Captain::ChatHelper
   def request_chat_completion
     log_chat_completion_request
 
-    Llm::Config.with_api_key(captain_api_key, api_base: captain_api_base) do |context|
+    Llm::Config.with_api_key(resolve_captain_api_key, api_base: resolve_captain_api_base) do |context|
       chat = build_chat(context)
       add_messages_to_chat(chat)
       with_agent_session do
@@ -40,6 +40,32 @@ module Captain::ChatHelper
 
   def system_api_key
     InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  end
+
+  def deepseek_model?(model_name)
+    Llm::Models.models.dig(model_name, 'provider') == 'deepseek'
+  end
+
+  def resolve_captain_api_key
+    return deepseek_api_key if deepseek_model?(@model) && deepseek_api_key.present?
+
+    captain_api_key
+  end
+
+  def resolve_captain_api_base
+    return deepseek_api_base if deepseek_model?(@model) && deepseek_api_key.present?
+
+    captain_api_base
+  end
+
+  def deepseek_api_key
+    @deepseek_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_API_KEY')&.value
+  end
+
+  def deepseek_api_base
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_ENDPOINT')&.value.presence || 'https://api.deepseek.com/'
+    endpoint = endpoint.chomp('/')
+    "#{endpoint}/v1"
   end
 
   def resolved_account

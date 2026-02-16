@@ -59,7 +59,7 @@ class Captain::BaseTaskService
   end
 
   def execute_ruby_llm_request(model:, messages:, tools: [])
-    Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
+    Llm::Config.with_api_key(resolve_api_key(model), api_base: resolve_api_base(model)) do |context|
       chat = build_chat(context, model: model, messages: messages, tools: tools)
 
       conversation_messages = messages.reject { |m| m[:role] == 'system' }
@@ -165,6 +165,32 @@ class Captain::BaseTaskService
 
   def system_api_key
     @system_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  end
+
+  def deepseek_model?(model_name)
+    Llm::Models.models.dig(model_name, 'provider') == 'deepseek'
+  end
+
+  def resolve_api_key(model_name)
+    return deepseek_api_key if deepseek_model?(model_name) && deepseek_api_key.present?
+
+    api_key
+  end
+
+  def resolve_api_base(model_name)
+    return deepseek_api_base if deepseek_model?(model_name) && deepseek_api_key.present?
+
+    api_base
+  end
+
+  def deepseek_api_key
+    @deepseek_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_API_KEY')&.value
+  end
+
+  def deepseek_api_base
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_ENDPOINT')&.value.presence || 'https://api.deepseek.com/'
+    endpoint = endpoint.chomp('/')
+    "#{endpoint}/v1"
   end
 
   def prompt_from_file(file_name)
