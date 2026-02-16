@@ -430,6 +430,14 @@ const groupedItems = computed(() => {
   return result;
 });
 
+const showSections = computed(() => {
+  return !hasAppliedFiltersOrActiveFolders.value && !props.conversationType;
+});
+
+const scrollerItems = computed(() => {
+  return showSections.value ? groupedItems.value : conversationList.value;
+});
+
 const showEndOfListMessage = computed(() => {
   return (
     conversationList.value.length &&
@@ -1044,7 +1052,7 @@ watch(conversationFilters, (newVal, oldVal) => {
     >
       <DynamicScroller
         ref="conversationDynamicScroller"
-        :items="groupedItems"
+        :items="scrollerItems"
         :min-item-size="24"
         class="overflow-auto w-full h-full"
       >
