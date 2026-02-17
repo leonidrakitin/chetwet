@@ -386,15 +386,15 @@ onMounted(() => {
   <div class="flex flex-col gap-6 py-6">
     <!-- Header with filters -->
     <div
-      class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      class="flex flex-col gap-4 rounded-xl bg-n-solid-2 px-6 py-4 shadow outline outline-1 outline-n-container sm:flex-row sm:items-center sm:justify-between"
     >
-      <h1 class="text-2xl font-bold text-n-slate-12">
+      <h1 class="text-xl font-bold text-n-slate-12">
         {{ $t('SEGMENT_REPORTS.TITLE') }}
       </h1>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <select
           v-model="selectedRange"
-          class="rounded-lg border border-n-weak bg-n-alpha-3 px-3 py-2 text-sm text-n-slate-12"
+          class="h-9 cursor-pointer appearance-none rounded-lg border border-n-weak bg-n-solid-2 px-3 pr-8 text-sm font-medium text-n-slate-12 outline-none transition hover:border-n-brand focus:border-n-brand focus:ring-1 focus:ring-n-brand"
           @change="onRangeChange"
         >
           <option
@@ -409,6 +409,8 @@ onMounted(() => {
           icon="i-lucide-refresh-cw"
           :label="$t('SEGMENT_REPORTS.REFRESH')"
           size="sm"
+          variant="faded"
+          color="slate"
           @click="onRangeChange"
         />
       </div>
