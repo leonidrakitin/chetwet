@@ -11,25 +11,9 @@ class Llm::BaseAiService
   DEFAULT_MODEL = Llm::Config::DEFAULT_MODEL
   DEFAULT_TEMPERATURE = 1.0
 
-  # Provider registry: provider name => { key_name:, endpoint_name:, default_endpoint: }
-  # To add a new provider, add an entry here and configure keys in InstallationConfig.
-  PROVIDER_CONFIGS = {
-    'openai' => {
-      key_name: 'CAPTAIN_OPEN_AI_API_KEY',
-      endpoint_name: 'CAPTAIN_OPEN_AI_ENDPOINT',
-      default_endpoint: 'https://api.openai.com/'
-    },
-    'deepseek' => {
-      key_name: 'CAPTAIN_DEEPSEEK_API_KEY',
-      endpoint_name: 'CAPTAIN_DEEPSEEK_ENDPOINT',
-      default_endpoint: 'https://api.deepseek.com/'
-    },
-    'qwen' => {
-      key_name: 'CAPTAIN_QWEN_API_KEY',
-      endpoint_name: 'CAPTAIN_QWEN_ENDPOINT',
-      default_endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/'
-    }
-  }.freeze
+  # Provider registry defined in Llm::Config::PROVIDER_CONFIGS.
+  # To add a new provider, add an entry there and configure keys in InstallationConfig.
+  PROVIDER_CONFIGS = Llm::Config::PROVIDER_CONFIGS
 
   # Default provider used when a model's provider has no dedicated config
   DEFAULT_PROVIDER = 'openai'
