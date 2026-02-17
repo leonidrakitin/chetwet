@@ -61,22 +61,11 @@ class Messages::Instagram::BaseMessageBuilder < Messages::Messenger::MessageBuil
   end
 
   def set_conversation_based_on_inbox_config
-    if @inbox.lock_to_single_conversation
-      find_conversation_scope.order(created_at: :desc).first || build_conversation
-    else
-      find_or_build_for_multiple_conversations
-    end
+    find_conversation_scope.order(created_at: :desc).first || build_conversation
   end
 
   def find_conversation_scope
     Conversation.where(conversation_params)
-  end
-
-  def find_or_build_for_multiple_conversations
-    last_conversation = find_conversation_scope.where.not(status: :resolved).order(created_at: :desc).first
-    return build_conversation if last_conversation.nil?
-
-    last_conversation
   end
 
   def message_content
