@@ -72,7 +72,10 @@ module Llm::Config
       return if api_key.blank?
 
       prefix = provider[:ruby_llm_prefix]
-      config.public_send(:"#{prefix}_api_key=", api_key)
+      key_setter = :"#{prefix}_api_key="
+      return unless config.respond_to?(key_setter)
+
+      config.public_send(key_setter, api_key)
 
       # Only set api_base when the gem supports it (e.g. openai does, deepseek/qwen may not)
       base_setter = :"#{prefix}_api_base="
