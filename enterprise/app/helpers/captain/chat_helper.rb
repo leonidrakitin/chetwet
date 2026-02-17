@@ -90,8 +90,9 @@ module Captain::ChatHelper
 
   def build_chat(context)
     llm_chat = context.chat(model: @model, provider: :openai, assume_model_exists: true).with_temperature(temperature)
-    llm_chat = llm_chat.with_params(response_format: { type: 'json_object' })
-
+    unless deepseek_model?(@model) || qwen_model?(@model)
+      llm_chat = llm_chat.with_params(response_format: { type: 'json_object' })
+    end
     llm_chat = setup_tools(llm_chat)
     llm_chat = setup_system_instructions(llm_chat)
     setup_event_handlers(llm_chat)
