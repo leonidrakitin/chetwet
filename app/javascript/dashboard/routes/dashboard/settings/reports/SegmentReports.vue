@@ -19,8 +19,8 @@ const totalRevenue = ref(0);
 const segments = ref([]);
 const distribution = ref([]);
 
-// Details modal
-const showDetails = ref(false);
+// Details view (inline, not modal)
+const activeSegment = ref(null);
 const detailsLoading = ref(false);
 const detailsError = ref(null);
 const detailsData = ref(null);
@@ -81,8 +81,13 @@ async function openDetails(segmentName) {
   detailsPage.value = 1;
   detailsData.value = null;
   detailsError.value = null;
-  showDetails.value = true;
+  activeSegment.value = segmentName;
   await loadDetailsPage(segmentName, 1);
+}
+
+function closeDetails() {
+  activeSegment.value = null;
+  detailsData.value = null;
 }
 
 // Donut chart
@@ -348,11 +353,6 @@ async function fetchTrends() {
   }
 }
 
-function closeDetails() {
-  showDetails.value = false;
-  detailsData.value = null;
-}
-
 async function exportCsv() {
   if (!detailsData.value) return;
   try {
@@ -369,6 +369,22 @@ async function exportCsv() {
   } catch {
     // Export error silently ignored
   }
+}
+
+const paginationLabel = computed(() => {
+  if (!detailsData.value?.pagination) return '';
+  const page = t('SEGMENT_REPORTS.DETAILS.PAGE');
+  const total = detailsData.value.pagination.total_pages;
+  const count = detailsData.value.total_clients_in_segment;
+  return `${page} ${detailsPage.value} / ${total} (${count})`;
+});
+
+function onDetailsPrev() {
+  loadDetailsPage(detailsData.value.segment_name, detailsPage.value - 1);
+}
+
+function onDetailsNext() {
+  loadDetailsPage(detailsData.value.segment_name, detailsPage.value + 1);
 }
 
 function onRangeChange() {
@@ -388,10 +404,24 @@ onMounted(() => {
     <div
       class="flex flex-col gap-4 rounded-xl bg-n-solid-2 px-6 py-4 shadow outline outline-1 outline-n-container sm:flex-row sm:items-center sm:justify-between"
     >
-      <h1 class="text-xl font-bold text-n-slate-12">
-        {{ $t('SEGMENT_REPORTS.TITLE') }}
-      </h1>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
+        <button
+          v-if="activeSegment"
+          class="flex size-8 items-center justify-center rounded-lg text-n-slate-11 transition hover:bg-n-alpha-3 hover:text-n-slate-12"
+          @click="closeDetails"
+        >
+          <i class="i-lucide-arrow-left size-4" />
+        </button>
+        <h1 class="text-xl font-medium text-n-slate-12">
+          <template v-if="activeSegment">
+            {{ `${$t('SEGMENT_REPORTS.DETAILS.TITLE')}: ${activeSegment}` }}
+          </template>
+          <template v-else>
+            {{ $t('SEGMENT_REPORTS.TITLE') }}
+          </template>
+        </h1>
+      </div>
+      <div v-if="!activeSegment" class="flex items-center gap-2">
         <select
           v-model="selectedRange"
           class="h-9 cursor-pointer appearance-none rounded-lg border border-n-weak bg-n-solid-2 px-3 pr-8 text-sm font-medium text-n-slate-12 outline-none transition hover:border-n-brand focus:border-n-brand focus:ring-1 focus:ring-n-brand"
@@ -414,396 +444,401 @@ onMounted(() => {
           @click="onRangeChange"
         />
       </div>
+      <div v-else class="flex items-center gap-2">
+        <Button
+          icon="i-lucide-download"
+          :label="$t('SEGMENT_REPORTS.EXPORT_CSV')"
+          size="sm"
+          variant="faded"
+          color="slate"
+          @click="exportCsv"
+        />
+      </div>
     </div>
 
-    <!-- Loading -->
-    <div
-      v-if="loading"
-      class="flex items-center justify-center rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
-    >
-      <Spinner />
-      <span class="ml-3 text-sm text-n-slate-11">
-        {{ $t('SEGMENT_REPORTS.LOADING') }}
-      </span>
-    </div>
-
-    <!-- Error -->
-    <div
-      v-else-if="errorMsg"
-      class="flex flex-col items-center gap-3 rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
-    >
-      <p class="text-sm text-n-ruby-11">
-        {{ errorMsg }}
-      </p>
-      <Button :label="$t('SEGMENT_REPORTS.RETRY')" @click="onRangeChange" />
-    </div>
-
-    <!-- Content -->
-    <template v-else>
-      <!-- Summary cards -->
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <!-- Total card -->
-        <div
-          class="flex flex-col gap-1 rounded-xl bg-n-solid-2 px-4 py-4 shadow outline outline-1 outline-n-container"
-        >
-          <span class="text-xs font-medium text-n-slate-11">
-            {{ $t('SEGMENT_REPORTS.TOTAL_CLIENTS') }}
-          </span>
-          <span class="text-xl font-bold text-n-slate-12">
-            {{ totalClients.toLocaleString('ru-RU') }}
-          </span>
-          <span class="text-xs text-n-slate-11">
-            {{ formatRub(totalRevenue) }}
-          </span>
-        </div>
-
-        <!-- Segment cards -->
-        <div
-          v-for="seg in segments"
-          :key="seg.name"
-          class="flex cursor-pointer flex-col gap-1 rounded-xl bg-n-solid-2 px-4 py-4 shadow outline outline-1 outline-n-container transition hover:outline-n-brand"
-          @click="openDetails(seg.name)"
-        >
-          <div class="flex items-center gap-2">
-            <span
-              class="inline-block size-3 rounded-full"
-              :style="{ backgroundColor: seg.color }"
-            />
-            <span class="text-xs font-medium text-n-slate-11">
-              {{ seg.name }}
-            </span>
-          </div>
-          <span class="text-xl font-bold text-n-slate-12">
-            {{ seg.count.toLocaleString('ru-RU') }}
-          </span>
-          <span class="text-xs text-n-slate-11">
-            {{ formatRub(seg.revenue) }}
-          </span>
-        </div>
+    <!-- ==================== OVERVIEW VIEW ==================== -->
+    <template v-if="!activeSegment">
+      <!-- Loading -->
+      <div
+        v-if="loading"
+        class="flex items-center justify-center rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+      >
+        <Spinner />
+        <span class="ml-3 text-sm text-n-slate-11">
+          {{ $t('SEGMENT_REPORTS.LOADING') }}
+        </span>
       </div>
 
-      <!-- Charts row 1: Donut + Clients bar -->
-      <div class="grid gap-6 lg:grid-cols-2">
-        <div
-          class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
-        >
-          <h2 class="mb-4 text-base font-semibold text-n-slate-12">
-            {{ $t('SEGMENT_REPORTS.DONUT_TITLE') }}
-          </h2>
-          <VueApexCharts
-            type="donut"
-            height="380"
-            :options="donutOptions"
-            :series="donutSeries"
-          />
+      <!-- Error -->
+      <div
+        v-else-if="errorMsg"
+        class="flex flex-col items-center gap-3 rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+      >
+        <p class="text-sm text-n-ruby-11">
+          {{ errorMsg }}
+        </p>
+        <Button :label="$t('SEGMENT_REPORTS.RETRY')" @click="onRangeChange" />
+      </div>
+
+      <!-- Content -->
+      <template v-else>
+        <!-- Summary cards -->
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <!-- Total card -->
+          <div
+            class="flex flex-col gap-1 rounded-xl bg-n-solid-2 px-4 py-4 shadow outline outline-1 outline-n-container"
+          >
+            <span class="text-xs font-medium text-n-slate-11">
+              {{ $t('SEGMENT_REPORTS.TOTAL_CLIENTS') }}
+            </span>
+            <span class="text-xl font-bold text-n-slate-12">
+              {{ totalClients.toLocaleString('ru-RU') }}
+            </span>
+            <span class="text-xs text-n-slate-11">
+              {{ formatRub(totalRevenue) }}
+            </span>
+          </div>
+
+          <!-- Segment cards -->
+          <div
+            v-for="seg in segments"
+            :key="seg.name"
+            class="flex cursor-pointer flex-col gap-1 rounded-xl bg-n-solid-2 px-4 py-4 shadow outline outline-1 outline-n-container transition hover:outline-n-brand"
+            @click="openDetails(seg.name)"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-block size-3 rounded-full"
+                :style="{ backgroundColor: seg.color }"
+              />
+              <span class="text-xs font-medium text-n-slate-11">
+                {{ seg.name }}
+              </span>
+            </div>
+            <span class="text-xl font-bold text-n-slate-12">
+              {{ seg.count.toLocaleString('ru-RU') }}
+            </span>
+            <span class="text-xs text-n-slate-11">
+              {{ formatRub(seg.revenue) }}
+            </span>
+          </div>
         </div>
 
+        <!-- Charts row 1: Donut + Clients bar -->
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div
+            class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+          >
+            <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+              {{ $t('SEGMENT_REPORTS.DONUT_TITLE') }}
+            </h2>
+            <VueApexCharts
+              type="donut"
+              height="380"
+              :options="donutOptions"
+              :series="donutSeries"
+            />
+          </div>
+
+          <div
+            class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+          >
+            <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+              {{ $t('SEGMENT_REPORTS.BAR_TITLE') }}
+            </h2>
+            <VueApexCharts
+              type="bar"
+              height="380"
+              :options="barOptions"
+              :series="barSeries"
+            />
+          </div>
+        </div>
+
+        <!-- Charts row 2: Revenue bar -->
         <div
           class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
         >
           <h2 class="mb-4 text-base font-semibold text-n-slate-12">
-            {{ $t('SEGMENT_REPORTS.BAR_TITLE') }}
+            {{ $t('SEGMENT_REPORTS.REVENUE_BAR_TITLE') }}
           </h2>
           <VueApexCharts
             type="bar"
-            height="380"
-            :options="barOptions"
-            :series="barSeries"
+            height="320"
+            :options="revenueBarOptions"
+            :series="revenueSeries"
           />
         </div>
-      </div>
 
-      <!-- Charts row 2: Revenue bar -->
-      <div
-        class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
-      >
-        <h2 class="mb-4 text-base font-semibold text-n-slate-12">
-          {{ $t('SEGMENT_REPORTS.REVENUE_BAR_TITLE') }}
-        </h2>
-        <VueApexCharts
-          type="bar"
-          height="320"
-          :options="revenueBarOptions"
-          :series="revenueSeries"
-        />
-      </div>
-
-      <!-- Trends line chart -->
-      <div
-        class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
-      >
-        <h2 class="mb-4 text-base font-semibold text-n-slate-12">
-          {{ $t('SEGMENT_REPORTS.TRENDS_TITLE') }}
-        </h2>
+        <!-- Trends line chart -->
         <div
-          v-if="trendsLoading"
-          class="flex items-center justify-center py-12"
+          class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
         >
-          <Spinner />
+          <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+            {{ $t('SEGMENT_REPORTS.TRENDS_TITLE') }}
+          </h2>
+          <div
+            v-if="trendsLoading"
+            class="flex items-center justify-center py-12"
+          >
+            <Spinner />
+          </div>
+          <VueApexCharts
+            v-else-if="trendsData.length"
+            type="line"
+            height="320"
+            :options="trendsOptions"
+            :series="trendsSeries"
+          />
         </div>
-        <VueApexCharts
-          v-else-if="trendsData.length"
-          type="line"
-          height="320"
-          :options="trendsOptions"
-          :series="trendsSeries"
-        />
-      </div>
+      </template>
     </template>
 
-    <!-- Details modal -->
-    <woot-modal v-model:show="showDetails" :on-close="closeDetails">
-      <div class="flex max-h-[80vh] flex-col overflow-hidden">
-        <woot-modal-header
-          :header-title="
-            detailsData
-              ? `${$t('SEGMENT_REPORTS.DETAILS.TITLE')}: ${detailsData.segment_name}`
-              : $t('SEGMENT_REPORTS.DETAILS.TITLE')
-          "
-        />
+    <!-- ==================== DETAILS VIEW (inline) ==================== -->
+    <template v-else>
+      <!-- Details loading -->
+      <div
+        v-if="detailsLoading && !detailsData"
+        class="flex items-center justify-center rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+      >
+        <Spinner />
+        <span class="ml-3 text-sm text-n-slate-11">
+          {{ $t('SEGMENT_REPORTS.DETAILS.LOADING') }}
+        </span>
+      </div>
 
-        <!-- Details loading -->
-        <div
-          v-if="detailsLoading && !detailsData"
-          class="flex items-center justify-center p-12"
-        >
-          <Spinner />
-          <span class="ml-3 text-sm text-n-slate-11">
-            {{ $t('SEGMENT_REPORTS.DETAILS.LOADING') }}
-          </span>
-        </div>
-
-        <!-- Details error -->
-        <div
-          v-else-if="detailsError && !detailsData"
-          class="p-8 text-center text-sm text-n-ruby-11"
-        >
+      <!-- Details error -->
+      <div
+        v-else-if="detailsError && !detailsData"
+        class="flex flex-col items-center gap-3 rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+      >
+        <p class="text-sm text-n-ruby-11">
           {{ detailsError }}
+        </p>
+        <Button
+          :label="$t('SEGMENT_REPORTS.RETRY')"
+          @click="openDetails(activeSegment)"
+        />
+      </div>
+
+      <!-- Details content -->
+      <template v-else-if="detailsData">
+        <!-- Metrics bar (CSAT-style) -->
+        <div
+          class="flex flex-col gap-14 rounded-xl bg-n-solid-2 px-6 py-5 shadow outline outline-1 outline-n-container sm:flex-row"
+        >
+          <div
+            class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
+          >
+            <span
+              class="inline-flex items-center gap-1 text-sm font-medium text-n-slate-11"
+            >
+              {{ $t('SEGMENT_REPORTS.DETAILS.CRITERIA') }}
+            </span>
+            <span class="text-sm text-n-slate-12">
+              {{ detailsData.criteria }}
+            </span>
+          </div>
+
+          <div class="hidden w-px bg-n-strong sm:block" />
+
+          <div
+            class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
+          >
+            <span class="text-sm font-medium text-n-slate-11">
+              {{ $t('SEGMENT_REPORTS.DETAILS.JOINED') }}
+            </span>
+            <span class="text-2xl font-medium text-n-teal-11">
+              {{ `+${detailsData.recent_changes.joined}` }}
+            </span>
+          </div>
+
+          <div class="hidden w-px bg-n-strong sm:block" />
+
+          <div
+            class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
+          >
+            <span class="text-sm font-medium text-n-slate-11">
+              {{ $t('SEGMENT_REPORTS.DETAILS.LEFT') }}
+            </span>
+            <span class="text-2xl font-medium text-n-ruby-11">
+              {{ `-${detailsData.recent_changes.left}` }}
+            </span>
+          </div>
+
+          <div class="hidden w-px bg-n-strong sm:block" />
+
+          <div
+            class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
+          >
+            <span class="text-sm font-medium text-n-slate-11">
+              {{ $t('SEGMENT_REPORTS.DETAILS.AVG_CHECK') }}
+            </span>
+            <span class="text-2xl font-medium text-n-slate-12">
+              {{ formatRub(detailsData.avg_metrics.avg_check) }}
+            </span>
+          </div>
+
+          <div class="hidden w-px bg-n-strong sm:block" />
+
+          <div
+            class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
+          >
+            <span class="text-sm font-medium text-n-slate-11">
+              {{ $t('SEGMENT_REPORTS.DETAILS.AVG_PURCHASES') }}
+            </span>
+            <span class="text-2xl font-medium text-n-slate-12">
+              {{ detailsData.avg_metrics.avg_purchase_count }}
+            </span>
+          </div>
         </div>
 
-        <!-- Details content -->
+        <!-- Notifications -->
         <div
-          v-else-if="detailsData"
-          class="flex flex-col gap-5 overflow-y-auto px-8 pb-8"
+          v-if="detailsData.notifications.length"
+          class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
         >
-          <!-- Criteria -->
-          <div>
-            <h3 class="mb-1 text-sm font-semibold text-n-slate-12">
-              {{ $t('SEGMENT_REPORTS.DETAILS.CRITERIA') }}
-            </h3>
-            <p class="text-sm text-n-slate-11">
-              {{ detailsData.criteria }}
-            </p>
-          </div>
+          <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+            {{ $t('SEGMENT_REPORTS.DETAILS.NOTIFICATIONS') }}
+          </h2>
+          <ul class="flex flex-col gap-2">
+            <li
+              v-for="(notif, idx) in detailsData.notifications"
+              :key="idx"
+              class="flex items-center gap-3 rounded-lg bg-n-alpha-3 px-4 py-3"
+            >
+              <span
+                class="rounded bg-n-alpha-5 px-2 py-0.5 text-xs font-medium uppercase text-n-slate-11"
+              >
+                {{ notif.type }}
+              </span>
+              <span class="text-sm text-n-slate-12">
+                {{ notif.subject }}
+              </span>
+              <span class="ml-auto text-xs text-n-slate-11">
+                {{ notif.sent_at }}
+              </span>
+            </li>
+          </ul>
+        </div>
 
-          <!-- Recent changes + Avg metrics -->
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <div
-              class="flex flex-col gap-0.5 rounded-lg bg-n-alpha-3 px-3 py-3"
+        <!-- Suggestions -->
+        <div
+          v-if="detailsData.improvement_suggestions.length"
+          class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+        >
+          <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+            {{ $t('SEGMENT_REPORTS.DETAILS.SUGGESTIONS') }}
+          </h2>
+          <ul class="flex flex-col gap-2">
+            <li
+              v-for="(suggestion, idx) in detailsData.improvement_suggestions"
+              :key="idx"
+              class="flex items-start gap-2 text-sm text-n-slate-11"
             >
-              <span class="text-xs text-n-slate-11">
-                {{ $t('SEGMENT_REPORTS.DETAILS.JOINED') }}
-              </span>
-              <span class="text-lg font-bold text-n-teal-11">
-                +{{ detailsData.recent_changes.joined }}
-              </span>
-            </div>
-            <div
-              class="flex flex-col gap-0.5 rounded-lg bg-n-alpha-3 px-3 py-3"
-            >
-              <span class="text-xs text-n-slate-11">
-                {{ $t('SEGMENT_REPORTS.DETAILS.LEFT') }}
-              </span>
-              <span class="text-lg font-bold text-n-ruby-11">
-                -{{ detailsData.recent_changes.left }}
-              </span>
-            </div>
-            <div
-              class="flex flex-col gap-0.5 rounded-lg bg-n-alpha-3 px-3 py-3"
-            >
-              <span class="text-xs text-n-slate-11">
-                {{ $t('SEGMENT_REPORTS.DETAILS.AVG_CHECK') }}
-              </span>
-              <span class="text-lg font-bold text-n-slate-12">
-                {{ formatRub(detailsData.avg_metrics.avg_check) }}
-              </span>
-            </div>
-            <div
-              class="flex flex-col gap-0.5 rounded-lg bg-n-alpha-3 px-3 py-3"
-            >
-              <span class="text-xs text-n-slate-11">
-                {{ $t('SEGMENT_REPORTS.DETAILS.AVG_RECENCY') }}
-              </span>
-              <span class="text-lg font-bold text-n-slate-12">
-                {{ detailsData.avg_metrics.avg_recency_days }}
-              </span>
-            </div>
-            <div
-              class="flex flex-col gap-0.5 rounded-lg bg-n-alpha-3 px-3 py-3"
-            >
-              <span class="text-xs text-n-slate-11">
-                {{ $t('SEGMENT_REPORTS.DETAILS.AVG_PURCHASES') }}
-              </span>
-              <span class="text-lg font-bold text-n-slate-12">
-                {{ detailsData.avg_metrics.avg_purchase_count }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Clients table -->
-          <div>
-            <div class="mb-2 flex items-center justify-between">
-              <h3 class="text-sm font-semibold text-n-slate-12">
-                {{ $t('SEGMENT_REPORTS.DETAILS.CLIENTS_TABLE') }}
-                ({{ detailsData.total_clients_in_segment }})
-              </h3>
-              <Button
-                icon="i-lucide-download"
-                :label="$t('SEGMENT_REPORTS.EXPORT_CSV')"
-                size="sm"
-                variant="faded"
-                color="slate"
-                @click="exportCsv"
+              <span
+                class="mt-1 inline-block size-1.5 flex-shrink-0 rounded-full bg-n-brand"
               />
-            </div>
+              {{ suggestion }}
+            </li>
+          </ul>
+        </div>
 
-            <div
-              v-if="detailsData.clients.length"
-              class="overflow-x-auto rounded-lg border border-n-weak"
-            >
-              <table class="w-full min-w-[36rem]">
-                <thead class="bg-n-alpha-3">
-                  <tr>
-                    <th
-                      class="px-4 py-2.5 text-left text-xs font-medium text-n-slate-11"
-                    >
-                      {{ $t('SEGMENT_REPORTS.DETAILS.COL_NAME') }}
-                    </th>
-                    <th
-                      class="px-4 py-2.5 text-right text-xs font-medium text-n-slate-11"
-                    >
-                      {{ $t('SEGMENT_REPORTS.DETAILS.COL_PURCHASES') }}
-                    </th>
-                    <th
-                      class="px-4 py-2.5 text-right text-xs font-medium text-n-slate-11"
-                    >
-                      {{ $t('SEGMENT_REPORTS.DETAILS.COL_LAST_PURCHASE') }}
-                    </th>
-                    <th
-                      class="px-4 py-2.5 text-right text-xs font-medium text-n-slate-11"
-                    >
-                      {{ $t('SEGMENT_REPORTS.DETAILS.COL_TOTAL_SPENT') }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-n-weak">
-                  <tr
-                    v-for="client in detailsData.clients"
-                    :key="client.id"
-                    class="hover:bg-n-alpha-1"
+        <!-- Clients table (CSAT-style) -->
+        <div
+          class="overflow-hidden rounded-xl bg-n-solid-2 shadow outline outline-1 outline-n-container"
+        >
+          <div v-if="detailsData.clients.length" class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="border-b border-n-container bg-n-solid-2">
+                <tr>
+                  <th
+                    class="px-5 py-3 text-left text-sm font-medium text-n-slate-12"
                   >
-                    <td class="px-4 py-2.5 text-sm text-n-slate-12">
-                      {{ client.name }}
-                    </td>
-                    <td class="px-4 py-2.5 text-right text-sm text-n-slate-12">
-                      {{ client.purchase_count }}
-                    </td>
-                    <td class="px-4 py-2.5 text-right text-sm text-n-slate-11">
-                      {{ client.last_purchase || '—' }}
-                    </td>
-                    <td
-                      class="px-4 py-2.5 text-right text-sm font-medium text-n-slate-12"
-                    >
-                      {{ formatRub(client.total_spent) }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p v-else class="py-4 text-center text-sm text-n-slate-11">
+                    {{ $t('SEGMENT_REPORTS.DETAILS.COL_NAME') }}
+                  </th>
+                  <th
+                    class="px-5 py-3 text-right text-sm font-medium text-n-slate-12"
+                  >
+                    {{ $t('SEGMENT_REPORTS.DETAILS.COL_PURCHASES') }}
+                  </th>
+                  <th
+                    class="px-5 py-3 text-right text-sm font-medium text-n-slate-12"
+                  >
+                    {{ $t('SEGMENT_REPORTS.DETAILS.COL_LAST_PURCHASE') }}
+                  </th>
+                  <th
+                    class="px-5 py-3 text-right text-sm font-medium text-n-slate-12"
+                  >
+                    {{ $t('SEGMENT_REPORTS.DETAILS.COL_TOTAL_SPENT') }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-n-container">
+                <tr
+                  v-for="client in detailsData.clients"
+                  :key="client.id"
+                  class="transition-colors hover:bg-n-slate-2 dark:hover:bg-n-solid-3"
+                >
+                  <td class="px-5 py-4 text-sm text-n-slate-12">
+                    {{ client.name }}
+                  </td>
+                  <td class="px-5 py-4 text-right text-sm text-n-slate-12">
+                    {{ client.purchase_count }}
+                  </td>
+                  <td class="px-5 py-4 text-right text-sm text-n-slate-11">
+                    {{ client.last_purchase || '—' }}
+                  </td>
+                  <td
+                    class="px-5 py-4 text-right text-sm font-medium text-n-slate-12"
+                  >
+                    {{ formatRub(client.total_spent) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div
+            v-else
+            class="flex flex-col items-center justify-center px-6 py-12"
+          >
+            <p class="text-sm text-n-slate-11">
               {{ $t('SEGMENT_REPORTS.DETAILS.NO_CLIENTS') }}
             </p>
+          </div>
 
-            <!-- Pagination -->
-            <div
-              v-if="
-                detailsData.pagination && detailsData.pagination.total_pages > 1
-              "
-              class="mt-3 flex items-center justify-center gap-2"
-            >
+          <!-- Pagination -->
+          <div
+            v-if="detailsData.pagination?.total_pages > 1"
+            class="flex items-center justify-between border-t border-n-weak px-6 py-4"
+          >
+            <p class="mb-0 truncate text-sm text-n-slate-11">
+              {{ paginationLabel }}
+            </p>
+            <nav class="inline-flex items-center gap-1.5">
               <Button
-                size="xs"
-                variant="faded"
-                color="slate"
                 icon="i-lucide-chevron-left"
-                :disabled="detailsPage <= 1"
-                @click="
-                  loadDetailsPage(detailsData.segment_name, detailsPage - 1)
-                "
-              />
-              <span class="text-sm text-n-slate-11">
-                {{ $t('SEGMENT_REPORTS.DETAILS.PAGE') }}
-                {{ detailsPage }} / {{ detailsData.pagination.total_pages }}
-              </span>
-              <Button
-                size="xs"
-                variant="faded"
+                size="sm"
+                variant="ghost"
                 color="slate"
-                icon="i-lucide-chevron-right"
-                :disabled="detailsPage >= detailsData.pagination.total_pages"
-                @click="
-                  loadDetailsPage(detailsData.segment_name, detailsPage + 1)
-                "
+                class="!size-6"
+                :disabled="detailsPage <= 1"
+                @click="onDetailsPrev"
               />
-            </div>
-          </div>
-
-          <!-- Notifications -->
-          <div v-if="detailsData.notifications.length">
-            <h3 class="mb-2 text-sm font-semibold text-n-slate-12">
-              {{ $t('SEGMENT_REPORTS.DETAILS.NOTIFICATIONS') }}
-            </h3>
-            <ul class="flex flex-col gap-2">
-              <li
-                v-for="(notif, idx) in detailsData.notifications"
-                :key="idx"
-                class="flex items-center gap-3 rounded-lg bg-n-alpha-3 px-3 py-2"
-              >
-                <span
-                  class="rounded bg-n-alpha-5 px-2 py-0.5 text-xs font-medium uppercase text-n-slate-11"
-                >
-                  {{ notif.type }}
-                </span>
-                <span class="text-sm text-n-slate-12">
-                  {{ notif.subject }}
-                </span>
-                <span class="ml-auto text-xs text-n-slate-11">
-                  {{ notif.sent_at }}
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Suggestions -->
-          <div v-if="detailsData.improvement_suggestions.length">
-            <h3 class="mb-2 text-sm font-semibold text-n-slate-12">
-              {{ $t('SEGMENT_REPORTS.DETAILS.SUGGESTIONS') }}
-            </h3>
-            <ul class="flex flex-col gap-1.5">
-              <li
-                v-for="(suggestion, idx) in detailsData.improvement_suggestions"
-                :key="idx"
-                class="flex items-start gap-2 text-sm text-n-slate-11"
-              >
-                <span
-                  class="mt-1 inline-block size-1.5 flex-shrink-0 rounded-full bg-n-brand"
-                />
-                {{ suggestion }}
-              </li>
-            </ul>
+              <Button
+                icon="i-lucide-chevron-right"
+                size="sm"
+                variant="ghost"
+                color="slate"
+                class="!size-6"
+                :disabled="detailsPage >= detailsData.pagination.total_pages"
+                @click="onDetailsNext"
+              />
+            </nav>
           </div>
         </div>
-      </div>
-    </woot-modal>
+      </template>
+    </template>
   </div>
 </template>
