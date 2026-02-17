@@ -369,6 +369,13 @@ const groupedItems = computed(() => {
       c.unread_count === 0 && c.status !== 'snoozed' && c.status !== 'resolved'
   );
 
+  const categorizedIds = new Set([
+    ...unread.map(c => c.id),
+    ...snoozed.map(c => c.id),
+    ...inProgress.map(c => c.id),
+  ]);
+  const remaining = all.filter(c => !categorizedIds.has(c.id));
+
   const sections = [
     {
       id: '__header_unread',
@@ -396,7 +403,7 @@ const groupedItems = computed(() => {
       sectionId: 'all',
       label: t('CHAT_LIST.SECTIONS.ALL'),
       badgeClass: 'bg-n-alpha-2 text-n-slate-12',
-      items: all,
+      items: remaining,
     },
   ];
 
