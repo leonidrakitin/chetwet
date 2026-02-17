@@ -83,6 +83,14 @@ models:
     provider: qwen
     display_name: 'Qwen MT Lite'
     credit_multiplier: 1
+  "qwen2.5:0.5b":
+    provider: qwen
+    display_name: 'Qwen 2.5 0.5B'
+    credit_multiplier: 1
+  "qwen3-embedding:0.6b":
+    provider: qwen
+    display_name: 'Qwen3 Embedding 0.6B'
+    credit_multiplier: 1
   whisper-1:
     provider: openai
     display_name: 'Whisper'
@@ -110,6 +118,7 @@ features:
         qwen3-coder-plus,
         qwen3.5-plus,
         qwen-mt-lite,
+        "qwen2.5:0.5b",
       ]
     default: gpt-4.1-mini
   assistant:
@@ -128,6 +137,7 @@ features:
         qwen3-coder-plus,
         qwen3.5-plus,
         qwen-mt-lite,
+        "qwen2.5:0.5b",
       ]
     default: gpt-5.1
   copilot:
@@ -146,15 +156,16 @@ features:
         qwen3-coder-plus,
         qwen3.5-plus,
         qwen-mt-lite,
+        "qwen2.5:0.5b",
       ]
     default: gpt-5.1
   label_suggestion:
     models:
-      [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5, deepseek-chat, deepseek-reasoner, qwen3-coder-plus, qwen3.5-plus, qwen-mt-lite]
+      [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5, deepseek-chat, deepseek-reasoner, qwen3-coder-plus, qwen3.5-plus, qwen-mt-lite, "qwen2.5:0.5b"]
     default: gpt-4.1-nano
   audio_transcription:
     models: [whisper-1]
     default: whisper-1
   help_center_search:
-    models: [text-embedding-3-small]
+    models: [text-embedding-3-small, "qwen3-embedding:0.6b"]
     default: text-embedding-3-small

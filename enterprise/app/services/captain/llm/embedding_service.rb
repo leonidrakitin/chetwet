@@ -17,7 +17,13 @@ class Captain::Llm::EmbeddingService
     return [] if content.blank?
 
     instrument_embedding_call(instrumentation_params(content, model)) do
-      RubyLLM.embed(content, model: model).vectors
+      if embedding_api_key.present? && embedding_api_base.present?
+        Llm::Config.with_api_key(embedding_api_key, api_base: embedding_api_base) do
+          RubyLLM.embed(content, model: model, provider: :openai, assume_model_exists: true).vectors
+        end
+      else
+        RubyLLM.embed(content, model: model).vectors
+      end
     end
   rescue RubyLLM::Error => e
     Rails.logger.error "Embedding API Error: #{e.message}"
@@ -25,6 +31,17 @@ class Captain::Llm::EmbeddingService
   end
 
   private
+
+  def embedding_api_key
+    @embedding_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_API_KEY')&.value
+  end
+
+  def embedding_api_base
+    return @embedding_api_base if defined?(@embedding_api_base)
+
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_ENDPOINT')&.value.presence
+    @embedding_api_base = endpoint.present? ? "#{endpoint.chomp('/')}/v1" : nil
+  end
 
   def instrumentation_params(content, model)
     {
