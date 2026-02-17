@@ -2,14 +2,43 @@
 
 # Base service for LLM operations using RubyLLM.
 # New features should inherit from this class.
+#
+# Supports multiple providers (OpenAI, DeepSeek, Qwen, etc.) with automatic
+# API key and endpoint resolution based on the selected model's provider.
+# Provider configs are resolved from InstallationConfig using a naming convention:
+#   CAPTAIN_{PROVIDER}_API_KEY, CAPTAIN_{PROVIDER}_ENDPOINT
 class Llm::BaseAiService
   DEFAULT_MODEL = Llm::Config::DEFAULT_MODEL
   DEFAULT_TEMPERATURE = 1.0
 
+  # Provider registry: provider name => { key_name:, endpoint_name:, default_endpoint: }
+  # To add a new provider, add an entry here and configure keys in InstallationConfig.
+  PROVIDER_CONFIGS = {
+    'openai' => {
+      key_name: 'CAPTAIN_OPEN_AI_API_KEY',
+      endpoint_name: 'CAPTAIN_OPEN_AI_ENDPOINT',
+      default_endpoint: 'https://api.openai.com/'
+    },
+    'deepseek' => {
+      key_name: 'CAPTAIN_DEEPSEEK_API_KEY',
+      endpoint_name: 'CAPTAIN_DEEPSEEK_ENDPOINT',
+      default_endpoint: 'https://api.deepseek.com/'
+    },
+    'qwen' => {
+      key_name: 'CAPTAIN_QWEN_API_KEY',
+      endpoint_name: 'CAPTAIN_QWEN_ENDPOINT',
+      default_endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/'
+    }
+  }.freeze
+
+  # Default provider used when a model's provider has no dedicated config
+  DEFAULT_PROVIDER = 'openai'
+
   attr_reader :model, :temperature
 
-  def initialize
+  def initialize(account: nil)
     Llm::Config.initialize!
+    @account = account
     setup_model
     setup_temperature
   end
@@ -23,63 +52,66 @@ class Llm::BaseAiService
   private
 
   def setup_model
-    config_value = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value
-    @model = (config_value.presence || DEFAULT_MODEL)
+    config_value = fetch_config('CAPTAIN_OPEN_AI_MODEL')
+    @model = config_value.presence || DEFAULT_MODEL
   end
 
   def setup_temperature
     @temperature = DEFAULT_TEMPERATURE
   end
 
-  def api_key
-    @api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  # Resolves provider name for a given model from llm.yml config.
+  # Falls back to DEFAULT_PROVIDER if the model is not found.
+  def provider_for(model_name)
+    Llm::Models.models.dig(model_name, 'provider') || DEFAULT_PROVIDER
   end
 
-  def api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1"
+  # Returns the provider config hash, falling back to openai for unknown providers.
+  def provider_config_for(model_name)
+    provider = provider_for(model_name)
+    PROVIDER_CONFIGS[provider] || PROVIDER_CONFIGS[DEFAULT_PROVIDER]
   end
 
-  def deepseek_model?(model_name)
-    Llm::Models.models.dig(model_name, 'provider') == 'deepseek'
-  end
-
-  def qwen_model?(model_name)
-    Llm::Models.models.dig(model_name, 'provider') == 'qwen'
-  end
-
+  # Resolves the API key for a model. Tries the model's provider first,
+  # then falls back to the default (OpenAI) provider key.
   def resolve_api_key(model_name)
-    return deepseek_api_key if deepseek_model?(model_name) && deepseek_api_key.present?
-    return qwen_api_key if qwen_model?(model_name) && qwen_api_key.present?
+    config = provider_config_for(model_name)
+    key = fetch_config(config[:key_name])
+    return key if key.present?
 
-    api_key
+    # Fall back to default provider key if the model's provider has no key configured
+    return fetch_config(PROVIDER_CONFIGS[DEFAULT_PROVIDER][:key_name]) if config != PROVIDER_CONFIGS[DEFAULT_PROVIDER]
+
+    key
   end
 
+  # Resolves the API base URL for a model. Uses the model's provider endpoint
+  # if its API key is present, otherwise falls back to the default provider.
   def resolve_api_base(model_name)
-    return deepseek_api_base if deepseek_model?(model_name) && deepseek_api_key.present?
-    return qwen_api_base if qwen_model?(model_name) && qwen_api_key.present?
+    config = provider_config_for(model_name)
+    key = fetch_config(config[:key_name])
 
-    api_base
+    active_config = if key.present?
+                      config
+                    else
+                      PROVIDER_CONFIGS[DEFAULT_PROVIDER]
+                    end
+
+    build_api_base(active_config)
   end
 
-  def deepseek_api_key
-    @deepseek_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_API_KEY')&.value
-  end
-
-  def deepseek_api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_ENDPOINT')&.value.presence || 'https://api.deepseek.com/'
+  def build_api_base(config)
+    endpoint = fetch_config(config[:endpoint_name]).presence || config[:default_endpoint]
     endpoint = endpoint.chomp('/')
     "#{endpoint}/v1"
   end
 
-  def qwen_api_key
-    @qwen_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_QWEN_API_KEY')&.value
-  end
+  # Fetches a config value from InstallationConfig with memoization.
+  # Uses instance-level cache to avoid repeated DB lookups within a single service call.
+  def fetch_config(name)
+    @config_cache ||= {}
+    return @config_cache[name] if @config_cache.key?(name)
 
-  def qwen_api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_QWEN_ENDPOINT')&.value.presence || 'https://dashscope.aliyuncs.com/compatible-mode/'
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1"
+    @config_cache[name] = InstallationConfig.find_by(name: name)&.value
   end
 end
