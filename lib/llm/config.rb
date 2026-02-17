@@ -74,8 +74,12 @@ module Llm::Config
       prefix = provider[:ruby_llm_prefix]
       config.public_send(:"#{prefix}_api_key=", api_key)
 
+      # Only set api_base when the gem supports it (e.g. openai does, deepseek/qwen may not)
+      base_setter = :"#{prefix}_api_base="
+      return unless config.respond_to?(base_setter)
+
       endpoint = fetch_config(provider[:endpoint_name]).presence || provider[:default_endpoint]
-      config.public_send(:"#{prefix}_api_base=", endpoint.chomp('/'))
+      config.public_send(base_setter, endpoint.chomp('/'))
     end
 
     def fetch_config(name)
