@@ -67,17 +67,21 @@ models:
     provider: deepseek
     display_name: 'DeepSeek R1'
     credit_multiplier: 2
-  qwen-max:
+  qwen3-coder-plus:
     provider: qwen
-    display_name: 'Qwen Max'
-    credit_multiplier: 2
-  qwen-plus:
-    provider: qwen
-    display_name: 'Qwen Plus'
+    display_name: 'Qwen3 Coder Plus'
     credit_multiplier: 1
-  qwen-turbo:
+  text-embedding-v3:
     provider: qwen
-    display_name: 'Qwen Turbo'
+    display_name: 'Qwen Text Embedding V3'
+    credit_multiplier: 1
+  qwen3.5-plus:
+    provider: qwen
+    display_name: 'Qwen 3.5 Plus'
+    credit_multiplier: 1
+  qwen-mt-lite:
+    provider: qwen
+    display_name: 'Qwen MT Lite'
     credit_multiplier: 1
   whisper-1:
     provider: openai
@@ -103,9 +107,6 @@ features:
         gemini-3-pro,
         deepseek-chat,
         deepseek-reasoner,
-        qwen-max,
-        qwen-plus,
-        qwen-turbo,
       ]
     default: gpt-4.1-mini
   assistant:
@@ -121,8 +122,6 @@ features:
         gemini-3-pro,
         deepseek-chat,
         deepseek-reasoner,
-        qwen-max,
-        qwen-plus,
       ]
     default: gpt-5.1
   copilot:
@@ -138,13 +137,11 @@ features:
         gemini-3-pro,
         deepseek-chat,
         deepseek-reasoner,
-        qwen-max,
-        qwen-plus,
       ]
     default: gpt-5.1
   label_suggestion:
     models:
-      [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5, deepseek-chat, deepseek-reasoner, qwen-plus, qwen-turbo]
+      [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5, deepseek-chat, deepseek-reasoner]
     default: gpt-4.1-nano
   audio_transcription:
     models: [whisper-1]
