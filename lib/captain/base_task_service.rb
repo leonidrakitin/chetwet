@@ -9,6 +9,9 @@ class Captain::BaseTaskService
   TOKEN_LIMIT = 400_000
   DEFAULT_MODEL = Llm::Config::DEFAULT_MODEL
 
+  PROVIDER_CONFIGS = Llm::Config::PROVIDER_CONFIGS
+  DEFAULT_PROVIDER = 'openai'
+
   # Prepend enterprise module to subclasses when they're defined.
   # This ensures the enterprise perform wrapper is applied even when
   # subclasses define their own perform method, since prepend puts
@@ -30,14 +33,8 @@ class Captain::BaseTaskService
     @conversation ||= account.conversations.find_by(display_id: conversation_display_id)
   end
 
-  def api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1"
-  end
-
   def model
-    InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || DEFAULT_MODEL
+    fetch_config('CAPTAIN_OPEN_AI_MODEL').presence || DEFAULT_MODEL
   end
 
   def make_api_call(model:, messages:, tools: [])
@@ -155,58 +152,60 @@ class Captain::BaseTaskService
     api_key.present?
   end
 
+  # Account-level hook override for the default (openai) provider,
+  # falling back to system-level InstallationConfig.
   def api_key
-    @api_key ||= openai_hook&.settings&.dig('api_key') || system_api_key
+    @api_key ||= openai_hook&.settings&.dig('api_key') || fetch_config('CAPTAIN_OPEN_AI_API_KEY')
   end
 
   def openai_hook
     @openai_hook ||= account.hooks.find_by(app_id: 'openai', status: 'enabled')
   end
 
-  def system_api_key
-    @system_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  def provider_for(model_name)
+    Llm::Models.models.dig(model_name, 'provider') || DEFAULT_PROVIDER
   end
 
-  def deepseek_model?(model_name)
-    Llm::Models.models.dig(model_name, 'provider') == 'deepseek'
-  end
-
-  def qwen_model?(model_name)
-    Llm::Models.models.dig(model_name, 'provider') == 'qwen'
+  def provider_config_for(model_name)
+    provider = provider_for(model_name)
+    PROVIDER_CONFIGS[provider] || PROVIDER_CONFIGS[DEFAULT_PROVIDER]
   end
 
   def resolve_api_key(model_name)
-    return deepseek_api_key if deepseek_model?(model_name) && deepseek_api_key.present?
-    return qwen_api_key if qwen_model?(model_name) && qwen_api_key.present?
+    config = provider_config_for(model_name)
+    provider = provider_for(model_name)
+
+    if provider != DEFAULT_PROVIDER
+      key = fetch_config(config[:key_name])
+      return key if key.present?
+    end
 
     api_key
   end
 
   def resolve_api_base(model_name)
-    return deepseek_api_base if deepseek_model?(model_name) && deepseek_api_key.present?
-    return qwen_api_base if qwen_model?(model_name) && qwen_api_key.present?
+    config = provider_config_for(model_name)
+    provider = provider_for(model_name)
 
-    api_base
+    if provider != DEFAULT_PROVIDER
+      key = fetch_config(config[:key_name])
+      return build_api_base(config) if key.present?
+    end
+
+    build_api_base(PROVIDER_CONFIGS[DEFAULT_PROVIDER])
   end
 
-  def deepseek_api_key
-    @deepseek_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_API_KEY')&.value
-  end
-
-  def deepseek_api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_DEEPSEEK_ENDPOINT')&.value.presence || 'https://api.deepseek.com/'
+  def build_api_base(config)
+    endpoint = fetch_config(config[:endpoint_name]).presence || config[:default_endpoint]
     endpoint = endpoint.chomp('/')
     "#{endpoint}/v1"
   end
 
-  def qwen_api_key
-    @qwen_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_QWEN_API_KEY')&.value
-  end
+  def fetch_config(name)
+    @config_cache ||= {}
+    return @config_cache[name] if @config_cache.key?(name)
 
-  def qwen_api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_QWEN_ENDPOINT')&.value.presence || 'https://dashscope.aliyuncs.com/compatible-mode/'
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1"
+    @config_cache[name] = InstallationConfig.find_by(name: name)&.value
   end
 
   def prompt_from_file(file_name)
