@@ -71,8 +71,7 @@ class Captain::BaseTaskService
   end
 
   def build_chat(context, model:, messages:, tools: [])
-    # Force OpenAI provider for custom endpoints (DeepSeek, local, etc.) - uses openai_api_* config
-    chat = context.chat(model: model, provider: :openai, assume_model_exists: true)
+    chat = context.chat(model: model, provider: determine_provider(model).to_sym, assume_model_exists: true)
     system_msg = messages.find { |m| m[:role] == 'system' }
     chat.with_instructions(system_msg[:content]) if system_msg
 

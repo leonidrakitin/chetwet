@@ -5,7 +5,7 @@ require 'ruby_llm'
 # Configures RubyLLM once on first use with system-level API keys from InstallationConfig.
 # Provides `with_api_key` for per-request overrides (used by BaseAiService and ChatHelper).
 module Llm::Config
-  DEFAULT_MODEL = 'gpt-4.1-mini'.freeze
+  DEFAULT_MODEL = 'deepseek-chat'.freeze
 
   # Provider configs shared with BaseAiService to avoid duplication.
   # Maps RubyLLM config attribute prefixes to InstallationConfig key names.
@@ -27,6 +27,12 @@ module Llm::Config
       endpoint_name: 'CAPTAIN_QWEN_ENDPOINT',
       default_endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/',
       ruby_llm_prefix: 'qwen'
+    },
+    'ollama' => {
+      key_name: 'CAPTAIN_OLLAMA_API_KEY',
+      endpoint_name: 'CAPTAIN_OLLAMA_ENDPOINT',
+      default_endpoint: 'http://172.17.0.1:11434/',
+      ruby_llm_prefix: 'ollama'
     }
   }.freeze
 

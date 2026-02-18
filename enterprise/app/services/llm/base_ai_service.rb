@@ -29,7 +29,7 @@ class Llm::BaseAiService
 
   def chat(model: @model, temperature: @temperature)
     Llm::Config.with_api_key(resolve_api_key(model), api_base: resolve_api_base(model)) do |context|
-      context.chat(model: model, provider: :openai, assume_model_exists: true).with_temperature(temperature)
+      context.chat(model: model, provider: provider_for(model).to_sym, assume_model_exists: true).with_temperature(temperature)
     end
   end
 

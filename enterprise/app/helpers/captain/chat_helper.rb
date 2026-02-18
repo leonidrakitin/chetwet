@@ -86,7 +86,7 @@ module Captain::ChatHelper
   end
 
   def build_chat(context)
-    llm_chat = context.chat(model: @model, provider: :openai, assume_model_exists: true).with_temperature(temperature)
+    llm_chat = context.chat(model: @model, provider: determine_provider(@model).to_sym, assume_model_exists: true).with_temperature(temperature)
     unless non_default_provider?(@model)
       llm_chat = llm_chat.with_params(response_format: { type: 'json_object' })
     end

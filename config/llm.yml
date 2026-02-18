@@ -88,13 +88,13 @@ models:
     display_name: 'Qwen 2.5 0.5B'
     credit_multiplier: 1
   qwen3-embedding:0.6b:
-    provider: qwen
+    provider: ollama
     display_name: 'Qwen3 Embedding 0.6B'
     credit_multiplier: 1
-  aroxima/gte-qwen2-1:5b-instruct:q4_k_m:
-      provider: qwen
-      display_name: 'Ollama local Qwen 2'
-      credit_multiplier: 1
+  aroxima/gte-qwen2-1.5b-instruct:q4_k_m:
+    provider: ollama
+    display_name: 'Ollama local Qwen 2'
+    credit_multiplier: 1
   whisper-1:
     provider: openai
     display_name: 'Whisper'

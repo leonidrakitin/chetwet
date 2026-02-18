@@ -25,6 +25,7 @@ const PROVIDER_ICONS = {
   gemini: 'i-woot-gemini',
   deepseek: 'i-ri-deepseek-fill',
   qwen: 'i-lucide-sparkles',
+  ollama: 'i-lucide-cpu',
 };
 
 const iconForModel = model => {

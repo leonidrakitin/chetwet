@@ -213,10 +213,15 @@
   display_title: 'Qwen API Endpoint (optional)'
   description: 'The Qwen endpoint for Captain AI. Default: https://dashscope.aliyuncs.com/compatible-mode/'
   locked: false
-- name: CAPTAIN_EMBEDDING_MODEL
-  display_title: 'Embedding Model (optional)'
-  description: 'The embedding model configured for use in Captain AI. Default: text-embedding-3-small'
+- name: CAPTAIN_OLLAMA_ENDPOINT
+  display_title: 'Ollama API Endpoint'
+  description: 'The Ollama endpoint for embedding. Example: http://localhost:11434'
   locked: false
+- name: CAPTAIN_OLLAMA_API_KEY
+  display_title: 'Ollama API Key (optional)'
+  description: 'The API key for Ollama, if your instance requires authentication'
+  locked: false
+  type: secret
 - name: CAPTAIN_FIRECRAWL_API_KEY
   display_title: 'FireCrawl API Key (optional)'
   description: 'The FireCrawl API key for the Captain AI service'
