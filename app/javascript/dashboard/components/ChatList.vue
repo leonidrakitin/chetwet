@@ -143,6 +143,7 @@ const {
   isConversationSelected,
   onAssignAgent,
   onAssignLabels,
+  onRemoveLabels,
   onAssignTeamsForBulk,
   onUpdateConversations,
 } = useBulkActions();
@@ -937,6 +938,7 @@ provide('deSelectConversation', deSelectConversation);
 provide('assignAgent', onAssignAgent);
 provide('assignTeam', onAssignTeam);
 provide('assignLabels', onAssignLabels);
+provide('removeLabels', onRemoveLabels);
 provide('updateConversationStatus', handleResolveConversation);
 provide('toggleContextMenu', onContextMenuToggle);
 provide('markAsUnread', markAsUnread);
