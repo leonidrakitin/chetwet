@@ -91,6 +91,10 @@ models:
     provider: qwen
     display_name: 'Qwen3 Embedding 0.6B'
     credit_multiplier: 1
+  aroxima/gte-qwen2-1:5b-instruct:q4_k_m:
+      provider: qwen
+      display_name: 'Ollama local Qwen 2'
+      credit_multiplier: 1
   whisper-1:
     provider: openai
     display_name: 'Whisper'
@@ -167,5 +171,5 @@ features:
     models: [whisper-1]
     default: whisper-1
   help_center_search:
-    models: [text-embedding-3-small, qwen3-embedding:0.6b]
+    models: [text-embedding-3-small, qwen3-embedding:0.6b, aroxima/gte-qwen2-1:5b-instruct:q4_k_m]
     default: text-embedding-3-small
