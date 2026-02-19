@@ -74,21 +74,20 @@ module Llm::Config
     end
 
     def configure_provider(config, provider)
-      api_key = fetch_config(provider[:key_name])
-      return if api_key.blank?
-
       prefix = provider[:ruby_llm_prefix]
-      key_setter = :"#{prefix}_api_key="
-      return unless config.respond_to?(key_setter)
+      api_key = fetch_config(provider[:key_name])
 
-      config.public_send(key_setter, api_key)
+      if api_key.present?
+        key_setter = :"#{prefix}_api_key="
+        config.public_send(key_setter, api_key) if config.respond_to?(key_setter)
+      end
 
-      # Only set api_base when the gem supports it (e.g. openai does, deepseek/qwen may not)
+      # Set api_base so providers that work without a key (e.g. local Ollama) get endpoint from config or default
       base_setter = :"#{prefix}_api_base="
       return unless config.respond_to?(base_setter)
 
       endpoint = fetch_config(provider[:endpoint_name]).presence || provider[:default_endpoint]
-      config.public_send(base_setter, endpoint.chomp('/'))
+      config.public_send(base_setter, endpoint.chomp('/')) if endpoint.present?
     end
 
     def fetch_config(name)
