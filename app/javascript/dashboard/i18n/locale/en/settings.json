@@ -397,7 +397,8 @@
     "DOCS": "Read docs",
     "SECURITY": "Security",
     "CAPTAIN_AI": "Captain",
-    "CONVERSATION_WORKFLOW": "Conversation Workflow"
+    "CONVERSATION_WORKFLOW": "Conversation Workflow",
+    "NOTIFICATION_TEMPLATES": "Templates"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

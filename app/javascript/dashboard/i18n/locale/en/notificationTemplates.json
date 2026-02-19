@@ -1,0 +1,55 @@
+{
+  "NOTIFICATION_TEMPLATES": {
+    "HEADER": "Templates",
+    "DESCRIPTION": "Manage notification templates for client appointments",
+    "NEW_TEMPLATE": "New Template",
+    "TABS": {
+      "ALL": "All",
+      "EVENT": "On Event",
+      "TIME": "By Time",
+      "LOST_CLIENTS": "Lost Clients",
+      "CLIENT_CONSENT": "Client Consent",
+      "STATISTICS": "Statistics"
+    },
+    "EVENTS": {
+      "CREATED": "On appointment creation",
+      "UPDATED": "On appointment update",
+      "DELETED": "On appointment deletion",
+      "CONFIRMED": "On appointment confirmation",
+      "CANCELLED": "On appointment cancellation",
+      "PAID": "On payment",
+      "ARRIVED": "On client arrival"
+    },
+    "TYPES": {
+      "EVENT": "On Event",
+      "TIME": "By Time",
+      "LOST_CLIENTS": "Lost Clients",
+      "CLIENT_CONSENT": "Client Consent"
+    },
+    "TIME_DIRECTION": { "BEFORE": "before visit", "AFTER": "after visit" },
+    "TIME_UNIT": { "HOURS": "hours", "DAYS": "days" },
+    "VARIABLES_HINT": "Available variables: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
+    "FORM": {
+      "NAME": { "LABEL": "Name", "PLACEHOLDER": "Template name", "REQUIRED": "Name is required" },
+      "DESCRIPTION": { "LABEL": "Description", "PLACEHOLDER": "Optional description" },
+      "TYPE": { "LABEL": "Type" },
+      "TRIGGER_EVENT": { "LABEL": "Trigger Event" },
+      "TIME_OFFSET": { "LABEL": "Time Offset" },
+      "MESSAGE_TEXT": { "LABEL": "Message Text", "PLACEHOLDER": "Enter message text..." },
+      "ENABLED": { "LABEL": "Enabled" }
+    },
+    "ADD": { "TITLE": "New Template" },
+    "EDIT": { "TITLE": "Edit Template", "BUTTON_TEXT": "Edit" },
+    "CLONE": { "BUTTON_TEXT": "Clone", "SUCCESS": "Template cloned successfully.", "ERROR": "Could not clone template." },
+    "DELETE": {
+      "BUTTON_TEXT": "Delete",
+      "CONFIRM": { "TITLE": "Confirm Deletion", "MESSAGE": "Delete template \"{name}\"?", "YES": "Yes, Delete", "NO": "Cancel" },
+      "SUCCESS": "Template deleted successfully.",
+      "ERROR": "Could not delete template."
+    },
+    "TOGGLE": { "SUCCESS": "Template updated.", "ERROR": "Could not update template." },
+    "SAVE": { "SUCCESS": "Template saved successfully.", "ERROR": "Could not save template." },
+    "STATISTICS": { "COMING_SOON": "Statistics will be available in a future update." },
+    "EMPTY": "No templates found. Create a new template using the button above."
+  }
+}

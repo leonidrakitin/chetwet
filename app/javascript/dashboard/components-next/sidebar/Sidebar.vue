@@ -511,6 +511,12 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'Notification Templates',
+      label: t('SIDEBAR.NOTIFICATION_TEMPLATES'),
+      icon: 'i-lucide-bell-ring',
+      to: accountScopedRoute('notification_templates_index'),
+    },
+    {
       name: 'Portals',
       label: t('SIDEBAR.HELP_CENTER.TITLE'),
       icon: 'i-lucide-library-big',
