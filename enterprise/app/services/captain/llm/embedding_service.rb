@@ -20,7 +20,7 @@ class Captain::Llm::EmbeddingService
     Rails.logger.info "[EmbeddingService] model=#{model.inspect} provider=#{provider} api_base=#{api_base.inspect} api_key=#{api_key_set ? '[SET]' : '[NOT SET]'}" # TODO: remove temporary log
 
     instrument_embedding_call(instrumentation_params(content, model)) do
-      RubyLLM.embed(content, model: model, provider: determine_provider(model).to_sym, assume_model_exists: true).vectors
+      RubyLLM.embed(content, model: model, provider: :openai, assume_model_exists: true).vectors
     end
   rescue RubyLLM::Error => e
     Rails.logger.error "Embedding API Error: #{e.message}"
