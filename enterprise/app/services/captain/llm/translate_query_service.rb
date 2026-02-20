@@ -1,5 +1,5 @@
 class Captain::Llm::TranslateQueryService < Captain::BaseTaskService
-  MODEL = 'aroxima/gte-qwen2-1.5b-instruct:q4_k_m'.freeze
+  MODEL = 'deepseek-chat'.freeze
 
   pattr_initialize [:account!]
 

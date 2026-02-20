@@ -166,7 +166,7 @@ features:
   label_suggestion:
     models:
       [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5, deepseek-chat, deepseek-reasoner, qwen3-coder-plus, qwen3.5-plus, qwen-mt-lite, qwen2.5:0.5b]
-    default: aroxima/gte-qwen2-1.5b-instruct:q4_k_m
+    default: deepseek-chat
   audio_transcription:
     models: [whisper-1]
     default: whisper-1
