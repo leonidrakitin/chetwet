@@ -1,5 +1,5 @@
 class Captain::Llm::TranslateQueryService < Captain::BaseTaskService
-  MODEL = 'gpt-4.1-nano'.freeze
+  MODEL = 'aroxima/gte-qwen2-1.5b-instruct:q4_k_m'.freeze
 
   pattr_initialize [:account!]
 
