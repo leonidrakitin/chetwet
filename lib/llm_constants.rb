@@ -13,7 +13,7 @@ module LlmConstants
     'google' => %w[gemini-],
     'mistral' => %w[mistral- codestral-],
     'deepseek' => %w[deepseek-],
-    'qwen' => %w[qwen-],
+    # 'qwen' => %w[qwen-],
     'ollama' => %w[aroxima/ nomic-embed mxbai-embed bge- qwen3-]
   }.freeze
 end
