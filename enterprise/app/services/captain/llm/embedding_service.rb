@@ -16,8 +16,7 @@ class Captain::Llm::EmbeddingService
     return [] if content.blank?
 
     provider = determine_provider(model)
-    api_base = ruby_llm_base_for(provider)
-    api_key_set = ruby_llm_key_set_for(provider)
+    api_base, api_key_set = embedding_config_for_log(provider)
     Rails.logger.info "[EmbeddingService] model=#{model.inspect} provider=#{provider} api_base=#{api_base.inspect} api_key=#{api_key_set ? '[SET]' : '[NOT SET]'}" # TODO: remove temporary log
 
     instrument_embedding_call(instrumentation_params(content, model)) do
@@ -30,16 +29,13 @@ class Captain::Llm::EmbeddingService
 
   private
 
-  def ruby_llm_base_for(provider)
-    attr = :"#{provider}_api_base"
-    RubyLLM.configuration.respond_to?(attr) ? RubyLLM.configuration.public_send(attr) : nil
-  end
+  def embedding_config_for_log(provider)
+    cfg = Llm::Config::PROVIDER_CONFIGS[provider]
+    return [nil, false] unless cfg
 
-  def ruby_llm_key_set_for(provider)
-    attr = :"#{provider}_api_key"
-    return false unless RubyLLM.configuration.respond_to?(attr)
-
-    RubyLLM.configuration.public_send(attr).present?
+    api_base = InstallationConfig.find_by(name: cfg[:endpoint_name])&.value.presence || cfg[:default_endpoint]
+    api_key_set = InstallationConfig.find_by(name: cfg[:key_name])&.value.present?
+    [api_base&.chomp('/'), api_key_set]
   end
 
   def instrumentation_params(content, model)
