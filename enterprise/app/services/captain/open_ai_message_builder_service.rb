@@ -6,7 +6,10 @@ class Captain::OpenAiMessageBuilderService
     return [content, []] unless content.is_a?(Array)
 
     text_parts = content.select { |part| part[:type] == 'text' }.pluck(:text)
-    image_urls = content.select { |part| part[:type] == 'image_url' }.filter_map { |part| part.dig(:image_url, :url) }
+    image_urls = content.select { |part| part[:type] == 'image_url' }.filter_map do |part|
+      url = part[:image_url]
+      url.is_a?(Hash) ? url[:url] : url
+    end
     [text_parts.join(' ').presence, image_urls]
   end
 
