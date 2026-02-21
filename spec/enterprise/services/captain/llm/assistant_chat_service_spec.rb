@@ -13,16 +13,10 @@ RSpec.describe Captain::Llm::AssistantChatService do
     )
   end
 
-  let(:mock_context) do
-    instance_double(RubyLLM::Context).tap do |ctx|
-      allow(ctx).to receive(:chat).and_return(mock_chat)
-    end
-  end
-
   before do
     create(:installation_config, name: 'CAPTAIN_OPEN_AI_API_KEY', value: 'test-key')
 
-    allow(Llm::Config).to receive(:with_api_key).and_yield(mock_context)
+    allow(RubyLLM).to receive(:chat).and_return(mock_chat)
     allow(mock_chat).to receive(:with_temperature).and_return(mock_chat)
     allow(mock_chat).to receive(:with_params).and_return(mock_chat)
     allow(mock_chat).to receive(:with_tool).and_return(mock_chat)

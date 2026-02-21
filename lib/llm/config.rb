@@ -1,40 +1,7 @@
 require 'ruby_llm'
 
-# Global RubyLLM configuration and per-request context management.
-#
-# Configures RubyLLM once on first use with system-level API keys from InstallationConfig.
-# Provides `with_api_key` for per-request overrides (used by BaseAiService and ChatHelper).
 module Llm::Config
-  DEFAULT_MODEL = 'deepseek-chat'.freeze
-
-  # Provider configs shared with BaseAiService to avoid duplication.
-  # Maps RubyLLM config attribute prefixes to InstallationConfig key names.
-  PROVIDER_CONFIGS = {
-    'openai' => {
-      key_name: 'CAPTAIN_OPEN_AI_API_KEY',
-      endpoint_name: 'CAPTAIN_OPEN_AI_ENDPOINT',
-      default_endpoint: 'https://api.openai.com/',
-      ruby_llm_prefix: 'openai'
-    },
-    'deepseek' => {
-      key_name: 'CAPTAIN_DEEPSEEK_API_KEY',
-      endpoint_name: 'CAPTAIN_DEEPSEEK_ENDPOINT',
-      default_endpoint: 'https://api.deepseek.com/',
-      ruby_llm_prefix: 'deepseek'
-    },
-    'qwen' => {
-      key_name: 'CAPTAIN_QWEN_API_KEY',
-      endpoint_name: 'CAPTAIN_QWEN_ENDPOINT',
-      default_endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/',
-      ruby_llm_prefix: 'qwen'
-    },
-    'ollama' => {
-      key_name: 'CAPTAIN_OLLAMA_API_KEY',
-      endpoint_name: 'CAPTAIN_OLLAMA_ENDPOINT',
-      default_endpoint: 'http://172.17.0.1:11434/',
-      ruby_llm_prefix: 'ollama'
-    }
-  }.freeze
+  DEFAULT_MODEL = 'gpt-4.1-mini'.freeze
 
   class << self
     def initialized?
@@ -56,7 +23,6 @@ module Llm::Config
       context = RubyLLM.context do |config|
         config.openai_api_key = api_key
         config.openai_api_base = api_base
-        config.openai_use_system_role = true
       end
 
       yield context
@@ -66,32 +32,18 @@ module Llm::Config
 
     def configure_ruby_llm
       RubyLLM.configure do |config|
-        config.openai_use_system_role = true
+        config.openai_api_key = system_api_key if system_api_key.present?
+        config.openai_api_base = openai_endpoint.chomp('/') if openai_endpoint.present?
         config.logger = Rails.logger
-
-        PROVIDER_CONFIGS.each_value { |provider| configure_provider(config, provider) }
       end
     end
 
-    def configure_provider(config, provider)
-      prefix = provider[:ruby_llm_prefix]
-      api_key = fetch_config(provider[:key_name])
-
-      if api_key.present?
-        key_setter = :"#{prefix}_api_key="
-        config.public_send(key_setter, api_key) if config.respond_to?(key_setter)
-      end
-
-      # Set api_base so providers that work without a key (e.g. local Ollama) get endpoint from config or default
-      base_setter = :"#{prefix}_api_base="
-      return unless config.respond_to?(base_setter)
-
-      endpoint = fetch_config(provider[:endpoint_name]).presence || provider[:default_endpoint]
-      config.public_send(base_setter, endpoint.chomp('/')) if endpoint.present?
+    def system_api_key
+      InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
     end
 
-    def fetch_config(name)
-      InstallationConfig.find_by(name: name)&.value
+    def openai_endpoint
+      InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
     end
   end
 end

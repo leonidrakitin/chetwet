@@ -3,22 +3,18 @@ module Captain::ChatHelper
   include Captain::ChatResponseHelper
   include Captain::ChatGenerationRecorder
 
-  PROVIDER_CONFIGS = Llm::Config::PROVIDER_CONFIGS
-  DEFAULT_PROVIDER = 'openai'
-
   def request_chat_completion
     log_chat_completion_request
 
-    Llm::Config.with_api_key(resolve_captain_api_key, api_base: resolve_captain_api_base) do |context|
-      chat = build_chat(context)
-      add_messages_to_chat(chat)
-      with_agent_session do
-        last_content = conversation_messages.last[:content]
-        text, attachments = Captain::OpenAiMessageBuilderService.extract_text_and_attachments(last_content)
+    chat = build_chat
 
-        response = attachments.any? ? chat.ask(text, with: attachments) : chat.ask(text)
-        build_response(response)
-      end
+    add_messages_to_chat(chat)
+    with_agent_session do
+      last_content = conversation_messages.last[:content]
+      text, attachments = Captain::OpenAiMessageBuilderService.extract_text_and_attachments(last_content)
+
+      response = attachments.any? ? chat.ask(text, with: attachments) : chat.ask(text)
+      build_response(response)
     end
   rescue StandardError => e
     Rails.logger.error "#{self.class.name} Assistant: #{@assistant.id}, Error in chat completion: #{e}"
@@ -27,76 +23,13 @@ module Captain::ChatHelper
 
   private
 
-  def provider_for(model_name)
-    Llm::Models.models.dig(model_name, 'provider') || DEFAULT_PROVIDER
-  end
+  def build_chat
+    llm_chat = chat(model: @model, temperature: temperature)
+    llm_chat = llm_chat.with_params(response_format: { type: 'json_object' })
 
-  def provider_config_for(model_name)
-    provider = provider_for(model_name)
-    PROVIDER_CONFIGS[provider] || PROVIDER_CONFIGS[DEFAULT_PROVIDER]
-  end
-
-  # For the default provider (openai), checks for an account-level hook override first.
-  # For other providers, reads from InstallationConfig directly.
-  def resolve_captain_api_key
-    config = provider_config_for(@model)
-    provider = provider_for(@model)
-
-    if provider != DEFAULT_PROVIDER
-      key = fetch_config(config[:key_name])
-      return key if key.present?
-    end
-
-    captain_api_key
-  end
-
-  def resolve_captain_api_base
-    config = provider_config_for(@model)
-    provider = provider_for(@model)
-
-    if provider != DEFAULT_PROVIDER
-      key = fetch_config(config[:key_name])
-      return build_api_base(config) if key.present?
-    end
-
-    captain_api_base
-  end
-
-  def captain_api_key
-    @captain_api_key ||= openai_hook&.settings&.dig('api_key') || fetch_config('CAPTAIN_OPEN_AI_API_KEY')
-  end
-
-  def captain_api_base
-    config = PROVIDER_CONFIGS[DEFAULT_PROVIDER]
-    build_api_base(config)
-  end
-
-  def build_api_base(config)
-    endpoint = fetch_config(config[:endpoint_name]).presence || config[:default_endpoint]
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1"
-  end
-
-  def openai_hook
-    @openai_hook ||= resolved_account&.hooks&.find_by(app_id: 'openai', status: 'enabled')
-  end
-
-  def resolved_account
-    @account || @assistant&.account
-  end
-
-  def build_chat(context)
-    llm_chat = context.chat(model: @model, provider: determine_provider(@model).to_sym, assume_model_exists: true).with_temperature(temperature)
-    unless non_default_provider?(@model)
-      llm_chat = llm_chat.with_params(response_format: { type: 'json_object' })
-    end
     llm_chat = setup_tools(llm_chat)
     llm_chat = setup_system_instructions(llm_chat)
     setup_event_handlers(llm_chat)
-  end
-
-  def non_default_provider?(model_name)
-    provider_for(model_name) != DEFAULT_PROVIDER
   end
 
   def setup_tools(llm_chat)
@@ -199,12 +132,5 @@ module Captain::ChatHelper
       for messages #{@messages} with #{@tools&.length || 0} tools
       "
     )
-  end
-
-  def fetch_config(name)
-    @config_cache ||= {}
-    return @config_cache[name] if @config_cache.key?(name)
-
-    @config_cache[name] = InstallationConfig.find_by(name: name)&.value
   end
 end

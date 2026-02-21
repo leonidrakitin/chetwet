@@ -7,10 +7,7 @@ class Captain::BaseTaskService
   # sticking with 120000 to be safe
   # 120000 * 4 = 480,000 characters (rounding off downwards to 400,000 to be safe)
   TOKEN_LIMIT = 400_000
-  DEFAULT_MODEL = Llm::Config::DEFAULT_MODEL
-
-  PROVIDER_CONFIGS = Llm::Config::PROVIDER_CONFIGS
-  DEFAULT_PROVIDER = 'openai'
+  GPT_MODEL = Llm::Config::DEFAULT_MODEL
 
   # Prepend enterprise module to subclasses when they're defined.
   # This ensures the enterprise perform wrapper is applied even when
@@ -33,8 +30,10 @@ class Captain::BaseTaskService
     @conversation ||= account.conversations.find_by(display_id: conversation_display_id)
   end
 
-  def model
-    fetch_config('CAPTAIN_OPEN_AI_MODEL').presence || DEFAULT_MODEL
+  def api_base
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
+    endpoint = endpoint.chomp('/')
+    "#{endpoint}/v1"
   end
 
   def make_api_call(model:, messages:, tools: [])
@@ -56,7 +55,7 @@ class Captain::BaseTaskService
   end
 
   def execute_ruby_llm_request(model:, messages:, tools: [])
-    Llm::Config.with_api_key(resolve_api_key(model), api_base: resolve_api_base(model)) do |context|
+    Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
       chat = build_chat(context, model: model, messages: messages, tools: tools)
 
       conversation_messages = messages.reject { |m| m[:role] == 'system' }
@@ -71,7 +70,7 @@ class Captain::BaseTaskService
   end
 
   def build_chat(context, model:, messages:, tools: [])
-    chat = context.chat(model: model, provider: determine_provider(model).to_sym, assume_model_exists: true)
+    chat = context.chat(model: model)
     system_msg = messages.find { |m| m[:role] == 'system' }
     chat.with_instructions(system_msg[:content]) if system_msg
 
@@ -142,8 +141,6 @@ class Captain::BaseTaskService
   end
 
   def captain_tasks_enabled?
-    return true unless ChatwootApp.chatwoot_cloud?
-
     account.feature_enabled?('captain_tasks')
   end
 
@@ -151,60 +148,16 @@ class Captain::BaseTaskService
     api_key.present?
   end
 
-  # Account-level hook override for the default (openai) provider,
-  # falling back to system-level InstallationConfig.
   def api_key
-    @api_key ||= openai_hook&.settings&.dig('api_key') || fetch_config('CAPTAIN_OPEN_AI_API_KEY')
+    @api_key ||= openai_hook&.settings&.dig('api_key') || system_api_key
   end
 
   def openai_hook
     @openai_hook ||= account.hooks.find_by(app_id: 'openai', status: 'enabled')
   end
 
-  def provider_for(model_name)
-    Llm::Models.models.dig(model_name, 'provider') || DEFAULT_PROVIDER
-  end
-
-  def provider_config_for(model_name)
-    provider = provider_for(model_name)
-    PROVIDER_CONFIGS[provider] || PROVIDER_CONFIGS[DEFAULT_PROVIDER]
-  end
-
-  def resolve_api_key(model_name)
-    config = provider_config_for(model_name)
-    provider = provider_for(model_name)
-
-    if provider != DEFAULT_PROVIDER
-      key = fetch_config(config[:key_name])
-      return key if key.present?
-    end
-
-    api_key
-  end
-
-  def resolve_api_base(model_name)
-    config = provider_config_for(model_name)
-    provider = provider_for(model_name)
-
-    if provider != DEFAULT_PROVIDER
-      key = fetch_config(config[:key_name])
-      return build_api_base(config) if key.present?
-    end
-
-    build_api_base(PROVIDER_CONFIGS[DEFAULT_PROVIDER])
-  end
-
-  def build_api_base(config)
-    endpoint = fetch_config(config[:endpoint_name]).presence || config[:default_endpoint]
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1"
-  end
-
-  def fetch_config(name)
-    @config_cache ||= {}
-    return @config_cache[name] if @config_cache.key?(name)
-
-    @config_cache[name] = InstallationConfig.find_by(name: name)&.value
+  def system_api_key
+    @system_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
   end
 
   def prompt_from_file(file_name)

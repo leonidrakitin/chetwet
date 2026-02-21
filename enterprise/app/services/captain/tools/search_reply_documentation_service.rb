@@ -26,9 +26,6 @@ class Captain::Tools::SearchReplyDocumentationService < RubyLLM::Tool
     return 'No FAQs found for the given query' if responses.empty?
 
     responses.map { |response| format_response(response) }.join
-  rescue Captain::Llm::EmbeddingService::EmbeddingsError => e
-    Rails.logger.error "#{self.class.name}: Embedding search failed: #{e.message}"
-    'Documentation search is temporarily unavailable. Please try to help the user based on available context.'
   end
 
   private
