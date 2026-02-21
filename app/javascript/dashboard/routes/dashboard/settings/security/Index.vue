@@ -22,7 +22,11 @@ const shouldShowSaml = computed(() => {
   const hasPermission = shouldShow(
     FEATURE_FLAGS.SAML,
     ['administrator'],
-    [INSTALLATION_TYPES.CLOUD, INSTALLATION_TYPES.ENTERPRISE, INSTALLATION_TYPES.COMMUNITY]
+    [
+      INSTALLATION_TYPES.CLOUD,
+      INSTALLATION_TYPES.ENTERPRISE,
+      INSTALLATION_TYPES.COMMUNITY,
+    ]
   );
   return hasPermission && isSamlSsoEnabled.value;
 });
@@ -31,10 +35,7 @@ const showPaywall = computed(() => shouldShowPaywall('saml'));
 </script>
 
 <template>
-  <SettingsLayout
-    class="max-w-2xl mx-auto"
-    :loading-message="$t('ATTRIBUTES_MGMT.LOADING')"
-  >
+  <SettingsLayout :loading-message="$t('ATTRIBUTES_MGMT.LOADING')">
     <template #header>
       <BaseSettingsHeader
         :title="$t('SECURITY_SETTINGS.TITLE')"

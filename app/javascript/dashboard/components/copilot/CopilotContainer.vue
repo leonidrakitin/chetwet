@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 import Copilot from 'dashboard/components-next/copilot/Copilot.vue';
@@ -27,12 +27,6 @@ const assistants = useMapGetter('captainAssistants/getRecords');
 const uiFlags = useMapGetter('captainAssistants/getUIFlags');
 const inboxAssistant = useMapGetter('getCopilotAssistant');
 const currentChat = useMapGetter('getSelectedChat');
-
-const source = computed(() => {
-  const channel = currentChat.value?.meta?.channel || 'default';
-  const contactId = currentChat.value?.meta?.sender?.id;
-  return contactId ? `${channel}-contact-${contactId}` : channel;
-});
 
 const isSmallScreen = computed(
   () => windowWidth.value < wootConstants.SMALL_SCREEN_BREAKPOINT
@@ -87,32 +81,12 @@ const setAssistant = async assistant => {
 const shouldShowCopilotPanel = computed(() => {
   const { is_copilot_panel_open: isCopilotPanelOpen } = uiSettings.value;
   return (
-    captainEnabled.value &&
-    isCopilotPanelOpen &&
-    !uiFlags.value.fetchingList
+    captainEnabled.value && isCopilotPanelOpen && !uiFlags.value.fetchingList
   );
 });
 
 const handleReset = () => {
   selectedCopilotThreadId.value = null;
-};
-
-const loadExistingThreadForSource = async () => {
-  if (!activeAssistant.value?.id || !source.value) return;
-
-  try {
-    const threads = await store.dispatch('copilotThreads/get', {
-      source: source.value,
-      page: 1,
-    });
-    const existing = Array.isArray(threads) ? threads[0] : threads?.[0];
-    if (existing?.id) {
-      selectedCopilotThreadId.value = existing.id;
-      await store.dispatch('copilotMessages/get', existing.id);
-    }
-  } catch {
-    // Ignore - no existing thread for this source
-  }
 };
 
 const sendMessage = async message => {
@@ -129,33 +103,13 @@ const sendMessage = async message => {
         assistant_id: activeAssistant.value.id,
         conversation_id: currentChat.value?.id,
         message,
-        source: source.value,
       });
       selectedCopilotThreadId.value = response.id;
-      await store.dispatch('copilotMessages/get', response.id);
     }
   } catch (error) {
     useAlert(error.message);
   }
 };
-
-watch(
-  source,
-  () => {
-    selectedCopilotThreadId.value = null;
-  },
-  { immediate: false }
-);
-
-watch(
-  () => [shouldShowCopilotPanel.value, source.value, activeAssistant.value?.id],
-  ([isOpen, , assistantId]) => {
-    if (isOpen && assistantId && !selectedCopilotThreadId.value) {
-      loadExistingThreadForSource();
-    }
-  },
-  { immediate: true }
-);
 
 onMounted(() => {
   if (captainEnabled.value) {

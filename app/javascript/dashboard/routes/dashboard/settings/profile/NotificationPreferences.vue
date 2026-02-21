@@ -73,12 +73,11 @@ export default {
   },
   methods: {
     checkFlagStatus(type, flagType) {
-      const selectedFlags =
-        type === 'email'
-          ? this.selectedEmailFlags
-          : type === 'push'
-            ? this.selectedPushFlags
-            : this.selectedTelegramFlags;
+      const flagMap = {
+        email: this.selectedEmailFlags,
+        push: this.selectedPushFlags,
+      };
+      const selectedFlags = flagMap[type] ?? this.selectedTelegramFlags;
       return selectedFlags.includes(`${type}_${flagType}`);
     },
     onRegistrationSuccess() {
@@ -186,7 +185,7 @@ export default {
           :span="6"
           label="`${$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPE_TITLE')}`"
         >
-          <span class="text-sm font-normal normal-case text-n-slate-11">
+          <span class="text-heading-3 normal-case text-n-slate-12">
             {{ $t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPE_TITLE') }}
           </span>
         </TableHeaderCell>
@@ -194,7 +193,7 @@ export default {
           :span="2"
           label="`${$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.EMAIL')}`"
         >
-          <span class="text-sm font-medium normal-case text-n-slate-12">
+          <span class="text-heading-3 normal-case text-n-slate-12">
             {{ $t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.EMAIL') }}
           </span>
         </TableHeaderCell>
@@ -213,7 +212,7 @@ export default {
           label="`${$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TELEGRAM')}`"
         >
           <span
-            class="text-sm font-medium normal-case text-n-slate-12 whitespace-nowrap"
+            class="text-heading-3 normal-case text-n-slate-12 whitespace-nowrap"
           >
             {{ $t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TELEGRAM') }}
           </span>
@@ -229,7 +228,7 @@ export default {
           <div
             class="flex flex-row items-start gap-2 col-span-6 px-0 py-2 text-sm tracking-[0.5] rtl:text-right"
           >
-            <span class="text-sm text-n-slate-12">
+            <span class="text-body-main text-n-slate-12">
               {{ $t(notification.label) }}
             </span>
           </div>
@@ -249,7 +248,7 @@ export default {
     </div>
     <!--  Layout for mobile devices -->
     <div class="flex flex-col gap-6 sm:hidden">
-      <span class="text-sm font-medium normal-case text-n-slate-12">
+      <span class="text-heading-3 text-n-slate-12">
         {{ $t('PROFILE_SETTINGS.FORM.EMAIL_NOTIFICATIONS_SECTION.TITLE') }}
       </span>
       <div class="flex flex-col gap-4">
@@ -264,14 +263,14 @@ export default {
             :is-checked="checkFlagStatus('email', notification.value)"
             @update="handleEmailInput"
           />
-          <span class="text-sm text-n-slate-12">{{
+          <span class="text-body-main text-n-slate-12">{{
             $t(notification.label)
           }}</span>
         </div>
       </div>
 
       <div class="flex items-center justify-start gap-2">
-        <span class="text-sm font-medium normal-case text-n-slate-12">
+        <span class="text-heading-3 text-n-slate-12">
           {{ $t('PROFILE_SETTINGS.FORM.PUSH_NOTIFICATIONS_SECTION.TITLE') }}
         </span>
       </div>
@@ -288,7 +287,7 @@ export default {
             :is-checked="checkFlagStatus('push', notification.value)"
             @update="handlePushInput"
           />
-          <span class="text-sm text-n-slate-12">{{
+          <span class="text-body-main text-n-slate-12">{{
             $t(notification.label)
           }}</span>
         </div>
@@ -328,7 +327,7 @@ export default {
           class="flex-shrink-0 text-n-slate-12"
           size="18"
         />
-        <span class="text-sm text-n-slate-12">
+        <span class="text-body-main text-n-slate-12">
           {{ $t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.BROWSER_PERMISSION') }}
         </span>
       </div>

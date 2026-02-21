@@ -1,5 +1,5 @@
 class Captain::Llm::TranslateQueryService < Captain::BaseTaskService
-  MODEL = 'deepseek-chat'.freeze
+  MODEL = 'gpt-4.1-nano'.freeze
 
   pattr_initialize [:account!]
 
