@@ -62,11 +62,15 @@ module Integrations::LlmInstrumentationCompletionHelpers
   end
 
   def set_completion_message(span, result)
-    message = result[:message] || result.dig('choices', 0, 'message', 'content')
+    message = result[:message]
+    if message.blank? && result.is_a?(Hash)
+      msg_obj = result.dig('choices', 0, 'message')
+      message = msg_obj.is_a?(Hash) ? (msg_obj['content'] || msg_obj[:content]) : msg_obj&.to_s
+    end
     return if message.blank?
 
     span.set_attribute(ATTR_GEN_AI_COMPLETION_ROLE, 'assistant')
-    span.set_attribute(ATTR_GEN_AI_COMPLETION_CONTENT, message)
+    span.set_attribute(ATTR_GEN_AI_COMPLETION_CONTENT, message.to_s)
   end
 
   def set_usage_metrics(span, result)

@@ -5,10 +5,13 @@ class Captain::OpenAiMessageBuilderService
   def self.extract_text_and_attachments(content)
     return [content, []] unless content.is_a?(Array)
 
-    text_parts = content.select { |part| part[:type] == 'text' }.pluck(:text)
-    image_urls = content.select { |part| part[:type] == 'image_url' }.filter_map do |part|
-      url = part[:image_url]
-      url.is_a?(Hash) ? url[:url] : url
+    text_parts = content.select { |part| part.is_a?(Hash) && (part[:type] == 'text' || part['type'] == 'text') }
+                        .filter_map { |part| part[:text] || part['text'] }.compact
+    image_urls = content. select { |part| part.is_a?(Hash) && (part[:type] == 'image_url' || part['type'] == 'image_url') }
+                        .filter_map do |part|
+      url = part[:image_url] || part['image_url']
+      next if url.nil?
+      url.is_a?(Hash) ? (url[:url] || url['url']) : url
     end
     [text_parts.join(' ').presence, image_urls]
   end
