@@ -208,6 +208,48 @@ shopify:
   hook_type: account
   allow_multiple_hooks: false
 
+yclients:
+  id: yclients
+  logo: yclients.png
+  i18n_key: yclients
+  action: /yclients
+  hook_type: account
+  allow_multiple_hooks: false
+  settings_json_schema:
+    {
+      'type': 'object',
+      'properties':
+        {
+          'partner_token': { 'type': 'string' },
+          'user_token': { 'type': 'string' },
+          'company_id': { 'type': 'string' },
+        },
+      'required': ['partner_token', 'user_token', 'company_id'],
+      'additionalProperties': false,
+    }
+  settings_form_schema:
+    [
+      {
+        'label': 'Partner Token',
+        'type': 'text',
+        'name': 'partner_token',
+        'validation': 'required',
+      },
+      {
+        'label': 'User Token',
+        'type': 'text',
+        'name': 'user_token',
+        'validation': 'required',
+      },
+      {
+        'label': 'Company ID',
+        'type': 'text',
+        'name': 'company_id',
+        'validation': 'required',
+      },
+    ]
+  visible_properties: ['company_id']
+
 leadsquared:
   id: leadsquared
   feature_flag: crm_integration

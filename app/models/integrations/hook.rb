@@ -105,6 +105,6 @@ class Integrations::Hook < ApplicationRecord
   end
 
   def crm_integration?
-    %w[leadsquared].include?(app_id)
+    %w[leadsquared yclients].include?(app_id)
   end
 end

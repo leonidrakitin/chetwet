@@ -346,6 +346,13 @@ Rails.application.routes.draw do
                 delete :destroy
               end
             end
+            resource :yclients, controller: 'yclients', only: [] do
+              collection do
+                get 'contacts/:contact_id/records', action: :records
+                get 'contacts/:contact_id/finances', action: :finances
+                get :widget_snippet
+              end
+            end
           end
           resources :working_hours, only: [:update]
 
@@ -579,6 +586,7 @@ Rails.application.routes.draw do
   post 'webhooks/shopify', to: 'webhooks/shopify#events'
   post 'webhooks/vk', to: 'webhooks/vk#process_payload'
   post 'webhooks/avito/:avito_user_id', to: 'webhooks/avito#process_payload'
+  post 'webhooks/yclients', to: 'webhooks/yclients#process_payload'
 
   namespace :twitter do
     resource :callback, only: [:show]

@@ -23,6 +23,8 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
       expect(tool.parameters[:reason].type).to eq('string')
       expect(tool.parameters[:reason].description).to eq('The reason why handoff is needed (optional)')
       expect(tool.parameters[:reason].required).to be false
+      expect(tool.parameters).to have_key(:post_reason_as_note)
+      expect(tool.parameters[:post_reason_as_note].required).to be false
     end
   end
 
@@ -75,14 +77,11 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
       end
 
       context 'without reason provided' do
-        it 'creates a private note with nil content and hands off conversation' do
+        it 'hands off conversation without creating a private note' do
           expect do
             result = tool.perform(tool_context)
             expect(result).to eq('Conversation handed off to human support team')
-          end.to change(Message, :count).by(1)
-
-          created_message = Message.last
-          expect(created_message.content).to be_nil
+          end.not_to change(Message, :count)
         end
 
         it 'logs tool usage with default reason' do
@@ -92,6 +91,24 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
           )
 
           tool.perform(tool_context)
+        end
+      end
+
+      context 'with post_reason_as_note: false' do
+        it 'hands off without creating a private note (avoids duplicate when Add Private Note was already used)' do
+          reason = 'Customer needs specialized support'
+
+          expect do
+            result = tool.perform(tool_context, reason: reason, post_reason_as_note: false)
+            expect(result).to eq("Conversation handed off to human support team (Reason: #{reason})")
+          end.not_to change(Message, :count)
+        end
+
+        it 'still triggers bot handoff' do
+          conversation.reload
+          expect(conversation).to receive(:bot_handoff!)
+
+          tool.perform(tool_context, reason: 'Test', post_reason_as_note: false)
         end
       end
 
