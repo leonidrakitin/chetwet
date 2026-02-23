@@ -21,7 +21,7 @@ class Api::V1::Widget::BaseController < ApplicationController
   end
 
   def create_conversation
-    @contact_inbox.conversations.last || ::Conversation.create!(conversation_params)
+    ::Conversation.create!(conversation_params)
   end
 
   def inbox
