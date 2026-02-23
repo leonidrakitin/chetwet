@@ -1,8 +1,10 @@
 module Captain::Assistant::AutonomyPolicyHelper
   private
 
+  DEFAULT_AUTONOMY_MAX_RETRIES = 2
+
   def run_with_autonomy_policy(message, context)
-    max_retries = @assistant.autonomy_max_retries.to_i
+    max_retries = effective_autonomy_max_retries
     return runner.run(message, context: context, max_turns: 100) if max_retries.zero?
 
     result = nil
@@ -11,10 +13,15 @@ module Captain::Assistant::AutonomyPolicyHelper
       context[:autonomy_retry_count] = attempt
       break if answer_acceptable?(result)
 
-      append_retry_hint!(context, attempt + 1) if attempt < max_retries
+      append_retry_hint!(context, attempt + 1, message) if attempt < max_retries
     end
 
     answer_acceptable?(result) ? result : escalation_result(context)
+  end
+
+  def effective_autonomy_max_retries
+    val = @assistant.autonomy_max_retries
+    val.nil? ? DEFAULT_AUTONOMY_MAX_RETRIES : val.to_i
   end
 
   def answer_acceptable?(result)
@@ -25,14 +32,28 @@ module Captain::Assistant::AutonomyPolicyHelper
     response_text.present? && response_text != 'conversation_handoff'
   end
 
-  def append_retry_hint!(context, attempt)
-    hint = case attempt
-           when 1 then 'If you cannot find a confident answer, ask the user for clarification.'
-           when 2 then 'Try a different approach or route to a relevant scenario. Ask for more information if needed.'
-           else 'If you still cannot help, hand off to a human agent.'
-           end
+  def append_retry_hint!(context, attempt, message = nil)
+    hint = build_retry_hint(attempt, message, context)
     context[:conversation_history] ||= []
     context[:conversation_history] << { role: :system, content: hint }
+  end
+
+  def build_retry_hint(attempt, message, context)
+    case attempt
+    when 1
+      context[:clarification_sent] = true
+      'If you cannot find a confident answer, ask the user a short clarification question.'
+    when 2
+      router = Captain::ScenarioRouterService.new(message.to_s, @assistant)
+      if router.scenarios_available?
+        context[:scenario_router_attempted] = true
+        router.routing_hint
+      else
+        'Try a different approach. If you still cannot help, hand off to a human agent.'
+      end
+    else
+      'If you still cannot help, hand off to a human agent.'
+    end
   end
 
   def escalation_result(context)

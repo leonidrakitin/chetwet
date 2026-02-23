@@ -206,6 +206,9 @@ class Captain::Assistant::AgentRunnerService
 
     retry_count = context_wrapper.context[:autonomy_retry_count]
     root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'autonomy_retry_count'), retry_count.to_s) if retry_count
+
+    scenario_detected = context_wrapper.context[:scenario_router_attempted]
+    root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'scenario_detected'), scenario_detected.to_s) if scenario_detected
   end
 
   def runner
