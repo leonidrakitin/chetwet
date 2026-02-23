@@ -91,16 +91,16 @@ module Filters::FilterHelper
   end
 
   def conversation_status_values(values)
-    return Conversation.statuses.values if values.include?('all')
+    return Conversation.statuses.values if values.present? && values.include?('all')
 
-    values.map { |x| Conversation.statuses[x.to_sym] }
+    Array(values).map { |x| Conversation.statuses[x.to_sym] }
   end
 
   def conversation_priority_values(values)
-    values.map { |x| Conversation.priorities[x.to_sym] }
+    Array(values).map { |x| Conversation.priorities[x.to_sym] }
   end
 
   def message_type_values(values)
-    values.map { |x| Message.message_types[x.to_sym] }
+    Array(values).map { |x| Message.message_types[x.to_sym] }
   end
 end

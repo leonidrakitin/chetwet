@@ -55,7 +55,7 @@ class FilterService
   end
 
   def downcase_array_values(values)
-    values.map(&:downcase)
+    Array(values).map(&:downcase)
   end
 
   def case_insensitive_values(query_hash)

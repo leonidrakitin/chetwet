@@ -88,11 +88,13 @@ class AutomationRules::ConditionsFilterService < FilterService
 
   # Loop through attribute_changed_query_filter
   def filter_based_on_attribute_change(records, current_attribute_changed_record)
+    return if @changed_attributes.blank?
+
     @attribute_changed_query_filter.each do |filter|
       @changed_attributes = @changed_attributes.with_indifferent_access
       changed_attribute = @changed_attributes[filter['attribute_key']].presence
 
-      if changed_attribute[0].in?(filter['values']['from']) && changed_attribute[1].in?(filter['values']['to'])
+      if changed_attribute && changed_attribute[0].in?(filter['values']['from']) && changed_attribute[1].in?(filter['values']['to'])
         @attribute_changed_records = attribute_changed_filter_query(filter, records, current_attribute_changed_record)
       end
       current_attribute_changed_record = @attribute_changed_records
