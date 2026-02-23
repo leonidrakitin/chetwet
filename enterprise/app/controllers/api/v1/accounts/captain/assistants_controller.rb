@@ -52,7 +52,9 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
                                                   config: [
                                                     :product_name, :feature_faq, :feature_memory, :feature_citation,
                                                     :welcome_message, :handoff_message, :resolution_message,
-                                                    :instructions, :temperature
+                                                    :instructions, :temperature,
+                                                    :autonomy_max_retries, :faq_auto_answer_threshold, :faq_suggest_threshold,
+                                                    :autonomy_self_check_enabled, :autonomy_return_to_scenario
                                                   ])
 
     # Handle array parameters separately to allow partial updates

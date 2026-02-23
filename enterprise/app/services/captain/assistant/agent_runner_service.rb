@@ -5,6 +5,7 @@ class Captain::Assistant::AgentRunnerService
   include Integrations::LlmInstrumentationConstants
   include Captain::Assistant::RunnerCallbacksHelper
   include Captain::Assistant::TracePayloadHelper
+  include Captain::Assistant::AutonomyPolicyHelper
 
   CONVERSATION_STATE_ATTRIBUTES = %i[
     id display_id inbox_id contact_id status priority
@@ -24,7 +25,7 @@ class Captain::Assistant::AgentRunnerService
 
   def generate_response(message_history: [])
     message_to_process, context = run_payload(message_history)
-    result = runner.run(message_to_process, context: context, max_turns: 100)
+    result = run_with_autonomy_policy(message_to_process, context)
 
     process_agent_result(result)
   rescue StandardError => e
@@ -176,9 +177,11 @@ class Captain::Assistant::AgentRunnerService
     return runner unless ChatwootApp.otel_enabled?
 
     handoff_tool_name = Captain::Tools::HandoffTool.new(@assistant).name
+    faq_tool_name = Captain::Tools::FaqLookupTool.new(@assistant).name
 
-    runner.on_tool_complete do |tool_name, _tool_result, context_wrapper|
+    runner.on_tool_complete do |tool_name, tool_result, context_wrapper|
       track_handoff_usage(tool_name, handoff_tool_name, context_wrapper)
+      track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
     end
 
     runner.on_run_complete do |_agent_name, _result, context_wrapper|
@@ -200,6 +203,9 @@ class Captain::Assistant::AgentRunnerService
 
     credit_used = !context_wrapper.context[:captain_v2_handoff_tool_called]
     root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'credit_used'), credit_used.to_s)
+
+    retry_count = context_wrapper.context[:autonomy_retry_count]
+    root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'autonomy_retry_count'), retry_count.to_s) if retry_count
   end
 
   def runner
@@ -216,6 +222,7 @@ class Captain::Assistant::AgentRunnerService
     message_to_process = extract_last_user_message(message_history)
     context = build_context(message_history_without_last_user_message(message_history))
     enrich_context_with_trace_payload!(context, message_history, message_to_process)
+    enrich_context_with_runtime_state!(context)
     [message_to_process, context]
   end
 end
