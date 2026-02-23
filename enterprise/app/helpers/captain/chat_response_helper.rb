@@ -4,7 +4,7 @@ module Captain::ChatResponseHelper
   private
 
   def build_response(response)
-    Rails.logger.debug { "#{self.class.name} Assistant: #{@assistant.id}, Received response #{response}" }
+    Rails.logger.info { "#{self.class.name} Assistant: #{@assistant.id}, Received response #{response}" }
 
     parsed = parse_json_response(response.content)
     apply_credit_usage_metadata(parsed)

@@ -5,6 +5,7 @@ require 'opentelemetry_config'
 module Integrations::LlmInstrumentation
   include Integrations::LlmInstrumentationConstants
   include Integrations::LlmInstrumentationHelpers
+  include Integrations::LlmInstrumentationCompletionHelpers
   include Integrations::LlmInstrumentationSpans
 
   def instrument_llm_call(params)
@@ -33,15 +34,15 @@ module Integrations::LlmInstrumentation
       set_metadata_attributes(span, params)
 
       # By default, the input and output of a trace are set from the root observation
-      span.set_attribute(ATTR_LANGFUSE_OBSERVATION_INPUT, params[:messages].to_json)
+      span.set_attribute(ATTR_LANGFUSE_OBSERVATION_INPUT, safe_json(params[:messages]))
       result = yield
       executed = true
-      span.set_attribute(ATTR_LANGFUSE_OBSERVATION_OUTPUT, result.to_json)
+      span.set_attribute(ATTR_LANGFUSE_OBSERVATION_OUTPUT, safe_json(result))
       set_error_attributes(span, result) if result.is_a?(Hash)
       result
     end
   rescue StandardError => e
-    ChatwootExceptionTracker.new(e, account: resolve_account(params)).capture_exception
+    capture_agent_session_exception(e, params)
     executed ? result : yield
   end
 
@@ -114,6 +115,19 @@ module Integrations::LlmInstrumentation
   end
 
   private
+
+  def safe_json(value)
+    value.to_json
+  rescue StandardError
+    value.respond_to?(:to_s) ? value.to_s.inspect : '{}'
+  end
+
+  def capture_agent_session_exception(exception, params)
+    account = resolve_account(params) if params.is_a?(Hash)
+    ChatwootExceptionTracker.new(exception, account: account).capture_exception
+  rescue StandardError => e
+    Rails.logger.warn "Failed to capture agent session exception: #{e.message}"
+  end
 
   def resolve_account(params)
     return params[:account] if params[:account].is_a?(Account)

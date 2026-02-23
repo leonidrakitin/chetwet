@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module Integrations::LlmInstrumentationHelpers
-  include Integrations::LlmInstrumentationConstants
-  include Integrations::LlmInstrumentationCompletionHelpers
+require 'opentelemetry_config'
+require 'json'
 
+module Integrations::LlmInstrumentationHelpers
   def determine_provider(model_name)
     return 'openai' if model_name.blank?
 

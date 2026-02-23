@@ -23,6 +23,7 @@ module Llm::Config
       context = RubyLLM.context do |config|
         config.openai_api_key = api_key
         config.openai_api_base = api_base
+        config.openai_use_system_role = true
       end
 
       yield context
@@ -33,7 +34,12 @@ module Llm::Config
     def configure_ruby_llm
       RubyLLM.configure do |config|
         config.openai_api_key = system_api_key if system_api_key.present?
-        config.openai_api_base = openai_endpoint.chomp('/') if openai_endpoint.present?
+        if openai_endpoint.present?
+          base = openai_endpoint.is_a?(Hash) ? (openai_endpoint[:value] || openai_endpoint['value']).to_s : openai_endpoint.to_s
+          base = base.strip.chomp('/')
+          config.openai_api_base = base.end_with?('/v1') ? base : "#{base}/v1" if base.present?
+        end
+        config.openai_use_system_role = true
         config.logger = Rails.logger
       end
     end

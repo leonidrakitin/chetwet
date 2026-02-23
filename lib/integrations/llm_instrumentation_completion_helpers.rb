@@ -62,16 +62,24 @@ module Integrations::LlmInstrumentationCompletionHelpers
   end
 
   def set_completion_message(span, result)
-    message = result[:message] || result.dig('choices', 0, 'message', 'content')
+    message = result[:message]
+    if message.blank? && result.is_a?(Hash)
+      choices = result['choices'] || result[:choices]
+      first_choice = choices.is_a?(Array) ? (choices[0] || choices.first) : nil
+      msg_obj = first_choice.is_a?(Hash) ? (first_choice['message'] || first_choice[:message]) : nil
+      message = msg_obj.is_a?(Hash) ? (msg_obj['content'] || msg_obj[:content]) : msg_obj&.to_s
+    end
     return if message.blank?
 
     span.set_attribute(ATTR_GEN_AI_COMPLETION_ROLE, 'assistant')
-    span.set_attribute(ATTR_GEN_AI_COMPLETION_CONTENT, message)
+    span.set_attribute(ATTR_GEN_AI_COMPLETION_CONTENT, message.to_s)
   end
 
   def set_usage_metrics(span, result)
+    return unless result.is_a?(Hash)
+
     usage = result[:usage] || result['usage']
-    return if usage.blank?
+    return if usage.blank? || !usage.respond_to?(:[])
 
     span.set_attribute(ATTR_GEN_AI_USAGE_INPUT_TOKENS, usage['prompt_tokens']) if usage['prompt_tokens']
     span.set_attribute(ATTR_GEN_AI_USAGE_OUTPUT_TOKENS, usage['completion_tokens']) if usage['completion_tokens']
