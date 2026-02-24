@@ -5,42 +5,71 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
   def perform(_tool_context, query:)
     log_tool_usage('searching', { query: query })
 
-    responses = @assistant.responses.approved.search(query).to_a
+    faq_results, chunk_results = search_knowledge(query)
+    total_results = faq_results.size + chunk_results.size
 
-    if responses.empty?
+    if total_results.zero?
       log_tool_usage('no_results', { query: query })
-      return { answer: nil, confidence: 0.0, policy: 'no_match' }
+      "No relevant FAQs found for: #{query}"
+    else
+      log_tool_usage('found_results', { query: query, count: total_results })
+      "#{format_chunk_results(chunk_results)}#{format_responses(faq_results)}"
     end
-
-    confidence, policy = assess_confidence(responses.first)
-    log_tool_usage('found_results', { query: query, count: responses.size, confidence: confidence, policy: policy })
-
-    return { answer: nil, confidence: confidence, policy: policy } if policy == 'no_match'
-
-    { answer: format_responses(responses.first(3)), confidence: confidence, policy: policy }
   end
 
   private
 
-  def assess_confidence(best_response)
-    confidence = neighbor_confidence(best_response)
-    auto_threshold = @assistant.faq_auto_answer_threshold.to_f.nonzero? || 0.82
-    suggest_threshold = @assistant.faq_suggest_threshold.to_f.nonzero? || 0.65
-
-    policy = if confidence >= auto_threshold
-               'auto_answer'
-             elsif confidence >= suggest_threshold
-               'suggest'
-             else
-               'no_match'
-             end
-    [confidence, policy]
+  def search_knowledge(query)
+    if chunk_retrieval_mode?
+      [
+        search_non_document_faqs(query),
+        Captain::Documents::HybridChunkSearchService.new(assistant: @assistant).search(query)
+      ]
+    else
+      [@assistant.responses.approved.search(query).to_a, []]
+    end
   end
 
-  def neighbor_confidence(response)
-    return 0.0 unless response.respond_to?(:neighbor_distance) && response.neighbor_distance
+  def search_non_document_faqs(query)
+    @assistant.responses
+              .approved
+              .where.not(documentable_type: 'Captain::Document')
+              .search(query)
+              .to_a
+  end
 
-    (1.0 - response.neighbor_distance).round(4)
+  def chunk_retrieval_mode?
+    return false unless chunk_builder_enabled?
+
+    value = @assistant.config&.fetch('feature_document_faq_generation', true)
+    !ActiveModel::Type::Boolean.new.cast(value)
+  end
+
+  def chunk_builder_enabled?
+    value = InstallationConfig.find_by(name: 'CAPTAIN_DOCUMENT_CHUNKING_ENABLED')&.value
+    ActiveModel::Type::Boolean.new.cast(value)
+  end
+
+  def format_chunk_results(chunks)
+    chunks.map { |chunk| format_chunk(chunk) }.join
+  end
+
+  def format_chunk(chunk)
+    document = chunk.document
+    source_link = document.external_link if should_show_document_source?(document)
+    title = document.name.presence || document.external_link
+
+    formatted = "
+        Article: #{title}
+        Context: #{chunk.context}
+        Content: #{chunk.content}
+        "
+    if source_link.present?
+      formatted += "
+        Source: #{source_link}
+        "
+    end
+    formatted
   end
 
   def format_responses(responses)
@@ -68,5 +97,12 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
     # Don't show source if it's a PDF placeholder
     external_link = response.documentable.external_link
     !external_link.start_with?('PDF:')
+  end
+
+  def should_show_document_source?(document)
+    return false if document.blank?
+    return false if document.external_link.blank?
+
+    !document.external_link.start_with?('PDF:')
   end
 end

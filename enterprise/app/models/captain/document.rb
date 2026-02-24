@@ -3,8 +3,13 @@
 # Table name: captain_documents
 #
 #  id            :bigint           not null, primary key
+#  chunking_status      :integer          default("pending"), not null
+#  chunks_generated_at :datetime
 #  content       :text
+#  expected_chunk_count :integer          default(0), not null
 #  external_link :string           not null
+#  indexed_chunk_count :integer          default(0), not null
+#  last_chunk_error    :text
 #  metadata      :jsonb
 #  name          :string
 #  status        :integer          default("in_progress"), not null
@@ -18,6 +23,8 @@
 #  index_captain_documents_on_account_id                      (account_id)
 #  index_captain_documents_on_assistant_id                    (assistant_id)
 #  index_captain_documents_on_assistant_id_and_external_link  (assistant_id,external_link) UNIQUE
+#  index_captain_documents_on_chunks_generated_at             (chunks_generated_at)
+#  index_captain_documents_on_chunking_status                 (chunking_status)
 #  index_captain_documents_on_status                          (status)
 #
 class Captain::Document < ApplicationRecord
@@ -26,6 +33,7 @@ class Captain::Document < ApplicationRecord
 
   belongs_to :assistant, class_name: 'Captain::Assistant'
   has_many :responses, class_name: 'Captain::AssistantResponse', dependent: :destroy, as: :documentable
+  has_many :chunks, class_name: 'Captain::DocumentChunk', dependent: :destroy
   belongs_to :account
   has_one_attached :pdf_file
 
@@ -44,11 +52,20 @@ class Captain::Document < ApplicationRecord
     available: 1
   }
 
+  enum chunking_status: {
+    pending: 0,
+    chunking: 1,
+    indexing: 2,
+    ready: 3,
+    failed: 4
+  }, _prefix: true
+
   before_create :ensure_within_plan_limit
   after_create_commit :enqueue_crawl_job
   after_create_commit :update_document_usage
   after_destroy :update_document_usage
   after_commit :enqueue_response_builder_job
+  after_commit :enqueue_chunk_builder_job
   scope :ordered, -> { order(created_at: :desc) }
 
   scope :for_account, ->(account_id) { where(account_id: account_id) }
@@ -100,13 +117,39 @@ class Captain::Document < ApplicationRecord
     Captain::Documents::ResponseBuilderJob.perform_later(self)
   end
 
+  def enqueue_chunk_builder_job
+    return unless should_enqueue_chunk_builder_job?
+
+    Captain::Documents::ChunkBuilderJob.perform_later(self)
+  end
+
   def should_enqueue_response_builder?
     return false if destroyed?
     return false unless available?
+    return false unless document_faq_generation_enabled?
 
     return saved_change_to_status? if pdf_document?
 
     (saved_change_to_status? || saved_change_to_content?) && content.present?
+  end
+
+  def should_enqueue_chunk_builder_job?
+    return false unless chunk_builder_enabled?
+    return false if destroyed?
+    return false unless available?
+    return false if pdf_document?
+
+    (saved_change_to_status? || saved_change_to_content?) && content.present?
+  end
+
+  def chunk_builder_enabled?
+    value = InstallationConfig.find_by(name: 'CAPTAIN_DOCUMENT_CHUNKING_ENABLED')&.value
+    ActiveModel::Type::Boolean.new.cast(value)
+  end
+
+  def document_faq_generation_enabled?
+    value = assistant&.config&.fetch('feature_document_faq_generation', true)
+    ActiveModel::Type::Boolean.new.cast(value)
   end
 
   def update_document_usage

@@ -17,7 +17,7 @@ module Integrations::LlmInstrumentation
       setup_span_attributes(span, params)
       result = yield
       executed = true
-      record_completion(span, result)
+      record_completion(span, result, params)
       result
     end
   rescue StandardError => e

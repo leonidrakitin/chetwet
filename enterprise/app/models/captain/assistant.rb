@@ -25,6 +25,7 @@ class Captain::Assistant < ApplicationRecord
 
   belongs_to :account
   has_many :documents, class_name: 'Captain::Document', dependent: :destroy_async
+  has_many :document_chunks, class_name: 'Captain::DocumentChunk', dependent: :destroy_async
   has_many :responses, class_name: 'Captain::AssistantResponse', dependent: :destroy_async
   has_many :captain_inboxes,
            class_name: 'CaptainInbox',
@@ -36,7 +37,7 @@ class Captain::Assistant < ApplicationRecord
   has_many :copilot_threads, dependent: :destroy_async
   has_many :scenarios, class_name: 'Captain::Scenario', dependent: :destroy_async
 
-  store_accessor :config, :temperature, :feature_faq, :feature_memory, :product_name,
+  store_accessor :config, :temperature, :feature_faq, :feature_memory, :feature_document_faq_generation, :product_name,
                  :autonomy_max_retries, :faq_auto_answer_threshold, :faq_suggest_threshold,
                  :autonomy_self_check_enabled, :autonomy_return_to_scenario
 
