@@ -1,5 +1,9 @@
 require Rails.root.join('lib/redis/config')
 
+# Ensure Sidekiq 8's ActiveJob wrapper is defined when Sidekiq was required before Rails
+# (e.g. by sentry-sidekiq). See Sidekiq Changes 7.3.9.
+require 'sidekiq/rails' if defined?(Sidekiq) && !defined?(Sidekiq::ActiveJob)
+
 schedule_file = 'config/schedule.yml'
 
 Sidekiq.configure_client do |config|

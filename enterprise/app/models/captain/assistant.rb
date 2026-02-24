@@ -108,7 +108,7 @@ class Captain::Assistant < ApplicationRecord
       scenarios: scenarios.enabled.map do |scenario|
         {
           title: scenario.title,
-          key: scenario.title.parameterize.underscore,
+          key: "#{scenario.title} Agent".parameterize(separator: '_'),
           description: scenario.description
         }
       end,
