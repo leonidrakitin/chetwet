@@ -8,6 +8,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import TemplateCard from './components/TemplateCard.vue';
 import TemplateModal from './components/TemplateModal.vue';
+import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -46,8 +47,10 @@ const isStatisticsTab = computed(() => activeTab.value.key === 'statistics');
 
 const templateModalRef = ref(null);
 const deleteDialogRef = ref(null);
+const previewDialogRef = ref(null);
 const editingTemplate = ref(null);
 const deletingTemplate = ref(null);
+const previewingTemplate = ref(null);
 
 const openNewTemplate = () => {
   editingTemplate.value = null;
@@ -88,6 +91,11 @@ const handleClone = async id => {
   } catch {
     useAlert(t('NOTIFICATION_TEMPLATES.CLONE.ERROR'));
   }
+};
+
+const handlePreview = template => {
+  previewingTemplate.value = template;
+  previewDialogRef.value?.open();
 };
 
 const handleDeleteRequest = template => {
@@ -172,6 +180,7 @@ onMounted(() => {
           @edit="handleEdit"
           @clone="handleClone"
           @delete="handleDeleteRequest"
+          @preview="handlePreview"
         />
       </div>
     </div>
@@ -182,6 +191,24 @@ onMounted(() => {
     :template="editingTemplate"
     @save="handleSave"
   />
+
+  <Dialog
+    ref="previewDialogRef"
+    type="edit"
+    :title="
+      previewingTemplate
+        ? previewingTemplate.name
+        : t('NOTIFICATION_TEMPLATES.PREVIEW.TITLE')
+    "
+    :show-confirm-button="false"
+    width="sm"
+    @close="previewingTemplate = null"
+  >
+    <NotificationTemplatePreview
+      v-if="previewingTemplate"
+      :message-text="previewingTemplate.messageText"
+    />
+  </Dialog>
 
   <Dialog
     ref="deleteDialogRef"

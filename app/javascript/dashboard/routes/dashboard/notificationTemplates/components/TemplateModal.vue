@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Switch from 'dashboard/components-next/switch/Switch.vue';
+import NotificationTemplatePreview from './NotificationTemplatePreview.vue';
 
 const props = defineProps({
   template: {
@@ -113,108 +114,54 @@ const handleClose = () => {
         ? t('NOTIFICATION_TEMPLATES.EDIT.BUTTON_TEXT')
         : t('NOTIFICATION_TEMPLATES.ADD.TITLE')
     "
-    width="xl"
+    width="3xl"
     overflow-y-auto
     @confirm="handleConfirm"
     @close="handleClose"
   >
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
-          <span class="text-n-ruby-9">*</span>
-        </label>
-        <input
-          v-model="form.name"
-          type="text"
-          :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
-          class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
-          @input="nameError = ''"
-        />
-        <span v-if="nameError" class="text-xs text-n-ruby-11">{{
-          nameError
-        }}</span>
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.LABEL') }}
-        </label>
-        <input
-          v-model="form.description"
-          type="text"
-          :placeholder="
-            t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.PLACEHOLDER')
-          "
-          class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
-        />
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.FORM.TYPE.LABEL') }}
-        </label>
-        <select
-          v-model="form.type"
-          class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
-        >
-          <option
-            v-for="opt in typeOptions"
-            :key="opt.value"
-            :value="opt.value"
-          >
-            {{ opt.label }}
-          </option>
-        </select>
-      </div>
-
-      <div v-if="form.type === 'event'" class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.FORM.TRIGGER_EVENT.LABEL') }}
-        </label>
-        <select
-          v-model="form.triggerEvent"
-          class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
-        >
-          <option
-            v-for="opt in triggerEventOptions"
-            :key="opt.value"
-            :value="opt.value"
-          >
-            {{ opt.label }}
-          </option>
-        </select>
-      </div>
-
-      <div v-if="form.type === 'time'" class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.FORM.TIME_OFFSET.LABEL') }}
-        </label>
-        <div class="flex items-center gap-2">
+    <div class="flex flex-row gap-6">
+      <div class="flex flex-col gap-4 flex-1">
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
+            <span class="text-n-ruby-9">*</span>
+          </label>
           <input
-            v-model.number="form.timeOffset"
-            type="number"
-            min="1"
-            class="h-10 w-24 rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
+            v-model="form.name"
+            type="text"
+            :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
+            class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
+            @input="nameError = ''"
           />
+          <span v-if="nameError" class="text-xs text-n-ruby-11">{{
+            nameError
+          }}</span>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.LABEL') }}
+          </label>
+          <input
+            v-model="form.description"
+            type="text"
+            :placeholder="
+              t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.PLACEHOLDER')
+            "
+            class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.TYPE.LABEL') }}
+          </label>
           <select
-            v-model="form.timeUnit"
-            class="h-10 flex-1 rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
+            v-model="form.type"
+            class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
           >
             <option
-              v-for="opt in timeUnitOptions"
-              :key="opt.value"
-              :value="opt.value"
-            >
-              {{ opt.label }}
-            </option>
-          </select>
-          <select
-            v-model="form.timeDirection"
-            class="h-10 flex-1 rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
-          >
-            <option
-              v-for="opt in timeDirectionOptions"
+              v-for="opt in typeOptions"
               :key="opt.value"
               :value="opt.value"
             >
@@ -222,30 +169,90 @@ const handleClose = () => {
             </option>
           </select>
         </div>
+
+        <div v-if="form.type === 'event'" class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.TRIGGER_EVENT.LABEL') }}
+          </label>
+          <select
+            v-model="form.triggerEvent"
+            class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
+          >
+            <option
+              v-for="opt in triggerEventOptions"
+              :key="opt.value"
+              :value="opt.value"
+            >
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <div v-if="form.type === 'time'" class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.TIME_OFFSET.LABEL') }}
+          </label>
+          <div class="flex items-center gap-2">
+            <input
+              v-model.number="form.timeOffset"
+              type="number"
+              min="1"
+              class="h-10 w-24 rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
+            />
+            <select
+              v-model="form.timeUnit"
+              class="h-10 flex-1 rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
+            >
+              <option
+                v-for="opt in timeUnitOptions"
+                :key="opt.value"
+                :value="opt.value"
+              >
+                {{ opt.label }}
+              </option>
+            </select>
+            <select
+              v-model="form.timeDirection"
+              class="h-10 flex-1 rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors"
+            >
+              <option
+                v-for="opt in timeDirectionOptions"
+                :key="opt.value"
+                :value="opt.value"
+              >
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
+          </label>
+          <textarea
+            v-model="form.messageText"
+            rows="4"
+            :placeholder="
+              t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
+            "
+            class="w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors resize-none"
+          />
+          <p class="text-xs text-n-slate-9">
+            {{ t('NOTIFICATION_TEMPLATES.VARIABLES_HINT') }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <Switch v-model="form.enabled" />
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.ENABLED.LABEL') }}
+          </label>
+        </div>
       </div>
 
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
-        </label>
-        <textarea
-          v-model="form.messageText"
-          rows="4"
-          :placeholder="
-            t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
-          "
-          class="w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors resize-none"
-        />
-        <p class="text-xs text-n-slate-9">
-          {{ t('NOTIFICATION_TEMPLATES.VARIABLES_HINT') }}
-        </p>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <Switch v-model="form.enabled" />
-        <label class="text-sm font-medium text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.FORM.ENABLED.LABEL') }}
-        </label>
+      <div class="w-64 flex-shrink-0">
+        <NotificationTemplatePreview :message-text="form.messageText" />
       </div>
     </div>
   </Dialog>

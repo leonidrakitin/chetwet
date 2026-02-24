@@ -50,6 +50,12 @@
     "TOGGLE": { "SUCCESS": "Template updated.", "ERROR": "Could not update template." },
     "SAVE": { "SUCCESS": "Template saved successfully.", "ERROR": "Could not save template." },
     "STATISTICS": { "COMING_SOON": "Statistics will be available in a future update." },
+    "PREVIEW": {
+      "TITLE": "Preview",
+      "BUTTON_TEXT": "Preview",
+      "PLACEHOLDER": "Your message will appear here...",
+      "EXAMPLE_LABEL": "Example variable values are used for preview"
+    },
     "EMPTY": "No templates found. Create a new template using the button above."
   }
 }

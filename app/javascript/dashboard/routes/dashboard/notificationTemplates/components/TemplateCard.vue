@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['toggle', 'edit', 'delete', 'clone']);
+const emit = defineEmits(['toggle', 'edit', 'delete', 'clone', 'preview']);
 
 const { t } = useI18n();
 const menuOpen = ref(false);
@@ -27,6 +27,11 @@ const closeMenu = () => {
 
 const handleToggle = () => {
   emit('toggle', props.template.id);
+};
+
+const handlePreview = () => {
+  closeMenu();
+  emit('preview', props.template);
 };
 
 const handleEdit = () => {
@@ -86,6 +91,13 @@ const eventLabel = template => {
             v-if="menuOpen"
             class="absolute right-0 top-8 z-50 min-w-36 rounded-lg border border-n-weak bg-n-solid-1 shadow-lg py-1"
           >
+            <button
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+              @click="handlePreview"
+            >
+              <span class="i-lucide-eye size-4 text-n-slate-10" />
+              {{ t('NOTIFICATION_TEMPLATES.PREVIEW.BUTTON_TEXT') }}
+            </button>
             <button
               class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
               @click="handleEdit"
