@@ -6,10 +6,6 @@ defineProps({
     type: Object,
     required: true,
   },
-  buttonText: {
-    type: String,
-    required: true,
-  },
 });
 </script>
 
@@ -21,8 +17,17 @@ defineProps({
         class="text-sm font-medium prose prose-bubble"
       />
     </div>
-    <div class="flex gap-2">
-      <Button :label="buttonText" slate class="!text-n-blue-11 w-full" />
+    <div
+      v-if="message.buttons && message.buttons.length > 0"
+      class="flex flex-col gap-2"
+    >
+      <Button
+        v-for="(button, index) in message.buttons"
+        :key="index"
+        :label="button.text || button.title || 'Button'"
+        slate
+        class="!text-n-blue-text w-full"
+      />
     </div>
   </div>
 </template>

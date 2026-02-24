@@ -6,20 +6,23 @@ defineProps({
     type: Object,
     required: true,
   },
+  buttonText: {
+    type: String,
+    required: true,
+  },
 });
 </script>
 
 <template>
-  <div class="text-n-slate-12 max-w-80 flex flex-col gap-2.5">
-    <div class="p-3 bg-n-alpha-2 rounded-xl">
+  <div class="flex flex-col gap-2.5 text-n-slate-12 max-w-80">
+    <div class="p-3 rounded-xl bg-n-alpha-2">
       <span
         v-dompurify-html="message.content"
-        class="prose prose-bubble font-medium text-sm"
+        class="text-sm font-medium prose prose-bubble"
       />
     </div>
     <div class="flex gap-2">
-      <Button label="Call us" slate class="!text-n-blue-11 w-full" />
-      <Button label="Visit our website" slate class="!text-n-blue-11 w-full" />
+      <Button :label="buttonText" slate class="!text-n-blue-text w-full" />
     </div>
   </div>
 </template>
