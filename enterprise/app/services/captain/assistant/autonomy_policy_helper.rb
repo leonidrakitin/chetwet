@@ -4,8 +4,9 @@ module Captain::Assistant::AutonomyPolicyHelper
   DEFAULT_AUTONOMY_MAX_RETRIES = 2
 
   def run_with_autonomy_policy(message, context)
+    return runner.run(message, context: context, max_turns: 100) unless autonomy_enabled?
+
     max_retries = effective_autonomy_max_retries
-    return runner.run(message, context: context, max_turns: 100) if max_retries.zero?
 
     result = nil
     (max_retries + 1).times do |attempt|
@@ -19,9 +20,15 @@ module Captain::Assistant::AutonomyPolicyHelper
     answer_acceptable?(result) ? result : escalation_result(context)
   end
 
+  # autonomy_max_retries: nil → default 2 (autonomy on)
+  # autonomy_max_retries: 0  → simple mode: answer or handoff, no retries
   def effective_autonomy_max_retries
     val = @assistant.autonomy_max_retries
     val.nil? ? DEFAULT_AUTONOMY_MAX_RETRIES : val.to_i
+  end
+
+  def autonomy_enabled?
+    effective_autonomy_max_retries.positive?
   end
 
   def answer_acceptable?(result)
