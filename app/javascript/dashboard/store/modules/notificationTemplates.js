@@ -8,6 +8,9 @@ const MOCK_TEMPLATES = [
     messageText:
       'Здравствуйте, {client_name}! Вы записаны на {service_name} {date} в {time}. Ждём вас в {branch_name}.',
     enabled: true,
+    order: 0,
+    attachments: [],
+    buttons: [],
   },
   {
     id: 41403,
@@ -18,6 +21,16 @@ const MOCK_TEMPLATES = [
     messageText:
       'Здравствуйте, {client_name}! Ваша запись изменена: {service_name} {date} в {time}.',
     enabled: true,
+    order: 1,
+    attachments: [],
+    buttons: [
+      {
+        id: 'btn-1',
+        label: 'Подтвердить',
+        type: 'template',
+        templateId: 730569,
+      },
+    ],
   },
   {
     id: 982055,
@@ -28,6 +41,9 @@ const MOCK_TEMPLATES = [
     messageText:
       'Здравствуйте, {client_name}! Ваша запись на {service_name} {date} была отменена.',
     enabled: false,
+    order: 2,
+    attachments: [],
+    buttons: [],
   },
   {
     id: 824540,
@@ -38,6 +54,23 @@ const MOCK_TEMPLATES = [
     messageText:
       'Здравствуйте, {client_name}! Оплата на сумму {price} успешно принята. Ждём вас {date} в {time}.',
     enabled: true,
+    order: 3,
+    attachments: [
+      {
+        id: 'att-1',
+        type: 'link',
+        name: 'Чек об оплате',
+        url: 'https://example.com/receipt',
+      },
+    ],
+    buttons: [
+      {
+        id: 'btn-2',
+        label: 'Посмотреть чек',
+        type: 'url',
+        url: 'https://example.com/receipt',
+      },
+    ],
   },
   {
     id: 951339,
@@ -48,6 +81,9 @@ const MOCK_TEMPLATES = [
     messageText:
       'Здравствуйте, {client_name}! Рады приветствовать вас в {branch_name}. Ваш мастер {master_name} ждёт вас.',
     enabled: true,
+    order: 4,
+    attachments: [],
+    buttons: [],
   },
 ];
 
@@ -68,7 +104,9 @@ export const getters = {
     return _state.uiFlags;
   },
   getTemplates(_state) {
-    return _state.templates;
+    return [..._state.templates].sort(
+      (a, b) => (a.order ?? 0) - (b.order ?? 0)
+    );
   },
   getTemplatesByType: _state => type => {
     return _state.templates.filter(t => t.type === type);
@@ -91,15 +129,27 @@ export const mutations = {
   DELETE_TEMPLATE(_state, id) {
     _state.templates = _state.templates.filter(t => t.id !== id);
   },
+  REORDER_TEMPLATES(_state, templates) {
+    _state.templates = templates.map((t, index) => ({ ...t, order: index }));
+  },
 };
 
 export const actions = {
   get({ commit }) {
-    commit('SET_TEMPLATES', [...MOCK_TEMPLATES]);
+    commit(
+      'SET_TEMPLATES',
+      MOCK_TEMPLATES.map((t, i) => ({ ...t, order: t.order ?? i }))
+    );
   },
-  create({ commit }, templateData) {
+  create({ commit, state: _state }, templateData) {
     nextId += 1;
-    const template = { ...templateData, id: nextId };
+    const template = {
+      ...templateData,
+      id: nextId,
+      order: _state.templates.length,
+      attachments: templateData.attachments ?? [],
+      buttons: templateData.buttons ?? [],
+    };
     commit('ADD_TEMPLATE', template);
   },
   update({ commit }, template) {
@@ -122,8 +172,12 @@ export const actions = {
         ...template,
         id: nextId,
         name: `${template.name} (copy)`,
+        order: _state.templates.length,
       });
     }
+  },
+  reorder({ commit }, templates) {
+    commit('REORDER_TEMPLATES', templates);
   },
 };
 

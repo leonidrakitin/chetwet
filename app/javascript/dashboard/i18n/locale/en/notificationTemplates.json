@@ -30,32 +30,93 @@
     "TIME_UNIT": { "HOURS": "hours", "DAYS": "days" },
     "VARIABLES_HINT": "Available variables: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
     "FORM": {
-      "NAME": { "LABEL": "Name", "PLACEHOLDER": "Template name", "REQUIRED": "Name is required" },
-      "DESCRIPTION": { "LABEL": "Description", "PLACEHOLDER": "Optional description" },
+      "NAME": {
+        "LABEL": "Name",
+        "PLACEHOLDER": "Template name",
+        "REQUIRED": "Name is required"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Optional description"
+      },
       "TYPE": { "LABEL": "Type" },
       "TRIGGER_EVENT": { "LABEL": "Trigger Event" },
       "TIME_OFFSET": { "LABEL": "Time Offset" },
-      "MESSAGE_TEXT": { "LABEL": "Message Text", "PLACEHOLDER": "Enter message text..." },
+      "MESSAGE_TEXT": {
+        "LABEL": "Message Text",
+        "PLACEHOLDER": "Enter message text..."
+      },
       "ENABLED": { "LABEL": "Enabled" }
     },
     "ADD": { "TITLE": "New Template" },
     "EDIT": { "TITLE": "Edit Template", "BUTTON_TEXT": "Edit" },
-    "CLONE": { "BUTTON_TEXT": "Clone", "SUCCESS": "Template cloned successfully.", "ERROR": "Could not clone template." },
+    "CLONE": {
+      "BUTTON_TEXT": "Clone",
+      "SUCCESS": "Template cloned successfully.",
+      "ERROR": "Could not clone template."
+    },
     "DELETE": {
       "BUTTON_TEXT": "Delete",
-      "CONFIRM": { "TITLE": "Confirm Deletion", "MESSAGE": "Delete template \"{name}\"?", "YES": "Yes, Delete", "NO": "Cancel" },
+      "CONFIRM": {
+        "TITLE": "Confirm Deletion",
+        "MESSAGE": "Delete template \"{name}\"?",
+        "YES": "Yes, Delete",
+        "NO": "Cancel"
+      },
       "SUCCESS": "Template deleted successfully.",
       "ERROR": "Could not delete template."
     },
-    "TOGGLE": { "SUCCESS": "Template updated.", "ERROR": "Could not update template." },
-    "SAVE": { "SUCCESS": "Template saved successfully.", "ERROR": "Could not save template." },
-    "STATISTICS": { "COMING_SOON": "Statistics will be available in a future update." },
+    "TOGGLE": {
+      "SUCCESS": "Template updated.",
+      "ERROR": "Could not update template."
+    },
+    "SAVE": {
+      "SUCCESS": "Template saved successfully.",
+      "ERROR": "Could not save template."
+    },
+    "STATISTICS": {
+      "COMING_SOON": "Statistics will be available in a future update."
+    },
     "PREVIEW": {
       "TITLE": "Preview",
       "BUTTON_TEXT": "Preview",
       "PLACEHOLDER": "Your message will appear here...",
       "EXAMPLE_LABEL": "Example variable values are used for preview"
     },
-    "EMPTY": "No templates found. Create a new template using the button above."
+    "EMPTY": "No templates found. Create a new template using the button above.",
+    "SEARCH": {
+      "PLACEHOLDER": "Search templates..."
+    },
+    "VARIABLES": {
+      "LABEL": "Insert variable"
+    },
+    "ATTACHMENTS": {
+      "LABEL": "Attachments",
+      "ADD_FILE": "+ File",
+      "ADD_PHOTO": "+ Photo",
+      "ADD_VIDEO": "+ Video",
+      "ADD_LINK": "+ Link",
+      "LINK_URL": "URL",
+      "LINK_LABEL": "Label",
+      "MAX_REACHED": "Maximum 10 attachments"
+    },
+    "BUTTONS": {
+      "LABEL": "Action Buttons",
+      "ADD": "+ Add Button",
+      "BUTTON_LABEL": "Button text",
+      "TYPE": "Action type",
+      "TYPE_URL": "Open URL",
+      "TYPE_TEMPLATE": "Go to template",
+      "URL": "URL",
+      "TEMPLATE": "Select template...",
+      "MAX_REACHED": "Maximum 3 buttons"
+    },
+    "COMMON": {
+      "CANCEL": "Cancel"
+    },
+    "VIEW": {
+      "GRID": "Grid",
+      "FLOW": "Flow"
+    }
   }
 }

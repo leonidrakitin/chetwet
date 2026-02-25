@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
 import Switch from 'dashboard/components-next/switch/Switch.vue';
@@ -13,6 +13,26 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['toggle', 'edit', 'delete', 'clone', 'preview']);
+
+const EXAMPLE_VALUES = {
+  client_name: 'Иван Иванов',
+  service_name: 'Стрижка',
+  branch_name: 'Центральный офис',
+  master_name: 'Мария',
+  price: '1 500 ₽',
+  date: '15 марта',
+  time: '14:30',
+};
+
+const getAttachmentIcon = type => {
+  const icons = {
+    file: 'i-lucide-file',
+    photo: 'i-lucide-image',
+    video: 'i-lucide-video',
+    link: 'i-lucide-link',
+  };
+  return icons[type] ?? 'i-lucide-paperclip';
+};
 
 const { t } = useI18n();
 const menuOpen = ref(false);
@@ -49,6 +69,13 @@ const handleDelete = () => {
   emit('delete', props.template);
 };
 
+const processedText = computed(() => {
+  if (!props.template.messageText) return '';
+  return props.template.messageText.replace(/\{(\w+)\}/g, (match, variable) => {
+    return EXAMPLE_VALUES[variable] ?? match;
+  });
+});
+
 const eventLabel = template => {
   if (template.type === 'event' && template.triggerEvent) {
     return t(`NOTIFICATION_TEMPLATES.EVENTS.${template.triggerEvent}`);
@@ -69,13 +96,14 @@ const eventLabel = template => {
 
 <template>
   <div
-    class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-weak bg-n-solid-1 hover:border-n-strong transition-colors duration-200"
+    class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-weak bg-n-solid-1 hover:border-n-strong transition-colors duration-200 cursor-pointer"
+    @click.self="handleEdit"
   >
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <Switch :model-value="template.enabled" @change="handleToggle" />
         <span class="text-xs text-n-slate-10 font-mono">
-          #{{ template.id }}
+          {{ '#' + template.id }}
         </span>
       </div>
       <OnClickOutside @trigger="closeMenu">
@@ -128,9 +156,43 @@ const eventLabel = template => {
       <h3 class="text-sm font-semibold text-n-slate-12 leading-snug">
         {{ template.name }}
       </h3>
-      <p class="text-xs text-n-slate-10 line-clamp-2 leading-relaxed">
-        {{ template.messageText }}
-      </p>
+
+      <!-- Inline message bubble preview -->
+      <div
+        v-if="processedText"
+        class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-xs text-white max-w-full line-clamp-3 leading-relaxed whitespace-pre-wrap break-words"
+      >
+        {{ processedText }}
+      </div>
+
+      <!-- Attachments icons -->
+      <div
+        v-if="template.attachments && template.attachments.length"
+        class="flex flex-wrap gap-1 mt-1"
+      >
+        <span
+          v-for="att in template.attachments"
+          :key="att.id"
+          class="flex items-center gap-1 text-xs text-n-slate-10"
+        >
+          <span class="size-3" :class="getAttachmentIcon(att.type)" />
+          <span class="max-w-20 truncate">{{ att.name }}</span>
+        </span>
+      </div>
+
+      <!-- Buttons compact view -->
+      <div
+        v-if="template.buttons && template.buttons.length"
+        class="flex flex-wrap gap-1 mt-1"
+      >
+        <span
+          v-for="btn in template.buttons"
+          :key="btn.id"
+          class="inline-flex items-center rounded-full border border-n-blue-9 px-2 py-0.5 text-xs text-n-blue-11"
+        >
+          {{ btn.label }}
+        </span>
+      </div>
     </div>
 
     <div class="flex items-center">

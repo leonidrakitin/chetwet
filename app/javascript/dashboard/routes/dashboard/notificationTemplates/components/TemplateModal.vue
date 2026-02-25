@@ -4,11 +4,18 @@ import { useI18n } from 'vue-i18n';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Switch from 'dashboard/components-next/switch/Switch.vue';
 import NotificationTemplatePreview from './NotificationTemplatePreview.vue';
+import VariablePicker from './VariablePicker.vue';
+import AttachmentEditor from './AttachmentEditor.vue';
+import ButtonEditor from './ButtonEditor.vue';
 
 const props = defineProps({
   template: {
     type: Object,
     default: null,
+  },
+  allTemplates: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -17,6 +24,7 @@ const emit = defineEmits(['save', 'close']);
 const { t } = useI18n();
 
 const dialogRef = ref(null);
+const textareaEl = ref(null);
 
 const isEditing = computed(() => !!props.template);
 
@@ -30,6 +38,8 @@ const defaultForm = () => ({
   timeDirection: 'BEFORE',
   messageText: '',
   enabled: true,
+  attachments: [],
+  buttons: [],
 });
 
 const form = ref(defaultForm());
@@ -39,7 +49,12 @@ watch(
   () => props.template,
   template => {
     if (template) {
-      form.value = { ...template };
+      form.value = {
+        ...defaultForm(),
+        ...template,
+        attachments: [...(template.attachments ?? [])],
+        buttons: [...(template.buttons ?? [])],
+      };
     } else {
       form.value = defaultForm();
     }
@@ -98,6 +113,52 @@ const handleConfirm = () => {
 const handleClose = () => {
   emit('close');
 };
+
+// Insert variable at cursor position
+const insertVariable = text => {
+  const textarea = textareaEl.value;
+  if (!textarea) {
+    form.value.messageText += text;
+    return;
+  }
+  const start = textarea.selectionStart ?? textarea.value.length;
+  const end = textarea.selectionEnd ?? textarea.value.length;
+  const before = form.value.messageText.slice(0, start);
+  const after = form.value.messageText.slice(end);
+  form.value.messageText = before + text + after;
+  // Restore cursor
+  setTimeout(() => {
+    textarea.focus();
+    const newPos = start + text.length;
+    textarea.setSelectionRange(newPos, newPos);
+  }, 0);
+};
+
+// Handle drop on textarea for variable insertion
+const onTextareaDrop = event => {
+  event.preventDefault();
+  const text = event.dataTransfer.getData('text/plain');
+  if (!text || !textareaEl.value) return;
+
+  const textarea = textareaEl.value;
+  // Try to get drop position using caretPositionFromPoint / caretRangeFromPoint
+  let insertPos = textarea.value.length;
+  if (document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(event.clientX, event.clientY);
+    if (pos) insertPos = pos.offset;
+  } else if (document.caretRangeFromPoint) {
+    const range = document.caretRangeFromPoint(event.clientX, event.clientY);
+    if (range) insertPos = range.startOffset;
+  }
+
+  const before = textarea.value.slice(0, insertPos);
+  const after = textarea.value.slice(insertPos);
+  form.value.messageText = before + text + after;
+  // Re-focus + set cursor
+  textarea.focus();
+  const newPos = insertPos + text.length;
+  textarea.setSelectionRange(newPos, newPos);
+};
 </script>
 
 <template>
@@ -120,7 +181,8 @@ const handleClose = () => {
     @close="handleClose"
   >
     <div class="flex flex-row gap-6">
-      <div class="flex flex-col gap-4 flex-1">
+      <div class="flex flex-col gap-4 flex-1 min-w-0">
+        <!-- Name -->
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
@@ -138,6 +200,7 @@ const handleClose = () => {
           }}</span>
         </div>
 
+        <!-- Description -->
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.LABEL') }}
@@ -152,6 +215,7 @@ const handleClose = () => {
           />
         </div>
 
+        <!-- Type -->
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.TYPE.LABEL') }}
@@ -170,6 +234,7 @@ const handleClose = () => {
           </select>
         </div>
 
+        <!-- Trigger event (for event type) -->
         <div v-if="form.type === 'event'" class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.TRIGGER_EVENT.LABEL') }}
@@ -188,6 +253,7 @@ const handleClose = () => {
           </select>
         </div>
 
+        <!-- Time offset (for time type) -->
         <div v-if="form.type === 'time'" class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.TIME_OFFSET.LABEL') }}
@@ -226,23 +292,37 @@ const handleClose = () => {
           </div>
         </div>
 
+        <!-- Message text -->
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
           </label>
           <textarea
+            ref="textareaEl"
             v-model="form.messageText"
             rows="4"
             :placeholder="
               t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
             "
             class="w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors resize-none"
+            @dragover.prevent
+            @drop="onTextareaDrop"
           />
-          <p class="text-xs text-n-slate-9">
-            {{ t('NOTIFICATION_TEMPLATES.VARIABLES_HINT') }}
-          </p>
+          <!-- Variable picker -->
+          <VariablePicker @insert="insertVariable" />
         </div>
 
+        <!-- Attachments -->
+        <AttachmentEditor v-model="form.attachments" />
+
+        <!-- Buttons -->
+        <ButtonEditor
+          v-model="form.buttons"
+          :templates="allTemplates"
+          :current-id="form.id"
+        />
+
+        <!-- Enabled toggle -->
         <div class="flex items-center gap-3">
           <Switch v-model="form.enabled" />
           <label class="text-sm font-medium text-n-slate-12">
@@ -251,8 +331,13 @@ const handleClose = () => {
         </div>
       </div>
 
+      <!-- Preview panel -->
       <div class="w-64 flex-shrink-0">
-        <NotificationTemplatePreview :message-text="form.messageText" />
+        <NotificationTemplatePreview
+          :message-text="form.messageText"
+          :attachments="form.attachments"
+          :buttons="form.buttons"
+        />
       </div>
     </div>
   </Dialog>

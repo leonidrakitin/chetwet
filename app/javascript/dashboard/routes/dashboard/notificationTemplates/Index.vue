@@ -3,12 +3,14 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import Draggable from 'vuedraggable';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import TemplateCard from './components/TemplateCard.vue';
 import TemplateModal from './components/TemplateModal.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
+import FlowMap from './components/FlowMap.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -37,10 +39,25 @@ const allTemplates = computed(
   () => store.getters['notificationTemplates/getTemplates']
 );
 
+const searchQuery = ref('');
+const viewMode = ref('grid'); // 'grid' | 'flow'
+
 const filteredTemplates = computed(() => {
   const key = activeTab.value.key;
-  if (key === 'all' || key === 'statistics') return allTemplates.value;
-  return store.getters['notificationTemplates/getTemplatesByType'](key);
+  let templates =
+    key === 'all' || key === 'statistics'
+      ? allTemplates.value
+      : store.getters['notificationTemplates/getTemplatesByType'](key);
+
+  const q = searchQuery.value.trim().toLowerCase();
+  if (q) {
+    templates = templates.filter(
+      tmpl =>
+        tmpl.name.toLowerCase().includes(q) ||
+        (tmpl.messageText ?? '').toLowerCase().includes(q)
+    );
+  }
+  return templates;
 });
 
 const isStatisticsTab = computed(() => activeTab.value.key === 'statistics');
@@ -119,6 +136,14 @@ const confirmDelete = async () => {
   }
 };
 
+// DnD reorder
+const orderedTemplates = computed({
+  get: () => filteredTemplates.value,
+  set: newOrder => {
+    store.dispatch('notificationTemplates/reorder', newOrder);
+  },
+});
+
 onMounted(() => {
   store.dispatch('notificationTemplates/get');
 });
@@ -126,6 +151,7 @@ onMounted(() => {
 
 <template>
   <div class="flex flex-col h-full overflow-hidden">
+    <!-- Header -->
     <div
       class="flex items-center justify-between px-6 py-5 border-b border-n-weak flex-shrink-0"
     >
@@ -137,13 +163,57 @@ onMounted(() => {
           {{ t('NOTIFICATION_TEMPLATES.DESCRIPTION') }}
         </p>
       </div>
-      <Button
-        icon="i-lucide-plus"
-        :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
-        @click="openNewTemplate"
-      />
+      <div class="flex items-center gap-2">
+        <!-- Search -->
+        <div class="relative">
+          <span
+            class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 size-4 text-n-slate-9 pointer-events-none"
+          />
+          <input
+            v-model="searchQuery"
+            type="text"
+            :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
+            class="h-9 w-48 rounded-lg border border-n-weak bg-n-alpha-1 pl-9 pr-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
+          />
+        </div>
+
+        <!-- View mode toggle -->
+        <div class="flex rounded-lg border border-n-weak overflow-hidden">
+          <button
+            class="flex items-center gap-1.5 px-3 py-2 text-sm transition-colors"
+            :class="
+              viewMode === 'grid'
+                ? 'bg-n-brand text-white'
+                : 'text-n-slate-10 hover:bg-n-alpha-1'
+            "
+            @click="viewMode = 'grid'"
+          >
+            <span class="i-lucide-layout-grid size-4" />
+            {{ t('NOTIFICATION_TEMPLATES.VIEW.GRID') }}
+          </button>
+          <button
+            class="flex items-center gap-1.5 px-3 py-2 text-sm transition-colors"
+            :class="
+              viewMode === 'flow'
+                ? 'bg-n-brand text-white'
+                : 'text-n-slate-10 hover:bg-n-alpha-1'
+            "
+            @click="viewMode = 'flow'"
+          >
+            <span class="i-lucide-git-fork size-4" />
+            {{ t('NOTIFICATION_TEMPLATES.VIEW.FLOW') }}
+          </button>
+        </div>
+
+        <Button
+          icon="i-lucide-plus"
+          :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
+          @click="openNewTemplate"
+        />
+      </div>
     </div>
 
+    <!-- Tabs -->
     <div class="px-6 pt-4 flex-shrink-0">
       <TabBar
         :tabs="tabs"
@@ -152,6 +222,7 @@ onMounted(() => {
       />
     </div>
 
+    <!-- Content -->
     <div class="flex-1 overflow-y-auto px-6 py-4">
       <div
         v-if="isStatisticsTab"
@@ -171,24 +242,50 @@ onMounted(() => {
         </p>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <TemplateCard
-          v-for="template in filteredTemplates"
-          :key="template.id"
-          :template="template"
-          @toggle="handleToggle"
-          @edit="handleEdit"
-          @clone="handleClone"
-          @delete="handleDeleteRequest"
-          @preview="handlePreview"
-        />
-      </div>
+      <!-- Grid view with DnD -->
+      <Draggable
+        v-else-if="viewMode === 'grid'"
+        v-model="orderedTemplates"
+        item-key="id"
+        handle=".drag-handle"
+        ghost-class="opacity-40"
+        animation="200"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
+        <template #item="{ element }">
+          <div class="relative group">
+            <!-- Drag handle -->
+            <div
+              class="drag-handle absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab p-1 rounded text-n-slate-9 hover:text-n-slate-12"
+            >
+              <span class="i-lucide-grip-vertical size-4" />
+            </div>
+            <TemplateCard
+              :template="element"
+              @toggle="handleToggle"
+              @edit="handleEdit"
+              @clone="handleClone"
+              @delete="handleDeleteRequest"
+              @preview="handlePreview"
+            />
+          </div>
+        </template>
+      </Draggable>
+
+      <!-- Flow view -->
+      <FlowMap
+        v-else-if="viewMode === 'flow'"
+        :templates="filteredTemplates"
+        class="h-full"
+        @edit="handleEdit"
+      />
     </div>
   </div>
 
   <TemplateModal
     ref="templateModalRef"
     :template="editingTemplate"
+    :all-templates="allTemplates"
     @save="handleSave"
   />
 
@@ -207,6 +304,8 @@ onMounted(() => {
     <NotificationTemplatePreview
       v-if="previewingTemplate"
       :message-text="previewingTemplate.messageText"
+      :attachments="previewingTemplate.attachments ?? []"
+      :buttons="previewingTemplate.buttons ?? []"
     />
   </Dialog>
 
