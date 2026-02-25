@@ -5,7 +5,6 @@ import { useI18n } from 'vue-i18n';
 import FilterButton from 'dashboard/components/ui/Dropdown/DropdownButton.vue';
 import ListItemButton from 'dashboard/components/ui/Dropdown/DropdownListItemButton.vue';
 import DropdownEmptyState from 'dashboard/components/ui/Dropdown/DropdownEmptyState.vue';
-import { vOnClickaway } from '@vueuse/components';
 
 const emit = defineEmits(['inboxFilterSelection']);
 const { t } = useI18n();
