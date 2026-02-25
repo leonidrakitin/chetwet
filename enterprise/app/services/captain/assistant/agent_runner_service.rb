@@ -17,6 +17,8 @@ class Captain::Assistant::AgentRunnerService
     custom_attributes additional_attributes
   ].freeze
 
+  CAMPAIGN_STATE_ATTRIBUTES = %i[id title message campaign_type description].freeze
+
   def initialize(assistant:, conversation: nil, callbacks: {})
     @assistant = assistant
     @conversation = conversation
@@ -42,7 +44,10 @@ class Captain::Assistant::AgentRunnerService
 
   def build_context(message_history)
     conversation_history = message_history.map do |msg|
-      content = extract_text_from_content(msg[:content])
+      content = msg[:content]
+      # Preserve multimodal arrays (with image_url entries) as-is for the runner to restore with attachments.
+      # Only extract text from non-array formats (hashes from agent structured output, plain strings).
+      content = extract_text_from_content(content) unless content.is_a?(Array)
 
       {
         role: msg[:role].to_sym,
@@ -127,6 +132,7 @@ class Captain::Assistant::AgentRunnerService
       state[:conversation] = @conversation.attributes.symbolize_keys.slice(*CONVERSATION_STATE_ATTRIBUTES)
       state[:channel_type] = @conversation.inbox&.channel_type
       state[:contact] = @conversation.contact.attributes.symbolize_keys.slice(*CONTACT_STATE_ATTRIBUTES) if @conversation.contact
+      state[:campaign] = @conversation.campaign.attributes.symbolize_keys.slice(*CAMPAIGN_STATE_ATTRIBUTES) if @conversation.campaign
     end
 
     state
