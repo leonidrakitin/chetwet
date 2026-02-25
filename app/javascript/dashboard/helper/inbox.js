@@ -8,6 +8,7 @@ export const INBOX_TYPES = {
   EMAIL: 'Channel::Email',
   TELEGRAM: 'Channel::Telegram',
   VK: 'Channel::Vk',
+  AVITO: 'Channel::Avito',
   LINE: 'Channel::Line',
   SMS: 'Channel::Sms',
   INSTAGRAM: 'Channel::Instagram',
@@ -29,6 +30,7 @@ const INBOX_ICON_MAP_FILL = {
   [INBOX_TYPES.EMAIL]: 'i-ri-mail-fill',
   [INBOX_TYPES.TELEGRAM]: 'i-ri-telegram-fill',
   [INBOX_TYPES.VK]: 'i-woot-vk',
+  [INBOX_TYPES.AVITO]: 'i-woot-avito',
   [INBOX_TYPES.LINE]: 'i-ri-line-fill',
   [INBOX_TYPES.INSTAGRAM]: 'i-ri-instagram-fill',
   [INBOX_TYPES.TIKTOK]: 'i-ri-tiktok-fill',
@@ -46,6 +48,7 @@ const INBOX_ICON_MAP_LINE = {
   [INBOX_TYPES.EMAIL]: 'i-woot-mail',
   [INBOX_TYPES.TELEGRAM]: 'i-woot-telegram',
   [INBOX_TYPES.VK]: 'i-woot-vk',
+  [INBOX_TYPES.AVITO]: 'i-woot-avito',
   [INBOX_TYPES.LINE]: 'i-woot-line',
   [INBOX_TYPES.INSTAGRAM]: 'i-woot-instagram',
   [INBOX_TYPES.VOICE]: 'i-woot-voice',
@@ -100,6 +103,9 @@ export const getReadableInboxByType = (type, phoneNumber) => {
     case INBOX_TYPES.VK:
       return 'vk';
 
+    case INBOX_TYPES.AVITO:
+      return 'avito';
+
     case INBOX_TYPES.LINE:
       return 'line';
 
@@ -141,6 +147,9 @@ export const getInboxClassByType = (type, phoneNumber) => {
 
     case INBOX_TYPES.VK:
       return 'vk';
+
+    case INBOX_TYPES.AVITO:
+      return 'avito';
 
     case INBOX_TYPES.LINE:
       return 'brand-line';

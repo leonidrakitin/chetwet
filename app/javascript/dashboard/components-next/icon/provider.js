@@ -9,6 +9,7 @@ export function useChannelIcon(inbox) {
     'Channel::Sms': 'i-woot-sms',
     'Channel::Telegram': 'i-woot-telegram',
     'Channel::Vk': 'i-woot-vk',
+    'Channel::Avito': 'i-woot-avito',
     'Channel::TwilioSms': 'i-woot-sms',
     'Channel::TwitterProfile': 'i-woot-x',
     'Channel::WebWidget': 'i-woot-website',

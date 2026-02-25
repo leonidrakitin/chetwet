@@ -10,6 +10,7 @@ import Whatsapp from './channels/Whatsapp.vue';
 import Line from './channels/Line.vue';
 import Telegram from './channels/Telegram.vue';
 import Vk from './channels/Vk.vue';
+import Avito from './channels/Avito.vue';
 import Instagram from './channels/Instagram.vue';
 import Tiktok from './channels/Tiktok.vue';
 import Voice from './channels/Voice.vue';
@@ -25,6 +26,7 @@ const channelViewList = {
   line: Line,
   telegram: Telegram,
   vk: Vk,
+  avito: Avito,
   instagram: Instagram,
   tiktok: Tiktok,
   voice: Voice,

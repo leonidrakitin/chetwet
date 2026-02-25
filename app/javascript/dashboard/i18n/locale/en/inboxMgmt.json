@@ -439,6 +439,24 @@
           "ERROR_MESSAGE": "We were not able to save the telegram channel"
         }
       },
+      "AVITO_CHANNEL": {
+        "TITLE": "Avito Channel",
+        "DESC": "Integrate with Avito Messenger to support your customers directly from classifieds conversations.",
+        "CLIENT_ID": {
+          "LABEL": "Client ID",
+          "SUBTITLE": "OAuth Client ID from Avito Developer Portal (developers.avito.ru).",
+          "PLACEHOLDER": "Client ID"
+        },
+        "CLIENT_SECRET": {
+          "LABEL": "Client Secret",
+          "SUBTITLE": "OAuth Client Secret from Avito Developer Portal.",
+          "PLACEHOLDER": "Client Secret"
+        },
+        "SUBMIT_BUTTON": "Create Avito Channel",
+        "API": {
+          "ERROR_MESSAGE": "We were not able to save the Avito channel"
+        }
+      },
       "VK_CHANNEL": {
         "TITLE": "VK Channel",
         "DESC": "Integrate with VK (VKontakte) community and start supporting your customers.",
@@ -499,6 +517,10 @@
           "VK": {
             "TITLE": "VK",
             "DESCRIPTION": "Integrate VK community for customer support"
+          },
+          "AVITO": {
+            "TITLE": "Avito",
+            "DESCRIPTION": "Support customers from Avito classifieds"
           },
           "LINE": {
             "TITLE": "Line",
@@ -1131,6 +1153,7 @@
       "EMAIL": "Email",
       "TELEGRAM": "Telegram",
       "VK": "VK",
+      "AVITO": "Avito",
       "LINE": "Line",
       "API": "API Channel",
       "INSTAGRAM": "Instagram",
