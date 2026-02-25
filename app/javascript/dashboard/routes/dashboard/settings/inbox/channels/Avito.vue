@@ -17,6 +17,7 @@ export default {
   },
   data() {
     return {
+      name: '',
       clientId: '',
       clientSecret: '',
     };
@@ -27,6 +28,7 @@ export default {
     }),
   },
   validations: {
+    name: { required },
     clientId: { required },
     clientSecret: { required },
   },
@@ -41,6 +43,7 @@ export default {
         const avitoChannel = await this.$store.dispatch(
           'inboxes/createChannel',
           {
+            name: this.name?.trim(),
             channel: {
               type: 'avito',
               client_id: this.clientId,
@@ -78,6 +81,18 @@ export default {
       @submit.prevent="createChannel()"
     >
       <div class="flex-shrink-0 flex-grow-0">
+        <label :class="{ error: v$.name.$error }">
+          {{ $t('INBOX_MGMT.ADD.AVITO_CHANNEL.NAME.LABEL') }}
+          <input
+            v-model="name"
+            type="text"
+            :placeholder="$t('INBOX_MGMT.ADD.AVITO_CHANNEL.NAME.PLACEHOLDER')"
+            @blur="v$.name.$touch"
+          />
+        </label>
+      </div>
+
+      <div class="flex-shrink-0 flex-grow-0 mt-4">
         <label :class="{ error: v$.clientId.$error }">
           {{ $t('INBOX_MGMT.ADD.AVITO_CHANNEL.CLIENT_ID.LABEL') }}
           <input

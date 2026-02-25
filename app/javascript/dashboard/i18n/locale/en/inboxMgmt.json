@@ -442,6 +442,10 @@
       "AVITO_CHANNEL": {
         "TITLE": "Avito Channel",
         "DESC": "Integrate with Avito Messenger to support your customers directly from classifieds conversations.",
+        "NAME": {
+          "LABEL": "Inbox name",
+          "PLACEHOLDER": "e.g. Avito Support"
+        },
         "CLIENT_ID": {
           "LABEL": "Client ID",
           "SUBTITLE": "OAuth Client ID from Avito Developer Portal (developers.avito.ru).",
