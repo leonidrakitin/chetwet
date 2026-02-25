@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import NotificationTemplatePreview from './NotificationTemplatePreview.vue';
+import { getChainLabel, FLOW_TYPE_ORDER } from '../helpers/chainLabel';
 
 const props = defineProps({
   templates: {
@@ -17,7 +17,6 @@ const { t } = useI18n();
 const containerRef = ref(null);
 const nodeRefs = ref({});
 const arrows = ref([]);
-const hoveredTemplate = ref(null);
 const highlightedId = ref(null);
 
 const EXAMPLE_VALUES = {
@@ -43,6 +42,35 @@ const getTemplateName = id => {
   const found = props.templates.find(tmpl => tmpl.id === id);
   return found?.name ?? String(id);
 };
+
+const chainLabel = template => getChainLabel(template, t);
+
+const groupedByType = computed(() => {
+  const groups = {};
+  FLOW_TYPE_ORDER.forEach(type => {
+    groups[type] = props.templates.filter(tmpl => tmpl.type === type);
+  });
+  const rest = props.templates.filter(
+    tmpl => !FLOW_TYPE_ORDER.includes(tmpl.type)
+  );
+  if (rest.length) groups.other = rest;
+  return groups;
+});
+
+const typeSectionOrder = computed(() => {
+  const order = FLOW_TYPE_ORDER.filter(
+    type => groupedByType.value[type]?.length > 0
+  );
+  if (groupedByType.value.other?.length) order.push('other');
+  return order;
+});
+
+const getTypeLabel = typeKey =>
+  typeKey === 'other'
+    ? t('NOTIFICATION_TEMPLATES.TABS.ALL')
+    : t(
+        `NOTIFICATION_TEMPLATES.TYPES.${typeKey.toUpperCase().replace(/-/g, '_')}`
+      );
 
 // Compute arrows from template buttons of type 'template'
 const computeArrows = () => {
@@ -85,14 +113,6 @@ const computeArrows = () => {
 
 const onNodeClick = template => {
   emit('edit', template);
-};
-
-const onNodeHover = template => {
-  hoveredTemplate.value = template;
-};
-
-const onNodeLeave = () => {
-  hoveredTemplate.value = null;
 };
 
 const scrollToTemplate = id => {
@@ -156,103 +176,95 @@ defineExpose({ scrollToTemplate });
         />
       </svg>
 
-      <!-- Template nodes grid -->
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 relative z-20"
-      >
-        <div
-          v-for="template in templates"
-          :key="template.id"
-          :ref="
-            el => {
-              if (el) nodeRefs[template.id] = el;
-            }
-          "
-          class="flex flex-col gap-2 p-3 rounded-xl border bg-n-solid-1 cursor-pointer transition-all duration-200"
-          :class="{
-            'border-n-brand ring-2 ring-n-brand ring-offset-2 animate-pulse':
-              highlightedId === template.id,
-            'border-n-weak hover:border-n-strong':
-              highlightedId !== template.id,
-          }"
-          @click="onNodeClick(template)"
-          @mouseenter="onNodeHover(template)"
-          @mouseleave="onNodeLeave"
+      <!-- Metro-style: categories as lines, templates as stations -->
+      <div class="flex flex-col gap-8 p-4 relative z-20">
+        <section
+          v-for="typeKey in typeSectionOrder"
+          :key="typeKey"
+          class="flex flex-col gap-3"
         >
-          <!-- Header -->
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold text-n-slate-12 truncate">{{
-              template.name
-            }}</span>
-            <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-n-brand/10 text-n-blue-11 flex-shrink-0"
-            >
-              {{ template.type }}
-            </span>
-          </div>
-
-          <!-- Mini message bubble -->
-          <div
-            v-if="template.messageText"
-            class="rounded-lg bg-n-brand px-2.5 py-1.5 text-xs text-white leading-relaxed line-clamp-2"
+          <h3
+            class="text-sm font-semibold text-n-slate-11 uppercase tracking-wide border-l-4 border-n-brand pl-3"
           >
-            {{ getPreviewText(template.messageText) }}
-          </div>
-
-          <!-- Attachments count -->
-          <div
-            v-if="template.attachments?.length"
-            class="flex items-center gap-1 text-xs text-n-slate-10"
-          >
-            <span class="i-lucide-paperclip size-3" />
-            {{ template.attachments.length }}
-          </div>
-
-          <!-- Buttons -->
-          <div v-if="template.buttons?.length" class="flex flex-col gap-1">
+            {{ getTypeLabel(typeKey) }}
+          </h3>
+          <div class="flex flex-wrap gap-4">
             <div
-              v-for="btn in template.buttons"
-              :key="btn.id"
-              class="flex items-center gap-1 text-xs"
-              :class="
-                btn.type === 'template'
-                  ? 'text-n-blue-11 cursor-pointer hover:underline'
-                  : 'text-n-slate-10'
+              v-for="template in groupedByType[typeKey]"
+              :key="template.id"
+              :ref="
+                el => {
+                  if (el) nodeRefs[template.id] = el;
+                }
               "
-              @click.stop="
-                btn.type === 'template' && scrollToTemplate(btn.templateId)
-              "
+              class="flex flex-col gap-2 p-3 rounded-xl border bg-n-solid-1 cursor-pointer transition-all duration-200 min-w-52 max-w-64"
+              :class="{
+                'border-n-brand ring-2 ring-n-brand ring-offset-2 animate-pulse':
+                  highlightedId === template.id,
+                'border-n-weak hover:border-n-strong':
+                  highlightedId !== template.id,
+              }"
+              @click="onNodeClick(template)"
             >
-              <span class="i-lucide-arrow-right size-3 flex-shrink-0" />
-              <span class="truncate">
-                {{
-                  btn.type === 'template'
-                    ? getTemplateName(btn.templateId)
-                    : btn.url
-                }}
-              </span>
-              <span class="ml-auto font-medium">{{ btn.label }}</span>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-semibold text-n-slate-12 truncate">
+                  {{ template.name }}
+                </span>
+                <span
+                  v-if="chainLabel(template)"
+                  class="text-xs text-n-slate-10"
+                >
+                  {{ chainLabel(template) }}
+                </span>
+              </div>
+
+              <!-- Mini message bubble -->
+              <div
+                v-if="template.messageText"
+                class="rounded-lg bg-n-brand px-2.5 py-1.5 text-xs text-white leading-relaxed line-clamp-2"
+              >
+                {{ getPreviewText(template.messageText) }}
+              </div>
+
+              <!-- Attachments count -->
+              <div
+                v-if="template.attachments?.length"
+                class="flex items-center gap-1 text-xs text-n-slate-10"
+              >
+                <span class="i-lucide-paperclip size-3" />
+                {{ template.attachments.length }}
+              </div>
+
+              <!-- Buttons -->
+              <div v-if="template.buttons?.length" class="flex flex-col gap-1">
+                <div
+                  v-for="btn in template.buttons"
+                  :key="btn.id"
+                  class="flex items-center gap-1 text-xs"
+                  :class="
+                    btn.type === 'template'
+                      ? 'text-n-blue-11 cursor-pointer hover:underline'
+                      : 'text-n-slate-10'
+                  "
+                  @click.stop="
+                    btn.type === 'template' && scrollToTemplate(btn.templateId)
+                  "
+                >
+                  <span class="i-lucide-arrow-right size-3 flex-shrink-0" />
+                  <span class="truncate">
+                    {{
+                      btn.type === 'template'
+                        ? getTemplateName(btn.templateId)
+                        : btn.url
+                    }}
+                  </span>
+                  <span class="ml-auto font-medium">{{ btn.label }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
-
-    <!-- Preview panel (on hover) -->
-    <div
-      v-if="hoveredTemplate"
-      class="w-72 flex-shrink-0 border-l border-n-weak p-4 overflow-y-auto"
-    >
-      <NotificationTemplatePreview
-        :message-text="hoveredTemplate.messageText"
-        :attachments="hoveredTemplate.attachments ?? []"
-        :buttons="hoveredTemplate.buttons ?? []"
-      />
-    </div>
-
-    <!-- Empty state hint -->
-    <p v-if="!hoveredTemplate" class="hidden">
-      {{ t('NOTIFICATION_TEMPLATES.PREVIEW.PLACEHOLDER') }}
-    </p>
   </div>
 </template>

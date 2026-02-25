@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
 import Switch from 'dashboard/components-next/switch/Switch.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import { getChainLabel } from '../helpers/chainLabel';
 
 const props = defineProps({
   template: {
@@ -76,22 +77,7 @@ const processedText = computed(() => {
   });
 });
 
-const eventLabel = template => {
-  if (template.type === 'event' && template.triggerEvent) {
-    return t(`NOTIFICATION_TEMPLATES.EVENTS.${template.triggerEvent}`);
-  }
-  if (template.type === 'time') {
-    const offset = template.timeOffset ?? '';
-    const unit = t(
-      `NOTIFICATION_TEMPLATES.TIME_UNIT.${template.timeUnit ?? 'HOURS'}`
-    );
-    const dir = t(
-      `NOTIFICATION_TEMPLATES.TIME_DIRECTION.${template.timeDirection ?? 'BEFORE'}`
-    );
-    return `${offset} ${unit} ${dir}`;
-  }
-  return t(`NOTIFICATION_TEMPLATES.TYPES.${template.type.toUpperCase()}`);
-};
+const eventLabel = template => getChainLabel(template, t);
 </script>
 
 <template>

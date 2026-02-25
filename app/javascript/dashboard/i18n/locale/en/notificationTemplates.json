@@ -88,7 +88,30 @@
       "PLACEHOLDER": "Search templates..."
     },
     "VARIABLES": {
-      "LABEL": "Insert variable"
+      "LABEL": "Insert variable",
+      "REMOVE_ARIA": "Remove variable",
+      "EXAMPLE_PREFIX": "e.g.",
+      "client_name": "Client name",
+      "client_name_description": "Full name of the client",
+      "client_name_example": "Ivan Ivanov",
+      "service_name": "Service or appointment type",
+      "service_name_description": "Name of the service booked",
+      "service_name_example": "Haircut",
+      "branch_name": "Branch or location",
+      "branch_name_description": "Name of the branch or office",
+      "branch_name_example": "Central office",
+      "master_name": "Staff or master name",
+      "master_name_description": "Name of the assigned staff member",
+      "master_name_example": "Maria",
+      "price": "Price or amount",
+      "price_description": "Formatted price or payment amount",
+      "price_example": "1 500 ₽",
+      "date": "Appointment date",
+      "date_description": "Date of the appointment",
+      "date_example": "15 March",
+      "time": "Appointment time",
+      "time_description": "Time of the appointment",
+      "time_example": "14:30"
     },
     "ATTACHMENTS": {
       "LABEL": "Attachments",

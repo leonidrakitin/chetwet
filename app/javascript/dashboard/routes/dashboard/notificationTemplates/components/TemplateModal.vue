@@ -5,6 +5,7 @@ import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Switch from 'dashboard/components-next/switch/Switch.vue';
 import NotificationTemplatePreview from './NotificationTemplatePreview.vue';
 import VariablePicker from './VariablePicker.vue';
+import TemplateMessageEditor from './TemplateMessageEditor.vue';
 import AttachmentEditor from './AttachmentEditor.vue';
 import ButtonEditor from './ButtonEditor.vue';
 
@@ -24,7 +25,7 @@ const emit = defineEmits(['save', 'close']);
 const { t } = useI18n();
 
 const dialogRef = ref(null);
-const textareaEl = ref(null);
+const messageEditorRef = ref(null);
 
 const isEditing = computed(() => !!props.template);
 
@@ -114,50 +115,8 @@ const handleClose = () => {
   emit('close');
 };
 
-// Insert variable at cursor position
 const insertVariable = text => {
-  const textarea = textareaEl.value;
-  if (!textarea) {
-    form.value.messageText += text;
-    return;
-  }
-  const start = textarea.selectionStart ?? textarea.value.length;
-  const end = textarea.selectionEnd ?? textarea.value.length;
-  const before = form.value.messageText.slice(0, start);
-  const after = form.value.messageText.slice(end);
-  form.value.messageText = before + text + after;
-  // Restore cursor
-  setTimeout(() => {
-    textarea.focus();
-    const newPos = start + text.length;
-    textarea.setSelectionRange(newPos, newPos);
-  }, 0);
-};
-
-// Handle drop on textarea for variable insertion
-const onTextareaDrop = event => {
-  event.preventDefault();
-  const text = event.dataTransfer.getData('text/plain');
-  if (!text || !textareaEl.value) return;
-
-  const textarea = textareaEl.value;
-  // Try to get drop position using caretPositionFromPoint / caretRangeFromPoint
-  let insertPos = textarea.value.length;
-  if (document.caretPositionFromPoint) {
-    const pos = document.caretPositionFromPoint(event.clientX, event.clientY);
-    if (pos) insertPos = pos.offset;
-  } else if (document.caretRangeFromPoint) {
-    const range = document.caretRangeFromPoint(event.clientX, event.clientY);
-    if (range) insertPos = range.startOffset;
-  }
-
-  const before = textarea.value.slice(0, insertPos);
-  const after = textarea.value.slice(insertPos);
-  form.value.messageText = before + text + after;
-  // Re-focus + set cursor
-  textarea.focus();
-  const newPos = insertPos + text.length;
-  textarea.setSelectionRange(newPos, newPos);
+  messageEditorRef.value?.insertAtCursor(text);
 };
 </script>
 
@@ -297,16 +256,13 @@ const onTextareaDrop = event => {
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
           </label>
-          <textarea
-            ref="textareaEl"
-            v-model="form.messageText"
-            rows="4"
+          <TemplateMessageEditor
+            ref="messageEditorRef"
+            :model-value="form.messageText"
             :placeholder="
               t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
             "
-            class="w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors resize-none"
-            @dragover.prevent
-            @drop="onTextareaDrop"
+            @update:model-value="form.messageText = $event"
           />
           <!-- Variable picker -->
           <VariablePicker @insert="insertVariable" />

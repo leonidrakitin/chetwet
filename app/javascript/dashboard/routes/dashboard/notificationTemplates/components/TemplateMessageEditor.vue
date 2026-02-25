@@ -1,0 +1,197 @@
+<script setup>
+import { ref, computed, watch, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+import {
+  parseMessageParts,
+  VARIABLE_COLORS,
+  toToken,
+} from '../constants/variables';
+
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: '',
+  },
+  placeholder: {
+    type: String,
+    default: '',
+  },
+});
+
+const emit = defineEmits(['update:modelValue']);
+
+const { t } = useI18n();
+const editorRef = ref(null);
+const displayValue = ref(props.modelValue);
+
+watch(
+  () => props.modelValue,
+  val => {
+    displayValue.value = val ?? '';
+  },
+  { immediate: true }
+);
+
+const parts = computed(() => parseMessageParts(displayValue.value));
+
+const getChipStyle = key => {
+  const c = VARIABLE_COLORS[key] ?? { bg: '#e2e8f0', text: '#334155' };
+  return {
+    backgroundColor: c.bg,
+    color: c.text,
+    borderColor: c.border || c.bg,
+  };
+};
+
+const getTooltip = key =>
+  `${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_description`)} — e.g. ${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_example`)}`;
+
+const removeVariable = index => {
+  const newParts = parts.value.filter((_, i) => i !== index);
+  const newStr = newParts.map(p => p.value).join('');
+  displayValue.value = newStr;
+  emit('update:modelValue', newStr);
+};
+
+const serializeFromDom = () => {
+  const el = editorRef.value;
+  if (!el) return '';
+  let s = '';
+  const walk = node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      s += node.textContent;
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const elNode = node;
+    if (elNode.dataset.type === 'variable' && elNode.dataset.var) {
+      s += toToken(elNode.dataset.var);
+      return;
+    }
+    elNode.childNodes.forEach(walk);
+  };
+  el.childNodes.forEach(walk);
+  return s;
+};
+
+const setCursorOffset = targetOffset => {
+  const el = editorRef.value;
+  if (!el) return;
+  const sel = window.getSelection();
+  if (!sel) return;
+  let passed = 0;
+  const walkNode = (node, range) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const len = node.textContent.length;
+      if (passed + len >= targetOffset) {
+        range.setStart(node, targetOffset - passed);
+        range.collapse(true);
+        return true;
+      }
+      passed += len;
+      return false;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return false;
+    const elNode = node;
+    if (elNode.dataset.type === 'variable' && elNode.dataset.var) {
+      const len = toToken(elNode.dataset.var).length;
+      if (passed + len >= targetOffset) {
+        range.setStart(elNode, 0);
+        range.collapse(true);
+        return true;
+      }
+      passed += len;
+      return false;
+    }
+    for (let i = 0; i < elNode.childNodes.length; i += 1) {
+      if (walkNode(elNode.childNodes[i], range)) return true;
+    }
+    return false;
+  };
+  const range = document.createRange();
+  if (walkNode(el, range)) {
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+};
+
+const insertAtCursor = text => {
+  const el = editorRef.value;
+  if (!el) {
+    displayValue.value += text;
+    emit('update:modelValue', displayValue.value);
+    return;
+  }
+  const sel = window.getSelection();
+  const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
+  if (!range || !el.contains(sel.anchorNode)) {
+    displayValue.value += text;
+    emit('update:modelValue', displayValue.value);
+    return;
+  }
+  const preRange = document.createRange();
+  preRange.setStart(el, 0);
+  preRange.setEnd(sel.anchorNode, sel.anchorOffset);
+  const offset = preRange.toString().length;
+  const current = serializeFromDom();
+  const before = current.slice(0, offset);
+  const after = current.slice(offset);
+  displayValue.value = before + text + after;
+  emit('update:modelValue', displayValue.value);
+  nextTick(() => setCursorOffset(offset + text.length));
+};
+
+const onBlur = () => {
+  const str = serializeFromDom();
+  if (str !== displayValue.value) {
+    displayValue.value = str;
+    emit('update:modelValue', str);
+  }
+};
+
+const onDrop = e => {
+  e.preventDefault();
+  const text = e.dataTransfer?.getData('text/plain');
+  if (text && /^\{\w+\}$/.test(text)) {
+    insertAtCursor(text);
+  }
+};
+
+defineExpose({ insertAtCursor });
+</script>
+
+<template>
+  <div
+    ref="editorRef"
+    contenteditable="true"
+    role="textbox"
+    :data-placeholder="placeholder"
+    class="min-h-24 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors resize-none whitespace-pre-wrap break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
+    @blur="onBlur"
+    @dragover.prevent
+    @drop="onDrop"
+  >
+    <template v-for="(part, idx) in parts" :key="idx">
+      <span
+        v-if="part.type === 'variable'"
+        v-tooltip="getTooltip(part.key)"
+        data-type="variable"
+        :data-var="part.key"
+        contenteditable="false"
+        class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-medium border align-baseline mr-0.5"
+        :style="getChipStyle(part.key)"
+      >
+        {{ part.value }}
+        <button
+          type="button"
+          class="ml-0.5 rounded p-0.5 opacity-70 hover:opacity-100 hover:bg-black/10 focus:outline-none"
+          :aria-label="t('NOTIFICATION_TEMPLATES.VARIABLES.REMOVE_ARIA')"
+          @click.stop="removeVariable(idx)"
+        >
+          <span class="i-lucide-x size-3" />
+        </button>
+      </span>
+      <span v-else data-type="text">{{ part.value }}</span>
+    </template>
+  </div>
+</template>
