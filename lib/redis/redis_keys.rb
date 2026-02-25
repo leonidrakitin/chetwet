@@ -52,4 +52,8 @@ module Redis::RedisKeys
 
   ## Account Email Rate Limiting
   ACCOUNT_OUTBOUND_EMAIL_COUNT_KEY = 'OUTBOUND_EMAIL_COUNT::%<account_id>d::%<date>s'.freeze
+
+  ## Bot Message Buffer
+  BOT_BUFFER_TOKEN = 'BOT_BUFFER::%<conversation_id>d::%<bot_type>s::%<bot_id>d::TOKEN'.freeze
+  BOT_BUFFER_START_ID = 'BOT_BUFFER::%<conversation_id>d::%<bot_type>s::%<bot_id>d::START_ID'.freeze
 end

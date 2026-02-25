@@ -30,13 +30,12 @@ module Enterprise::MessageTemplates::HookExecutionService
   private
 
   def schedule_captain_response
-    job_args = [conversation, conversation.inbox.captain_assistant]
-
     if message.attachments.blank?
-      Captain::Conversation::ResponseBuilderJob.perform_later(*job_args)
+      assistant = conversation.inbox.captain_assistant
+      BotMessageBufferService.new(conversation.id, 'captain', assistant.id).schedule(message)
     else
       wait_time = calculate_attachment_wait_time
-      Captain::Conversation::ResponseBuilderJob.set(wait: wait_time).perform_later(*job_args)
+      Captain::Conversation::ResponseBuilderJob.set(wait: wait_time).perform_later(conversation, conversation.inbox.captain_assistant)
     end
   end
 

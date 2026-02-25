@@ -43,7 +43,11 @@ class HookListener < BaseListener
       next if hook.inbox.present? && hook.inbox != message.inbox
       next unless supported_hook_event?(hook, event.name)
 
-      HookJob.perform_later(hook, event.name, message: message)
+      if hook.app_id == 'dialogflow' && event.name == 'message.created'
+        BotMessageBufferService.new(message.conversation.id, 'dialogflow', hook.id).schedule(message)
+      else
+        HookJob.perform_later(hook, event.name, message: message)
+      end
     end
   end
 

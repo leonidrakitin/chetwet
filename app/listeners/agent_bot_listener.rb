@@ -20,8 +20,9 @@ class AgentBotListener < BaseListener
     inbox = message.inbox
     return unless message.webhook_sendable?
 
-    method_name = __method__.to_s
-    agent_bots_for(inbox, message.conversation).each { |agent_bot| process_message_event(method_name, agent_bot, message, event) }
+    agent_bots_for(inbox, message.conversation).each do |agent_bot|
+      BotMessageBufferService.new(message.conversation.id, 'agent_bot', agent_bot.id).schedule(message)
+    end
   end
 
   def message_updated(event)
