@@ -115,7 +115,8 @@ const STYLE_CONFIG = {
         'bg-[#141413] text-white hover:enabled:brightness-110 focus-visible:brightness-110 outline-transparent',
       faded:
         'bg-[#141413]/10 text-n-slate-12 hover:enabled:bg-[#141413]/20 focus-visible:bg-[#141413]/20 outline-transparent',
-      outline: 'text-n-slate-12 outline-[#141413] hover:enabled:bg-[#141413]/10 focus-visible:bg-[#141413]/10',
+      outline:
+        'text-n-slate-12 outline-[#141413] hover:enabled:bg-[#141413]/10 focus-visible:bg-[#141413]/10',
       ghost:
         'text-n-slate-12 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
       link: 'text-[#141413] hover:enabled:underline focus-visible:underline outline-transparent',

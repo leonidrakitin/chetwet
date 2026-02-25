@@ -37,7 +37,9 @@ export default {
         await this.$store.dispatch('updateProfile', {
           telegram_chat_id: this.telegramChatId || null,
         });
-        useAlert(this.$t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.UPDATE_SUCCESS'));
+        useAlert(
+          this.$t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.UPDATE_SUCCESS')
+        );
       } catch (error) {
         useAlert(
           error?.response?.data?.message ||

@@ -77,13 +77,18 @@ const validationRules = {
 
 const hasValidMessages = () => {
   const list = state.messages;
-  return Array.isArray(list) && list.some(m => typeof m === 'string' && m.trim().length > 0);
+  return (
+    Array.isArray(list) &&
+    list.some(m => typeof m === 'string' && m.trim().length > 0)
+  );
 };
 
 const v$ = useVuelidate(validationRules, state);
 
 const isCreating = computed(() => formState.uiFlags.value.isCreating);
-const isSubmitDisabled = computed(() => v$.value.$invalid || !hasValidMessages());
+const isSubmitDisabled = computed(
+  () => v$.value.$invalid || !hasValidMessages()
+);
 
 const mapToOptions = (items, valueKey, labelKey) =>
   items?.map(item => ({
@@ -107,7 +112,11 @@ const getErrorMessage = (field, errorKey) => {
 
 const formErrors = computed(() => ({
   title: getErrorMessage('title', 'TITLE'),
-  messages: !hasValidMessages() && (state.messages?.length ? t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.ERROR') : ''),
+  messages:
+    !hasValidMessages() &&
+    (state.messages?.length
+      ? t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.ERROR')
+      : ''),
   inbox: getErrorMessage('inboxId', 'INBOX'),
   endPoint: getErrorMessage('endPoint', 'END_POINT'),
   timeOnPage: getErrorMessage('timeOnPage', 'TIME_ON_PAGE'),
@@ -137,7 +146,9 @@ const handleInboxChange = async inboxId => {
 };
 
 const prepareCampaignDetails = () => {
-  const messageList = (state.messages || []).filter(m => typeof m === 'string' && m.trim().length > 0);
+  const messageList = (state.messages || []).filter(
+    m => typeof m === 'string' && m.trim().length > 0
+  );
   return {
     title: state.title,
     messages: messageList.length ? messageList : null,
@@ -177,9 +188,12 @@ const updateStateFromCampaign = campaign => {
     trigger_rules: { url: endPoint, time_on_page: timeOnPage },
   } = campaign;
 
-  const messages = Array.isArray(campaignMessages) && campaignMessages.length
-    ? campaignMessages
-    : (message ? [message] : ['']);
+  const messages =
+    Array.isArray(campaignMessages) && campaignMessages.length
+      ? campaignMessages
+      : message
+        ? [message]
+        : [''];
 
   Object.assign(state, {
     title,
@@ -233,9 +247,14 @@ defineExpose({ prepareCampaignDetails, isSubmitDisabled });
       <CampaignMessageBlock
         v-model="state.messages"
         :use-rich-editor="true"
-        :message-placeholder="t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.PLACEHOLDER')"
+        :message-placeholder="
+          t('CAMPAIGN.LIVE_CHAT.CREATE.FORM.MESSAGE.PLACEHOLDER')
+        "
       />
-      <p v-if="formErrors.messages" class="text-xs text-n-ruby-9 dark:text-n-ruby-9 mt-1">
+      <p
+        v-if="formErrors.messages"
+        class="text-xs text-n-ruby-9 dark:text-n-ruby-9 mt-1"
+      >
         {{ formErrors.messages }}
       </p>
     </div>

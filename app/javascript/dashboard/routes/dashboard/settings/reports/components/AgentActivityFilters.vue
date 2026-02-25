@@ -115,21 +115,21 @@ const onTimeRangeChanged = ({ since: s, until: u }) => {
 
     <div class="flex items-center gap-3 flex-wrap">
       <ReportsFiltersAgents
-        @agentsFilterSelection="
+        @agents-filter-selection="
           selectedAgents = [...$event];
           emitChange();
         "
       />
 
       <ReportsFiltersInboxes
-        @inboxFilterSelection="
+        @inbox-filter-selection="
           selectedInbox = [...$event];
           emitChange();
         "
       />
 
       <ReportsFiltersTeams
-        @teamFilterSelection="
+        @team-filter-selection="
           selectedTeam = [...$event];
           emitChange();
         "
