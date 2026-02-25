@@ -31,6 +31,7 @@ class Telegram::IncomingMessageService
       content_attributes: telegram_params_content_attributes,
       source_id: telegram_params_message_id.to_s
     )
+    @message.created_at = Time.zone.at(telegram_params_message_date) if telegram_params_message_date.present?
 
     process_message_attachments if message_params?
     @message.save!

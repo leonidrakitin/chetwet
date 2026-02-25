@@ -101,4 +101,14 @@ module Telegram::ParamHelpers
       params[:message][:message_id]
     end
   end
+
+  # Unix timestamp when the message was sent in Telegram. Used for ordering so messages
+  # appear in the same order as in Telegram even when webhook jobs complete out of order.
+  def telegram_params_message_date
+    if callback_query_params?
+      params.dig(:callback_query, :message, :date)
+    else
+      params.dig(:message, :date)
+    end
+  end
 end
