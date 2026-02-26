@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useAlert } from 'dashboard/composables';
@@ -21,7 +21,15 @@ const { isEnterprise, enterprisePlanName } = useConfig();
 const { isOnChatwootCloud } = useAccount();
 
 const captainConfigStore = useCaptainConfigStore();
-const { uiFlags } = storeToRefs(captainConfigStore);
+const { uiFlags, messageBufferSeconds } = storeToRefs(captainConfigStore);
+const bufferSecondsInput = ref(4);
+watch(
+  messageBufferSeconds,
+  val => {
+    bufferSecondsInput.value = val;
+  },
+  { immediate: true }
+);
 
 const isLoading = computed(() => uiFlags.value.isFetching);
 
@@ -114,6 +122,24 @@ async function handleModelChange({ feature, model }) {
   }
 }
 
+function clampBufferSeconds(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.min(30, Math.max(1, Math.round(n))) : 4;
+}
+
+async function handleMessageBufferChange(value) {
+  const seconds = clampBufferSeconds(value);
+  try {
+    await captainConfigStore.updatePreferences({
+      message_buffer_seconds: seconds,
+    });
+    useAlert(t('CAPTAIN_SETTINGS.API.SUCCESS'));
+  } catch (error) {
+    useAlert(t('CAPTAIN_SETTINGS.API.ERROR'));
+    captainConfigStore.fetch();
+  }
+}
+
 onMounted(() => {
   captainConfigStore.fetch();
 });
@@ -152,6 +178,34 @@ onMounted(() => {
               :description="feature.description"
               @change="handleModelChange"
             />
+          </div>
+        </SectionLayout>
+
+        <!-- Message buffer -->
+        <SectionLayout
+          :title="t('CAPTAIN_SETTINGS.MESSAGE_BUFFER.TITLE')"
+          :description="t('CAPTAIN_SETTINGS.MESSAGE_BUFFER.DESCRIPTION')"
+          with-border
+        >
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-4">
+              <input
+                v-model.number="bufferSecondsInput"
+                type="range"
+                min="1"
+                max="30"
+                step="1"
+                class="w-full max-w-xs h-2 rounded-lg appearance-none cursor-pointer bg-n-weak accent-n-blue-11"
+                @change="handleMessageBufferChange(bufferSecondsInput)"
+              />
+              <span class="text-sm font-medium text-n-slate-12 shrink-0 w-10">
+                {{
+                  $t('CAPTAIN_SETTINGS.MESSAGE_BUFFER.SECONDS', {
+                    count: bufferSecondsInput,
+                  })
+                }}
+              </span>
+            </div>
           </div>
         </SectionLayout>
 

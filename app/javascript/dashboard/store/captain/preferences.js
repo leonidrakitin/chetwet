@@ -6,6 +6,7 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
     providers: {},
     models: {},
     features: {},
+    messageBufferSeconds: 4,
     uiFlags: {
       isFetching: false,
     },
@@ -60,6 +61,9 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
         this.providers = response.data.providers || {};
         this.models = response.data.models || {};
         this.features = response.data.features || {};
+        const sec = response.data.message_buffer_seconds;
+        this.messageBufferSeconds =
+          typeof sec === 'number' && sec >= 1 && sec <= 30 ? sec : 4;
       } catch (error) {
         // Ignore error
       } finally {
@@ -72,6 +76,10 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
       this.providers = response.data.providers || {};
       this.models = response.data.models || {};
       this.features = response.data.features || {};
+      const sec = response.data.message_buffer_seconds;
+      if (typeof sec === 'number' && sec >= 1 && sec <= 30) {
+        this.messageBufferSeconds = sec;
+      }
     },
   },
 });

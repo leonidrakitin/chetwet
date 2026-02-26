@@ -426,6 +426,11 @@
         "DESCRIPTION": "Provides real-time contextual suggestions, knowledge base recommendations, and proactive insights during conversations."
       }
     },
+    "MESSAGE_BUFFER": {
+      "TITLE": "Message buffer",
+      "DESCRIPTION": "Time to wait (in seconds) for the client to finish writing messages before sending them to the AI. Gives customers time to send multiple messages in one go.",
+      "SECONDS": "{count}s"
+    },
     "FEATURES": {
       "TITLE": "Features",
       "DESCRIPTION": "Enable or disable AI-powered features.",

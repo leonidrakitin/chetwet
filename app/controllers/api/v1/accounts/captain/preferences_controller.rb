@@ -10,6 +10,9 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
     params_to_update = captain_params
     @current_account.captain_models = params_to_update[:captain_models] if params_to_update[:captain_models]
     @current_account.captain_features = params_to_update[:captain_features] if params_to_update[:captain_features]
+    if params_to_update[:message_buffer_seconds].present?
+      @current_account.captain_message_buffer_seconds = params_to_update[:message_buffer_seconds].to_i.clamp(1, 30)
+    end
     @current_account.save!
 
     render json: preferences_payload
@@ -21,7 +24,8 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
     {
       providers: Llm::Models.providers,
       models: Llm::Models.models,
-      features: features_with_account_preferences
+      features: features_with_account_preferences,
+      message_buffer_seconds: @current_account.captain_message_buffer_seconds.presence&.to_i || 4
     }
   end
 
@@ -33,6 +37,7 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
     permitted = {}
     permitted[:captain_models] = merged_captain_models if params[:captain_models].present?
     permitted[:captain_features] = merged_captain_features if params[:captain_features].present?
+    permitted[:message_buffer_seconds] = params[:message_buffer_seconds] if params[:message_buffer_seconds].present?
     permitted
   end
 

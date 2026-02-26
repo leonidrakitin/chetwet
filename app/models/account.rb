@@ -68,7 +68,8 @@ class Account < ApplicationRecord
             'help_center_search': { 'type': %w[boolean null] }
           },
           'additionalProperties': false
-        }
+        },
+        'captain_message_buffer_seconds': { 'type': %w[integer null], 'minimum': 1, 'maximum': 30 }
       },
     'required': [],
     'additionalProperties': true
@@ -88,7 +89,7 @@ class Account < ApplicationRecord
   store_accessor :settings, :auto_resolve_after, :auto_resolve_message, :auto_resolve_ignore_waiting
 
   store_accessor :settings, :audio_transcriptions, :auto_resolve_label
-  store_accessor :settings, :captain_models, :captain_features
+  store_accessor :settings, :captain_models, :captain_features, :captain_message_buffer_seconds
   store_accessor :settings, :keep_pending_on_bot_failure
 
   has_many :account_users, dependent: :destroy_async

@@ -57,6 +57,16 @@ class BotMessageBufferService
     content = message.content.to_s
     return 0 if content.length > IMMEDIATE_LENGTH
 
+    @bot_type == 'captain' ? captain_buffer_seconds : non_captain_delay(content)
+  end
+
+  def captain_buffer_seconds
+    conversation = Conversation.find_by(id: @conversation_id)
+    seconds = conversation&.account&.captain_message_buffer_seconds.presence&.to_i
+    seconds&.between?(1, 30) ? seconds : DEFAULT_DELAY
+  end
+
+  def non_captain_delay(content)
     content.include?('?') ? QUESTION_DELAY : DEFAULT_DELAY
   end
 end
