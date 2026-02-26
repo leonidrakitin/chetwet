@@ -43,8 +43,8 @@ const getChipStyle = key => {
   };
 };
 
-const getTooltip = key =>
-  `${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_description`)} — e.g. ${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_example`)}`;
+const getTitle = key =>
+  `${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_description`)} — ${t('NOTIFICATION_TEMPLATES.VARIABLES.EXAMPLE_PREFIX')} ${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_example`)}`;
 
 const removeVariable = index => {
   const newParts = parts.value.filter((_, i) => i !== index);
@@ -66,6 +66,16 @@ const serializeFromDom = () => {
     const elNode = node;
     if (elNode.dataset.type === 'variable' && elNode.dataset.var) {
       s += toToken(elNode.dataset.var);
+      return;
+    }
+    const tag = elNode.tagName.toLowerCase();
+    if (tag === 'br') {
+      s += '\n';
+      return;
+    }
+    if ((tag === 'div' || tag === 'p') && elNode !== el) {
+      if (s.length > 0 && !s.endsWith('\n')) s += '\n';
+      elNode.childNodes.forEach(walk);
       return;
     }
     elNode.childNodes.forEach(walk);
@@ -168,7 +178,7 @@ defineExpose({ insertAtCursor, focus });
     contenteditable="true"
     role="textbox"
     :data-placeholder="placeholder"
-    class="min-h-24 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors resize-none whitespace-pre-wrap break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
+    class="min-h-24 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors resize-none break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
     @blur="onBlur"
     @dragover.prevent
     @drop="onDrop"
@@ -176,7 +186,7 @@ defineExpose({ insertAtCursor, focus });
     <template v-for="(part, idx) in parts" :key="idx">
       <span
         v-if="part.type === 'variable'"
-        v-tooltip="getTooltip(part.key)"
+        :title="getTitle(part.key)"
         data-type="variable"
         :data-var="part.key"
         contenteditable="false"
@@ -193,6 +203,7 @@ defineExpose({ insertAtCursor, focus });
           <span class="i-lucide-x size-2.5" />
         </button>
       </span>
+      <br v-else-if="part.type === 'newline'" />
       <span v-else data-type="text">{{ part.value }}</span>
     </template>
   </div>

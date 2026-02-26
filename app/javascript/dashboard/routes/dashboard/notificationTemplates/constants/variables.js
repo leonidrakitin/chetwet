@@ -38,14 +38,18 @@ export const toToken = key => `{${key}}`;
 export const parseMessageParts = text => {
   if (!text || typeof text !== 'string') return [];
   const parts = [];
-  const regex = /\{(\w+)\}/g;
+  const regex = /\{(\w+)\}|\n/g;
   let lastIndex = 0;
   let match = regex.exec(text);
   while (match !== null) {
     if (match.index > lastIndex) {
       parts.push({ type: 'text', value: text.slice(lastIndex, match.index) });
     }
-    parts.push({ type: 'variable', key: match[1], value: match[0] });
+    if (match[0] === '\n') {
+      parts.push({ type: 'newline', value: '\n' });
+    } else {
+      parts.push({ type: 'variable', key: match[1], value: match[0] });
+    }
     lastIndex = match.index + match[0].length;
     match = regex.exec(text);
   }
