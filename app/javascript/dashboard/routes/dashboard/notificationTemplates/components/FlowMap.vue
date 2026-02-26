@@ -1,270 +1,264 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { getChainLabel, FLOW_TYPE_ORDER } from '../helpers/chainLabel';
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  watch,
+} from 'vue';
 
 const props = defineProps({
-  templates: {
-    type: Array,
-    default: () => [],
-  },
+  templates: { type: Array, default: () => [] },
 });
-
 const emit = defineEmits(['edit']);
 
-const { t } = useI18n();
+const TYPE_COLOR = {
+  event: '#a5b4fc',
+  time: '#fdba74',
+  lost_clients: '#f9a8d4',
+  client_consent: '#86efac',
+};
+const typeColor = type => TYPE_COLOR[type] ?? '#cbd5e1';
+
+// Assign columns via topological longest-path: source (with button) → left, target → right
+const columns = computed(() => {
+  const tmpls = props.templates;
+  if (!tmpls.length) return [];
+
+  const ids = tmpls.map(t => t.id);
+  const out = Object.fromEntries(ids.map(id => [id, []]));
+  const indeg = Object.fromEntries(ids.map(id => [id, 0]));
+
+  tmpls.forEach(t => {
+    t.buttons?.forEach(btn => {
+      if (
+        btn.type === 'template' &&
+        btn.templateId &&
+        ids.includes(btn.templateId)
+      ) {
+        out[t.id].push(btn.templateId);
+        indeg[btn.templateId] += 1;
+      }
+    });
+  });
+
+  const col = Object.fromEntries(ids.map(id => [id, 0]));
+  const deg = { ...indeg };
+  const queue = ids.filter(id => deg[id] === 0);
+  let h = 0;
+  while (h < queue.length) {
+    const id = queue[h];
+    h += 1;
+    out[id].forEach(tgt => {
+      col[tgt] = Math.max(col[tgt], col[id] + 1);
+      deg[tgt] -= 1;
+      if (deg[tgt] === 0) queue.push(tgt);
+    });
+  }
+
+  const maxCol = Math.max(0, ...Object.values(col));
+  return Array.from({ length: maxCol + 1 }, (_, c) =>
+    tmpls.filter(t => col[t.id] === c)
+  );
+});
 
 const containerRef = ref(null);
 const nodeRefs = ref({});
+const btnRefs = ref({});
 const arrows = ref([]);
-const highlightedId = ref(null);
 
-const EXAMPLE_VALUES = {
-  client_name: 'Иван Иванов',
-  service_name: 'Стрижка',
-  branch_name: 'Центральный офис',
-  master_name: 'Мария',
-  price: '1 500 ₽',
-  date: '15 марта',
-  time: '14:30',
-};
-
-const getPreviewText = template => {
-  const text = template.messages?.[0] ?? template.messageText ?? '';
-  if (!text) return '';
-  const processed = text.replace(
-    /\{(\w+)\}/g,
-    (match, v) => EXAMPLE_VALUES[v] ?? match
-  );
-  return processed.length > 80 ? processed.slice(0, 80) + '...' : processed;
-};
-
-const getTemplateName = id => {
-  const found = props.templates.find(tmpl => tmpl.id === id);
-  return found?.name ?? String(id);
-};
-
-const chainLabel = template => getChainLabel(template, t);
-
-const groupedByType = computed(() => {
-  const groups = {};
-  FLOW_TYPE_ORDER.forEach(type => {
-    groups[type] = props.templates.filter(tmpl => tmpl.type === type);
-  });
-  const rest = props.templates.filter(
-    tmpl => !FLOW_TYPE_ORDER.includes(tmpl.type)
-  );
-  if (rest.length) groups.other = rest;
-  return groups;
-});
-
-const typeSectionOrder = computed(() => {
-  const order = FLOW_TYPE_ORDER.filter(
-    type => groupedByType.value[type]?.length > 0
-  );
-  if (groupedByType.value.other?.length) order.push('other');
-  return order;
-});
-
-const getTypeLabel = typeKey =>
-  typeKey === 'other'
-    ? t('NOTIFICATION_TEMPLATES.TABS.ALL')
-    : t(
-        `NOTIFICATION_TEMPLATES.TYPES.${typeKey.toUpperCase().replace(/-/g, '_')}`
-      );
-
-// Compute arrows from template buttons of type 'template'
-const computeArrows = () => {
+const computeArrows = async () => {
+  await nextTick();
   if (!containerRef.value) return;
-  const containerRect = containerRef.value.getBoundingClientRect();
-  const newArrows = [];
+  const cr = containerRef.value.getBoundingClientRect();
+  const result = [];
 
   props.templates.forEach(tmpl => {
-    if (!tmpl.buttons?.length) return;
-    const sourceEl = nodeRefs.value[tmpl.id];
-    if (!sourceEl) return;
-    const sourceRect = sourceEl.getBoundingClientRect();
-
-    tmpl.buttons.forEach(btn => {
+    tmpl.buttons?.forEach(btn => {
       if (btn.type !== 'template' || !btn.templateId) return;
-      const targetEl = nodeRefs.value[btn.templateId];
-      if (!targetEl) return;
-      const targetRect = targetEl.getBoundingClientRect();
+      const bEl = btnRefs.value[`${tmpl.id}-${btn.id}`];
+      const tEl = nodeRefs.value[btn.templateId];
+      if (!bEl || !tEl) return;
 
-      const x1 = sourceRect.right - containerRect.left;
-      const y1 = sourceRect.top + sourceRect.height / 2 - containerRect.top;
-      const x2 = targetRect.left - containerRect.left;
-      const y2 = targetRect.top + targetRect.height / 2 - containerRect.top;
-      const dx = Math.min(80, Math.abs(x2 - x1) / 2);
-      const cx1 = x1 + dx;
-      const cy1 = y1;
-      const cx2 = x2 - dx;
-      const cy2 = y2;
+      const br = bEl.getBoundingClientRect();
+      const tr = tEl.getBoundingClientRect();
+      if (br.width === 0 || tr.width === 0) return;
 
-      newArrows.push({
-        id: `${tmpl.id}-${btn.id}`,
-        d: `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`,
-        sourceId: tmpl.id,
-        targetId: btn.templateId,
-      });
+      // Left-to-right: from right edge of button row → left edge of target card
+      // Right-to-left: from left edge of button row → right edge of target card
+      const goRight = br.right <= tr.left;
+      const x1 = (goRight ? br.right : br.left) - cr.left;
+      const y1 = (br.top + br.bottom) / 2 - cr.top;
+      const x2 = (goRight ? tr.left : tr.right) - cr.left;
+      const y2 = (tr.top + tr.bottom) / 2 - cr.top;
+
+      // Orthogonal elbow with rounded corners (8px radius)
+      const r = 8;
+      const midX = (x1 + x2) / 2;
+      const dy = y2 - y1;
+      let d;
+
+      if (Math.abs(dy) < r * 2) {
+        d = `M ${x1} ${y1} H ${x2}`;
+      } else {
+        const s = dy > 0 ? 1 : -1;
+        d = [
+          `M ${x1} ${y1}`,
+          `H ${midX - r}`,
+          `Q ${midX} ${y1} ${midX} ${y1 + s * r}`,
+          `V ${y2 - s * r}`,
+          `Q ${midX} ${y2} ${midX + r} ${y2}`,
+          `H ${x2}`,
+        ].join(' ');
+      }
+
+      result.push({ id: `${tmpl.id}-${btn.id}`, d });
     });
   });
-  arrows.value = newArrows;
+
+  arrows.value = result;
 };
 
-const onNodeClick = template => {
-  emit('edit', template);
-};
-
-const scrollToTemplate = id => {
-  const el = nodeRefs.value[id];
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    highlightedId.value = id;
-    setTimeout(() => {
-      highlightedId.value = null;
-    }, 2000);
-  }
-};
-
-let resizeObserver = null;
-
+let ro = null;
 onMounted(async () => {
   await nextTick();
-  computeArrows();
-  resizeObserver = new ResizeObserver(() => {
-    computeArrows();
-  });
-  if (containerRef.value) {
-    resizeObserver.observe(containerRef.value);
-  }
+  await computeArrows();
+  ro = new ResizeObserver(computeArrows);
+  if (containerRef.value) ro.observe(containerRef.value);
 });
+onBeforeUnmount(() => ro?.disconnect());
+watch(() => props.templates, computeArrows, { deep: true });
 
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect();
-});
+const VARS = {
+  client_name: 'Иван',
+  service_name: 'Стрижка',
+  date: '15 марта',
+  time: '14:30',
+  branch_name: 'Центр',
+  master_name: 'Мария',
+  price: '1 500 ₽',
+};
+const firstMessage = tmpl => tmpl.messages?.[0] ?? tmpl.messageText ?? '';
 
-defineExpose({ scrollToTemplate });
+const preview = txt => {
+  if (!txt) return '';
+  const s = txt.replace(/\{(\w+)\}/g, (_, v) => VARS[v] ?? v);
+  return s.length > 80 ? `${s.slice(0, 80)}…` : s;
+};
 </script>
 
 <template>
-  <div class="flex gap-4 h-full overflow-hidden">
-    <!-- Flow canvas -->
-    <div ref="containerRef" class="flex-1 overflow-auto relative">
-      <!-- SVG arrows overlay -->
-      <svg class="absolute inset-0 w-full h-full pointer-events-none z-10">
+  <div
+    class="h-full overflow-auto bg-[#f8fafc] [background-image:radial-gradient(circle,_#cbd5e1_1.5px,transparent_1.5px)] [background-size:24px_24px]"
+  >
+    <div
+      ref="containerRef"
+      class="relative flex gap-32 p-10 min-w-max min-h-full"
+    >
+      <!-- SVG arrows layer (pointer-events-none so cards remain clickable) -->
+      <svg
+        class="absolute inset-0 pointer-events-none z-20 w-full h-full overflow-visible"
+      >
         <defs>
           <marker
-            id="arrowhead"
-            markerWidth="10"
-            markerHeight="7"
-            refX="9"
-            refY="3.5"
+            id="flowArr"
+            markerWidth="8"
+            markerHeight="6"
+            refX="7.5"
+            refY="3"
             orient="auto"
           >
-            <polygon points="0 0, 10 3.5, 0 7" class="fill-n-blue-9" />
+            <polygon points="0 0, 8 3, 0 6" fill="#334155" />
           </marker>
         </defs>
         <path
-          v-for="arrow in arrows"
-          :key="arrow.id"
-          :d="arrow.d"
+          v-for="a in arrows"
+          :key="a.id"
+          :d="a.d"
           fill="none"
-          class="stroke-n-blue-9"
+          stroke="#334155"
           stroke-width="1.5"
-          stroke-dasharray="4 2"
-          marker-end="url(#arrowhead)"
+          marker-end="url(#flowArr)"
         />
       </svg>
 
-      <!-- Metro-style: categories as lines, templates as stations -->
-      <div class="flex flex-col gap-8 p-4 relative z-20">
-        <section
-          v-for="typeKey in typeSectionOrder"
-          :key="typeKey"
-          class="flex flex-col gap-3"
+      <!-- Columns -->
+      <div
+        v-for="(col, ci) in columns"
+        :key="ci"
+        class="relative z-10 flex flex-col gap-5"
+      >
+        <!-- Template card -->
+        <div
+          v-for="tmpl in col"
+          :key="tmpl.id"
+          :ref="
+            el => {
+              if (el) nodeRefs[tmpl.id] = el;
+              else delete nodeRefs[tmpl.id];
+            }
+          "
+          class="w-60 rounded-2xl border border-n-strong bg-n-solid-1 shadow-sm cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+          :class="{ 'opacity-50': !tmpl.enabled }"
+          @click="emit('edit', tmpl)"
         >
-          <h3
-            class="text-sm font-semibold text-n-slate-11 uppercase tracking-wide border-l-4 border-n-brand pl-3"
+          <!-- Type-colored header -->
+          <div
+            class="px-4 py-2.5"
+            :style="{ background: typeColor(tmpl.type) }"
           >
-            {{ getTypeLabel(typeKey) }}
-          </h3>
-          <div class="flex flex-wrap gap-4">
-            <div
-              v-for="template in groupedByType[typeKey]"
-              :key="template.id"
-              :ref="
-                el => {
-                  if (el) nodeRefs[template.id] = el;
-                }
-              "
-              class="flex flex-col gap-2 p-3 rounded-xl border bg-n-solid-1 cursor-pointer transition-all duration-200 min-w-52 max-w-64"
-              :class="{
-                'border-n-brand ring-2 ring-n-brand ring-offset-2 animate-pulse':
-                  highlightedId === template.id,
-                'border-n-weak hover:border-n-strong':
-                  highlightedId !== template.id,
-              }"
-              @click="onNodeClick(template)"
-            >
-              <div class="flex flex-col gap-0.5">
-                <span class="text-sm font-semibold text-n-slate-12 truncate">
-                  {{ template.name }}
-                </span>
-                <span
-                  v-if="chainLabel(template)"
-                  class="text-xs text-n-slate-10"
-                >
-                  {{ chainLabel(template) }}
-                </span>
-              </div>
-
-              <!-- Mini message bubble (first message only) -->
-              <div
-                v-if="getPreviewText(template)"
-                class="rounded-lg bg-n-brand px-2.5 py-1.5 text-xs text-white leading-relaxed line-clamp-2"
-              >
-                {{ getPreviewText(template) }}
-              </div>
-
-              <!-- Attachments count -->
-              <div
-                v-if="template.attachments?.length"
-                class="flex items-center gap-1 text-xs text-n-slate-10"
-              >
-                <span class="i-lucide-paperclip size-3" />
-                {{ template.attachments.length }}
-              </div>
-
-              <!-- Buttons -->
-              <div v-if="template.buttons?.length" class="flex flex-col gap-1">
-                <div
-                  v-for="btn in template.buttons"
-                  :key="btn.id"
-                  class="flex items-center gap-1 text-xs"
-                  :class="
-                    btn.type === 'template'
-                      ? 'text-n-blue-11 cursor-pointer hover:underline'
-                      : 'text-n-slate-10'
-                  "
-                  @click.stop="
-                    btn.type === 'template' && scrollToTemplate(btn.templateId)
-                  "
-                >
-                  <span class="i-lucide-arrow-right size-3 flex-shrink-0" />
-                  <span class="truncate">
-                    {{
-                      btn.type === 'template'
-                        ? getTemplateName(btn.templateId)
-                        : btn.url
-                    }}
-                  </span>
-                  <span class="ml-auto font-medium">{{ btn.label }}</span>
-                </div>
-              </div>
-            </div>
+            <p class="text-sm font-semibold text-n-slate-12 truncate">
+              {{ tmpl.name }}
+            </p>
           </div>
-        </section>
+
+          <!-- Message preview row -->
+          <div
+            v-if="firstMessage(tmpl)"
+            class="px-4 py-2.5 border-t border-n-weak text-xs text-n-slate-11 leading-relaxed"
+          >
+            {{ preview(firstMessage(tmpl)) }}
+          </div>
+
+          <!-- Attachments row -->
+          <div
+            v-if="tmpl.attachments?.length"
+            class="px-4 py-2 border-t border-n-weak flex items-center gap-1.5 text-xs text-n-slate-9"
+          >
+            <span class="i-lucide-paperclip size-3 flex-shrink-0" />
+            <span>{{ tmpl.attachments.length }}</span>
+          </div>
+
+          <!-- Button rows — arrows originate from right edge of each row -->
+          <div
+            v-for="btn in tmpl.buttons"
+            :key="btn.id"
+            :ref="
+              el => {
+                const k = `${tmpl.id}-${btn.id}`;
+                if (el) btnRefs[k] = el;
+                else delete btnRefs[k];
+              }
+            "
+            class="px-4 py-2 border-t border-n-weak flex items-center gap-2 text-xs"
+            :class="
+              btn.type === 'template'
+                ? 'text-n-blue-11 font-medium'
+                : 'text-n-slate-10'
+            "
+          >
+            <span
+              class="flex-shrink-0"
+              :class="
+                btn.type === 'template'
+                  ? 'i-lucide-arrow-right-circle size-3.5'
+                  : 'i-lucide-external-link size-3.5'
+              "
+            />
+            <span class="truncate">{{ btn.label }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
