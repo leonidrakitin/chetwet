@@ -63,11 +63,49 @@ const columns = computed(() => {
   );
 });
 
-const containerRef = ref(null);
+// Refs
+const outerRef = ref(null);
+const containerRef = ref(null); // translated canvas — arrow coords relative to this
 const nodeRefs = ref({});
 const btnRefs = ref({});
 const arrows = ref([]);
 
+// Pan state
+const isPanning = ref(false);
+const hasDragged = ref(false);
+const panX = ref(0);
+const panY = ref(0);
+let dragStartX = 0;
+let dragStartY = 0;
+
+const onMouseDown = e => {
+  if (e.button !== 0) return;
+  isPanning.value = true;
+  hasDragged.value = false;
+  dragStartX = e.clientX - panX.value;
+  dragStartY = e.clientY - panY.value;
+};
+
+const onMouseMove = e => {
+  if (!isPanning.value) return;
+  e.preventDefault();
+  const nx = e.clientX - dragStartX;
+  const ny = e.clientY - dragStartY;
+  if (
+    !hasDragged.value &&
+    Math.abs(nx - panX.value) + Math.abs(ny - panY.value) > 4
+  ) {
+    hasDragged.value = true;
+  }
+  panX.value = nx;
+  panY.value = ny;
+};
+
+const stopPan = () => {
+  isPanning.value = false;
+};
+
+// Arrow computation — coords relative to containerRef (the canvas)
 const computeArrows = async () => {
   await nextTick();
   if (!containerRef.value) return;
@@ -85,15 +123,12 @@ const computeArrows = async () => {
       const tr = tEl.getBoundingClientRect();
       if (br.width === 0 || tr.width === 0) return;
 
-      // Left-to-right: from right edge of button row → left edge of target card
-      // Right-to-left: from left edge of button row → right edge of target card
       const goRight = br.right <= tr.left;
       const x1 = (goRight ? br.right : br.left) - cr.left;
       const y1 = (br.top + br.bottom) / 2 - cr.top;
       const x2 = (goRight ? tr.left : tr.right) - cr.left;
       const y2 = (tr.top + tr.bottom) / 2 - cr.top;
 
-      // Orthogonal elbow with rounded corners (8px radius)
       const r = 8;
       const midX = (x1 + x2) / 2;
       const dy = y2 - y1;
@@ -126,8 +161,12 @@ onMounted(async () => {
   await computeArrows();
   ro = new ResizeObserver(computeArrows);
   if (containerRef.value) ro.observe(containerRef.value);
+  window.addEventListener('mouseup', stopPan);
 });
-onBeforeUnmount(() => ro?.disconnect());
+onBeforeUnmount(() => {
+  ro?.disconnect();
+  window.removeEventListener('mouseup', stopPan);
+});
 watch(() => props.templates, computeArrows, { deep: true });
 
 const VARS = {
@@ -139,7 +178,11 @@ const VARS = {
   master_name: 'Мария',
   price: '1 500 ₽',
 };
-const firstMessage = tmpl => tmpl.messages?.[0] ?? tmpl.messageText ?? '';
+const BG_STYLE = {
+  backgroundColor: '#f8fafc',
+  backgroundImage: 'radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px)',
+  backgroundSize: '24px 24px',
+};
 
 const preview = txt => {
   if (!txt) return '';
@@ -149,16 +192,25 @@ const preview = txt => {
 </script>
 
 <template>
+  <!-- Outer viewport: clips overflow, handles mouse events -->
   <div
-    class="h-full overflow-auto bg-[#f8fafc] [background-image:radial-gradient(circle,_#cbd5e1_1.5px,transparent_1.5px)] [background-size:24px_24px]"
+    ref="outerRef"
+    class="h-full overflow-hidden relative select-none"
+    :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
+    :style="BG_STYLE"
+    @mousedown="onMouseDown"
+    @mousemove="onMouseMove"
+    @mouseup="stopPan"
   >
+    <!-- Canvas: panned via transform, SVG + cards inside -->
     <div
       ref="containerRef"
-      class="relative flex gap-32 p-10 min-w-max min-h-full"
+      class="absolute flex gap-32 p-10"
+      :style="{ transform: `translate(${panX}px, ${panY}px)` }"
     >
-      <!-- SVG arrows layer (pointer-events-none so cards remain clickable) -->
+      <!-- SVG arrows (positioned relative to canvas) -->
       <svg
-        class="absolute inset-0 pointer-events-none z-20 w-full h-full overflow-visible"
+        class="absolute inset-0 w-full h-full overflow-visible pointer-events-none z-20"
       >
         <defs>
           <marker
@@ -199,9 +251,12 @@ const preview = txt => {
               else delete nodeRefs[tmpl.id];
             }
           "
-          class="w-60 rounded-2xl border border-n-strong bg-n-solid-1 shadow-sm cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
-          :class="{ 'opacity-50': !tmpl.enabled }"
-          @click="emit('edit', tmpl)"
+          class="w-60 rounded-2xl border border-n-strong bg-n-solid-1 shadow-sm overflow-hidden transition-shadow hover:shadow-md"
+          :class="[
+            { 'opacity-50': !tmpl.enabled },
+            isPanning ? '' : 'cursor-pointer',
+          ]"
+          @click="!hasDragged && emit('edit', tmpl)"
         >
           <!-- Type-colored header -->
           <div
@@ -215,10 +270,10 @@ const preview = txt => {
 
           <!-- Message preview row -->
           <div
-            v-if="firstMessage(tmpl)"
+            v-if="tmpl.messages?.[0] ?? tmpl.messageText"
             class="px-4 py-2.5 border-t border-n-weak text-xs text-n-slate-11 leading-relaxed"
           >
-            {{ preview(firstMessage(tmpl)) }}
+            {{ preview(tmpl.messages?.[0] ?? tmpl.messageText) }}
           </div>
 
           <!-- Attachments row -->
