@@ -1,11 +1,19 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { VARIABLE_KEYS, toToken } from '../constants/variables';
+import {
+  VARIABLE_KEYS,
+  VARIABLE_CATEGORIES,
+  toToken,
+} from '../constants/variables';
 
 const emit = defineEmits(['insert']);
 
 const { t } = useI18n();
+
+const isOpen = ref(false);
+const activeCategory = ref('all');
+const pickerRef = ref(null);
 
 const VARIABLE_CHIP_CLASSES = {
   client_name: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -17,7 +25,7 @@ const VARIABLE_CHIP_CLASSES = {
   time: 'bg-slate-200 text-slate-700 border-slate-300',
 };
 
-const VARIABLES = computed(() =>
+const allVariables = computed(() =>
   VARIABLE_KEYS.map(key => ({
     key,
     chipClass: VARIABLE_CHIP_CLASSES[key] ?? 'bg-slate-200 text-slate-700',
@@ -27,50 +35,119 @@ const VARIABLES = computed(() =>
   }))
 );
 
+const categories = computed(() => [
+  {
+    key: 'all',
+    label: t('NOTIFICATION_TEMPLATES.VARIABLES.CATEGORIES.ALL'),
+    variables: allVariables.value,
+  },
+  ...VARIABLE_CATEGORIES.map(cat => ({
+    key: cat.key,
+    label: t(
+      `NOTIFICATION_TEMPLATES.VARIABLES.CATEGORIES.${cat.key.toUpperCase()}`
+    ),
+    variables: cat.variables
+      .map(k => allVariables.value.find(v => v.key === k))
+      .filter(Boolean),
+  })),
+]);
+
+const displayedVariables = computed(() => {
+  const cat = categories.value.find(c => c.key === activeCategory.value);
+  return cat?.variables ?? allVariables.value;
+});
+
 const onDragStart = (event, key) => {
   event.dataTransfer.setData('text/plain', toToken(key));
   event.dataTransfer.effectAllowed = 'copy';
 };
 
-const insert = k => emit('insert', toToken(k));
+const insert = k => {
+  emit('insert', toToken(k));
+  isOpen.value = false;
+};
+
+const handleClickOutside = e => {
+  if (pickerRef.value && !pickerRef.value.contains(e.target)) {
+    isOpen.value = false;
+  }
+};
+
+onMounted(() => document.addEventListener('mousedown', handleClickOutside));
+onUnmounted(() =>
+  document.removeEventListener('mousedown', handleClickOutside)
+);
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <label class="text-xs font-medium text-n-slate-10 uppercase tracking-wide">
-      {{ t('NOTIFICATION_TEMPLATES.VARIABLES.LABEL') }}
-    </label>
-    <div class="flex flex-col gap-2">
+  <div ref="pickerRef" class="relative">
+    <!-- Trigger button -->
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 rounded-md border border-n-weak bg-n-alpha-1 px-2.5 py-1.5 text-xs font-medium text-n-slate-11 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+      @click="isOpen = !isOpen"
+    >
+      <span class="i-lucide-braces size-3.5" />
+      {{ t('NOTIFICATION_TEMPLATES.VARIABLES.PICKER_BUTTON') }}
+      <span
+        class="i-lucide-chevron-down size-3 transition-transform"
+        :class="{ 'rotate-180': isOpen }"
+      />
+    </button>
+
+    <!-- Popup -->
+    <div
+      v-if="isOpen"
+      class="absolute bottom-full mb-1.5 left-0 z-50 w-72 rounded-xl border border-n-weak bg-white dark:bg-n-solid-2 shadow-lg"
+    >
+      <!-- Category tabs -->
       <div
-        v-for="v in VARIABLES"
-        :key="v.key"
-        draggable="true"
-        class="flex flex-col gap-1 rounded-lg border-l-4 border-n-weak bg-n-alpha-1 p-2 cursor-grab transition-colors hover:border-n-strong hover:bg-n-alpha-2 active:cursor-grabbing"
-        :class="[
-          v.key === 'client_name' && 'border-l-blue-300',
-          v.key === 'service_name' && 'border-l-teal-300',
-          v.key === 'branch_name' && 'border-l-amber-300',
-          v.key === 'master_name' && 'border-l-violet-300',
-          v.key === 'price' && 'border-l-red-300',
-          v.key === 'date' && 'border-l-orange-300',
-          v.key === 'time' && 'border-l-slate-400',
-        ]"
-        @click="insert(v.key)"
-        @dragstart="onDragStart($event, v.key)"
+        class="flex gap-0.5 border-b border-n-weak px-2 pt-2 overflow-x-auto"
       >
-        <span
-          class="inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-xs font-medium"
-          :class="v.chipClass"
+        <button
+          v-for="cat in categories"
+          :key="cat.key"
+          type="button"
+          class="whitespace-nowrap rounded-t-md px-2.5 py-1.5 text-xs font-medium transition-colors border-b-2 -mb-px flex-shrink-0"
+          :class="
+            activeCategory === cat.key
+              ? 'text-n-brand border-n-brand'
+              : 'text-n-slate-10 border-transparent hover:text-n-slate-12'
+          "
+          @click="activeCategory = cat.key"
         >
-          {{ toToken(v.key) }}
-        </span>
-        <p class="text-xs text-n-slate-11">
-          {{ v.description }}
-        </p>
-        <p class="text-xs text-n-slate-9 font-mono">
-          {{ t('NOTIFICATION_TEMPLATES.VARIABLES.EXAMPLE_PREFIX') }}
-          {{ v.example }}
-        </p>
+          {{ cat.label }}
+        </button>
+      </div>
+
+      <!-- Variable list -->
+      <div class="flex flex-col gap-0.5 p-2 max-h-52 overflow-y-auto">
+        <div
+          v-for="v in displayedVariables"
+          :key="v.key"
+          draggable="true"
+          class="flex items-center gap-2 rounded-lg px-2 py-1.5 cursor-grab hover:bg-n-alpha-2 active:cursor-grabbing transition-colors"
+          @click="insert(v.key)"
+          @dragstart="onDragStart($event, v.key)"
+        >
+          <span
+            class="inline-flex flex-shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[11px] font-medium leading-none"
+            :class="v.chipClass"
+          >
+            {{ toToken(v.key) }}
+          </span>
+          <span class="text-xs text-n-slate-11 truncate min-w-0">
+            {{ v.description }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Footer hint -->
+      <div
+        class="border-t border-n-weak px-3 py-1.5 text-[10px] text-n-slate-9 flex items-center gap-1"
+      >
+        <span class="i-lucide-mouse-pointer-2 size-3" />
+        {{ t('NOTIFICATION_TEMPLATES.VARIABLES.PICKER_HINT') }}
       </div>
     </div>
   </div>

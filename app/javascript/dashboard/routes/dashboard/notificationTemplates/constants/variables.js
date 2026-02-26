@@ -23,6 +23,16 @@ export const VARIABLE_COLORS = {
   time: { bg: '#e2e8f0', text: '#334155', border: '#cbd5e1' },
 };
 
+export const VARIABLE_CATEGORIES = [
+  { key: 'client', variables: ['client_name'] },
+  {
+    key: 'appointment',
+    variables: ['service_name', 'branch_name', 'master_name'],
+  },
+  { key: 'payment', variables: ['price'] },
+  { key: 'datetime', variables: ['date', 'time'] },
+];
+
 export const toToken = key => `{${key}}`;
 
 export const parseMessageParts = text => {
