@@ -360,6 +360,10 @@ en:
       name: 'LeadSquared'
       short_description: 'Sync your contacts and conversations with LeadSquared CRM.'
       description: 'Sync your contacts and conversations with LeadSquared CRM. This integration automatically creates leads in LeadSquared when new contacts are added, and logs conversation activity to provide your sales team with complete context.'
+    yclients:
+      name: 'YClients'
+      short_description: 'Sync contacts and conversations with YClients.'
+      description: 'Connect YClients to sync contacts and create visit records from conversations. New contacts are synced to YClients; new conversations create records, and resolved conversations update attendance.'
   captain:
     copilot_message_required: Message is required
     copilot_error: 'Please connect an assistant to this inbox to use Copilot'
