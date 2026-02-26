@@ -7,14 +7,6 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  attachments: {
-    type: Array,
-    default: () => [],
-  },
-  buttons: {
-    type: Array,
-    default: () => [],
-  },
 });
 
 const { t } = useI18n();
@@ -35,10 +27,6 @@ const substituteVars = text =>
     (match, key) => EXAMPLE_VALUES[key.trim()] ?? match
   );
 
-const previewMessages = computed(() =>
-  props.messages.map(substituteVars).filter(Boolean)
-);
-
 const getAttachmentIcon = type => {
   const icons = {
     file: 'i-lucide-file',
@@ -49,12 +37,20 @@ const getAttachmentIcon = type => {
   return icons[type] ?? 'i-lucide-paperclip';
 };
 
-const hasContent = computed(
-  () =>
-    previewMessages.value.length ||
-    props.attachments.length ||
-    props.buttons.length
+const previewBlocks = computed(() =>
+  props.messages
+    .map(m => {
+      const isString = typeof m === 'string';
+      return {
+        text: isString ? substituteVars(m) : substituteVars(m.text ?? ''),
+        attachments: isString ? [] : (m.attachments ?? []),
+        buttons: isString ? [] : (m.buttons ?? []),
+      };
+    })
+    .filter(b => b.text || b.attachments.length || b.buttons.length)
 );
+
+const hasContent = computed(() => previewBlocks.value.length > 0);
 </script>
 
 <template>
@@ -66,36 +62,44 @@ const hasContent = computed(
     <div
       class="flex flex-col gap-3 rounded-xl bg-n-alpha-1 border border-n-weak p-4 min-h-48"
     >
-      <div v-if="hasContent" class="flex flex-col items-end gap-2">
-        <!-- One bubble per message -->
+      <div v-if="hasContent" class="flex flex-col items-end gap-3">
         <div
-          v-for="(text, idx) in previewMessages"
+          v-for="(block, idx) in previewBlocks"
           :key="idx"
-          class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-sm text-white max-w-full whitespace-pre-wrap break-words"
+          class="flex flex-col items-end gap-1 w-full"
         >
-          {{ text }}
-        </div>
-
-        <!-- Attachments -->
-        <div v-if="attachments.length" class="flex flex-wrap gap-1 justify-end">
+          <!-- Text bubble -->
           <div
-            v-for="att in attachments"
-            :key="att.id"
-            class="flex items-center gap-1 rounded-lg border border-n-weak bg-n-solid-1 px-2 py-1 text-xs text-n-slate-11"
+            v-if="block.text"
+            class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-sm text-white max-w-full whitespace-pre-wrap break-words"
           >
-            <span class="size-3" :class="getAttachmentIcon(att.type)" />
-            <span class="max-w-24 truncate">{{ att.name }}</span>
+            {{ block.text }}
           </div>
-        </div>
 
-        <!-- Buttons -->
-        <div v-if="buttons.length" class="flex flex-col gap-1 w-full">
+          <!-- Attachments -->
           <div
-            v-for="btn in buttons"
-            :key="btn.id"
-            class="border border-n-blue-9 text-n-blue-11 rounded-lg px-3 py-1.5 text-sm text-center"
+            v-if="block.attachments.length"
+            class="flex flex-wrap gap-1 justify-end"
           >
-            {{ btn.label }}
+            <div
+              v-for="att in block.attachments"
+              :key="att.id"
+              class="flex items-center gap-1 rounded-lg border border-n-weak bg-n-solid-1 px-2 py-1 text-xs text-n-slate-11"
+            >
+              <span class="size-3" :class="getAttachmentIcon(att.type)" />
+              <span class="max-w-24 truncate">{{ att.name }}</span>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div v-if="block.buttons.length" class="flex flex-col gap-1 w-full">
+            <div
+              v-for="btn in block.buttons"
+              :key="btn.id"
+              class="border border-n-blue-9 text-n-blue-11 rounded-lg px-3 py-1.5 text-sm text-center"
+            >
+              {{ btn.label }}
+            </div>
           </div>
         </div>
       </div>

@@ -7,20 +7,27 @@ const MOCK_TEMPLATES = [
     type: 'event',
     triggerEvent: 'UPDATED',
     messages: [
-      'Здравствуйте, {client_name}! Ваша запись изменена: {service_name} {date} в {time}.',
+      {
+        text: 'Здравствуйте, {client_name}! Ваша запись изменена: {service_name} {date} в {time}.',
+        attachments: [],
+        buttons: [
+          {
+            id: 'btn-u1',
+            label: 'Подтвердить',
+            type: 'template',
+            templateId: 730569,
+          },
+          {
+            id: 'btn-u2',
+            label: 'Отменить',
+            type: 'template',
+            templateId: 982055,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 0,
-    attachments: [],
-    buttons: [
-      {
-        id: 'btn-u1',
-        label: 'Подтвердить',
-        type: 'template',
-        templateId: 730569,
-      },
-      { id: 'btn-u2', label: 'Отменить', type: 'template', templateId: 982055 },
-    ],
   },
   {
     id: 824540,
@@ -29,32 +36,34 @@ const MOCK_TEMPLATES = [
     type: 'event',
     triggerEvent: 'PAID',
     messages: [
-      'Здравствуйте, {client_name}! Оплата {price} принята. Ждём вас {date} в {time}.',
+      {
+        text: 'Здравствуйте, {client_name}! Оплата {price} принята. Ждём вас {date} в {time}.',
+        attachments: [
+          {
+            id: 'att-1',
+            type: 'link',
+            name: 'Чек об оплате',
+            url: 'https://example.com/receipt',
+          },
+        ],
+        buttons: [
+          {
+            id: 'btn-p1',
+            label: 'Посмотреть чек',
+            type: 'url',
+            url: 'https://example.com/receipt',
+          },
+          {
+            id: 'btn-p2',
+            label: 'Напомнить за день',
+            type: 'template',
+            templateId: 111001,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 1,
-    attachments: [
-      {
-        id: 'att-1',
-        type: 'link',
-        name: 'Чек об оплате',
-        url: 'https://example.com/receipt',
-      },
-    ],
-    buttons: [
-      {
-        id: 'btn-p1',
-        label: 'Посмотреть чек',
-        type: 'url',
-        url: 'https://example.com/receipt',
-      },
-      {
-        id: 'btn-p2',
-        label: 'Напомнить за день',
-        type: 'template',
-        templateId: 111001,
-      },
-    ],
   },
 
   // ─── col 1: первый шаг цепочки ──────────────────────────────────────────
@@ -65,19 +74,21 @@ const MOCK_TEMPLATES = [
     type: 'event',
     triggerEvent: 'CREATED',
     messages: [
-      'Здравствуйте, {client_name}! Вы записаны на {service_name} {date} в {time}. Ждём в {branch_name}.',
+      {
+        text: 'Здравствуйте, {client_name}! Вы записаны на {service_name} {date} в {time}. Ждём в {branch_name}.',
+        attachments: [],
+        buttons: [
+          {
+            id: 'btn-c1',
+            label: 'Напомнить за день',
+            type: 'template',
+            templateId: 111001,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 2,
-    attachments: [],
-    buttons: [
-      {
-        id: 'btn-c1',
-        label: 'Напомнить за день',
-        type: 'template',
-        templateId: 111001,
-      },
-    ],
   },
   {
     id: 982055,
@@ -86,19 +97,21 @@ const MOCK_TEMPLATES = [
     type: 'event',
     triggerEvent: 'DELETED',
     messages: [
-      'Здравствуйте, {client_name}! Ваша запись на {service_name} {date} отменена. Будем рады видеть вас снова!',
+      {
+        text: 'Здравствуйте, {client_name}! Ваша запись на {service_name} {date} отменена. Будем рады видеть вас снова!',
+        attachments: [],
+        buttons: [
+          {
+            id: 'btn-d1',
+            label: 'Записаться снова',
+            type: 'template',
+            templateId: 111004,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 3,
-    attachments: [],
-    buttons: [
-      {
-        id: 'btn-d1',
-        label: 'Записаться снова',
-        type: 'template',
-        templateId: 111004,
-      },
-    ],
   },
 
   // ─── col 2: напоминание за день ─────────────────────────────────────────
@@ -109,25 +122,27 @@ const MOCK_TEMPLATES = [
     type: 'time',
     triggerEvent: null,
     messages: [
-      'Здравствуйте, {client_name}! Напоминаем: завтра {date} в {time} у вас {service_name} в {branch_name}.',
+      {
+        text: 'Здравствуйте, {client_name}! Напоминаем: завтра {date} в {time} у вас {service_name} в {branch_name}.',
+        attachments: [],
+        buttons: [
+          {
+            id: 'btn-r1',
+            label: 'Подтверждаю ✓',
+            type: 'template',
+            templateId: 111002,
+          },
+          {
+            id: 'btn-r2',
+            label: 'Отменить запись',
+            type: 'template',
+            templateId: 982055,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 4,
-    attachments: [],
-    buttons: [
-      {
-        id: 'btn-r1',
-        label: 'Подтверждаю ✓',
-        type: 'template',
-        templateId: 111002,
-      },
-      {
-        id: 'btn-r2',
-        label: 'Отменить запись',
-        type: 'template',
-        templateId: 982055,
-      },
-    ],
   },
 
   // ─── col 3: напоминание за 2 часа ───────────────────────────────────────
@@ -138,20 +153,27 @@ const MOCK_TEMPLATES = [
     type: 'time',
     triggerEvent: null,
     messages: [
-      'Здравствуйте, {client_name}! Через 2 часа вас ждёт {service_name}. Мастер {master_name} готов принять вас.',
+      {
+        text: 'Здравствуйте, {client_name}! Через 2 часа вас ждёт {service_name}. Мастер {master_name} готов принять вас.',
+        attachments: [],
+        buttons: [
+          {
+            id: 'btn-h1',
+            label: 'Уже еду!',
+            type: 'template',
+            templateId: 951339,
+          },
+          {
+            id: 'btn-h2',
+            label: 'Нужно отменить',
+            type: 'template',
+            templateId: 982055,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 5,
-    attachments: [],
-    buttons: [
-      { id: 'btn-h1', label: 'Уже еду!', type: 'template', templateId: 951339 },
-      {
-        id: 'btn-h2',
-        label: 'Нужно отменить',
-        type: 'template',
-        templateId: 982055,
-      },
-    ],
   },
 
   // ─── col 4: клиент в салоне ─────────────────────────────────────────────
@@ -162,19 +184,21 @@ const MOCK_TEMPLATES = [
     type: 'event',
     triggerEvent: 'ARRIVED',
     messages: [
-      'Здравствуйте, {client_name}! Рады вас видеть в {branch_name}. Мастер {master_name} уже ждёт вас.',
+      {
+        text: 'Здравствуйте, {client_name}! Рады вас видеть в {branch_name}. Мастер {master_name} уже ждёт вас.',
+        attachments: [],
+        buttons: [
+          {
+            id: 'btn-a1',
+            label: 'После визита',
+            type: 'template',
+            templateId: 111003,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 6,
-    attachments: [],
-    buttons: [
-      {
-        id: 'btn-a1',
-        label: 'После визита',
-        type: 'template',
-        templateId: 111003,
-      },
-    ],
   },
 
   // ─── col 5: после визита ────────────────────────────────────────────────
@@ -185,25 +209,27 @@ const MOCK_TEMPLATES = [
     type: 'event',
     triggerEvent: 'COMPLETED',
     messages: [
-      'Спасибо, {client_name}! Надеемся, вам понравилось. Будем рады видеть вас снова в {branch_name}!',
+      {
+        text: 'Спасибо, {client_name}! Надеемся, вам понравилось. Будем рады видеть вас снова в {branch_name}!',
+        attachments: [],
+        buttons: [
+          {
+            id: 'btn-v1',
+            label: 'Оставить отзыв',
+            type: 'url',
+            url: 'https://example.com/review',
+          },
+          {
+            id: 'btn-v2',
+            label: 'Записаться снова',
+            type: 'template',
+            templateId: 111004,
+          },
+        ],
+      },
     ],
     enabled: true,
     order: 7,
-    attachments: [],
-    buttons: [
-      {
-        id: 'btn-v1',
-        label: 'Оставить отзыв',
-        type: 'url',
-        url: 'https://example.com/review',
-      },
-      {
-        id: 'btn-v2',
-        label: 'Записаться снова',
-        type: 'template',
-        templateId: 111004,
-      },
-    ],
   },
 
   // ─── col 6: повторная запись (конечный узел) ────────────────────────────
@@ -214,12 +240,14 @@ const MOCK_TEMPLATES = [
     type: 'lost_clients',
     triggerEvent: null,
     messages: [
-      'Здравствуйте, {client_name}! Давно не видели вас. Запишитесь на {service_name} — мастер {master_name} ждёт!',
+      {
+        text: 'Здравствуйте, {client_name}! Давно не видели вас. Запишитесь на {service_name} — мастер {master_name} ждёт!',
+        attachments: [],
+        buttons: [],
+      },
     ],
     enabled: true,
     order: 8,
-    attachments: [],
-    buttons: [],
   },
 ];
 
@@ -284,8 +312,6 @@ export const actions = {
       id: nextId,
       order: _state.templates.length,
       messages: templateData.messages ?? [],
-      attachments: templateData.attachments ?? [],
-      buttons: templateData.buttons ?? [],
     };
     commit('ADD_TEMPLATE', template);
   },

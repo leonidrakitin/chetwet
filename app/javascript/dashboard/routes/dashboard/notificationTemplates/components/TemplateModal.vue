@@ -30,6 +30,8 @@ const activeEditorIndex = ref(0);
 
 const isEditing = computed(() => !!props.template);
 
+const defaultBlock = () => ({ text: '', attachments: [], buttons: [] });
+
 const defaultForm = () => ({
   name: '',
   description: '',
@@ -38,33 +40,50 @@ const defaultForm = () => ({
   timeOffset: 24,
   timeUnit: 'HOURS',
   timeDirection: 'BEFORE',
-  messages: [''],
+  messages: [defaultBlock()],
   enabled: true,
-  attachments: [],
-  buttons: [],
 });
 
 const form = ref(defaultForm());
 const nameError = ref('');
 
+const migrateMessages = template => {
+  if (template.messages?.length) {
+    const first = template.messages[0];
+    if (typeof first === 'string') {
+      return template.messages.map((text, i) => ({
+        text,
+        attachments: i === 0 ? [...(template.attachments ?? [])] : [],
+        buttons: i === 0 ? [...(template.buttons ?? [])] : [],
+      }));
+    }
+    return template.messages.map(m => ({
+      text: m.text ?? '',
+      attachments: [...(m.attachments ?? [])],
+      buttons: [...(m.buttons ?? [])],
+    }));
+  }
+  if (template.messageText) {
+    return [
+      {
+        text: template.messageText,
+        attachments: [...(template.attachments ?? [])],
+        buttons: [...(template.buttons ?? [])],
+      },
+    ];
+  }
+  return [defaultBlock()];
+};
+
 watch(
   () => props.template,
   template => {
     if (template) {
-      let messages;
-      if (template.messages?.length) {
-        messages = [...template.messages];
-      } else if (template.messageText) {
-        messages = [template.messageText];
-      } else {
-        messages = [''];
-      }
+      const { attachments, buttons, messageText, ...rest } = template;
       form.value = {
         ...defaultForm(),
-        ...template,
-        messages,
-        attachments: [...(template.attachments ?? [])],
-        buttons: [...(template.buttons ?? [])],
+        ...rest,
+        messages: migrateMessages(template),
       };
     } else {
       form.value = defaultForm();
@@ -119,7 +138,9 @@ const handleConfirm = () => {
     nameError.value = t('NOTIFICATION_TEMPLATES.FORM.NAME.REQUIRED');
     return;
   }
-  const messages = form.value.messages.filter(m => m.trim());
+  const messages = form.value.messages.filter(
+    m => m.text.trim() || m.attachments.length || m.buttons.length
+  );
   emit('save', { ...form.value, messages });
   close();
 };
@@ -137,7 +158,7 @@ const insertVariable = text => {
 };
 
 const addMessage = () => {
-  form.value.messages.push('');
+  form.value.messages.push(defaultBlock());
   const newIdx = form.value.messages.length - 1;
   nextTick(() => {
     activeEditorIndex.value = newIdx;
@@ -286,45 +307,54 @@ const removeMessage = idx => {
         </div>
 
         <!-- Messages -->
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
           </label>
 
           <div
-            v-for="(msg, idx) in form.messages"
+            v-for="(block, idx) in form.messages"
             :key="idx"
-            class="flex items-start gap-2"
+            class="flex flex-col gap-3 rounded-xl border border-n-weak bg-n-alpha-1 p-3"
           >
-            <!-- Index badge when multiple messages -->
-            <div
-              v-if="form.messages.length > 1"
-              class="mt-2.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-n-alpha-2 text-[10px] font-semibold text-n-slate-10"
-            >
-              {{ idx + 1 }}
+            <!-- Block header -->
+            <div class="flex items-center justify-between">
+              <div
+                class="flex h-5 w-5 items-center justify-center rounded-full bg-n-alpha-2 text-[10px] font-semibold text-n-slate-10"
+              >
+                {{ idx + 1 }}
+              </div>
+              <button
+                v-if="form.messages.length > 1"
+                type="button"
+                class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-ruby-11 transition-colors"
+                @click="removeMessage(idx)"
+              >
+                <span class="i-lucide-trash-2 size-3.5" />
+              </button>
             </div>
 
-            <!-- Editor wrapper: focusin tracks active editor -->
-            <div class="flex-1 min-w-0" @focusin="activeEditorIndex = idx">
+            <!-- Text editor -->
+            <div @focusin="activeEditorIndex = idx">
               <TemplateMessageEditor
                 :ref="el => setEditorRef(el, idx)"
-                :model-value="form.messages[idx]"
+                :model-value="form.messages[idx].text"
                 :placeholder="
                   t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
                 "
-                @update:model-value="form.messages[idx] = $event"
+                @update:model-value="form.messages[idx].text = $event"
               />
             </div>
 
-            <!-- Remove button -->
-            <button
-              v-if="form.messages.length > 1"
-              type="button"
-              class="mt-2 flex-shrink-0 rounded p-1 text-n-slate-9 hover:bg-n-alpha-1 hover:text-n-ruby-11 transition-colors"
-              @click="removeMessage(idx)"
-            >
-              <span class="i-lucide-trash-2 size-3.5" />
-            </button>
+            <!-- Attachments for this block -->
+            <AttachmentEditor v-model="form.messages[idx].attachments" />
+
+            <!-- Buttons for this block -->
+            <ButtonEditor
+              v-model="form.messages[idx].buttons"
+              :templates="allTemplates"
+              :current-id="form.id"
+            />
           </div>
 
           <!-- Add message -->
@@ -341,16 +371,6 @@ const removeMessage = idx => {
           <VariablePicker @insert="insertVariable" />
         </div>
 
-        <!-- Attachments -->
-        <AttachmentEditor v-model="form.attachments" />
-
-        <!-- Buttons -->
-        <ButtonEditor
-          v-model="form.buttons"
-          :templates="allTemplates"
-          :current-id="form.id"
-        />
-
         <!-- Enabled toggle -->
         <div class="flex items-center gap-3">
           <Switch v-model="form.enabled" />
@@ -362,11 +382,7 @@ const removeMessage = idx => {
 
       <!-- Preview panel -->
       <div class="w-64 flex-shrink-0">
-        <NotificationTemplatePreview
-          :messages="form.messages"
-          :attachments="form.attachments"
-          :buttons="form.buttons"
-        />
+        <NotificationTemplatePreview :messages="form.messages" />
       </div>
     </div>
   </Dialog>

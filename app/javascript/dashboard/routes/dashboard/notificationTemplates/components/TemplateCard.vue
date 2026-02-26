@@ -71,15 +71,19 @@ const handleDelete = () => {
 };
 
 const processedMessages = computed(() => {
-  let msgs;
+  let rawTexts;
   if (props.template.messages?.length) {
-    msgs = props.template.messages;
+    const first = props.template.messages[0];
+    rawTexts =
+      typeof first === 'string'
+        ? props.template.messages
+        : props.template.messages.map(m => m.text ?? '');
   } else if (props.template.messageText) {
-    msgs = [props.template.messageText];
+    rawTexts = [props.template.messageText];
   } else {
-    msgs = [];
+    rawTexts = [];
   }
-  return msgs
+  return rawTexts
     .map(text =>
       text.replace(
         /\{(\w+)\}/g,
@@ -87,6 +91,20 @@ const processedMessages = computed(() => {
       )
     )
     .filter(Boolean);
+});
+
+const allAttachments = computed(() => {
+  if (!props.template.messages?.length) return props.template.attachments ?? [];
+  const first = props.template.messages[0];
+  if (typeof first === 'string') return props.template.attachments ?? [];
+  return props.template.messages.flatMap(m => m.attachments ?? []);
+});
+
+const allButtons = computed(() => {
+  if (!props.template.messages?.length) return props.template.buttons ?? [];
+  const first = props.template.messages[0];
+  if (typeof first === 'string') return props.template.buttons ?? [];
+  return props.template.messages.flatMap(m => m.buttons ?? []);
 });
 
 const eventLabel = template => getChainLabel(template, t);
@@ -165,12 +183,9 @@ const eventLabel = template => getChainLabel(template, t);
       </div>
 
       <!-- Attachments icons -->
-      <div
-        v-if="template.attachments && template.attachments.length"
-        class="flex flex-wrap gap-1 mt-1"
-      >
+      <div v-if="allAttachments.length" class="flex flex-wrap gap-1 mt-1">
         <span
-          v-for="att in template.attachments"
+          v-for="att in allAttachments"
           :key="att.id"
           class="flex items-center gap-1 text-xs text-n-slate-10"
         >
@@ -180,12 +195,9 @@ const eventLabel = template => getChainLabel(template, t);
       </div>
 
       <!-- Buttons compact view -->
-      <div
-        v-if="template.buttons && template.buttons.length"
-        class="flex flex-wrap gap-1 mt-1"
-      >
+      <div v-if="allButtons.length" class="flex flex-wrap gap-1 mt-1">
         <span
-          v-for="btn in template.buttons"
+          v-for="btn in allButtons"
           :key="btn.id"
           class="inline-flex items-center rounded-full border border-n-blue-9 px-2 py-0.5 text-xs text-n-blue-11"
         >
