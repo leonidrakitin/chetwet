@@ -190,8 +190,9 @@ class Captain::Assistant::AgentRunnerService
       track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
     end
 
-    runner.on_run_complete do |_agent_name, _result, context_wrapper|
-      write_credits_used_metadata(context_wrapper)
+    runner.on_run_complete do |_agent_name, result, context_wrapper|
+      write_credits_used_metadata(context_wrapper, result)
+      log_routing_decision(context_wrapper, result)
     end
     runner
   end
@@ -203,7 +204,7 @@ class Captain::Assistant::AgentRunnerService
     context_wrapper.context[:captain_v2_handoff_tool_called] = true
   end
 
-  def write_credits_used_metadata(context_wrapper)
+  def write_credits_used_metadata(context_wrapper, result = nil)
     root_span = context_wrapper&.context&.dig(:__otel_tracing, :root_span)
     return unless root_span
 
@@ -215,6 +216,47 @@ class Captain::Assistant::AgentRunnerService
 
     scenario_detected = context_wrapper.context[:scenario_router_attempted]
     root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'scenario_detected'), scenario_detected.to_s) if scenario_detected
+
+    conversation_length = context_wrapper.context[:conversation_length]
+    root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'conversation_length_at_routing'), conversation_length.to_s) if conversation_length
+
+    routing_decision = compute_routing_decision(context_wrapper, result)
+    root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'orchestrator_routing_decision'), routing_decision) if routing_decision
+  end
+
+  def compute_routing_decision(context_wrapper, result)
+    return nil unless context_wrapper&.context
+
+    return 'scenario_handoff' if scenario_agent_responded?(result)
+    return 'human' if human_handoff_response?(result)
+    return 'faq' if context_wrapper.context[:captain_v2_faq_lookup_called]
+
+    'direct'
+  end
+
+  def scenario_agent_responded?(result)
+    agent_name = result.respond_to?(:context) ? result.context&.dig(:current_agent) : nil
+    return false if agent_name.blank?
+
+    assistant_agent_name = @assistant.name.parameterize(separator: '_')
+    agent_name.to_s != assistant_agent_name
+  end
+
+  def human_handoff_response?(result)
+    output = result.respond_to?(:output) ? result.output : nil
+    response_text = output.is_a?(Hash) ? (output['response'] || output[:response]).to_s : output.to_s
+    response_text == 'conversation_handoff'
+  end
+
+  def log_routing_decision(context_wrapper, result)
+    return unless context_wrapper&.context
+
+    routing_decision = compute_routing_decision(context_wrapper, result)
+    conversation_length = context_wrapper.context[:conversation_length]
+    Rails.logger.info(
+      '[Captain V2] orchestrator_routing_decision=' << routing_decision.to_s <<
+      ' conversation_length_at_routing=' << conversation_length.to_s
+    )
   end
 
   def runner
@@ -230,6 +272,12 @@ class Captain::Assistant::AgentRunnerService
   def run_payload(message_history)
     message_to_process = extract_last_user_message(message_history)
     context = build_context(message_history_without_last_user_message(message_history))
+    context[:conversation_length] = message_history.size
+    if message_history.size > 7
+      last_text = message_to_process.respond_to?(:to_s) ? message_to_process.to_s : message_to_process
+      router = Captain::ScenarioRouterService.new(last_text, @assistant)
+      context[:routing_hint] = router.routing_hint if router.scenarios_available?
+    end
     enrich_context_with_trace_payload!(context, message_history, message_to_process)
     enrich_context_with_runtime_state!(context)
     [message_to_process, context]

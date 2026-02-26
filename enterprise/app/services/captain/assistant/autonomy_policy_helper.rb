@@ -78,9 +78,13 @@ module Captain::Assistant::AutonomyPolicyHelper
   end
 
   def track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
-    return unless tool_name.to_s == faq_tool_name && tool_result.is_a?(Hash)
+    return unless context_wrapper&.context
+    return unless tool_name.to_s == faq_tool_name
 
-    root_span = context_wrapper&.context&.dig(:__otel_tracing, :root_span)
+    context_wrapper.context[:captain_v2_faq_lookup_called] = true
+    return unless tool_result.is_a?(Hash)
+
+    root_span = context_wrapper.context.dig(:__otel_tracing, :root_span)
     return unless root_span
 
     record_faq_span_attributes(root_span, tool_result)

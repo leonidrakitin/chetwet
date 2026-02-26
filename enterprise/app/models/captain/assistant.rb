@@ -102,17 +102,23 @@ class Captain::Assistant < ApplicationRecord
   end
 
   def prompt_context
+    enabled = scenarios.enabled.to_a
+    scenario_entries = enabled.map do |scenario|
+      key = "#{scenario.title} Agent".parameterize(separator: '_')
+      "- #{scenario.title}: #{scenario.description}, use handoff_to_#{key} tool"
+    end
     {
       name: name,
       description: description,
       product_name: config['product_name'] || 'this product',
-      scenarios: scenarios.enabled.map do |scenario|
+      scenarios: enabled.map do |scenario|
         {
           title: scenario.title,
           key: "#{scenario.title} Agent".parameterize(separator: '_'),
           description: scenario.description
         }
       end,
+      scenarios_list: scenario_entries.join("\n"),
       response_guidelines: response_guidelines || [],
       guardrails: guardrails || []
     }

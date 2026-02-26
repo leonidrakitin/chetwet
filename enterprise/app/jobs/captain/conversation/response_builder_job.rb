@@ -35,10 +35,31 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def generate_response_with_v2
+    message_history = build_message_history_for_v2
     @response = Captain::Assistant::AgentRunnerService.new(assistant: @assistant, conversation: @conversation).generate_response(
-      message_history: collect_previous_messages
+      message_history: message_history
     )
     process_response
+  end
+
+  def build_message_history_for_v2
+    messages = collect_previous_messages
+    return messages if messages.size < Captain::ConversationSummarizerService::THRESHOLD
+
+    summarizer = Captain::ConversationSummarizerService.new(conversation: @conversation, message_history: messages)
+    summary_result = summarizer.call
+    return messages unless summary_result
+
+    summary_system_msg = format_summary_context_for_orchestrator(summary_result)
+    [{ role: :system, content: summary_system_msg }] + summary_result[:recent_messages]
+  end
+
+  def format_summary_context_for_orchestrator(summary_result)
+    parts = ["Conversation summary: #{summary_result[:summary]}"]
+    parts << "Current intent: #{summary_result[:current_intent]}" if summary_result[:current_intent].present?
+    parts << "Active scenarios (consider handoff): #{summary_result[:active_scenarios].join(', ')}" if summary_result[:active_scenarios]&.any?
+    parts << "Key facts: #{summary_result[:key_facts].join('; ')}" if summary_result[:key_facts]&.any?
+    parts.join("\n")
   end
 
   def process_response

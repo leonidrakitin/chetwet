@@ -25,6 +25,8 @@ module Concerns::Agentable
         contact: contact_data,
         campaign: campaign_data
       )
+      enhanced_context[:conversation_length] = context.context[:conversation_length] if context.context.key?(:conversation_length)
+      enhanced_context[:routing_hint] = context.context[:routing_hint] if context.context.key?(:routing_hint)
     end
 
     Captain::PromptRenderer.render(template_name, enhanced_context.with_indifferent_access)
