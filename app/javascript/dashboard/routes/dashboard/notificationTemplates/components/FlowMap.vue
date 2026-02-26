@@ -117,20 +117,26 @@ const computeArrows = async () => {
       if (btn.type !== 'template' || !btn.templateId) return;
       const bEl = btnRefs.value[`${tmpl.id}-${btn.id}`];
       const tEl = nodeRefs.value[btn.templateId];
-      if (!bEl || !tEl) return;
+      const sEl = nodeRefs.value[tmpl.id];
+      if (!bEl || !tEl || !sEl) return;
 
       const br = bEl.getBoundingClientRect();
       const tr = tEl.getBoundingClientRect();
+      const sr = sEl.getBoundingClientRect();
       if (br.width === 0 || tr.width === 0) return;
 
-      const goRight = br.right <= tr.left;
+      const goRight = sr.right <= tr.left;
       const x1 = (goRight ? br.right : br.left) - cr.left;
       const y1 = (br.top + br.bottom) / 2 - cr.top;
       const x2 = (goRight ? tr.left : tr.right) - cr.left;
       const y2 = (tr.top + tr.bottom) / 2 - cr.top;
 
+      // Vertical segment runs in the gap between columns, not through cards
+      const routeX = goRight
+        ? (sr.right + tr.left) / 2 - cr.left
+        : (tr.right + sr.left) / 2 - cr.left;
+
       const r = 8;
-      const midX = (x1 + x2) / 2;
       const dy = y2 - y1;
       let d;
 
@@ -140,10 +146,10 @@ const computeArrows = async () => {
         const s = dy > 0 ? 1 : -1;
         d = [
           `M ${x1} ${y1}`,
-          `H ${midX - r}`,
-          `Q ${midX} ${y1} ${midX} ${y1 + s * r}`,
+          `H ${routeX - r}`,
+          `Q ${routeX} ${y1} ${routeX} ${y1 + s * r}`,
           `V ${y2 - s * r}`,
-          `Q ${midX} ${y2} ${midX + r} ${y2}`,
+          `Q ${routeX} ${y2} ${routeX + r} ${y2}`,
           `H ${x2}`,
         ].join(' ');
       }

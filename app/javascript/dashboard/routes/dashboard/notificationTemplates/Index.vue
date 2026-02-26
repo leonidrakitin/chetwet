@@ -224,7 +224,7 @@ onMounted(() => {
 
     <!-- Content -->
     <div
-      class="flex-1"
+      class="flex-1 min-h-0"
       :class="
         viewMode === 'flow' ? 'overflow-hidden' : 'overflow-y-auto px-6 py-4'
       "
