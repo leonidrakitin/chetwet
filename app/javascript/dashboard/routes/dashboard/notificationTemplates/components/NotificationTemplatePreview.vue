@@ -3,9 +3,9 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
-  messageText: {
-    type: String,
-    default: '',
+  messages: {
+    type: Array,
+    default: () => [],
   },
   attachments: {
     type: Array,
@@ -29,6 +29,16 @@ const EXAMPLE_VALUES = {
   time: '14:30',
 };
 
+const substituteVars = text =>
+  text.replace(
+    /\{(\w+)\}/g,
+    (match, key) => EXAMPLE_VALUES[key.trim()] ?? match
+  );
+
+const previewMessages = computed(() =>
+  props.messages.map(substituteVars).filter(Boolean)
+);
+
 const getAttachmentIcon = type => {
   const icons = {
     file: 'i-lucide-file',
@@ -39,16 +49,11 @@ const getAttachmentIcon = type => {
   return icons[type] ?? 'i-lucide-paperclip';
 };
 
-const previewText = computed(() => {
-  if (!props.messageText) return '';
-  return props.messageText.replace(
-    /\{(\w+)\}/g,
-    (match, key) => EXAMPLE_VALUES[key.trim()] ?? match
-  );
-});
-
 const hasContent = computed(
-  () => props.messageText || props.attachments.length || props.buttons.length
+  () =>
+    previewMessages.value.length ||
+    props.attachments.length ||
+    props.buttons.length
 );
 </script>
 
@@ -62,12 +67,13 @@ const hasContent = computed(
       class="flex flex-col gap-3 rounded-xl bg-n-alpha-1 border border-n-weak p-4 min-h-48"
     >
       <div v-if="hasContent" class="flex flex-col items-end gap-2">
-        <!-- Message bubble: final message only, no variable highlighting -->
+        <!-- One bubble per message -->
         <div
-          v-if="messageText"
+          v-for="(text, idx) in previewMessages"
+          :key="idx"
           class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-sm text-white max-w-full whitespace-pre-wrap break-words"
         >
-          {{ previewText }}
+          {{ text }}
         </div>
 
         <!-- Attachments -->

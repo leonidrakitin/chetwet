@@ -29,7 +29,8 @@ const EXAMPLE_VALUES = {
   time: '14:30',
 };
 
-const getPreviewText = text => {
+const getPreviewText = template => {
+  const text = template.messages?.[0] ?? template.messageText ?? '';
   if (!text) return '';
   const processed = text.replace(
     /\{(\w+)\}/g,
@@ -218,12 +219,12 @@ defineExpose({ scrollToTemplate });
                 </span>
               </div>
 
-              <!-- Mini message bubble -->
+              <!-- Mini message bubble (first message only) -->
               <div
-                v-if="template.messageText"
+                v-if="getPreviewText(template)"
                 class="rounded-lg bg-n-brand px-2.5 py-1.5 text-xs text-white leading-relaxed line-clamp-2"
               >
-                {{ getPreviewText(template.messageText) }}
+                {{ getPreviewText(template) }}
               </div>
 
               <!-- Attachments count -->

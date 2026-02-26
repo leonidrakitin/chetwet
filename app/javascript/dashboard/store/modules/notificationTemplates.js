@@ -5,8 +5,9 @@ const MOCK_TEMPLATES = [
     description: '',
     type: 'event',
     triggerEvent: 'CREATED',
-    messageText:
+    messages: [
       'Здравствуйте, {client_name}! Вы записаны на {service_name} {date} в {time}. Ждём вас в {branch_name}.',
+    ],
     enabled: true,
     order: 0,
     attachments: [],
@@ -18,8 +19,9 @@ const MOCK_TEMPLATES = [
     description: '',
     type: 'event',
     triggerEvent: 'UPDATED',
-    messageText:
+    messages: [
       'Здравствуйте, {client_name}! Ваша запись изменена: {service_name} {date} в {time}.',
+    ],
     enabled: true,
     order: 1,
     attachments: [],
@@ -38,8 +40,9 @@ const MOCK_TEMPLATES = [
     description: '',
     type: 'event',
     triggerEvent: 'DELETED',
-    messageText:
+    messages: [
       'Здравствуйте, {client_name}! Ваша запись на {service_name} {date} была отменена.',
+    ],
     enabled: false,
     order: 2,
     attachments: [],
@@ -51,8 +54,9 @@ const MOCK_TEMPLATES = [
     description: '',
     type: 'event',
     triggerEvent: 'PAID',
-    messageText:
+    messages: [
       'Здравствуйте, {client_name}! Оплата на сумму {price} успешно принята. Ждём вас {date} в {time}.',
+    ],
     enabled: true,
     order: 3,
     attachments: [
@@ -78,8 +82,9 @@ const MOCK_TEMPLATES = [
     description: '',
     type: 'event',
     triggerEvent: 'ARRIVED',
-    messageText:
+    messages: [
       'Здравствуйте, {client_name}! Рады приветствовать вас в {branch_name}. Ваш мастер {master_name} ждёт вас.',
+    ],
     enabled: true,
     order: 4,
     attachments: [],
@@ -147,6 +152,7 @@ export const actions = {
       ...templateData,
       id: nextId,
       order: _state.templates.length,
+      messages: templateData.messages ?? [],
       attachments: templateData.attachments ?? [],
       buttons: templateData.buttons ?? [],
     };

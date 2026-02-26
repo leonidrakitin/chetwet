@@ -157,7 +157,9 @@ const onDrop = e => {
   }
 };
 
-defineExpose({ insertAtCursor });
+const focus = () => editorRef.value?.focus();
+
+defineExpose({ insertAtCursor, focus });
 </script>
 
 <template>
@@ -178,17 +180,17 @@ defineExpose({ insertAtCursor });
         data-type="variable"
         :data-var="part.key"
         contenteditable="false"
-        class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-medium border align-baseline mr-0.5"
+        class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[11px] font-medium border align-baseline mr-0.5 leading-none"
         :style="getChipStyle(part.key)"
       >
         {{ part.value }}
         <button
           type="button"
-          class="ml-0.5 rounded p-0.5 opacity-70 hover:opacity-100 hover:bg-black/10 focus:outline-none"
+          class="ml-0.5 rounded-full p-px opacity-60 hover:opacity-100 hover:bg-black/10 focus:outline-none"
           :aria-label="t('NOTIFICATION_TEMPLATES.VARIABLES.REMOVE_ARIA')"
           @click.stop="removeVariable(idx)"
         >
-          <span class="i-lucide-x size-3" />
+          <span class="i-lucide-x size-2.5" />
         </button>
       </span>
       <span v-else data-type="text">{{ part.value }}</span>

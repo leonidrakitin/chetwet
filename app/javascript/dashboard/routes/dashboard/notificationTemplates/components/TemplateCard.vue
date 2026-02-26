@@ -70,11 +70,23 @@ const handleDelete = () => {
   emit('delete', props.template);
 };
 
-const processedText = computed(() => {
-  if (!props.template.messageText) return '';
-  return props.template.messageText.replace(/\{(\w+)\}/g, (match, variable) => {
-    return EXAMPLE_VALUES[variable] ?? match;
-  });
+const processedMessages = computed(() => {
+  let msgs;
+  if (props.template.messages?.length) {
+    msgs = props.template.messages;
+  } else if (props.template.messageText) {
+    msgs = [props.template.messageText];
+  } else {
+    msgs = [];
+  }
+  return msgs
+    .map(text =>
+      text.replace(
+        /\{(\w+)\}/g,
+        (match, variable) => EXAMPLE_VALUES[variable] ?? match
+      )
+    )
+    .filter(Boolean);
 });
 
 const eventLabel = template => getChainLabel(template, t);
@@ -143,12 +155,13 @@ const eventLabel = template => getChainLabel(template, t);
         {{ template.name }}
       </h3>
 
-      <!-- Inline message bubble preview -->
+      <!-- Inline message bubbles preview -->
       <div
-        v-if="processedText"
-        class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-xs text-white max-w-full line-clamp-3 leading-relaxed whitespace-pre-wrap break-words"
+        v-for="(text, idx) in processedMessages"
+        :key="idx"
+        class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-xs text-white max-w-full line-clamp-2 leading-relaxed whitespace-pre-wrap break-words"
       >
-        {{ processedText }}
+        {{ text }}
       </div>
 
       <!-- Attachments icons -->

@@ -44,7 +44,8 @@
       "TIME_OFFSET": { "LABEL": "Time Offset" },
       "MESSAGE_TEXT": {
         "LABEL": "Message Text",
-        "PLACEHOLDER": "Enter message text..."
+        "PLACEHOLDER": "Enter message text...",
+        "ADD_MESSAGE": "Add message"
       },
       "ENABLED": { "LABEL": "Enabled" }
     },
@@ -89,8 +90,17 @@
     },
     "VARIABLES": {
       "LABEL": "Insert variable",
+      "PICKER_BUTTON": "Insert variable",
+      "PICKER_HINT": "Click to insert · Drag to editor",
       "REMOVE_ARIA": "Remove variable",
       "EXAMPLE_PREFIX": "e.g.",
+      "CATEGORIES": {
+        "ALL": "All",
+        "CLIENT": "Client",
+        "APPOINTMENT": "Appointment",
+        "PAYMENT": "Payment",
+        "DATETIME": "Date & Time"
+      },
       "client_name": "Client name",
       "client_name_description": "Full name of the client",
       "client_name_example": "Ivan Ivanov",
