@@ -13,6 +13,10 @@ export const router = createRouter({ history: createWebHistory(), routes });
 export const validateAuthenticateRoutePermission = (to, next) => {
   const { isLoggedIn, getCurrentUser: user } = store.getters;
 
+  if (to.name === 'yclients_connect') {
+    return next();
+  }
+
   if (!isLoggedIn) {
     window.location.assign('/app/login');
     return '';

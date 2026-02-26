@@ -38,6 +38,14 @@ class IntegrationsAPI extends ApiClient {
       shop_domain: shopDomain,
     });
   }
+
+  connectYclientsMarketplace(accountId, salonIds) {
+    const accountsBase = this.baseUrl().replace(/\/[^/]*$/, '');
+    return axios.post(
+      `${accountsBase}/${accountId}/yclients_marketplace/connect`,
+      { salon_ids: salonIds }
+    );
+  }
 }
 
 export default new IntegrationsAPI();

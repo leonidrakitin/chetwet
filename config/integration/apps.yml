@@ -214,7 +214,7 @@ yclients:
   i18n_key: yclients
   action: /yclients
   hook_type: account
-  allow_multiple_hooks: false
+  allow_multiple_hooks: true
   settings_json_schema:
     {
       'type': 'object',

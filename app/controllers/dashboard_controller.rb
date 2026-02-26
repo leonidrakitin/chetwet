@@ -33,6 +33,7 @@ class DashboardController < ActionController::Base
   before_action :ensure_installation_onboarding, only: [:index]
   before_action :render_hc_if_custom_domain, only: [:index]
   before_action :ensure_html_format
+  after_action :set_yclients_connect_frame_ancestors, if: :yclients_connect_request?
   layout 'vueapp'
 
   def index; end
@@ -107,5 +108,13 @@ class DashboardController < ActionController::Base
     current_path = request.path.gsub(%r{^/app}, '')
 
     sensitive_paths.include?(current_path)
+  end
+
+  def yclients_connect_request?
+    request.path.include?('/app/yclients/connect')
+  end
+
+  def set_yclients_connect_frame_ancestors
+    response.headers['Content-Security-Policy'] = 'frame-ancestors https://*.yclients.com https://yclients.com'
   end
 end

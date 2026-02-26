@@ -50,6 +50,8 @@ en:
   errors:
     validations:
       presence: must not be blank
+    yclients_marketplace:
+      invalid_salon_ids: salon_ids must be a non-empty array of integers
     webhook:
       invalid: Invalid events
     signup:

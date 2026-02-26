@@ -353,6 +353,7 @@ Rails.application.routes.draw do
                 get :widget_snippet
               end
             end
+            post 'yclients_marketplace/connect', to: 'yclients_marketplace#connect'
           end
           resources :working_hours, only: [:update]
 
@@ -587,6 +588,7 @@ Rails.application.routes.draw do
   post 'webhooks/vk', to: 'webhooks/vk#process_payload'
   post 'webhooks/avito/:avito_user_id', to: 'webhooks/avito#process_payload'
   post 'webhooks/yclients', to: 'webhooks/yclients#process_payload'
+  post 'webhooks/yclients/marketplace', to: 'webhooks/yclients_marketplace#process'
 
   namespace :twitter do
     resource :callback, only: [:show]

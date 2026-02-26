@@ -422,6 +422,20 @@
   type: secret
 # ------- End of Shopify Related Config ------- #
 
+# ------- YClients Marketplace Integration ------- #
+- name: YCLIENTS_MARKETPLACE_PARTNER_TOKEN
+  display_title: 'YClients Marketplace Partner Token'
+  description: 'Partner token for YClients Marketplace API (callback and auth). From developer app settings.'
+  value:
+  locked: false
+  type: secret
+- name: YCLIENTS_SYSTEM_USER_ID
+  display_title: 'YClients System User ID'
+  description: 'System User ID from YClients developer app settings. Passed in callback_with_settings as settings.user_id.'
+  value:
+  locked: false
+# ------- End of YClients Marketplace Integration ------- #
+
 # ------- Instagram Channel Related Config ------- #
 - name: INSTAGRAM_APP_ID
   display_title: 'Instagram App ID'

@@ -13,9 +13,16 @@ import notificationTemplatesRoutes from './notificationTemplates/notificationTem
 import AppContainer from './Dashboard.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
+import YclientsConnect from './settings/integrations/YclientsConnect.vue';
 
 export default {
   routes: [
+    {
+      path: frontendURL('yclients/connect'),
+      name: 'yclients_connect',
+      component: YclientsConnect,
+      meta: {},
+    },
     {
       path: frontendURL('accounts/:accountId'),
       component: AppContainer,

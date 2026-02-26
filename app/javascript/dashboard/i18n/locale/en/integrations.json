@@ -378,6 +378,17 @@
         "CONFIRM": "Yes, delete",
         "CANCEL": "Cancel"
       }
+    },
+    "YCLIENTS_CONNECT": {
+      "TITLE": "Connect YClients",
+      "SUCCESS": "Integration connected successfully",
+      "CLOSE": "Close",
+      "CONNECT": "Connect",
+      "SELECT_ACCOUNT": "Select account",
+      "LOGIN_REQUIRED": "Please log in to connect YClients integration.",
+      "LOGIN_LINK": "Log in",
+      "ERROR": "There was an error connecting. Please try again.",
+      "MISSING_SALON_IDS": "Missing salon_id or salon_ids. Open this page from YClients Marketplace."
     }
   },
   "CAPTAIN": {
