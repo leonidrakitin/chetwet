@@ -148,12 +148,30 @@ const computeArrows = async () => {
       const x2 = (goRight ? tr.left : tr.right) - cr.left;
       const y2 = (tr.top + tr.bottom) / 2 - cr.top;
 
-      // Smooth cubic Bezier: horizontal exit, horizontal entry, curve in the gap
-      const dx = x2 - x1;
-      const ctrl = Math.min(80, Math.abs(dx) * 0.4);
-      const cp1x = goRight ? x1 + ctrl : x1 - ctrl;
-      const cp2x = goRight ? x2 - ctrl : x2 + ctrl;
-      const d = `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`;
+      // Vertical segment runs in the gap between columns, not through cards
+      const routeX = goRight
+        ? (sr.right + tr.left) / 2 - cr.left
+        : (tr.right + sr.left) / 2 - cr.left;
+
+      const r = 8;
+      const dy = y2 - y1;
+      let d;
+
+      if (Math.abs(dy) < r * 2) {
+        d = `M ${x1} ${y1} H ${x2}`;
+      } else {
+        const s = dy > 0 ? 1 : -1;
+        const firstX = goRight ? routeX - r : routeX + r;
+        const lastX = goRight ? routeX + r : routeX - r;
+        d = [
+          `M ${x1} ${y1}`,
+          `H ${firstX}`,
+          `Q ${routeX} ${y1} ${routeX} ${y1 + s * r}`,
+          `V ${y2 - s * r}`,
+          `Q ${routeX} ${y2} ${lastX} ${y2}`,
+          `H ${x2}`,
+        ].join(' ');
+      }
 
       result.push({ id: `${tmpl.id}-${btn.id}`, d });
     });
@@ -209,11 +227,13 @@ const preview = txt => {
     @mousemove="onMouseMove"
     @mouseup="stopPan"
   >
-    <!-- Canvas: panned via transform, SVG + cards inside -->
+    <!-- Canvas: centered, panned via transform, SVG + cards inside -->
     <div
       ref="containerRef"
-      class="absolute flex gap-32 p-10"
-      :style="{ transform: `translate(${panX}px, ${panY}px)` }"
+      class="absolute left-1/2 top-1/2 flex gap-32 p-10"
+      :style="{
+        transform: `translate(calc(-50% + ${panX}px), calc(-50% + ${panY}px))`,
+      }"
     >
       <!-- SVG arrows behind cards so lines wrap around blocks -->
       <svg
