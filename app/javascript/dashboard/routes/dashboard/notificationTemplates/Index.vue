@@ -163,7 +163,7 @@ onMounted(() => {
           {{ t('NOTIFICATION_TEMPLATES.DESCRIPTION') }}
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-shrink-0">
         <!-- Search -->
         <div class="relative">
           <span

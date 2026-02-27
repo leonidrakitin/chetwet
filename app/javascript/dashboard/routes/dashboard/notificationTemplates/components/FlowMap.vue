@@ -21,6 +21,23 @@ const TYPE_COLOR = {
 };
 const typeColor = type => TYPE_COLOR[type] ?? '#cbd5e1';
 
+// First message block: text, buttons, attachments (messages[0] or template root)
+const getMessageBlock = tmpl => {
+  const first = tmpl.messages?.[0];
+  if (first && typeof first === 'object') {
+    return {
+      text: first.text ?? tmpl.messageText ?? '',
+      buttons: first.buttons ?? tmpl.buttons ?? [],
+      attachments: first.attachments ?? tmpl.attachments ?? [],
+    };
+  }
+  return {
+    text: tmpl.messageText ?? '',
+    buttons: tmpl.buttons ?? [],
+    attachments: tmpl.attachments ?? [],
+  };
+};
+
 // Assign columns via topological longest-path: source (with button) → left, target → right
 const columns = computed(() => {
   const tmpls = props.templates;
@@ -31,7 +48,7 @@ const columns = computed(() => {
   const indeg = Object.fromEntries(ids.map(id => [id, 0]));
 
   tmpls.forEach(t => {
-    t.buttons?.forEach(btn => {
+    getMessageBlock(t).buttons.forEach(btn => {
       if (
         btn.type === 'template' &&
         btn.templateId &&
@@ -113,7 +130,7 @@ const computeArrows = async () => {
   const result = [];
 
   props.templates.forEach(tmpl => {
-    tmpl.buttons?.forEach(btn => {
+    getMessageBlock(tmpl).buttons.forEach(btn => {
       if (btn.type !== 'template' || !btn.templateId) return;
       const bEl = btnRefs.value[`${tmpl.id}-${btn.id}`];
       const tEl = nodeRefs.value[btn.templateId];
@@ -276,24 +293,24 @@ const preview = txt => {
 
           <!-- Message preview row -->
           <div
-            v-if="tmpl.messages?.[0] ?? tmpl.messageText"
+            v-if="getMessageBlock(tmpl).text"
             class="px-4 py-2.5 border-t border-n-weak text-xs text-n-slate-11 leading-relaxed"
           >
-            {{ preview(tmpl.messages?.[0] ?? tmpl.messageText) }}
+            {{ preview(getMessageBlock(tmpl).text) }}
           </div>
 
           <!-- Attachments row -->
           <div
-            v-if="tmpl.attachments?.length"
+            v-if="getMessageBlock(tmpl).attachments.length"
             class="px-4 py-2 border-t border-n-weak flex items-center gap-1.5 text-xs text-n-slate-9"
           >
             <span class="i-lucide-paperclip size-3 flex-shrink-0" />
-            <span>{{ tmpl.attachments.length }}</span>
+            <span>{{ getMessageBlock(tmpl).attachments.length }}</span>
           </div>
 
           <!-- Button rows — arrows originate from right edge of each row -->
           <div
-            v-for="btn in tmpl.buttons"
+            v-for="btn in getMessageBlock(tmpl).buttons"
             :key="btn.id"
             :ref="
               el => {
