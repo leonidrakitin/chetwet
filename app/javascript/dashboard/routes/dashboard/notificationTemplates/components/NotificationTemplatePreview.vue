@@ -7,6 +7,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  highlightVariableKey: {
+    type: String,
+    default: null,
+  },
 });
 
 const { t } = useI18n();
@@ -51,6 +55,20 @@ const previewBlocks = computed(() =>
 );
 
 const hasContent = computed(() => previewBlocks.value.length > 0);
+
+const getTextSegments = (displayText, key) => {
+  if (!key || !displayText) return [{ type: 'text', value: displayText }];
+  const needle = EXAMPLE_VALUES[key];
+  if (!needle) return [{ type: 'text', value: displayText }];
+  const parts = displayText.split(needle);
+  const segments = [];
+  parts.forEach((p, i) => {
+    if (p) segments.push({ type: 'text', value: p });
+    if (i < parts.length - 1)
+      segments.push({ type: 'highlight', value: needle });
+  });
+  return segments.length ? segments : [{ type: 'text', value: displayText }];
+};
 </script>
 
 <template>
@@ -73,7 +91,21 @@ const hasContent = computed(() => previewBlocks.value.length > 0);
             v-if="block.text"
             class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-sm text-white max-w-full whitespace-pre-wrap break-words"
           >
-            {{ block.text }}
+            <template
+              v-for="(seg, segIdx) in getTextSegments(
+                block.text,
+                highlightVariableKey
+              )"
+              :key="segIdx"
+            >
+              <span
+                v-if="seg.type === 'highlight'"
+                class="rounded bg-n-amber-4 text-n-slate-12 px-0.5"
+              >
+                {{ seg.value }}
+              </span>
+              <span v-else>{{ seg.value }}</span>
+            </template>
           </div>
 
           <!-- Attachments -->

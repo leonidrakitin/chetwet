@@ -7,7 +7,7 @@ import {
   toToken,
 } from '../constants/variables';
 
-const emit = defineEmits(['insert']);
+const emit = defineEmits(['insert', 'dragStart', 'dragEnd']);
 
 const { t } = useI18n();
 
@@ -60,6 +60,11 @@ const displayedVariables = computed(() => {
 const onDragStart = (event, key) => {
   event.dataTransfer.setData('text/plain', toToken(key));
   event.dataTransfer.effectAllowed = 'copy';
+  emit('dragStart', key);
+};
+
+const onDragEnd = () => {
+  emit('dragEnd');
 };
 
 const insert = k => {
@@ -129,6 +134,7 @@ onUnmounted(() =>
           class="flex items-center gap-2 rounded-lg px-2 py-1.5 cursor-grab hover:bg-n-alpha-2 active:cursor-grabbing transition-colors"
           @click="insert(v.key)"
           @dragstart="onDragStart($event, v.key)"
+          @dragend="onDragEnd"
         >
           <span
             class="inline-flex flex-shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[11px] font-medium leading-none"

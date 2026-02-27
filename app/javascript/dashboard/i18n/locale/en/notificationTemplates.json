@@ -45,7 +45,10 @@
       "MESSAGE_TEXT": {
         "LABEL": "Message Text",
         "PLACEHOLDER": "Enter message text...",
-        "ADD_MESSAGE": "Add message"
+        "ADD_MESSAGE": "Add message",
+        "MOVE_UP_ARIA": "Move message up",
+        "MOVE_DOWN_ARIA": "Move message down",
+        "REMOVE_MESSAGE_ARIA": "Remove message"
       },
       "ENABLED": { "LABEL": "Enabled" }
     },

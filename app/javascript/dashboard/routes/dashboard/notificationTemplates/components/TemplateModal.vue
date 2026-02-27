@@ -27,6 +27,7 @@ const { t } = useI18n();
 const dialogRef = ref(null);
 const messageEditorRefs = ref([]);
 const activeEditorIndex = ref(0);
+const highlightVariableKey = ref(null);
 
 const isEditing = computed(() => !!props.template);
 
@@ -173,6 +174,22 @@ const removeMessage = idx => {
     activeEditorIndex.value = form.value.messages.length - 1;
   }
 };
+
+const moveMessageUp = idx => {
+  if (idx <= 0) return;
+  const arr = form.value.messages;
+  [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+  activeEditorIndex.value = idx - 1;
+  nextTick(() => messageEditorRefs.value[idx - 1]?.focus());
+};
+
+const moveMessageDown = idx => {
+  if (idx >= form.value.messages.length - 1) return;
+  const arr = form.value.messages;
+  [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
+  activeEditorIndex.value = idx + 1;
+  nextTick(() => messageEditorRefs.value[idx + 1]?.focus());
+};
 </script>
 
 <template>
@@ -189,13 +206,12 @@ const removeMessage = idx => {
         ? t('NOTIFICATION_TEMPLATES.EDIT.BUTTON_TEXT')
         : t('NOTIFICATION_TEMPLATES.ADD.TITLE')
     "
-    width="3xl"
-    overflow-y-auto
+    width="4xl"
     @confirm="handleConfirm"
     @close="handleClose"
   >
-    <div class="flex flex-row gap-6">
-      <div class="flex flex-col gap-4 flex-1 min-w-0">
+    <div class="flex flex-row gap-6 max-h-[80vh] min-h-0">
+      <div class="flex flex-col gap-4 flex-1 min-w-0 min-h-0 overflow-y-auto">
         <!-- Name -->
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
@@ -319,13 +335,37 @@ const removeMessage = idx => {
           >
             <!-- Block header -->
             <div class="flex items-center justify-between">
-              <div
-                class="flex h-5 w-5 items-center justify-center rounded-full bg-n-alpha-2 text-[10px] font-semibold text-n-slate-10"
-              >
-                {{ idx + 1 }}
+              <div class="flex items-center gap-0.5">
+                <button
+                  v-if="idx > 0"
+                  v-tooltip.top="
+                    t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.MOVE_UP_ARIA')
+                  "
+                  type="button"
+                  class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+                  @click="moveMessageUp(idx)"
+                >
+                  <span class="i-lucide-arrow-up size-3.5" />
+                </button>
+                <button
+                  v-if="idx < form.messages.length - 1"
+                  v-tooltip.top="
+                    t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.MOVE_DOWN_ARIA')
+                  "
+                  type="button"
+                  class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+                  @click="moveMessageDown(idx)"
+                >
+                  <span class="i-lucide-arrow-down size-3.5" />
+                </button>
               </div>
               <button
                 v-if="form.messages.length > 1"
+                v-tooltip.top="
+                  t(
+                    'NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.REMOVE_MESSAGE_ARIA'
+                  )
+                "
                 type="button"
                 class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-ruby-11 transition-colors"
                 @click="removeMessage(idx)"
@@ -343,6 +383,8 @@ const removeMessage = idx => {
                   t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
                 "
                 @update:model-value="form.messages[idx].text = $event"
+                @drag-variable-start="highlightVariableKey = $event"
+                @drag-variable-end="highlightVariableKey = null"
               />
             </div>
 
@@ -368,7 +410,11 @@ const removeMessage = idx => {
           </button>
 
           <!-- Variable picker -->
-          <VariablePicker @insert="insertVariable" />
+          <VariablePicker
+            @insert="insertVariable"
+            @drag-start="highlightVariableKey = $event"
+            @drag-end="highlightVariableKey = null"
+          />
         </div>
 
         <!-- Enabled toggle -->
@@ -381,8 +427,11 @@ const removeMessage = idx => {
       </div>
 
       <!-- Preview panel -->
-      <div class="w-64 flex-shrink-0">
-        <NotificationTemplatePreview :messages="form.messages" />
+      <div class="w-72 flex-shrink-0 self-start sticky top-4">
+        <NotificationTemplatePreview
+          :messages="form.messages"
+          :highlight-variable-key="highlightVariableKey"
+        />
       </div>
     </div>
   </Dialog>

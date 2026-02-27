@@ -18,7 +18,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits([
+  'update:modelValue',
+  'dragVariableStart',
+  'dragVariableEnd',
+]);
 
 const { t } = useI18n();
 const editorRef = ref(null);
@@ -159,12 +163,69 @@ const onBlur = () => {
   }
 };
 
+const getDropOffset = e => {
+  const el = editorRef.value;
+  if (!el) return 0;
+  let range = null;
+  if (document.caretRangeFromPoint) {
+    range = document.caretRangeFromPoint(e.clientX, e.clientY);
+  } else if (document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(e.clientX, e.clientY);
+    if (pos) {
+      range = document.createRange();
+      range.setStart(pos.offsetNode, pos.offset);
+      range.collapse(true);
+    }
+  }
+  if (!range || !el.contains(range.startContainer)) return 0;
+  const preRange = document.createRange();
+  preRange.setStart(el, 0);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  return preRange.toString().length;
+};
+
 const onDrop = e => {
   e.preventDefault();
   const text = e.dataTransfer?.getData('text/plain');
-  if (text && /^\{\w+\}$/.test(text)) {
+  const fromEditor = e.dataTransfer?.getData(
+    'application/x-notification-template-variable'
+  );
+  if (!text || !/^\{\w+\}$/.test(text)) return;
+  if (fromEditor) {
+    const current = serializeFromDom();
+    const token = text;
+    const firstIdx = current.indexOf(token);
+    if (firstIdx === -1) {
+      insertAtCursor(text);
+      return;
+    }
+    const dropOffset = getDropOffset(e);
+    const afterRemoval =
+      current.slice(0, firstIdx) + current.slice(firstIdx + token.length);
+    const insertOffset =
+      dropOffset > firstIdx ? dropOffset - token.length : dropOffset;
+    const clamped = Math.max(0, Math.min(insertOffset, afterRemoval.length));
+    const newStr =
+      afterRemoval.slice(0, clamped) + token + afterRemoval.slice(clamped);
+    displayValue.value = newStr;
+    emit('update:modelValue', newStr);
+    nextTick(() => setCursorOffset(clamped + token.length));
+  } else {
     insertAtCursor(text);
   }
+  emit('dragVariableEnd');
+};
+
+const onVariableDragStart = (e, key) => {
+  const token = toToken(key);
+  e.dataTransfer?.setData('text/plain', token);
+  e.dataTransfer?.setData('application/x-notification-template-variable', key);
+  e.dataTransfer.effectAllowed = 'move';
+  emit('dragVariableStart', key);
+};
+
+const onVariableDragEnd = () => {
+  emit('dragVariableEnd');
 };
 
 const focus = () => editorRef.value?.focus();
@@ -190,8 +251,11 @@ defineExpose({ insertAtCursor, focus });
         data-type="variable"
         :data-var="part.key"
         contenteditable="false"
-        class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[11px] font-medium border align-baseline mr-0.5 leading-none"
+        draggable="true"
+        class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[11px] font-medium border align-baseline mr-0.5 leading-none cursor-grab active:cursor-grabbing"
         :style="getChipStyle(part.key)"
+        @dragstart="onVariableDragStart($event, part.key)"
+        @dragend="onVariableDragEnd"
       >
         {{ part.value }}
         <button
