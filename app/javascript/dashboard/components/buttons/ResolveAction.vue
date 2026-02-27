@@ -7,6 +7,8 @@ import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useEmitter } from 'dashboard/composables/emitter';
 import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
 import { useConversationRequiredAttributes } from 'dashboard/composables/useConversationRequiredAttributes';
+import { useMapGetter } from 'dashboard/composables/store';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 import WootDropdownItem from 'shared/components/ui/dropdown/DropdownItem.vue';
 import WootDropdownMenu from 'shared/components/ui/dropdown/DropdownMenu.vue';
@@ -34,9 +36,17 @@ const closeDropdown = () => toggleDropdown(false);
 const openDropdown = () => toggleDropdown(true);
 
 const currentChat = computed(() => getters.getSelectedChat.value);
+const accountId = useMapGetter('getCurrentAccountId');
+const isFeatureEnabledonAccount = (id, flag) =>
+  store.getters['accounts/isFeatureEnabledonAccount'](id, flag);
 
 const isOpen = computed(
   () => currentChat.value.status === wootConstants.STATUS_TYPE.OPEN
+);
+const showHandBackToCaptain = computed(
+  () =>
+    isOpen.value &&
+    isFeatureEnabledonAccount(accountId.value, FEATURE_FLAGS.CAPTAIN)
 );
 const isPending = computed(
   () => currentChat.value.status === wootConstants.STATUS_TYPE.PENDING
@@ -99,6 +109,26 @@ const toggleStatus = (status, snoozedUntil, customAttributes = null) => {
     useAlert(t('CONVERSATION.CHANGE_STATUS'));
     isLoading.value = false;
   });
+};
+
+const onHandBackToCaptain = async () => {
+  closeDropdown();
+  isLoading.value = true;
+  const conversationId = currentChat.value.id;
+  try {
+    await store.dispatch('toggleStatus', {
+      conversationId,
+      status: wootConstants.STATUS_TYPE.PENDING,
+    });
+    await store.dispatch('assignAgent', { conversationId, agentId: null });
+    store.dispatch('setCurrentChatAssignee', {
+      conversationId,
+      assignee: null,
+    });
+    useAlert(t('CONVERSATION.HAND_BACK_TO_CAPTAIN_SUCCESS'));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const handleResolveWithAttributes = ({ attributes, context }) => {
@@ -176,6 +206,16 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
       class="flex-shrink-0 rounded-lg shadow outline-1 outline"
       :class="!showOpenButton ? 'outline-n-container' : 'outline-transparent'"
     >
+      <Button
+        v-if="showHandBackToCaptain"
+        :label="t('CONVERSATION.HEADER.HAND_BACK_TO_CAPTAIN')"
+        size="sm"
+        color="slate"
+        no-animation
+        class="ltr:rounded-r-none rtl:rounded-l-none !outline-0"
+        :is-loading="isLoading"
+        @click="onHandBackToCaptain"
+      />
       <Button
         v-if="isOpen"
         :label="t('CONVERSATION.HEADER.RESOLVE_ACTION')"

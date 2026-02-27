@@ -87,6 +87,7 @@
     },
     "HEADER": {
       "RESOLVE_ACTION": "Resolve",
+      "HAND_BACK_TO_CAPTAIN": "Hand back to Captain",
       "REOPEN_ACTION": "Reopen",
       "OPEN_ACTION": "Open",
       "MORE_ACTIONS": "More actions",
@@ -248,6 +249,7 @@
     "VISIBLE_TO_AGENTS": "Private Note: Only visible to you and your team",
     "CHANGE_STATUS": "Conversation status changed",
     "CHANGE_STATUS_FAILED": "Conversation status change failed",
+    "HAND_BACK_TO_CAPTAIN_SUCCESS": "Conversation handed back to Captain",
     "CHANGE_AGENT": "Conversation Assignee changed",
     "CHANGE_AGENT_FAILED": "Assignee change failed",
     "ASSIGN_LABEL_SUCCESFUL": "Label assigned successfully",
