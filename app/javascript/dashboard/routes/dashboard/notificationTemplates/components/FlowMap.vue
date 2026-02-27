@@ -148,28 +148,12 @@ const computeArrows = async () => {
       const x2 = (goRight ? tr.left : tr.right) - cr.left;
       const y2 = (tr.top + tr.bottom) / 2 - cr.top;
 
-      // Vertical segment runs in the gap between columns, not through cards
-      const routeX = goRight
-        ? (sr.right + tr.left) / 2 - cr.left
-        : (tr.right + sr.left) / 2 - cr.left;
-
-      const r = 8;
-      const dy = y2 - y1;
-      let d;
-
-      if (Math.abs(dy) < r * 2) {
-        d = `M ${x1} ${y1} H ${x2}`;
-      } else {
-        const s = dy > 0 ? 1 : -1;
-        d = [
-          `M ${x1} ${y1}`,
-          `H ${routeX - r}`,
-          `Q ${routeX} ${y1} ${routeX} ${y1 + s * r}`,
-          `V ${y2 - s * r}`,
-          `Q ${routeX} ${y2} ${routeX + r} ${y2}`,
-          `H ${x2}`,
-        ].join(' ');
-      }
+      // Smooth cubic Bezier: horizontal exit, horizontal entry, curve in the gap
+      const dx = x2 - x1;
+      const ctrl = Math.min(80, Math.abs(dx) * 0.4);
+      const cp1x = goRight ? x1 + ctrl : x1 - ctrl;
+      const cp2x = goRight ? x2 - ctrl : x2 + ctrl;
+      const d = `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`;
 
       result.push({ id: `${tmpl.id}-${btn.id}`, d });
     });
@@ -218,7 +202,7 @@ const preview = txt => {
   <!-- Outer viewport: clips overflow, handles mouse events -->
   <div
     ref="outerRef"
-    class="h-full overflow-hidden relative select-none"
+    class="h-full w-full overflow-hidden relative select-none"
     :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
     :style="BG_STYLE"
     @mousedown="onMouseDown"
@@ -231,9 +215,9 @@ const preview = txt => {
       class="absolute flex gap-32 p-10"
       :style="{ transform: `translate(${panX}px, ${panY}px)` }"
     >
-      <!-- SVG arrows (positioned relative to canvas) -->
+      <!-- SVG arrows behind cards so lines wrap around blocks -->
       <svg
-        class="absolute inset-0 w-full h-full overflow-visible pointer-events-none z-20"
+        class="absolute inset-0 w-full h-full overflow-visible pointer-events-none z-0"
       >
         <defs>
           <marker
