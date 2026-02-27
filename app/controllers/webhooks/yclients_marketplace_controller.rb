@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Webhooks::YclientsMarketplaceController < ActionController::API
-  skip_before_action :verify_authenticity_token
-
   def process
     Rails.logger.info "YClients Marketplace webhook: raw body=#{request.raw_post.truncate(500)}"
 
