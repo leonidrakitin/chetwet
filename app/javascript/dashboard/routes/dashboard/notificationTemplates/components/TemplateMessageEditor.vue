@@ -22,11 +22,16 @@ const emit = defineEmits([
   'update:modelValue',
   'dragVariableStart',
   'dragVariableEnd',
+  'highlightVariable',
 ]);
 
 const { t } = useI18n();
 const editorRef = ref(null);
+const wrapperRef = ref(null);
 const displayValue = ref(props.modelValue);
+const isDragging = ref(false);
+const showDropCaret = ref(false);
+const dropCaretStyle = ref({ left: 0, top: 0, height: 0 });
 
 watch(
   () => props.modelValue,
@@ -213,7 +218,22 @@ const onDrop = e => {
   } else {
     insertAtCursor(text);
   }
+  showDropCaret.value = false;
   emit('dragVariableEnd');
+};
+
+const createDragImage = (token, key) => {
+  const el = document.createElement('div');
+  el.textContent = token;
+  const c = VARIABLE_COLORS[key] ?? { bg: '#e2e8f0', text: '#334155' };
+  el.style.cssText = `
+    position: absolute; left: -9999px; top: 0;
+    padding: 2px 6px; border-radius: 9999px; font-size: 11px; font-weight: 500;
+    background-color: ${c.bg}; color: ${c.text}; border: 1px solid ${c.border || c.bg};
+    opacity: 0.6; pointer-events: none; white-space: nowrap;
+  `;
+  document.body.appendChild(el);
+  return el;
 };
 
 const onVariableDragStart = (e, key) => {
@@ -221,11 +241,66 @@ const onVariableDragStart = (e, key) => {
   e.dataTransfer?.setData('text/plain', token);
   e.dataTransfer?.setData('application/x-notification-template-variable', key);
   e.dataTransfer.effectAllowed = 'move';
+  isDragging.value = true;
+  const dragImage = createDragImage(token, key);
+  e.dataTransfer?.setDragImage(dragImage, 0, 0);
+  requestAnimationFrame(() => dragImage.remove());
   emit('dragVariableStart', key);
 };
 
 const onVariableDragEnd = () => {
+  isDragging.value = false;
+  showDropCaret.value = false;
   emit('dragVariableEnd');
+};
+
+const onVariableMouseEnter = key => {
+  if (!isDragging.value) emit('highlightVariable', key);
+};
+
+const onVariableMouseLeave = () => {
+  if (!isDragging.value) emit('highlightVariable', null);
+};
+
+const getRangeAtPoint = (x, y) => {
+  if (document.caretRangeFromPoint) {
+    return document.caretRangeFromPoint(x, y);
+  }
+  if (document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(x, y);
+    if (!pos) return null;
+    const r = document.createRange();
+    r.setStart(pos.offsetNode, pos.offset);
+    r.collapse(true);
+    return r;
+  }
+  return null;
+};
+
+const onDragOver = e => {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (!e.dataTransfer?.types?.includes('text/plain')) return;
+  const el = editorRef.value;
+  const wrapper = wrapperRef.value;
+  if (!el || !wrapper) return;
+  const range = getRangeAtPoint(e.clientX, e.clientY);
+  if (!range || !el.contains(range.startContainer)) {
+    showDropCaret.value = false;
+    return;
+  }
+  const rangeRect = range.getBoundingClientRect();
+  const wrapperRect = wrapper.getBoundingClientRect();
+  dropCaretStyle.value = {
+    left: rangeRect.left - wrapperRect.left + wrapper.scrollLeft,
+    top: rangeRect.top - wrapperRect.top + wrapper.scrollTop,
+    height: rangeRect.height || 16,
+  };
+  showDropCaret.value = true;
+};
+
+const onDragLeave = () => {
+  showDropCaret.value = false;
 };
 
 const focus = () => editorRef.value?.focus();
@@ -234,41 +309,56 @@ defineExpose({ insertAtCursor, focus });
 </script>
 
 <template>
-  <div
-    ref="editorRef"
-    contenteditable="true"
-    role="textbox"
-    :data-placeholder="placeholder"
-    class="min-h-24 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors resize-none break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
-    @blur="onBlur"
-    @dragover.prevent
-    @drop="onDrop"
-  >
-    <template v-for="(part, idx) in parts" :key="idx">
-      <span
-        v-if="part.type === 'variable'"
-        :title="getTitle(part.key)"
-        data-type="variable"
-        :data-var="part.key"
-        contenteditable="false"
-        draggable="true"
-        class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[11px] font-medium border align-baseline mr-0.5 leading-none cursor-grab active:cursor-grabbing"
-        :style="getChipStyle(part.key)"
-        @dragstart="onVariableDragStart($event, part.key)"
-        @dragend="onVariableDragEnd"
-      >
-        {{ part.value }}
-        <button
-          type="button"
-          class="ml-0.5 rounded-full p-px opacity-60 hover:opacity-100 hover:bg-black/10 focus:outline-none"
-          :aria-label="t('NOTIFICATION_TEMPLATES.VARIABLES.REMOVE_ARIA')"
-          @click.stop="removeVariable(idx)"
+  <div ref="wrapperRef" class="relative min-h-24 w-full">
+    <div
+      ref="editorRef"
+      contenteditable="true"
+      role="textbox"
+      :data-placeholder="placeholder"
+      class="min-h-24 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors resize-none break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
+      @blur="onBlur"
+      @dragover="onDragOver"
+      @dragleave="onDragLeave"
+      @drop="onDrop"
+    >
+      <template v-for="(part, idx) in parts" :key="idx">
+        <span
+          v-if="part.type === 'variable'"
+          :title="getTitle(part.key)"
+          data-type="variable"
+          :data-var="part.key"
+          contenteditable="false"
+          draggable="true"
+          class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[11px] font-medium border align-baseline mr-0.5 leading-none cursor-grab active:cursor-grabbing"
+          :style="getChipStyle(part.key)"
+          @dragstart="onVariableDragStart($event, part.key)"
+          @dragend="onVariableDragEnd"
+          @mouseenter="onVariableMouseEnter(part.key)"
+          @mouseleave="onVariableMouseLeave"
         >
-          <span class="i-lucide-x size-2.5" />
-        </button>
-      </span>
-      <br v-else-if="part.type === 'newline'" />
-      <span v-else data-type="text">{{ part.value }}</span>
-    </template>
+          {{ part.value }}
+          <button
+            type="button"
+            class="ml-0.5 rounded-full p-px opacity-60 hover:opacity-100 hover:bg-black/10 focus:outline-none"
+            :aria-label="t('NOTIFICATION_TEMPLATES.VARIABLES.REMOVE_ARIA')"
+            @click.stop="removeVariable(idx)"
+          >
+            <span class="i-lucide-x size-2.5" />
+          </button>
+        </span>
+        <br v-else-if="part.type === 'newline'" />
+        <span v-else data-type="text">{{ part.value }}</span>
+      </template>
+    </div>
+    <div
+      v-show="showDropCaret"
+      class="absolute w-0.5 bg-n-brand pointer-events-none animate-pulse"
+      :style="{
+        left: `${dropCaretStyle.left}px`,
+        top: `${dropCaretStyle.top}px`,
+        height: `${dropCaretStyle.height}px`,
+      }"
+      aria-hidden="true"
+    />
   </div>
 </template>

@@ -385,6 +385,7 @@ const moveMessageDown = idx => {
                 @update:model-value="form.messages[idx].text = $event"
                 @drag-variable-start="highlightVariableKey = $event"
                 @drag-variable-end="highlightVariableKey = null"
+                @highlight-variable="highlightVariableKey = $event"
               />
             </div>
 
@@ -414,6 +415,7 @@ const moveMessageDown = idx => {
             @insert="insertVariable"
             @drag-start="highlightVariableKey = $event"
             @drag-end="highlightVariableKey = null"
+            @highlight-variable="highlightVariableKey = $event"
           />
         </div>
 

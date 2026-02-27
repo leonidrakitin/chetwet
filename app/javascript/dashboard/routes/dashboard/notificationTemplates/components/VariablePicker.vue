@@ -7,13 +7,19 @@ import {
   toToken,
 } from '../constants/variables';
 
-const emit = defineEmits(['insert', 'dragStart', 'dragEnd']);
+const emit = defineEmits([
+  'insert',
+  'dragStart',
+  'dragEnd',
+  'highlightVariable',
+]);
 
 const { t } = useI18n();
 
 const isOpen = ref(false);
 const activeCategory = ref('all');
 const pickerRef = ref(null);
+const isDragging = ref(false);
 
 const VARIABLE_CHIP_CLASSES = {
   client_name: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -57,14 +63,39 @@ const displayedVariables = computed(() => {
   return cat?.variables ?? allVariables.value;
 });
 
+const createDragImage = (token, chipClass) => {
+  const el = document.createElement('div');
+  el.textContent = token;
+  el.className = `inline-flex items-center rounded-full border px-1.5 py-0.5 text-[11px] font-medium leading-none opacity-60 ${chipClass}`;
+  el.style.cssText =
+    'position: absolute; left: -9999px; top: 0; pointer-events: none; white-space: nowrap;';
+  document.body.appendChild(el);
+  return el;
+};
+
 const onDragStart = (event, key) => {
+  const variable = displayedVariables.value.find(v => v.key === key);
+  const chipClass = variable?.chipClass ?? 'bg-slate-200 text-slate-700';
   event.dataTransfer.setData('text/plain', toToken(key));
   event.dataTransfer.effectAllowed = 'copy';
+  isDragging.value = true;
+  const dragImage = createDragImage(toToken(key), chipClass);
+  event.dataTransfer.setDragImage(dragImage, 0, 0);
+  requestAnimationFrame(() => dragImage.remove());
   emit('dragStart', key);
 };
 
 const onDragEnd = () => {
+  isDragging.value = false;
   emit('dragEnd');
+};
+
+const onVariableMouseEnter = key => {
+  if (!isDragging.value) emit('highlightVariable', key);
+};
+
+const onVariableMouseLeave = () => {
+  if (!isDragging.value) emit('highlightVariable', null);
 };
 
 const insert = k => {
@@ -135,6 +166,8 @@ onUnmounted(() =>
           @click="insert(v.key)"
           @dragstart="onDragStart($event, v.key)"
           @dragend="onDragEnd"
+          @mouseenter="onVariableMouseEnter(v.key)"
+          @mouseleave="onVariableMouseLeave"
         >
           <span
             class="inline-flex flex-shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[11px] font-medium leading-none"
