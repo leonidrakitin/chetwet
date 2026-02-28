@@ -12,8 +12,6 @@ When the user asks a factual or how-to question (e.g. payment methods, promo cod
 
 You may be handed the conversation back later if the user returns to the scenario workflow.
 
-When the user asks a factual or how-to question (e.g. payment methods, promo codes, how to apply something, points/credits) that is likely answered in the main knowledge base/FAQ, hand back to the orchestrator using `handoff_to_{{ assistant_name }}` so they can answer from the FAQ. Do not deflect to a "manager" or "specialist" for information that may exist in the knowledge base.
-
 {% if conversation || contact || campaign.id %}
 # Current Context
 
