@@ -47,7 +47,7 @@ class Captain::Scenario < ApplicationRecord
       title: title,
       instructions: resolved_instructions,
       tools: resolved_tools,
-      assistant_name: assistant.name.downcase.gsub(/\s+/, '_'),
+      assistant_name: assistant.name.parameterize(separator: '_'),
       response_guidelines: response_guidelines || [],
       guardrails: guardrails || []
     }

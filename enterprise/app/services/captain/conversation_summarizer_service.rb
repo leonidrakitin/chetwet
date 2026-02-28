@@ -97,7 +97,10 @@ class Captain::ConversationSummarizerService
 
   def llm_ask(user_content)
     api_key = conversation_api_key
-    return nil if api_key.blank?
+    if api_key.blank?
+      Rails.logger.debug '[Captain] ConversationSummarizerService: no API key (account hook or CAPTAIN_OPEN_AI_API_KEY), skipping summary'
+      return nil
+    end
 
     api_base = conversation_api_base
     Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
@@ -107,7 +110,11 @@ class Captain::ConversationSummarizerService
       ).ask(user_content)
     end
   rescue StandardError => e
-    Rails.logger.error "[Captain] ConversationSummarizerService LLM error: #{e.message}"
+    if auth_error?(e)
+      Rails.logger.info "[Captain] ConversationSummarizerService: LLM auth failed (#{e.message}), using full history"
+    else
+      Rails.logger.error "[Captain] ConversationSummarizerService LLM error: #{e.message}"
+    end
     nil
   end
 
@@ -136,5 +143,11 @@ class Captain::ConversationSummarizerService
     JSON.parse(content.strip)
   rescue JSON::ParserError
     nil
+  end
+
+  def auth_error?(e)
+    msg = e.message.to_s.downcase
+    msg.include?('missing authentication') || msg.include?('invalid api key') || msg.include?('unauthorized') ||
+      msg.include?('authentication header')
   end
 end
