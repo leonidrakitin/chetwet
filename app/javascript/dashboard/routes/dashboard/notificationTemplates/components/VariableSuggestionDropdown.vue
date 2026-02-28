@@ -29,7 +29,8 @@ defineExpose({ filteredKeys });
 
 <template>
   <div
-    class="absolute z-50 min-w-[13rem] max-h-56 overflow-y-auto rounded-xl border border-n-weak bg-n-solid-1 shadow-lg p-1"
+    data-variable-suggestion
+    class="z-50 min-w-[13rem] max-h-56 overflow-y-auto rounded-xl border border-n-weak bg-n-solid-1 shadow-lg p-1"
     :style="{ top: `${top}px`, left: `${left}px` }"
   >
     <p v-if="!filteredKeys.length" class="px-3 py-2 text-xs text-n-slate-9">

@@ -7,6 +7,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  activeVariable: {
+    type: String,
+    default: null,
+  },
 });
 
 const { t } = useI18n();
@@ -35,10 +39,15 @@ const applyInline = str =>
       '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline">$1</a>'
     );
 
-const renderMarkdown = text => {
+const renderMarkdown = (text, activeVar = null) => {
   if (!text) return '';
   const substituted = text
-    .replace(/@(\w+)/g, (_, k) => EXAMPLE_VALUES[k] ?? `@${k}`)
+    .replace(/@(\w+)/g, (_, k) => {
+      const val = EXAMPLE_VALUES[k] ?? `@${k}`;
+      if (activeVar && k === activeVar)
+        return `<mark style="background:rgba(255,255,255,0.3);color:inherit;border-radius:3px;padding:0 2px;">${val}</mark>`;
+      return val;
+    })
     .replace(/\{(\w+)\}/g, (_, k) => EXAMPLE_VALUES[k] ?? `{${k}}`);
 
   const lines = substituted.split('\n');
@@ -99,7 +108,10 @@ const previewBlocks = computed(() =>
     .map(m => {
       const isString = typeof m === 'string';
       return {
-        html: renderMarkdown(isString ? m : (m.text ?? '')),
+        html: renderMarkdown(
+          isString ? m : (m.text ?? ''),
+          props.activeVariable
+        ),
         attachments: isString ? [] : (m.attachments ?? []),
         buttons: isString ? [] : (m.buttons ?? []),
       };

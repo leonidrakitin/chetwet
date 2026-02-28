@@ -27,6 +27,7 @@ const dialogRef = ref(null);
 const messageEditorRefs = ref([]);
 const activeEditorIndex = ref(0);
 const showAttachments = ref([]);
+const activeVariable = ref(null);
 
 const isEditing = computed(() => !!props.template);
 
@@ -219,13 +220,15 @@ const toggleAttachments = idx => {
     @confirm="handleConfirm"
     @close="handleClose"
   >
-    <div class="flex flex-row gap-6 max-h-[80vh] min-h-0">
-      <div class="flex flex-col gap-4 flex-1 min-w-0 min-h-0 overflow-y-auto">
+    <div class="flex flex-row gap-6 max-h-[80vh] min-h-0 overflow-y-auto">
+      <div class="flex flex-col gap-4 flex-1 min-w-0">
         <!-- Name -->
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
-            <span class="text-n-ruby-9">*</span>
+            <span class="text-n-ruby-9">{{
+              t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR')
+            }}</span>
           </label>
           <input
             v-model="form.name"
@@ -393,6 +396,7 @@ const toggleAttachments = idx => {
                 "
                 @update:model-value="form.messages[idx].text = $event"
                 @toggle-attachments="toggleAttachments(idx)"
+                @variable-select="k => (activeVariable = k)"
               />
             </div>
 
@@ -431,10 +435,11 @@ const toggleAttachments = idx => {
       </div>
 
       <!-- Preview panel -->
-      <div
-        class="w-80 flex-shrink-0 self-start sticky top-4 overflow-y-auto min-h-0 max-h-[80vh]"
-      >
-        <NotificationTemplatePreview :messages="form.messages" />
+      <div class="w-80 flex-shrink-0 self-start sticky top-0">
+        <NotificationTemplatePreview
+          :messages="form.messages"
+          :active-variable="activeVariable"
+        />
       </div>
     </div>
   </Dialog>

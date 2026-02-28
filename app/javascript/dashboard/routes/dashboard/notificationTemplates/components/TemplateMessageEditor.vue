@@ -16,12 +16,17 @@ const props = defineProps({
   placeholder: { type: String, default: '' },
 });
 
-const emit = defineEmits(['update:modelValue', 'toggleAttachments']);
+const emit = defineEmits([
+  'update:modelValue',
+  'toggleAttachments',
+  'variableSelect',
+]);
 
 const { t } = useI18n();
 
 const editorRef = ref(null);
 const wrapperRef = ref(null);
+const activeVariable = ref(null);
 
 // === Suggestion state ===
 const showSuggestions = ref(false);
@@ -50,7 +55,7 @@ const createVariableSpan = key => {
   span.dataset.var = key;
   span.contentEditable = 'false';
   span.className =
-    'inline rounded px-0.5 font-medium align-baseline cursor-default select-none';
+    'inline rounded px-0.5 font-medium align-baseline cursor-pointer';
   span.setAttribute('style', getVariableStyle(key));
   span.title = getTitle(key);
   span.textContent = `@${key}`;
@@ -78,7 +83,7 @@ const modelToHtml = text => {
       const style = getVariableStyle(key);
       const title = escapeHtml(getTitle(key));
       parts.push(
-        `<span data-type="variable" data-var="${key}" contenteditable="false" class="inline rounded px-0.5 font-medium align-baseline cursor-default select-none" style="${style}" title="${title}">@${key}</span>`
+        `<span data-type="variable" data-var="${key}" contenteditable="false" class="inline rounded px-0.5 font-medium align-baseline cursor-pointer" style="${style}" title="${title}">@${key}</span>`
       );
     }
     lastIndex = match.index + match[0].length;
@@ -147,12 +152,11 @@ const filteredKeys = computed(() => {
 
 const updateSuggestionPosition = () => {
   const sel = window.getSelection();
-  if (!sel?.rangeCount || !wrapperRef.value) return;
+  if (!sel?.rangeCount) return;
   const range = sel.getRangeAt(0);
   const caretRect = range.getBoundingClientRect();
-  const wrapperRect = wrapperRef.value.getBoundingClientRect();
-  suggestionTop.value = caretRect.bottom - wrapperRect.top + 4;
-  suggestionLeft.value = Math.max(0, caretRect.left - wrapperRect.left);
+  suggestionTop.value = caretRect.bottom + 4;
+  suggestionLeft.value = caretRect.left;
 };
 
 const checkForAtTrigger = () => {
@@ -218,7 +222,25 @@ const onVariableSelect = key => {
   emit('update:modelValue', serializeFromDom());
 };
 
+const handleEditorClick = e => {
+  const span = e.target.closest?.('[data-type="variable"]');
+  editorRef.value?.querySelectorAll('[data-type="variable"]').forEach(s => {
+    s.style.boxShadow = '';
+  });
+  if (span && editorRef.value?.contains(span)) {
+    span.style.boxShadow = `0 0 0 2px ${span.style.color}`;
+    activeVariable.value = span.dataset.var;
+  } else {
+    activeVariable.value = null;
+  }
+  emit('variableSelect', activeVariable.value);
+};
+
 const onInput = () => {
+  if (activeVariable.value) {
+    activeVariable.value = null;
+    emit('variableSelect', null);
+  }
   checkForAtTrigger();
   emit('update:modelValue', serializeFromDom());
 };
@@ -270,7 +292,11 @@ const insertAtCursor = text => {
 
 // === Close suggestions on outside click (before onMounted which references it) ===
 const onDocMousedown = e => {
-  if (showSuggestions.value && !wrapperRef.value?.contains(e.target)) {
+  if (
+    showSuggestions.value &&
+    !wrapperRef.value?.contains(e.target) &&
+    !e.target.closest?.('[data-variable-suggestion]')
+  ) {
     showSuggestions.value = false;
   }
 };
@@ -359,7 +385,15 @@ const execCmd = cmd => {
   emit('update:modelValue', serializeFromDom());
 };
 
-const insertAt = () => insertAtCursor('@');
+const insertAt = () => {
+  insertAtCursor('@');
+  nextTick(() => {
+    suggestionSearch.value = '';
+    selectedIdx.value = 0;
+    updateSuggestionPosition();
+    showSuggestions.value = true;
+  });
+};
 
 const focus = () => editorRef.value?.focus();
 
@@ -500,16 +534,20 @@ defineExpose({ insertAtCursor, focus });
       @keydown="onKeydown"
       @paste="onPaste"
       @blur="onBlur"
+      @click="handleEditorClick"
     />
 
-    <!-- Variable suggestion dropdown -->
-    <VariableSuggestionDropdown
-      v-if="showSuggestions"
-      :search-term="suggestionSearch"
-      :top="suggestionTop"
-      :left="suggestionLeft"
-      :selected-idx="selectedIdx"
-      @select="onVariableSelect"
-    />
+    <!-- Variable suggestion dropdown (teleported to body to avoid overflow clipping) -->
+    <Teleport to="body">
+      <VariableSuggestionDropdown
+        v-if="showSuggestions"
+        :search-term="suggestionSearch"
+        :top="suggestionTop"
+        :left="suggestionLeft"
+        :selected-idx="selectedIdx"
+        class="fixed"
+        @select="onVariableSelect"
+      />
+    </Teleport>
   </div>
 </template>

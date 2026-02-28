@@ -30,6 +30,7 @@
     "TIME_UNIT": { "HOURS": "hours", "DAYS": "days" },
     "VARIABLES_HINT": "Available variables: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
     "FORM": {
+      "REQUIRED_INDICATOR": "*",
       "NAME": {
         "LABEL": "Name",
         "PLACEHOLDER": "Template name",
@@ -153,7 +154,7 @@
     },
     "BUTTONS": {
       "LABEL": "Action Buttons",
-      "ADD": "+ Add Button",
+      "ADD": "Add Button",
       "BUTTON_LABEL": "Button text",
       "TYPE": "Action type",
       "TYPE_URL": "Open URL",
