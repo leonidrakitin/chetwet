@@ -48,8 +48,15 @@ module Captain::Assistant::AutonomyPolicyHelper
   def build_retry_hint(attempt, message, context)
     case attempt
     when 1
-      context[:clarification_sent] = true
-      'If you cannot find a confident answer, ask the user a short clarification question.'
+      if context[:captain_v2_faq_lookup_hit]
+        'You already called captain--tools--faq_lookup and received results. You must reply to the user with that content. Put the answer text in the "response" field. Do not set response to conversation_handoff when you have FAQ content to share.'
+      elsif context[:captain_v2_faq_lookup_called]
+        context[:clarification_sent] = true
+        'You already called captain--tools--faq_lookup, but it returned no relevant FAQs. Ask the user one short clarification question or rephrase the query and call captain--tools--faq_lookup again. Do not hand off to a human yet.'
+      else
+        context[:clarification_sent] = true
+        'If you cannot find a confident answer, ask the user a short clarification question.'
+      end
     when 2
       router = Captain::ScenarioRouterService.new(message.to_s, @assistant)
       if router.scenarios_available?
@@ -82,12 +89,30 @@ module Captain::Assistant::AutonomyPolicyHelper
     return unless tool_name.to_s == faq_tool_name
 
     context_wrapper.context[:captain_v2_faq_lookup_called] = true
+    hit = faq_lookup_hit?(tool_result)
+    context_wrapper.context[:captain_v2_faq_lookup_hit] = hit unless hit.nil?
+
     return unless tool_result.is_a?(Hash)
 
     root_span = context_wrapper.context.dig(:__otel_tracing, :root_span)
     return unless root_span
 
     record_faq_span_attributes(root_span, tool_result)
+  end
+
+  def faq_lookup_hit?(tool_result)
+    case tool_result
+    when Hash
+      policy = tool_result.with_indifferent_access['policy']
+      return true if policy.blank?
+
+      policy.to_s != 'no_match'
+    when String
+      str = tool_result.strip
+      return nil if str.blank?
+
+      !str.match?(/\ANo (relevant )?FAQs found/i) && !str.match?(/\ANo FAQs found/i)
+    end
   end
 
   def record_faq_span_attributes(root_span, tool_result)

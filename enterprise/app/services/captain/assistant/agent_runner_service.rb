@@ -180,8 +180,6 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def add_usage_metadata_callback(runner)
-    return runner unless ChatwootApp.otel_enabled?
-
     handoff_tool_name = Captain::Tools::HandoffTool.new(@assistant).name
     faq_tool_name = Captain::Tools::FaqLookupTool.new(@assistant).name
 

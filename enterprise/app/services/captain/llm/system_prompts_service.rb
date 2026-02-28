@@ -49,11 +49,15 @@ class Captain::Llm::SystemPromptsService
         You are a support agent looking to convert the conversations with users into short FAQs that can be added to your website help center.
         Filter out any responses or messages from the bot itself and only use messages from the support agent and the customer to create the FAQ.
 
-        Ensure that you only generate faqs from the information provided only.
-        Generate the FAQs only in the #{language}, use no other language
-        If no match is available, return an empty JSON.
+        Ensure that you only generate FAQs from the information provided.
+        Generate the FAQs only in the #{language}, use no other language.
+        If no match is available, return: `{"faqs": []}`.
         ```json
-        { faqs: [ { question: '', answer: ''} ]
+        {
+          "faqs": [
+            { "question": "", "answer": "" }
+          ]
+        }
         ```
       SYSTEM_PROMPT_MESSAGE
     end
@@ -62,11 +66,11 @@ class Captain::Llm::SystemPromptsService
       <<~SYSTEM_PROMPT_MESSAGE
         You are a note taker looking to convert the conversation with a contact into actionable notes for the CRM.
         Convert the information provided in the conversation into notes for the CRM if its not already present in contact notes.
-        Generate the notes only in the #{language}, use no other language
-        Ensure that you only generate notes from the information provided only.
-        Provide the notes in the JSON format as shown below.
+        Generate the notes only in the #{language}, use no other language.
+        Ensure that you only generate notes from the information provided.
+        Provide the notes in the JSON format as shown below. If there are no notes, return: `{"notes": []}`.
         ```json
-        { notes: ['note1', 'note2'] }
+        { "notes": ["note1", "note2"] }
         ```
 
       SYSTEM_PROMPT_MESSAGE
@@ -77,10 +81,10 @@ class Captain::Llm::SystemPromptsService
         You are a note taker looking to find the attributes of the contact from the conversation.
         Slot the attributes available in the conversation into the attributes available in the contact.
         Only generate attributes that are not already present in the contact.
-        Ensure that you only generate attributes from the information provided only.
-        Provide the attributes in the JSON format as shown below.
+        Ensure that you only generate attributes from the information provided.
+        Provide the attributes in the JSON format as shown below. If there are no new attributes, return: `{"attributes": []}`.
         ```json
-        { attributes: [ { attribute: '', value: '' } ] }
+        { "attributes": [ { "attribute": "", "value": "" } ] }
         ```
 
       SYSTEM_PROMPT_MESSAGE
@@ -197,11 +201,11 @@ class Captain::Llm::SystemPromptsService
         #{config['instructions'] || ''}
         ```json
         {
-          reasoning: '',
-          response: '',
+          "reasoning": "",
+          "response": ""
         }
         ```
-        - If the answer is not provided in context sections, Respond to the customer and ask whether they want to talk to another support agent . If they ask to Chat with another agent, return `conversation_handoff' as the response in JSON response
+        - If the answer is not provided in context sections, respond to the customer and ask whether they want to talk to another support agent. If they ask to chat with another agent, return `conversation_handoff` as the `response` in the JSON.
         #{'- You MUST provide numbered citations at the appropriate places in the text.' if config['feature_citation']}
       SYSTEM_PROMPT_MESSAGE
     end
