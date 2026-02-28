@@ -192,20 +192,13 @@ const computeArrows = async () => {
       const sr = sEl.getBoundingClientRect();
       if (br.width === 0 || tr.width === 0) return;
 
-      const goRight = sr.right <= tr.left;
-      const x1 = (goRight ? br.right : br.left) - cr.left;
-      const y1 = (br.top + br.bottom) / 2 - cr.top;
-      const x2 = (goRight ? tr.left : tr.right) - cr.left;
-      const y2 = (tr.top + tr.bottom) / 2 - cr.top;
-      const routeX = goRight
-        ? (sr.right + tr.left) / 2 - cr.left
-        : (tr.right + sr.left) / 2 - cr.left;
-      const gapMinX = goRight
-        ? sr.right - cr.left + GAP_MARGIN
-        : tr.right - cr.left + GAP_MARGIN;
-      const gapMaxX = goRight
-        ? tr.left - cr.left - GAP_MARGIN
-        : sr.left - cr.left - GAP_MARGIN;
+      const x1 = (br.left + br.right) / 2 - cr.left;
+      const y1 = sr.bottom - cr.top;
+      const x2 = (tr.left + tr.right) / 2 - cr.left;
+      const y2 = tr.top - cr.top;
+      const routeY = (sr.bottom + tr.top) / 2 - cr.top;
+      const gapMinY = sr.bottom - cr.top + GAP_MARGIN;
+      const gapMaxY = tr.top - cr.top - GAP_MARGIN;
 
       const srcCol = colOfMap[tmpl.id] ?? 0;
       const tgtCol = colOfMap[btn.templateId] ?? 0;
@@ -214,50 +207,47 @@ const computeArrows = async () => {
         srcCol,
         tgtCol,
         span: Math.abs(tgtCol - srcCol),
-        routeX,
-        gapMinX,
-        gapMaxX,
+        routeY,
+        gapMinY,
+        gapMaxY,
         x1,
         y1,
         x2,
         y2,
-        goRight,
       });
     });
   });
 
-  // Global top of all blocks — bypass lanes route above this
-  let globalTop = Infinity;
+  // Global right of all blocks — bypass lanes route to the right
+  let globalRight = -Infinity;
   Object.values(nodeRefs.value).forEach(el => {
     const r = el.getBoundingClientRect();
-    if (r.width > 0) globalTop = Math.min(globalTop, r.top - cr.top);
+    if (r.width > 0) globalRight = Math.max(globalRight, r.right - cr.left);
   });
-  if (!Number.isFinite(globalTop)) globalTop = 0;
+  if (!Number.isFinite(globalRight)) globalRight = 0;
 
   const R = 8;
   const result = [];
 
-  // --- Spanning arrows (|span| != 1): bypass routing above all blocks ---
+  // --- Spanning arrows (|span| != 1): bypass routing to the right of all blocks ---
   const spanning = raw.filter(e => e.span !== 1);
-  // Sort by x1 so bypass lanes don't cross each other
-  spanning.sort((a, b) => a.x1 - b.x1);
+  spanning.sort((a, b) => a.y1 - b.y1);
   spanning.forEach((entry, index) => {
-    const by = globalTop - BYPASS_BASE - index * BYPASS_GAP;
-    const { x1, y1, x2, y2, goRight } = entry;
-    const cx1 = goRight ? x1 + R : x1 - R;
-    const cx2 = goRight ? x2 - R : x2 + R;
+    const bx = globalRight + BYPASS_BASE + index * BYPASS_GAP;
+    const { x1, y1, x2, y2 } = entry;
+    const s = y2 >= y1 ? 1 : -1;
     const d = [
       `M ${x1} ${y1}`,
-      `V ${by + R}`,
-      `Q ${x1} ${by} ${cx1} ${by}`,
-      `H ${cx2}`,
-      `Q ${x2} ${by} ${x2} ${by + R}`,
-      `V ${y2}`,
+      `H ${bx - R}`,
+      `Q ${bx} ${y1} ${bx} ${y1 + s * R}`,
+      `V ${y2 - s * R}`,
+      `Q ${bx} ${y2} ${bx - R} ${y2}`,
+      `H ${x2}`,
     ].join(' ');
     result.push({ id: entry.id, d, bypass: true });
   });
 
-  // --- Adjacent arrows (span == 1): S-curve routing through column gap ---
+  // --- Adjacent arrows (span == 1): S-curve routing through row gap ---
   const adjacent = raw.filter(e => e.span === 1);
   const byGap = {};
   adjacent.forEach(e => {
@@ -265,30 +255,30 @@ const computeArrows = async () => {
     (byGap[key] ??= []).push(e);
   });
   Object.values(byGap).forEach(group => {
-    group.sort((a, b) => (a.y1 + a.y2) / 2 - (b.y1 + b.y2) / 2);
+    group.sort((a, b) => (a.x1 + a.x2) / 2 - (b.x1 + b.x2) / 2);
     group.forEach((entry, index) => {
       const n = group.length;
-      const rx = Math.max(
-        entry.gapMinX,
+      const ry = Math.max(
+        entry.gapMinY,
         Math.min(
-          entry.gapMaxX,
-          entry.routeX + (index - (n - 1) / 2) * LANE_OFFSET_STEP
+          entry.gapMaxY,
+          entry.routeY + (index - (n - 1) / 2) * LANE_OFFSET_STEP
         )
       );
-      const { x1, y1, x2, y2, goRight } = entry;
-      const dy = y2 - y1;
+      const { x1, y1, x2, y2 } = entry;
+      const dx = x2 - x1;
       let d;
-      if (Math.abs(dy) < R * 2) {
-        d = `M ${x1} ${y1} H ${x2}`;
+      if (Math.abs(dx) < R * 2) {
+        d = `M ${x1} ${y1} V ${y2}`;
       } else {
-        const s = dy > 0 ? 1 : -1;
+        const s = dx > 0 ? 1 : -1;
         d = [
           `M ${x1} ${y1}`,
-          `H ${goRight ? rx - R : rx + R}`,
-          `Q ${rx} ${y1} ${rx} ${y1 + s * R}`,
-          `V ${y2 - s * R}`,
-          `Q ${rx} ${y2} ${goRight ? rx + R : rx - R} ${y2}`,
-          `H ${x2}`,
+          `V ${ry - R}`,
+          `Q ${x1} ${ry} ${x1 + s * R} ${ry}`,
+          `H ${x2 - s * R}`,
+          `Q ${x2} ${ry} ${x2} ${ry + R}`,
+          `V ${y2}`,
         ].join(' ');
       }
       result.push({ id: entry.id, d, bypass: false });
@@ -348,7 +338,7 @@ const preview = txt => {
     <!-- Canvas: centered, panned via transform, SVG + cards inside -->
     <div
       ref="containerRef"
-      class="absolute left-1/2 top-1/2 flex gap-32 px-10 pt-32 pb-10"
+      class="absolute left-1/2 top-1/2 flex flex-col gap-20 p-10 pr-32"
       :style="{
         transform: `translate(calc(-50% + ${panX}px), calc(-50% + ${panY}px))`,
       }"
@@ -385,7 +375,7 @@ const preview = txt => {
       <div
         v-for="(col, ci) in columns"
         :key="ci"
-        class="relative z-10 flex flex-col gap-5"
+        class="relative z-10 flex gap-8 justify-center"
       >
         <!-- Template card -->
         <div
