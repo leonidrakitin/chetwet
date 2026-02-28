@@ -128,7 +128,11 @@ const initFromModel = val => {
   el.innerHTML = modelToHtml(val ?? '');
 };
 
-watch(() => props.modelValue, initFromModel);
+watch(
+  () => props.modelValue,
+  val => nextTick(() => initFromModel(val)),
+  { immediate: true, flush: 'post' }
+);
 
 // === @ trigger helpers ===
 const filteredKeys = computed(() => {
@@ -273,7 +277,6 @@ const onDocMousedown = e => {
 
 onMounted(() => {
   document.addEventListener('mousedown', onDocMousedown);
-  initFromModel(props.modelValue);
 });
 
 onBeforeUnmount(() => {
@@ -388,7 +391,7 @@ defineExpose({ insertAtCursor, focus });
 <template>
   <div
     ref="wrapperRef"
-    class="relative flex flex-col rounded-lg border border-n-weak bg-n-alpha-1 focus-within:border-n-brand transition-colors"
+    class="relative flex flex-col min-h-[8rem] rounded-lg border border-n-weak bg-n-alpha-1 focus-within:border-n-brand transition-colors"
   >
     <!-- Toolbar -->
     <div

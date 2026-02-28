@@ -384,7 +384,7 @@ const toggleAttachments = idx => {
             </div>
 
             <!-- Text editor with toolbar -->
-            <div @focusin="activeEditorIndex = idx">
+            <div class="min-h-0 min-w-0" @focusin="activeEditorIndex = idx">
               <TemplateMessageEditor
                 :ref="el => setEditorRef(el, idx)"
                 :model-value="form.messages[idx].text"
