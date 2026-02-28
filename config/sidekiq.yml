@@ -28,6 +28,7 @@
   - housekeeping
   - async_database_migration
   - bulk_reindex_low
+  - captain_migration
   - active_storage_analysis
   - active_storage_purge
   - action_mailbox_incineration

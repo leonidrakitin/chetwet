@@ -16,6 +16,7 @@ import DocumentsIndex from './documents/Index.vue';
 import ResponsesIndex from './responses/Index.vue';
 import ResponsesPendingIndex from './responses/Pending.vue';
 import CustomToolsIndex from './tools/Index.vue';
+import MigrationsIndex from './migrations/Index.vue';
 
 const meta = {
   permissions: ['administrator', 'agent'],
@@ -72,6 +73,12 @@ const assistantRoutes = [
     path: frontendURL('accounts/:accountId/captain/:assistantId/inboxes'),
     component: AssistantInboxesIndex,
     name: 'captain_assistants_inboxes_index',
+    meta,
+  },
+  {
+    path: frontendURL('accounts/:accountId/captain/:assistantId/migrations'),
+    component: MigrationsIndex,
+    name: 'captain_assistants_migrations_index',
     meta,
   },
   {

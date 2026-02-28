@@ -73,6 +73,7 @@ Rails.application.routes.draw do
               resources :copilot_messages, only: [:index, :create]
             end
             resources :custom_tools
+            resources :bulk_migrations, only: [:index, :create, :show]
             resources :documents, only: [:index, :show, :create, :destroy]
             resource :tasks, only: [], controller: 'tasks' do
               post :rewrite

@@ -1,0 +1,22 @@
+{
+  "chats": [
+    {
+      "id": "wa_123",
+      "name": "Test Contact",
+      "messages": [
+        {
+          "id": "m1",
+          "body": "Hello",
+          "fromMe": false,
+          "timestamp": 1705312800
+        },
+        {
+          "id": "m2",
+          "body": "Hi",
+          "fromMe": true,
+          "timestamp": 1705312860
+        }
+      ]
+    }
+  ]
+}

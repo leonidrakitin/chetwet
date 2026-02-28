@@ -1,0 +1,22 @@
+{
+  "dialogs": [
+    {
+      "id": 2000001,
+      "title": "VK User",
+      "messages": [
+        {
+          "id": 1,
+          "text": "Hello",
+          "out": 0,
+          "date": 1705312800
+        },
+        {
+          "id": 2,
+          "text": "Hi",
+          "out": 1,
+          "date": 1705312860
+        }
+      ]
+    }
+  ]
+}

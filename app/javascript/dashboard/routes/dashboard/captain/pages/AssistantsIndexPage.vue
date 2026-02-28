@@ -58,6 +58,7 @@ const routeToLastActiveAssistant = () => {
     'captain_assistants_scenarios_index', // Scenario page
     'captain_assistants_playground_index', // Playground page
     'captain_assistants_inboxes_index', // Inboxes page
+    'captain_assistants_migrations_index', // Migrations page
     'captain_tools_index', // Tools page
     'captain_assistants_settings_index', // Settings page
   ].includes(navigationPath);

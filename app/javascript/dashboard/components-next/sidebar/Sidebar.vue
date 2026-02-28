@@ -354,6 +354,14 @@ const menuItems = computed(() => {
           }),
         },
         {
+          name: 'Migrations',
+          label: t('SIDEBAR.CAPTAIN_MIGRATIONS'),
+          activeOn: ['captain_assistants_migrations_index'],
+          to: accountScopedRoute('captain_assistants_index', {
+            navigationPath: 'captain_assistants_migrations_index',
+          }),
+        },
+        {
           name: 'Tools',
           label: t('SIDEBAR.CAPTAIN_TOOLS'),
           activeOn: ['captain_tools_index'],

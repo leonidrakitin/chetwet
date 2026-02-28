@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_27_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_28_140000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -273,6 +273,33 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_27_120000) do
     t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
     t.index ["account_id"], name: "index_automation_rules_on_account_id"
+  end
+
+  create_table "bulk_migrations", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "captain_assistant_id", null: false
+    t.bigint "inbox_id", null: false
+    t.string "source", null: false
+    t.string "agent_external_id"
+    t.boolean "include_groups", default: false
+    t.integer "max_messages_per_dialog"
+    t.string "status", default: "pending", null: false
+    t.integer "total_dialogs", default: 0
+    t.integer "processed", default: 0
+    t.integer "skipped", default: 0
+    t.integer "faqs_generated", default: 0
+    t.jsonb "report", default: {}
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "dry_run", default: false, null: false
+    t.index ["account_id", "status"], name: "index_bulk_migrations_on_account_id_and_status"
+    t.index ["account_id"], name: "index_bulk_migrations_on_account_id"
+    t.index ["captain_assistant_id", "status"], name: "index_bulk_migrations_on_captain_assistant_id_and_status"
+    t.index ["captain_assistant_id"], name: "index_bulk_migrations_on_captain_assistant_id"
+    t.index ["inbox_id"], name: "index_bulk_migrations_on_inbox_id"
+    t.index ["source"], name: "index_bulk_migrations_on_source"
   end
 
   create_table "campaigns", force: :cascade do |t|
@@ -1360,6 +1387,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_27_120000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_activity_logs", "accounts"
   add_foreign_key "agent_activity_logs", "users"
+  add_foreign_key "bulk_migrations", "accounts"
+  add_foreign_key "bulk_migrations", "captain_assistants"
+  add_foreign_key "bulk_migrations", "inboxes"
   add_foreign_key "channel_avito", "accounts"
   add_foreign_key "channel_vk", "accounts"
   add_foreign_key "inboxes", "portals"
