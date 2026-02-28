@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Inherits from ActionController::API (no CSRF). Do not add skip_before_action :verify_authenticity_token
+# or Rails will raise "callback :verify_authenticity_token has not been defined".
 class Webhooks::YclientsMarketplaceController < ActionController::API
   def process
     Rails.logger.info "YClients Marketplace webhook: raw body=#{request.raw_post.truncate(500)}"
