@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { createConsumer } from '@rails/actioncable';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
@@ -9,6 +10,7 @@ import BulkMigrationsAPI from 'dashboard/api/captain/bulkMigrations';
 import CaptainInboxes from 'dashboard/api/captain/inboxes';
 
 const route = useRoute();
+const { t } = useI18n();
 
 const assistantId = computed(() => Number(route.params.assistantId));
 
@@ -38,10 +40,20 @@ const SOURCES = [
   { value: 'vk', labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_VK' },
 ];
 
-function statusLabel(status) {
-  if (!status) return '';
-  const key = `CAPTAIN.MIGRATIONS.STATUS_${status.toUpperCase()}`;
-  return key;
+const STATUS_BADGE_CLASSES = {
+  pending: 'bg-amber-100 text-amber-800',
+  processing: 'bg-blue-100 text-blue-700',
+  completed: 'bg-green-100 text-green-700',
+  failed: 'bg-red-100 text-red-700',
+};
+
+function statusBadgeClass(status) {
+  return STATUS_BADGE_CLASSES[status] ?? 'bg-n-slate-6 text-n-slate-12';
+}
+
+function sourceLabel(source) {
+  const found = SOURCES.find(s => s.value === source);
+  return found ? t(found.labelKey) : source;
 }
 
 function fetchMigrations() {
@@ -385,64 +397,124 @@ onUnmounted(() => {
           >
             {{ $t('CAPTAIN.MIGRATIONS.EMPTY_STATE') }}
           </div>
-          <div
-            v-else
-            class="overflow-x-auto rounded border border-n-slate-8 bg-n-surface-2"
-          >
-            <table class="w-full min-w-[600px] text-left text-sm">
-              <thead class="border-b border-n-slate-8 bg-n-surface-3">
-                <tr>
-                  <th class="px-4 py-2 font-medium text-n-slate-12">
-                    {{ $t('CAPTAIN.MIGRATIONS.TABLE_ID') }}
-                  </th>
-                  <th class="px-4 py-2 font-medium text-n-slate-12">
-                    {{ $t('CAPTAIN.MIGRATIONS.SOURCE') }}
-                  </th>
-                  <th class="px-4 py-2 font-medium text-n-slate-12">
-                    {{ $t('CAPTAIN.MIGRATIONS.STATUS') }}
-                  </th>
-                  <th class="px-4 py-2 font-medium text-n-slate-12">
-                    {{ $t('CAPTAIN.MIGRATIONS.PROGRESS') }}
-                  </th>
-                  <th class="px-4 py-2 font-medium text-n-slate-12">
-                    {{ $t('CAPTAIN.MIGRATIONS.CREATED_AT') }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="m in migrations"
-                  :key="m.id"
-                  class="border-b border-n-slate-8 last:border-0"
-                >
-                  <td class="px-4 py-2 text-n-slate-12">{{ m.id }}</td>
-                  <td class="px-4 py-2 text-n-slate-12">{{ m.source }}</td>
-                  <td class="px-4 py-2 text-n-slate-12">
-                    {{ $t(statusLabel(m.status)) }}
-                  </td>
-                  <td class="px-4 py-2 text-n-slate-12">
-                    <span v-if="m.status === 'processing'">
-                      {{ m.processed }}
-                      {{ $t('CAPTAIN.MIGRATIONS.TABLE_SEPARATOR') }}
-                      {{ m.total_dialogs || '…' }}
-                      ({{ m.progress_percent ?? 0 }}%)
-                    </span>
-                    <span v-else>
-                      {{ m.processed ?? 0 }}
-                      {{ $t('CAPTAIN.MIGRATIONS.TABLE_SEPARATOR') }}
-                      {{ m.total_dialogs ?? 0 }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-2 text-n-slate-11">
+          <div v-else class="flex flex-col gap-3">
+            <div
+              v-for="m in migrations"
+              :key="m.id"
+              class="rounded-lg border border-n-slate-8 bg-n-surface-2 p-4"
+            >
+              <!-- Card header -->
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-medium text-n-slate-12">
+                    {{ sourceLabel(m.source) }}
+                  </span>
+                  <span
+                    v-if="m.dry_run"
+                    class="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-medium"
+                  >
+                    {{ $t('CAPTAIN.MIGRATIONS.DRY_RUN_BADGE') }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="text-xs text-n-slate-11">
                     {{
                       m.created_at
                         ? new Date(m.created_at).toLocaleString()
-                        : $t('CAPTAIN.MIGRATIONS.TABLE_NA')
+                        : '—'
                     }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </span>
+                  <span
+                    :class="statusBadgeClass(m.status)"
+                    class="text-xs px-2 py-0.5 rounded-full font-medium"
+                  >
+                    {{
+                      $t(
+                        'CAPTAIN.MIGRATIONS.STATUS_' +
+                          (m.status || 'pending').toUpperCase()
+                      )
+                    }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- processing -->
+              <template v-if="m.status === 'processing'">
+                <p class="text-xs text-n-slate-11 mb-1">
+                  {{ $t('CAPTAIN.MIGRATIONS.PROCESSING_LABEL') }}
+                </p>
+                <div class="h-2 bg-n-slate-6 rounded-full overflow-hidden mb-1">
+                  <div
+                    class="h-full bg-woot-500 rounded-full transition-all"
+                    :style="{ width: (m.progress_percent ?? 0) + '%' }"
+                  />
+                </div>
+                <p class="text-xs text-n-slate-11">
+                  {{
+                    $t('CAPTAIN.MIGRATIONS.DIALOGS_PROGRESS', {
+                      processed: m.processed ?? 0,
+                      total: m.total_dialogs ?? '…',
+                    })
+                  }}
+                  · {{ m.progress_percent ?? 0 }}%
+                </p>
+              </template>
+
+              <!-- completed -->
+              <template v-else-if="m.status === 'completed'">
+                <div class="flex flex-wrap gap-2 mb-2">
+                  <span
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                  >
+                    🔍 {{ $t('CAPTAIN.MIGRATIONS.STEP_DIALOGS_FOUND') }}:
+                    <span class="font-medium">
+                      {{ m.report?.parser_stats?.total_chats ?? 0 }}
+                    </span>
+                  </span>
+                  <span
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                  >
+                    ✅ {{ $t('CAPTAIN.MIGRATIONS.STEP_AFTER_CLEANING') }}:
+                    <span class="font-medium">
+                      {{ m.report?.preprocess_stats?.ready_for_import ?? 0 }}
+                    </span>
+                  </span>
+                  <span
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                  >
+                    📥 {{ $t('CAPTAIN.MIGRATIONS.STEP_IMPORTED') }}:
+                    <span class="font-medium">
+                      {{ m.report?.import_stats?.imported ?? 0 }}
+                    </span>
+                  </span>
+                  <span
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                  >
+                    💡 {{ $t('CAPTAIN.MIGRATIONS.STEP_FAQS') }}:
+                    <span class="font-medium">
+                      {{ m.report?.total_faqs_generated ?? 0 }}
+                    </span>
+                  </span>
+                </div>
+                <p v-if="m.report?.summary" class="text-xs text-n-slate-11">
+                  {{ m.report.summary }}
+                </p>
+              </template>
+
+              <!-- failed -->
+              <template v-else-if="m.status === 'failed'">
+                <p class="text-xs text-red-600">
+                  {{ m.report?.error || $t('CAPTAIN.MIGRATIONS.FAILED_LABEL') }}
+                </p>
+              </template>
+
+              <!-- pending -->
+              <template v-else>
+                <p class="text-xs text-n-slate-11">
+                  {{ $t('CAPTAIN.MIGRATIONS.PENDING_LABEL') }}
+                </p>
+              </template>
+            </div>
           </div>
         </div>
       </div>
