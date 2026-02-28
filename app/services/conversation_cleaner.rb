@@ -24,10 +24,13 @@ class ConversationCleaner
     avg_length = messages.sum { |m| m[:content].to_s.strip.length } / messages.size.to_f
     return false if avg_length < MIN_AVG_MESSAGE_LENGTH
 
-    # Рассылки / спам (один отправитель доминирует)
+    # Рассылки / спам (один отправитель доминирует). Не применяем, если нет ни одного agent — иначе при
+    # неверном agent_external_id все сообщения будут user и все диалоги отфильтруются (kept=0).
     sender_counts = messages.group_by { |m| m[:sender_type] == 'agent' ? 'agent' : 'user' }
-    max_percent = (sender_counts.values.max_by(&:size).size.to_f / messages.size * 100)
-    return false if max_percent > MAX_MESSAGES_FROM_ONE_SENDER_PERCENT
+    if sender_counts.key?('agent')
+      max_percent = (sender_counts.values.max_by(&:size).size.to_f / messages.size * 100)
+      return false if max_percent > MAX_MESSAGES_FROM_ONE_SENDER_PERCENT
+    end
 
     # Быстрый minhash-like спам-фильтр (если >80% сообщений очень похожи)
     return false if spam_like?(messages)

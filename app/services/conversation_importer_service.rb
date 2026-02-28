@@ -26,7 +26,6 @@ class ConversationImporterService
       conversation.update!(
         status: :resolved,
         first_reply_created_at: first_reply_at,
-        resolved_at: dialog[:messages].last[:created_at],
         additional_attributes: conversation.additional_attributes.merge(
           imported_from: dialog[:source],
           migration_external_id: dialog[:external_id],
