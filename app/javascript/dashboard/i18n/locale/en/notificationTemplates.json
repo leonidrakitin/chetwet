@@ -91,11 +91,26 @@
     "SEARCH": {
       "PLACEHOLDER": "Search templates..."
     },
+    "TOOLBAR": {
+      "BOLD": "Bold (**text**)",
+      "ITALIC": "Italic (_text_)",
+      "STRIKETHROUGH": "Strikethrough (~~text~~)",
+      "CODE": "Inline code (`text`)",
+      "LINK": "Insert link",
+      "LINK_PROMPT": "Enter URL",
+      "UNORDERED_LIST": "Bullet list",
+      "ORDERED_LIST": "Numbered list",
+      "UNDO": "Undo",
+      "REDO": "Redo",
+      "ATTACHMENTS": "Attachments",
+      "INSERT_VARIABLE": "Insert variable (@)"
+    },
     "VARIABLES": {
       "LABEL": "Insert variable",
       "PICKER_BUTTON": "Insert variable",
       "PICKER_HINT": "Click to insert · Drag to editor",
       "REMOVE_ARIA": "Remove variable",
+      "NO_MATCH": "No variables found",
       "EXAMPLE_PREFIX": "e.g.",
       "CATEGORIES": {
         "ALL": "All",

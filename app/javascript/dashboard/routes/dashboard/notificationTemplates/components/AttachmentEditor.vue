@@ -1,7 +1,6 @@
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import VariablePicker from './VariablePicker.vue';
 
 const props = defineProps({
   modelValue: {
@@ -19,9 +18,6 @@ const MAX_ATTACHMENTS = 10;
 const showLinkForm = ref(false);
 const linkLabel = ref('');
 const linkUrl = ref('');
-const activeLinkInputRef = ref(null);
-const linkLabelRef = ref(null);
-const linkUrlRef = ref(null);
 
 let nextIdCounter = 1;
 const genId = () => {
@@ -74,29 +70,6 @@ const addLink = () => {
   linkLabel.value = '';
   linkUrl.value = '';
   showLinkForm.value = false;
-};
-
-const insertVariable = text => {
-  const input = activeLinkInputRef.value;
-  if (input) {
-    const start = input.selectionStart ?? input.value.length;
-    const end = input.selectionEnd ?? start;
-    const before = input.value.slice(0, start);
-    const after = input.value.slice(end);
-    const newValue = before + text + after;
-    if (input === linkLabelRef.value) linkLabel.value = newValue;
-    else linkUrl.value = newValue;
-    nextTick(() => {
-      input.setSelectionRange(start + text.length, start + text.length);
-      input.focus();
-    });
-    return;
-  }
-  linkUrl.value += text;
-};
-
-const setActiveLinkInput = refOrEl => {
-  activeLinkInputRef.value = refOrEl?.value ?? refOrEl;
 };
 </script>
 
@@ -198,8 +171,6 @@ const setActiveLinkInput = refOrEl => {
         <span class="i-lucide-link size-3.5" />
         {{ t('NOTIFICATION_TEMPLATES.ATTACHMENTS.ADD_LINK') }}
       </button>
-
-      <VariablePicker @insert="insertVariable" />
     </div>
 
     <!-- Link form -->
@@ -208,20 +179,16 @@ const setActiveLinkInput = refOrEl => {
       class="flex flex-col gap-2 rounded-lg border border-n-weak bg-n-alpha-1 p-3"
     >
       <input
-        ref="linkLabelRef"
         v-model="linkLabel"
         type="text"
         :placeholder="t('NOTIFICATION_TEMPLATES.ATTACHMENTS.LINK_LABEL')"
         class="h-8 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
-        @focus="setActiveLinkInput(linkLabelRef)"
       />
       <input
-        ref="linkUrlRef"
         v-model="linkUrl"
         type="url"
         :placeholder="t('NOTIFICATION_TEMPLATES.ATTACHMENTS.LINK_URL')"
         class="h-8 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
-        @focus="setActiveLinkInput(linkUrlRef)"
       />
       <div class="flex gap-2">
         <button

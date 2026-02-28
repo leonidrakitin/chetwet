@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Switch from 'dashboard/components-next/switch/Switch.vue';
 import NotificationTemplatePreview from './NotificationTemplatePreview.vue';
-import VariablePicker from './VariablePicker.vue';
 import TemplateMessageEditor from './TemplateMessageEditor.vue';
 import AttachmentEditor from './AttachmentEditor.vue';
 import ButtonEditor from './ButtonEditor.vue';
@@ -27,7 +26,7 @@ const { t } = useI18n();
 const dialogRef = ref(null);
 const messageEditorRefs = ref([]);
 const activeEditorIndex = ref(0);
-const highlightVariableKey = ref(null);
+const showAttachments = ref([]);
 
 const isEditing = computed(() => !!props.template);
 
@@ -95,6 +94,7 @@ watch(
     nameError.value = '';
     activeEditorIndex.value = 0;
     messageEditorRefs.value = [];
+    showAttachments.value = form.value.messages.map(() => false);
   },
   { immediate: true }
 );
@@ -157,12 +157,9 @@ const setEditorRef = (el, idx) => {
   messageEditorRefs.value[idx] = el;
 };
 
-const insertVariable = text => {
-  messageEditorRefs.value[activeEditorIndex.value]?.insertAtCursor(text);
-};
-
 const addMessage = () => {
   form.value.messages.push(defaultBlock());
+  showAttachments.value.push(false);
   const newIdx = form.value.messages.length - 1;
   nextTick(() => {
     activeEditorIndex.value = newIdx;
@@ -173,6 +170,7 @@ const addMessage = () => {
 const removeMessage = idx => {
   form.value.messages.splice(idx, 1);
   messageEditorRefs.value.splice(idx, 1);
+  showAttachments.value.splice(idx, 1);
   if (activeEditorIndex.value >= form.value.messages.length) {
     activeEditorIndex.value = form.value.messages.length - 1;
   }
@@ -182,6 +180,8 @@ const moveMessageUp = idx => {
   if (idx <= 0) return;
   const arr = form.value.messages;
   [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+  const sa = showAttachments.value;
+  [sa[idx - 1], sa[idx]] = [sa[idx], sa[idx - 1]];
   activeEditorIndex.value = idx - 1;
   nextTick(() => messageEditorRefs.value[idx - 1]?.focus());
 };
@@ -190,8 +190,14 @@ const moveMessageDown = idx => {
   if (idx >= form.value.messages.length - 1) return;
   const arr = form.value.messages;
   [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
+  const sa = showAttachments.value;
+  [sa[idx], sa[idx + 1]] = [sa[idx + 1], sa[idx]];
   activeEditorIndex.value = idx + 1;
   nextTick(() => messageEditorRefs.value[idx + 1]?.focus());
+};
+
+const toggleAttachments = idx => {
+  showAttachments.value[idx] = !showAttachments.value[idx];
 };
 </script>
 
@@ -334,7 +340,7 @@ const moveMessageDown = idx => {
           <div
             v-for="(block, idx) in form.messages"
             :key="idx"
-            class="flex flex-col gap-3 rounded-xl border border-n-weak bg-n-alpha-1 p-3"
+            class="flex flex-col gap-2 rounded-xl border border-n-weak bg-n-alpha-1 p-3"
           >
             <!-- Block header -->
             <div class="flex items-center justify-between">
@@ -377,7 +383,7 @@ const moveMessageDown = idx => {
               </button>
             </div>
 
-            <!-- Text editor -->
+            <!-- Text editor with toolbar -->
             <div @focusin="activeEditorIndex = idx">
               <TemplateMessageEditor
                 :ref="el => setEditorRef(el, idx)"
@@ -386,11 +392,15 @@ const moveMessageDown = idx => {
                   t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
                 "
                 @update:model-value="form.messages[idx].text = $event"
+                @toggle-attachments="toggleAttachments(idx)"
               />
             </div>
 
-            <!-- Attachments for this block -->
-            <AttachmentEditor v-model="form.messages[idx].attachments" />
+            <!-- Attachments (toggled by toolbar 📎 button) -->
+            <AttachmentEditor
+              v-show="showAttachments[idx]"
+              v-model="form.messages[idx].attachments"
+            />
 
             <!-- Buttons for this block -->
             <ButtonEditor
@@ -409,14 +419,6 @@ const moveMessageDown = idx => {
             <span class="i-lucide-plus size-3.5" />
             {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.ADD_MESSAGE') }}
           </button>
-
-          <!-- Variable picker -->
-          <VariablePicker
-            @insert="insertVariable"
-            @drag-start="highlightVariableKey = $event"
-            @drag-end="highlightVariableKey = null"
-            @highlight-variable="highlightVariableKey = $event"
-          />
         </div>
 
         <!-- Enabled toggle -->
@@ -432,10 +434,7 @@ const moveMessageDown = idx => {
       <div
         class="w-80 flex-shrink-0 self-start sticky top-4 overflow-y-auto min-h-0 max-h-[80vh]"
       >
-        <NotificationTemplatePreview
-          :messages="form.messages"
-          :highlight-variable-key="highlightVariableKey"
-        />
+        <NotificationTemplatePreview :messages="form.messages" />
       </div>
     </div>
   </Dialog>

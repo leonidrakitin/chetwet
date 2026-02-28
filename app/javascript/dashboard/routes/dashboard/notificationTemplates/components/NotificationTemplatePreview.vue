@@ -7,10 +7,6 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  highlightVariableKey: {
-    type: String,
-    default: null,
-  },
 });
 
 const { t } = useI18n();
@@ -25,10 +21,68 @@ const EXAMPLE_VALUES = {
   time: '14:30',
 };
 
-const substituteVars = text =>
-  text
-    .replace(/@(\w+)/g, (match, key) => EXAMPLE_VALUES[key.trim()] ?? match)
-    .replace(/\{(\w+)\}/g, (match, key) => EXAMPLE_VALUES[key.trim()] ?? match);
+const applyInline = str =>
+  str
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/~~(.+?)~~/g, '<s>$1</s>')
+    .replace(
+      /`([^`]+)`/g,
+      '<code class="bg-white/20 rounded px-0.5 text-xs font-mono">$1</code>'
+    )
+    .replace(/_(.+?)_/g, '<em>$1</em>')
+    .replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline">$1</a>'
+    );
+
+const renderMarkdown = text => {
+  if (!text) return '';
+  const substituted = text
+    .replace(/@(\w+)/g, (_, k) => EXAMPLE_VALUES[k] ?? `@${k}`)
+    .replace(/\{(\w+)\}/g, (_, k) => EXAMPLE_VALUES[k] ?? `{${k}}`);
+
+  const lines = substituted.split('\n');
+  const parts = [];
+  const ulItems = [];
+  const olItems = [];
+
+  const flushUl = () => {
+    if (ulItems.length) {
+      parts.push(
+        `<ul class="list-disc list-inside space-y-0.5">${ulItems.join('')}</ul>`
+      );
+      ulItems.length = 0;
+    }
+  };
+  const flushOl = () => {
+    if (olItems.length) {
+      parts.push(
+        `<ol class="list-decimal list-inside space-y-0.5">${olItems.join('')}</ol>`
+      );
+      olItems.length = 0;
+    }
+  };
+
+  lines.forEach(line => {
+    const ulMatch = /^[-*] (.*)$/.exec(line);
+    const olMatch = /^\d+\. (.*)$/.exec(line);
+    if (ulMatch) {
+      flushOl();
+      ulItems.push(`<li>${applyInline(ulMatch[1])}</li>`);
+    } else if (olMatch) {
+      flushUl();
+      olItems.push(`<li>${applyInline(olMatch[1])}</li>`);
+    } else {
+      flushUl();
+      flushOl();
+      parts.push(applyInline(line));
+    }
+  });
+  flushUl();
+  flushOl();
+
+  return parts.join('<br>');
+};
 
 const getAttachmentIcon = type => {
   const icons = {
@@ -45,29 +99,15 @@ const previewBlocks = computed(() =>
     .map(m => {
       const isString = typeof m === 'string';
       return {
-        text: isString ? substituteVars(m) : substituteVars(m.text ?? ''),
+        html: renderMarkdown(isString ? m : (m.text ?? '')),
         attachments: isString ? [] : (m.attachments ?? []),
         buttons: isString ? [] : (m.buttons ?? []),
       };
     })
-    .filter(b => b.text || b.attachments.length || b.buttons.length)
+    .filter(b => b.html || b.attachments.length || b.buttons.length)
 );
 
 const hasContent = computed(() => previewBlocks.value.length > 0);
-
-const getTextSegments = (displayText, key) => {
-  if (!key || !displayText) return [{ type: 'text', value: displayText }];
-  const needle = EXAMPLE_VALUES[key];
-  if (!needle) return [{ type: 'text', value: displayText }];
-  const parts = displayText.split(needle);
-  const segments = [];
-  parts.forEach((p, i) => {
-    if (p) segments.push({ type: 'text', value: p });
-    if (i < parts.length - 1)
-      segments.push({ type: 'highlight', value: needle });
-  });
-  return segments.length ? segments : [{ type: 'text', value: displayText }];
-};
 </script>
 
 <template>
@@ -87,25 +127,10 @@ const getTextSegments = (displayText, key) => {
         >
           <!-- Text bubble -->
           <div
-            v-if="block.text"
-            class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-sm text-white max-w-full whitespace-pre-wrap break-words"
-          >
-            <template
-              v-for="(seg, segIdx) in getTextSegments(
-                block.text,
-                highlightVariableKey
-              )"
-              :key="segIdx"
-            >
-              <span
-                v-if="seg.type === 'highlight'"
-                class="rounded bg-n-amber-4 text-n-slate-12 px-0.5"
-              >
-                {{ seg.value }}
-              </span>
-              <span v-else>{{ seg.value }}</span>
-            </template>
-          </div>
+            v-if="block.html"
+            class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-sm text-white max-w-full break-words"
+            v-html="block.html"
+          />
 
           <!-- Attachments -->
           <div
