@@ -466,7 +466,7 @@ onUnmounted(() => {
                   <span
                     class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
                   >
-                    🔍 {{ $t('CAPTAIN.MIGRATIONS.STEP_DIALOGS_FOUND') }}:
+                    {{ $t('CAPTAIN.MIGRATIONS.STEP_DIALOGS_FOUND') }}:
                     <span class="font-medium">
                       {{ m.report?.parser_stats?.total_chats ?? 0 }}
                     </span>
@@ -474,7 +474,7 @@ onUnmounted(() => {
                   <span
                     class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
                   >
-                    ✅ {{ $t('CAPTAIN.MIGRATIONS.STEP_AFTER_CLEANING') }}:
+                    {{ $t('CAPTAIN.MIGRATIONS.STEP_AFTER_CLEANING') }}:
                     <span class="font-medium">
                       {{ m.report?.preprocess_stats?.ready_for_import ?? 0 }}
                     </span>
@@ -482,7 +482,7 @@ onUnmounted(() => {
                   <span
                     class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
                   >
-                    📥 {{ $t('CAPTAIN.MIGRATIONS.STEP_IMPORTED') }}:
+                    {{ $t('CAPTAIN.MIGRATIONS.STEP_IMPORTED') }}:
                     <span class="font-medium">
                       {{ m.report?.import_stats?.imported ?? 0 }}
                     </span>
@@ -490,7 +490,7 @@ onUnmounted(() => {
                   <span
                     class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
                   >
-                    💡 {{ $t('CAPTAIN.MIGRATIONS.STEP_FAQS') }}:
+                    {{ $t('CAPTAIN.MIGRATIONS.STEP_FAQS') }}:
                     <span class="font-medium">
                       {{ m.report?.total_faqs_generated ?? 0 }}
                     </span>
