@@ -26,10 +26,9 @@ const EXAMPLE_VALUES = {
 };
 
 const substituteVars = text =>
-  text.replace(
-    /\{(\w+)\}/g,
-    (match, key) => EXAMPLE_VALUES[key.trim()] ?? match
-  );
+  text
+    .replace(/@(\w+)/g, (match, key) => EXAMPLE_VALUES[key.trim()] ?? match)
+    .replace(/\{(\w+)\}/g, (match, key) => EXAMPLE_VALUES[key.trim()] ?? match);
 
 const getAttachmentIcon = type => {
   const icons = {

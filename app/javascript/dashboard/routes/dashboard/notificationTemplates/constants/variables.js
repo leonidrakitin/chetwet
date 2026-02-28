@@ -33,12 +33,17 @@ export const VARIABLE_CATEGORIES = [
   { key: 'datetime', variables: ['date', 'time'] },
 ];
 
-export const toToken = key => `{${key}}`;
+/** Current format: @key (e.g. @client_name) */
+export const toToken = key => `@${key}`;
 
+/** Legacy format for integrations that expect {key}. Use at send boundary if needed. */
+export const toLegacyToken = key => `{${key}}`;
+
+/** Matches @key (current) and {key} (legacy); normalizes to @key in parts. */
 export const parseMessageParts = text => {
   if (!text || typeof text !== 'string') return [];
   const parts = [];
-  const regex = /\{(\w+)\}|\n/g;
+  const regex = /@(\w+)|\{(\w+)\}|\n/g;
   let lastIndex = 0;
   let match = regex.exec(text);
   while (match !== null) {
@@ -48,7 +53,8 @@ export const parseMessageParts = text => {
     if (match[0] === '\n') {
       parts.push({ type: 'newline', value: '\n' });
     } else {
-      parts.push({ type: 'variable', key: match[1], value: match[0] });
+      const key = match[1] ?? match[2];
+      parts.push({ type: 'variable', key, value: `@${key}` });
     }
     lastIndex = match.index + match[0].length;
     match = regex.exec(text);
@@ -57,4 +63,23 @@ export const parseMessageParts = text => {
     parts.push({ type: 'text', value: text.slice(lastIndex) });
   }
   return parts;
+};
+
+/**
+ * Return an offset that lies on a part boundary (never inside a variable token).
+ * If offset falls inside a variable part, returns the end of that part.
+ */
+export const getSafeOffset = (parts, offset) => {
+  if (!parts?.length || offset <= 0) return 0;
+  let pos = 0;
+  for (let i = 0; i < parts.length; i += 1) {
+    const part = parts[i];
+    const len = part.value?.length ?? 0;
+    if (offset <= pos + len) {
+      if (part.type === 'variable') return pos + len;
+      return offset;
+    }
+    pos += len;
+  }
+  return pos;
 };

@@ -5,6 +5,7 @@ import {
   parseMessageParts,
   VARIABLE_COLORS,
   toToken,
+  getSafeOffset,
 } from '../constants/variables';
 
 const props = defineProps({
@@ -18,20 +19,13 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits([
-  'update:modelValue',
-  'dragVariableStart',
-  'dragVariableEnd',
-  'highlightVariable',
-]);
+const emit = defineEmits(['update:modelValue']);
 
 const { t } = useI18n();
 const editorRef = ref(null);
 const wrapperRef = ref(null);
 const displayValue = ref(props.modelValue);
-const isDragging = ref(false);
-const showDropCaret = ref(false);
-const dropCaretStyle = ref({ left: 0, top: 0, height: 0 });
+const lastKnownOffset = ref(0);
 
 watch(
   () => props.modelValue,
@@ -43,24 +37,16 @@ watch(
 
 const parts = computed(() => parseMessageParts(displayValue.value));
 
-const getChipStyle = key => {
+const getVariableStyle = key => {
   const c = VARIABLE_COLORS[key] ?? { bg: '#e2e8f0', text: '#334155' };
   return {
     backgroundColor: c.bg,
     color: c.text,
-    borderColor: c.border || c.bg,
   };
 };
 
 const getTitle = key =>
   `${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_description`)} — ${t('NOTIFICATION_TEMPLATES.VARIABLES.EXAMPLE_PREFIX')} ${t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}_example`)}`;
-
-const removeVariable = index => {
-  const newParts = parts.value.filter((_, i) => i !== index);
-  const newStr = newParts.map(p => p.value).join('');
-  displayValue.value = newStr;
-  emit('update:modelValue', newStr);
-};
 
 const serializeFromDom = () => {
   const el = editorRef.value;
@@ -136,28 +122,75 @@ const setCursorOffset = targetOffset => {
 
 const insertAtCursor = text => {
   const el = editorRef.value;
-  if (!el) {
-    displayValue.value += text;
-    emit('update:modelValue', displayValue.value);
-    return;
-  }
-  const sel = window.getSelection();
-  const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
-  if (!range || !el.contains(sel.anchorNode)) {
-    displayValue.value += text;
-    emit('update:modelValue', displayValue.value);
-    return;
-  }
-  const preRange = document.createRange();
-  preRange.setStart(el, 0);
-  preRange.setEnd(sel.anchorNode, sel.anchorOffset);
-  const offset = preRange.toString().length;
   const current = serializeFromDom();
+  let offset;
+  if (!el) {
+    offset = current.length;
+  } else {
+    const sel = window.getSelection();
+    const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
+    if (range && el.contains(sel.anchorNode)) {
+      const preRange = document.createRange();
+      preRange.setStart(el, 0);
+      preRange.setEnd(sel.anchorNode, sel.anchorOffset);
+      offset = preRange.toString().length;
+    } else {
+      offset = Math.min(lastKnownOffset.value, current.length);
+    }
+  }
+  offset = getSafeOffset(parts.value, offset);
   const before = current.slice(0, offset);
   const after = current.slice(offset);
   displayValue.value = before + text + after;
   emit('update:modelValue', displayValue.value);
+  lastKnownOffset.value = offset + text.length;
   nextTick(() => setCursorOffset(offset + text.length));
+};
+
+const onInput = () => {
+  const str = serializeFromDom();
+  if (str !== displayValue.value) {
+    displayValue.value = str;
+    emit('update:modelValue', str);
+  }
+  const el = editorRef.value;
+  const sel = window.getSelection();
+  const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
+  if (el && range && el.contains(sel.anchorNode)) {
+    const preRange = document.createRange();
+    preRange.setStart(el, 0);
+    preRange.setEnd(sel.anchorNode, sel.anchorOffset);
+    lastKnownOffset.value = preRange.toString().length;
+  }
+};
+
+const onPaste = e => {
+  e.preventDefault();
+  const pasted = e.clipboardData?.getData('text/plain') ?? '';
+  if (!pasted) return;
+  const el = editorRef.value;
+  const current = serializeFromDom();
+  let offset = current.length;
+  if (el) {
+    const sel = window.getSelection();
+    const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
+    if (range && el.contains(sel.anchorNode)) {
+      const preRange = document.createRange();
+      preRange.setStart(el, 0);
+      preRange.setEnd(sel.anchorNode, sel.anchorOffset);
+      offset = preRange.toString().length;
+    } else {
+      offset = Math.min(lastKnownOffset.value, current.length);
+    }
+  }
+  offset = getSafeOffset(parts.value, offset);
+  const before = current.slice(0, offset);
+  const after = current.slice(offset);
+  const newStr = before + pasted + after;
+  displayValue.value = newStr;
+  emit('update:modelValue', newStr);
+  lastKnownOffset.value = offset + pasted.length;
+  nextTick(() => setCursorOffset(offset + pasted.length));
 };
 
 const onBlur = () => {
@@ -166,6 +199,20 @@ const onBlur = () => {
     displayValue.value = str;
     emit('update:modelValue', str);
   }
+  const normalized = parseMessageParts(str)
+    .map(p => p.value)
+    .join('');
+  if (normalized !== str) {
+    displayValue.value = normalized;
+    emit('update:modelValue', normalized);
+  }
+};
+
+const getOffsetAfterNode = (root, targetNode) => {
+  const range = document.createRange();
+  range.setStart(root, 0);
+  range.setEndAfter(targetNode);
+  return range.toString().length;
 };
 
 const getDropOffset = e => {
@@ -183,124 +230,47 @@ const getDropOffset = e => {
     }
   }
   if (!range || !el.contains(range.startContainer)) return 0;
+  let node = range.startContainer;
+  if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+  while (node && node !== el) {
+    if (node.dataset?.type === 'variable') {
+      return getOffsetAfterNode(el, node);
+    }
+    node = node.parentNode;
+  }
   const preRange = document.createRange();
   preRange.setStart(el, 0);
   preRange.setEnd(range.startContainer, range.startOffset);
   return preRange.toString().length;
 };
 
-const onDrop = e => {
-  e.preventDefault();
-  const text = e.dataTransfer?.getData('text/plain');
-  const fromEditor = e.dataTransfer?.getData(
-    'application/x-notification-template-variable'
-  );
-  if (!text || !/^\{\w+\}$/.test(text)) return;
-  if (fromEditor) {
-    const current = serializeFromDom();
-    const token = text;
-    const firstIdx = current.indexOf(token);
-    if (firstIdx === -1) {
-      insertAtCursor(text);
-      return;
-    }
-    const dropOffset = getDropOffset(e);
-    const afterRemoval =
-      current.slice(0, firstIdx) + current.slice(firstIdx + token.length);
-    const insertOffset =
-      dropOffset > firstIdx ? dropOffset - token.length : dropOffset;
-    const clamped = Math.max(0, Math.min(insertOffset, afterRemoval.length));
-    const newStr =
-      afterRemoval.slice(0, clamped) + token + afterRemoval.slice(clamped);
-    displayValue.value = newStr;
-    emit('update:modelValue', newStr);
-    nextTick(() => setCursorOffset(clamped + token.length));
-  } else {
-    insertAtCursor(text);
-  }
-  showDropCaret.value = false;
-  emit('dragVariableEnd');
-};
-
-const createDragImage = (token, key) => {
-  const el = document.createElement('div');
-  el.textContent = token;
-  const c = VARIABLE_COLORS[key] ?? { bg: '#e2e8f0', text: '#334155' };
-  el.style.cssText = `
-    position: absolute; left: -9999px; top: 0;
-    padding: 2px 6px; border-radius: 9999px; font-size: 11px; font-weight: 500;
-    background-color: ${c.bg}; color: ${c.text}; border: 1px solid ${c.border || c.bg};
-    opacity: 0.6; pointer-events: none; white-space: nowrap;
-  `;
-  document.body.appendChild(el);
-  return el;
-};
-
-const onVariableDragStart = (e, key) => {
-  const token = toToken(key);
-  e.dataTransfer?.setData('text/plain', token);
-  e.dataTransfer?.setData('application/x-notification-template-variable', key);
-  e.dataTransfer.effectAllowed = 'move';
-  isDragging.value = true;
-  const dragImage = createDragImage(token, key);
-  e.dataTransfer?.setDragImage(dragImage, 0, 0);
-  requestAnimationFrame(() => dragImage.remove());
-  emit('dragVariableStart', key);
-};
-
-const onVariableDragEnd = () => {
-  isDragging.value = false;
-  showDropCaret.value = false;
-  emit('dragVariableEnd');
-};
-
-const onVariableMouseEnter = key => {
-  if (!isDragging.value) emit('highlightVariable', key);
-};
-
-const onVariableMouseLeave = () => {
-  if (!isDragging.value) emit('highlightVariable', null);
-};
-
-const getRangeAtPoint = (x, y) => {
-  if (document.caretRangeFromPoint) {
-    return document.caretRangeFromPoint(x, y);
-  }
-  if (document.caretPositionFromPoint) {
-    const pos = document.caretPositionFromPoint(x, y);
-    if (!pos) return null;
-    const r = document.createRange();
-    r.setStart(pos.offsetNode, pos.offset);
-    r.collapse(true);
-    return r;
-  }
-  return null;
-};
-
 const onDragOver = e => {
   e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  if (!e.dataTransfer?.types?.includes('text/plain')) return;
-  const el = editorRef.value;
-  const wrapper = wrapperRef.value;
-  if (!el || !wrapper) return;
-  const range = getRangeAtPoint(e.clientX, e.clientY);
-  if (!range || !el.contains(range.startContainer)) {
-    showDropCaret.value = false;
-    return;
-  }
-  const rangeRect = range.getBoundingClientRect();
-  const wrapperRect = wrapper.getBoundingClientRect();
-  dropCaretStyle.value = {
-    left: rangeRect.left - wrapperRect.left + wrapper.scrollLeft,
-    top: rangeRect.top - wrapperRect.top + wrapper.scrollTop,
-    height: rangeRect.height || 16,
-  };
-  showDropCaret.value = true;
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
 };
 
-const onDragLeave = () => {
-  showDropCaret.value = false;
+const onDrop = e => {
+  e.preventDefault();
+  const text = e.dataTransfer?.getData('text/plain') ?? '';
+  if (!text || !/^@\w+$/.test(text)) return;
+  const current = serializeFromDom();
+  const dropOffset = getDropOffset(e);
+  const safeOffset = getSafeOffset(parts.value, dropOffset);
+  const before = current.slice(0, safeOffset);
+  const after = current.slice(safeOffset);
+  const newStr = before + text + after;
+  displayValue.value = newStr;
+  emit('update:modelValue', newStr);
+  lastKnownOffset.value = safeOffset + text.length;
+  nextTick(() => setCursorOffset(safeOffset + text.length));
+};
+
+const onVariableSpanClick = idx => {
+  const offsetAfter = parts.value
+    .slice(0, idx + 1)
+    .reduce((sum, p) => sum + (p.value?.length ?? 0), 0);
+  lastKnownOffset.value = offsetAfter;
+  nextTick(() => setCursorOffset(offsetAfter));
 };
 
 const focus = () => editorRef.value?.focus();
@@ -309,7 +279,7 @@ defineExpose({ insertAtCursor, focus });
 </script>
 
 <template>
-  <div ref="wrapperRef" class="relative min-h-24 w-full">
+  <div ref="wrapperRef" class="min-h-24 w-full">
     <div
       ref="editorRef"
       contenteditable="true"
@@ -317,8 +287,9 @@ defineExpose({ insertAtCursor, focus });
       :data-placeholder="placeholder"
       class="min-h-24 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none transition-colors resize-none break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
       @blur="onBlur"
+      @input="onInput"
+      @paste="onPaste"
       @dragover="onDragOver"
-      @dragleave="onDragLeave"
       @drop="onDrop"
     >
       <template v-for="(part, idx) in parts" :key="idx">
@@ -328,37 +299,15 @@ defineExpose({ insertAtCursor, focus });
           data-type="variable"
           :data-var="part.key"
           contenteditable="false"
-          draggable="true"
-          class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[11px] font-medium border align-baseline mr-0.5 leading-none cursor-grab active:cursor-grabbing"
-          :style="getChipStyle(part.key)"
-          @dragstart="onVariableDragStart($event, part.key)"
-          @dragend="onVariableDragEnd"
-          @mouseenter="onVariableMouseEnter(part.key)"
-          @mouseleave="onVariableMouseLeave"
+          class="inline rounded px-0.5 font-medium align-baseline"
+          :style="getVariableStyle(part.key)"
+          @click="onVariableSpanClick(idx)"
         >
           {{ part.value }}
-          <button
-            type="button"
-            class="ml-0.5 rounded-full p-px opacity-60 hover:opacity-100 hover:bg-black/10 focus:outline-none"
-            :aria-label="t('NOTIFICATION_TEMPLATES.VARIABLES.REMOVE_ARIA')"
-            @click.stop="removeVariable(idx)"
-          >
-            <span class="i-lucide-x size-2.5" />
-          </button>
         </span>
         <br v-else-if="part.type === 'newline'" />
         <span v-else data-type="text">{{ part.value }}</span>
       </template>
     </div>
-    <div
-      v-show="showDropCaret"
-      class="absolute w-0.5 bg-n-brand pointer-events-none animate-pulse"
-      :style="{
-        left: `${dropCaretStyle.left}px`,
-        top: `${dropCaretStyle.top}px`,
-        height: `${dropCaretStyle.height}px`,
-      }"
-      aria-hidden="true"
-    />
   </div>
 </template>

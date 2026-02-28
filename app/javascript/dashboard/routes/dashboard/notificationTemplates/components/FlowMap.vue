@@ -123,11 +123,15 @@ const stopPan = () => {
 };
 
 // Arrow computation — coords relative to containerRef (the canvas)
+const CORRIDOR_GRID = 24;
+const LANE_OFFSET_STEP = 12;
+const GAP_MARGIN = 8;
+
 const computeArrows = async () => {
   await nextTick();
   if (!containerRef.value) return;
   const cr = containerRef.value.getBoundingClientRect();
-  const result = [];
+  const raw = [];
 
   props.templates.forEach(tmpl => {
     getMessageBlock(tmpl).buttons.forEach(btn => {
@@ -148,12 +152,54 @@ const computeArrows = async () => {
       const x2 = (goRight ? tr.left : tr.right) - cr.left;
       const y2 = (tr.top + tr.bottom) / 2 - cr.top;
 
-      // Vertical segment runs in the gap between columns, not through cards
       const routeX = goRight
         ? (sr.right + tr.left) / 2 - cr.left
         : (tr.right + sr.left) / 2 - cr.left;
 
-      const r = 8;
+      const gapMinX = goRight
+        ? sr.right - cr.left + GAP_MARGIN
+        : tr.right - cr.left + GAP_MARGIN;
+      const gapMaxX = goRight
+        ? tr.left - cr.left - GAP_MARGIN
+        : sr.left - cr.left - GAP_MARGIN;
+
+      raw.push({
+        id: `${tmpl.id}-${btn.id}`,
+        routeX,
+        gapMinX,
+        gapMaxX,
+        x1,
+        y1,
+        x2,
+        y2,
+        goRight,
+      });
+    });
+  });
+
+  // Group by corridor (same gap between columns), assign lane offset so lines don't overlap
+  const corridorKey = rx => Math.round(rx / CORRIDOR_GRID) * CORRIDOR_GRID;
+  const byCorridor = {};
+  raw.forEach(entry => {
+    const key = corridorKey(entry.routeX);
+    if (!byCorridor[key]) byCorridor[key] = [];
+    byCorridor[key].push(entry);
+  });
+
+  const r = 8;
+  const result = [];
+
+  Object.values(byCorridor).forEach(group => {
+    group.sort((a, b) => a.y1 - b.y1);
+    group.forEach((entry, index) => {
+      const n = group.length;
+      const routeXOffset = (index - (n - 1) / 2) * LANE_OFFSET_STEP;
+      const rx = Math.max(
+        entry.gapMinX,
+        Math.min(entry.gapMaxX, entry.routeX + routeXOffset)
+      );
+      const { x1, y1, x2, y2, goRight } = entry;
+
       const dy = y2 - y1;
       let d;
 
@@ -161,19 +207,19 @@ const computeArrows = async () => {
         d = `M ${x1} ${y1} H ${x2}`;
       } else {
         const s = dy > 0 ? 1 : -1;
-        const firstX = goRight ? routeX - r : routeX + r;
-        const lastX = goRight ? routeX + r : routeX - r;
+        const firstX = goRight ? rx - r : rx + r;
+        const lastX = goRight ? rx + r : rx - r;
         d = [
           `M ${x1} ${y1}`,
           `H ${firstX}`,
-          `Q ${routeX} ${y1} ${routeX} ${y1 + s * r}`,
+          `Q ${rx} ${y1} ${rx} ${y1 + s * r}`,
           `V ${y2 - s * r}`,
-          `Q ${routeX} ${y2} ${lastX} ${y2}`,
+          `Q ${rx} ${y2} ${lastX} ${y2}`,
           `H ${x2}`,
         ].join(' ');
       }
 
-      result.push({ id: `${tmpl.id}-${btn.id}`, d });
+      result.push({ id: entry.id, d });
     });
   });
 
@@ -235,9 +281,9 @@ const preview = txt => {
         transform: `translate(calc(-50% + ${panX}px), calc(-50% + ${panY}px))`,
       }"
     >
-      <!-- SVG arrows behind cards so lines wrap around blocks -->
+      <!-- SVG arrows on top of cards so lines are always visible -->
       <svg
-        class="absolute inset-0 w-full h-full overflow-visible pointer-events-none z-0"
+        class="absolute inset-0 w-full h-full overflow-visible pointer-events-none z-20"
       >
         <defs>
           <marker

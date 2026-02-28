@@ -119,6 +119,7 @@ const addButton = () => {
     <!-- Add button trigger -->
     <button
       v-if="modelValue.length < MAX_BUTTONS && !showForm"
+      type="button"
       class="inline-flex items-center gap-1.5 self-start rounded-lg border border-dashed border-n-weak px-3 py-1.5 text-xs text-n-slate-10 hover:border-n-brand hover:text-n-slate-12 transition-colors"
       @click="showForm = true"
     >
@@ -176,12 +177,14 @@ const addButton = () => {
 
       <div class="flex gap-2">
         <button
+          type="button"
           class="rounded-lg bg-n-brand px-3 py-1.5 text-xs text-white hover:bg-n-brand/90 transition-colors"
           @click="addButton"
         >
           {{ t('NOTIFICATION_TEMPLATES.BUTTONS.ADD') }}
         </button>
         <button
+          type="button"
           class="rounded-lg border border-n-weak px-3 py-1.5 text-xs text-n-slate-10 hover:bg-n-alpha-1 transition-colors"
           @click="showForm = false"
         >

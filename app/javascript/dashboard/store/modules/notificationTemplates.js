@@ -8,7 +8,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: 'UPDATED',
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Ваша запись изменена: {service_name} {date} в {time}.',
+        text: 'Здравствуйте, @client_name! Ваша запись изменена: @service_name @date в @time.',
         attachments: [],
         buttons: [
           {
@@ -37,7 +37,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: 'PAID',
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Оплата {price} принята. Ждём вас {date} в {time}.',
+        text: 'Здравствуйте, @client_name! Оплата @price принята. Ждём вас @date в @time.',
         attachments: [
           {
             id: 'att-1',
@@ -75,7 +75,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: 'CREATED',
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Вы записаны на {service_name} {date} в {time}. Ждём в {branch_name}.',
+        text: 'Здравствуйте, @client_name! Вы записаны на @service_name @date в @time. Ждём в @branch_name.',
         attachments: [],
         buttons: [
           {
@@ -98,7 +98,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: 'DELETED',
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Ваша запись на {service_name} {date} отменена. Будем рады видеть вас снова!',
+        text: 'Здравствуйте, @client_name! Ваша запись на @service_name @date отменена. Будем рады видеть вас снова!',
         attachments: [],
         buttons: [
           {
@@ -123,7 +123,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: null,
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Напоминаем: завтра {date} в {time} у вас {service_name} в {branch_name}.',
+        text: 'Здравствуйте, @client_name! Напоминаем: завтра @date в @time у вас @service_name в @branch_name.',
         attachments: [],
         buttons: [
           {
@@ -154,7 +154,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: null,
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Через 2 часа вас ждёт {service_name}. Мастер {master_name} готов принять вас.',
+        text: 'Здравствуйте, @client_name! Через 2 часа вас ждёт @service_name. Мастер @master_name готов принять вас.',
         attachments: [],
         buttons: [
           {
@@ -185,7 +185,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: 'ARRIVED',
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Рады вас видеть в {branch_name}. Мастер {master_name} уже ждёт вас.',
+        text: 'Здравствуйте, @client_name! Рады вас видеть в @branch_name. Мастер @master_name уже ждёт вас.',
         attachments: [],
         buttons: [
           {
@@ -210,7 +210,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: 'COMPLETED',
     messages: [
       {
-        text: 'Спасибо, {client_name}! Надеемся, вам понравилось. Будем рады видеть вас снова в {branch_name}!',
+        text: 'Спасибо, @client_name! Надеемся, вам понравилось. Будем рады видеть вас снова в @branch_name!',
         attachments: [],
         buttons: [
           {
@@ -241,7 +241,7 @@ const MOCK_TEMPLATES = [
     triggerEvent: null,
     messages: [
       {
-        text: 'Здравствуйте, {client_name}! Давно не видели вас. Запишитесь на {service_name} — мастер {master_name} ждёт!',
+        text: 'Здравствуйте, @client_name! Давно не видели вас. Запишитесь на @service_name — мастер @master_name ждёт!',
         attachments: [],
         buttons: [],
       },

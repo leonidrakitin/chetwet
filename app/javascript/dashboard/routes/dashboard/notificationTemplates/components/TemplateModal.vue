@@ -48,18 +48,21 @@ const defaultForm = () => ({
 const form = ref(defaultForm());
 const nameError = ref('');
 
+const normalizeVariableFormat = text =>
+  (text ?? '').replace(/\{(\w+)\}/g, '@$1');
+
 const migrateMessages = template => {
   if (template.messages?.length) {
     const first = template.messages[0];
     if (typeof first === 'string') {
       return template.messages.map((text, i) => ({
-        text,
+        text: normalizeVariableFormat(text),
         attachments: i === 0 ? [...(template.attachments ?? [])] : [],
         buttons: i === 0 ? [...(template.buttons ?? [])] : [],
       }));
     }
     return template.messages.map(m => ({
-      text: m.text ?? '',
+      text: normalizeVariableFormat(m.text ?? ''),
       attachments: [...(m.attachments ?? [])],
       buttons: [...(m.buttons ?? [])],
     }));
@@ -67,7 +70,7 @@ const migrateMessages = template => {
   if (template.messageText) {
     return [
       {
-        text: template.messageText,
+        text: normalizeVariableFormat(template.messageText),
         attachments: [...(template.attachments ?? [])],
         buttons: [...(template.buttons ?? [])],
       },
@@ -383,9 +386,6 @@ const moveMessageDown = idx => {
                   t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.PLACEHOLDER')
                 "
                 @update:model-value="form.messages[idx].text = $event"
-                @drag-variable-start="highlightVariableKey = $event"
-                @drag-variable-end="highlightVariableKey = null"
-                @highlight-variable="highlightVariableKey = $event"
               />
             </div>
 
@@ -429,7 +429,9 @@ const moveMessageDown = idx => {
       </div>
 
       <!-- Preview panel -->
-      <div class="w-72 flex-shrink-0 self-start sticky top-4">
+      <div
+        class="w-80 flex-shrink-0 self-start sticky top-4 overflow-y-auto min-h-0 max-h-[80vh]"
+      >
         <NotificationTemplatePreview
           :messages="form.messages"
           :highlight-variable-key="highlightVariableKey"
