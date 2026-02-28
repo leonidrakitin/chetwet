@@ -75,9 +75,53 @@ const columns = computed(() => {
   }
 
   const maxCol = Math.max(0, ...Object.values(col));
-  return Array.from({ length: maxCol + 1 }, (_, c) =>
+  const colArrays = Array.from({ length: maxCol + 1 }, (_, c) =>
     tmpls.filter(t => col[t.id] === c)
   );
+  // Predecessor map (reuse out[] from above)
+  const preds = Object.fromEntries(ids.map(id => [id, []]));
+  ids.forEach(srcId => out[srcId].forEach(tgtId => preds[tgtId].push(srcId)));
+
+  for (let iter = 0; iter < 3; iter += 1) {
+    // Forward pass: sort by average predecessor position in previous column
+    for (let c = 1; c <= maxCol; c += 1) {
+      const pos = Object.fromEntries(colArrays[c - 1].map((t, i) => [t.id, i]));
+      colArrays[c].sort((a, b) => {
+        const avg = nodeIds => {
+          const f = nodeIds.filter(id => pos[id] !== undefined);
+          return f.length
+            ? f.reduce((s, id) => s + pos[id], 0) / f.length
+            : Infinity;
+        };
+        return avg(preds[a.id]) - avg(preds[b.id]);
+      });
+    }
+    // Backward pass: sort by average successor position in next column
+    for (let c = maxCol - 1; c >= 0; c -= 1) {
+      const pos = Object.fromEntries(colArrays[c + 1].map((t, i) => [t.id, i]));
+      colArrays[c].sort((a, b) => {
+        const avg = nodeIds => {
+          const f = nodeIds.filter(id => pos[id] !== undefined);
+          return f.length
+            ? f.reduce((s, id) => s + pos[id], 0) / f.length
+            : Infinity;
+        };
+        return avg(out[a.id]) - avg(out[b.id]);
+      });
+    }
+  }
+  return colArrays;
+});
+
+// Map: templateId -> column index (used in computeArrows for bypass routing)
+const colOf = computed(() => {
+  const map = {};
+  columns.value.forEach((col, ci) =>
+    col.forEach(t => {
+      map[t.id] = ci;
+    })
+  );
+  return map;
 });
 
 // Refs
@@ -123,14 +167,16 @@ const stopPan = () => {
 };
 
 // Arrow computation — coords relative to containerRef (the canvas)
-const CORRIDOR_GRID = 24;
 const LANE_OFFSET_STEP = 12;
 const GAP_MARGIN = 8;
+const BYPASS_BASE = 48; // px above topmost block to first bypass lane
+const BYPASS_GAP = 14; // vertical spacing between bypass lanes
 
 const computeArrows = async () => {
   await nextTick();
   if (!containerRef.value) return;
   const cr = containerRef.value.getBoundingClientRect();
+  const colOfMap = colOf.value;
   const raw = [];
 
   props.templates.forEach(tmpl => {
@@ -151,11 +197,9 @@ const computeArrows = async () => {
       const y1 = (br.top + br.bottom) / 2 - cr.top;
       const x2 = (goRight ? tr.left : tr.right) - cr.left;
       const y2 = (tr.top + tr.bottom) / 2 - cr.top;
-
       const routeX = goRight
         ? (sr.right + tr.left) / 2 - cr.left
         : (tr.right + sr.left) / 2 - cr.left;
-
       const gapMinX = goRight
         ? sr.right - cr.left + GAP_MARGIN
         : tr.right - cr.left + GAP_MARGIN;
@@ -163,8 +207,13 @@ const computeArrows = async () => {
         ? tr.left - cr.left - GAP_MARGIN
         : sr.left - cr.left - GAP_MARGIN;
 
+      const srcCol = colOfMap[tmpl.id] ?? 0;
+      const tgtCol = colOfMap[btn.templateId] ?? 0;
       raw.push({
         id: `${tmpl.id}-${btn.id}`,
+        srcCol,
+        tgtCol,
+        span: Math.abs(tgtCol - srcCol),
         routeX,
         gapMinX,
         gapMaxX,
@@ -177,49 +226,72 @@ const computeArrows = async () => {
     });
   });
 
-  // Group by corridor (same gap between columns), assign lane offset so lines don't overlap
-  const corridorKey = rx => Math.round(rx / CORRIDOR_GRID) * CORRIDOR_GRID;
-  const byCorridor = {};
-  raw.forEach(entry => {
-    const key = corridorKey(entry.routeX);
-    if (!byCorridor[key]) byCorridor[key] = [];
-    byCorridor[key].push(entry);
+  // Global top of all blocks — bypass lanes route above this
+  let globalTop = Infinity;
+  Object.values(nodeRefs.value).forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.width > 0) globalTop = Math.min(globalTop, r.top - cr.top);
   });
+  if (!Number.isFinite(globalTop)) globalTop = 0;
 
-  const r = 8;
+  const R = 8;
   const result = [];
 
-  Object.values(byCorridor).forEach(group => {
-    group.sort((a, b) => a.y1 - b.y1);
+  // --- Spanning arrows (|span| != 1): bypass routing above all blocks ---
+  const spanning = raw.filter(e => e.span !== 1);
+  // Sort by x1 so bypass lanes don't cross each other
+  spanning.sort((a, b) => a.x1 - b.x1);
+  spanning.forEach((entry, index) => {
+    const by = globalTop - BYPASS_BASE - index * BYPASS_GAP;
+    const { x1, y1, x2, y2, goRight } = entry;
+    const cx1 = goRight ? x1 + R : x1 - R;
+    const cx2 = goRight ? x2 - R : x2 + R;
+    const d = [
+      `M ${x1} ${y1}`,
+      `V ${by + R}`,
+      `Q ${x1} ${by} ${cx1} ${by}`,
+      `H ${cx2}`,
+      `Q ${x2} ${by} ${x2} ${by + R}`,
+      `V ${y2}`,
+    ].join(' ');
+    result.push({ id: entry.id, d, bypass: true });
+  });
+
+  // --- Adjacent arrows (span == 1): S-curve routing through column gap ---
+  const adjacent = raw.filter(e => e.span === 1);
+  const byGap = {};
+  adjacent.forEach(e => {
+    const key = `${Math.min(e.srcCol, e.tgtCol)}-${Math.max(e.srcCol, e.tgtCol)}`;
+    (byGap[key] ??= []).push(e);
+  });
+  Object.values(byGap).forEach(group => {
+    group.sort((a, b) => (a.y1 + a.y2) / 2 - (b.y1 + b.y2) / 2);
     group.forEach((entry, index) => {
       const n = group.length;
-      const routeXOffset = (index - (n - 1) / 2) * LANE_OFFSET_STEP;
       const rx = Math.max(
         entry.gapMinX,
-        Math.min(entry.gapMaxX, entry.routeX + routeXOffset)
+        Math.min(
+          entry.gapMaxX,
+          entry.routeX + (index - (n - 1) / 2) * LANE_OFFSET_STEP
+        )
       );
       const { x1, y1, x2, y2, goRight } = entry;
-
       const dy = y2 - y1;
       let d;
-
-      if (Math.abs(dy) < r * 2) {
+      if (Math.abs(dy) < R * 2) {
         d = `M ${x1} ${y1} H ${x2}`;
       } else {
         const s = dy > 0 ? 1 : -1;
-        const firstX = goRight ? rx - r : rx + r;
-        const lastX = goRight ? rx + r : rx - r;
         d = [
           `M ${x1} ${y1}`,
-          `H ${firstX}`,
-          `Q ${rx} ${y1} ${rx} ${y1 + s * r}`,
-          `V ${y2 - s * r}`,
-          `Q ${rx} ${y2} ${lastX} ${y2}`,
+          `H ${goRight ? rx - R : rx + R}`,
+          `Q ${rx} ${y1} ${rx} ${y1 + s * R}`,
+          `V ${y2 - s * R}`,
+          `Q ${rx} ${y2} ${goRight ? rx + R : rx - R} ${y2}`,
           `H ${x2}`,
         ].join(' ');
       }
-
-      result.push({ id: entry.id, d });
+      result.push({ id: entry.id, d, bypass: false });
     });
   });
 
@@ -276,7 +348,7 @@ const preview = txt => {
     <!-- Canvas: centered, panned via transform, SVG + cards inside -->
     <div
       ref="containerRef"
-      class="absolute left-1/2 top-1/2 flex gap-32 p-10"
+      class="absolute left-1/2 top-1/2 flex gap-32 px-10 pt-32 pb-10"
       :style="{
         transform: `translate(calc(-50% + ${panX}px), calc(-50% + ${panY}px))`,
       }"
@@ -302,8 +374,9 @@ const preview = txt => {
           :key="a.id"
           :d="a.d"
           fill="none"
-          stroke="#334155"
+          :stroke="a.bypass ? '#94a3b8' : '#334155'"
           stroke-width="1.5"
+          :stroke-dasharray="a.bypass ? '6 3' : 'none'"
           marker-end="url(#flowArr)"
         />
       </svg>
