@@ -11,7 +11,7 @@ RSpec.describe BulkMigrationJob, type: :job do
   end
 
   before do
-    allow(TelegramParser).to receive(:new).and_return(instance_double(TelegramParser, parse: [], stats: {}))
+    allow(Parsers::TelegramParser).to receive(:new).and_return(instance_double(Parsers::TelegramParser, parse: [], stats: {}))
   end
 
   describe '#perform' do
@@ -35,7 +35,7 @@ RSpec.describe BulkMigrationJob, type: :job do
     end
 
     context 'when migration already completed' do
-      before { migration.update!(status: 'completed') end
+      before { migration.update!(status: 'completed') }
 
       it 'returns without running' do
         expect_any_instance_of(ConversationPreprocessorService).not_to receive(:preprocess)

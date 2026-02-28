@@ -63,9 +63,9 @@ class BulkMigrationJob < ApplicationJob
 
   def parser_for(source)
     case source.to_s.downcase
-    when 'telegram' then TelegramParser
-    when 'whatsapp' then WhatsAppParser
-    when 'vk', 'vkontakte' then VkParser
+    when 'telegram' then Parsers::TelegramParser
+    when 'whatsapp' then Parsers::WhatsAppParser
+    when 'vk', 'vkontakte' then Parsers::VkParser
     else raise ArgumentError, "Неизвестный source: #{source}"
     end
   end
