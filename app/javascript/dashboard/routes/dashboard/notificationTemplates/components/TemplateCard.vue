@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
-import Switch from 'dashboard/components-next/switch/Switch.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import { getChainLabel } from '../helpers/chainLabel';
 
@@ -13,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['toggle', 'edit', 'delete', 'clone', 'preview']);
+const emit = defineEmits(['edit', 'delete', 'clone', 'preview']);
 
 const EXAMPLE_VALUES = {
   client_name: 'Иван Иванов',
@@ -44,10 +43,6 @@ const toggleMenu = () => {
 
 const closeMenu = () => {
   menuOpen.value = false;
-};
-
-const handleToggle = () => {
-  emit('toggle', props.template.id);
 };
 
 const handlePreview = () => {
@@ -115,13 +110,7 @@ const eventLabel = template => getChainLabel(template, t);
     class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-weak bg-n-solid-1 hover:border-n-strong transition-colors duration-200 cursor-pointer"
     @click.self="handleEdit"
   >
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <Switch :model-value="template.enabled" @change="handleToggle" />
-        <span class="text-xs text-n-slate-10 font-mono">
-          {{ '#' + template.id }}
-        </span>
-      </div>
+    <div class="flex items-center justify-end">
       <OnClickOutside @trigger="closeMenu">
         <div class="relative">
           <Button

@@ -92,15 +92,6 @@ const handleSave = async formData => {
   }
 };
 
-const handleToggle = async id => {
-  try {
-    await store.dispatch('notificationTemplates/toggle', id);
-    useAlert(t('NOTIFICATION_TEMPLATES.TOGGLE.SUCCESS'));
-  } catch {
-    useAlert(t('NOTIFICATION_TEMPLATES.TOGGLE.ERROR'));
-  }
-};
-
 const handleClone = async id => {
   try {
     await store.dispatch('notificationTemplates/clone', id);
@@ -150,7 +141,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full overflow-hidden">
+  <div class="flex flex-col h-full w-full min-w-0 overflow-hidden">
     <!-- Header -->
     <div
       class="flex items-center justify-between px-6 py-5 border-b border-n-weak flex-shrink-0"
@@ -269,7 +260,6 @@ onMounted(() => {
             </div>
             <TemplateCard
               :template="element"
-              @toggle="handleToggle"
               @edit="handleEdit"
               @clone="handleClone"
               @delete="handleDeleteRequest"
