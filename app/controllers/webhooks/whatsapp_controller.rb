@@ -1,4 +1,4 @@
-class Webhooks::WhatsappController < ActionController::API
+class Webhooks::WhatsAppController < ActionController::API
   include MetaTokenVerifyConcern
 
   def process_payload
@@ -8,7 +8,7 @@ class Webhooks::WhatsappController < ActionController::API
       return
     end
 
-    Webhooks::WhatsappEventsJob.perform_later(params.to_unsafe_hash)
+    Webhooks::WhatsAppEventsJob.perform_later(params.to_unsafe_hash)
     head :ok
   end
 

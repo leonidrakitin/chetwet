@@ -1,4 +1,4 @@
-class Webhooks::WhatsappEventsJob < ApplicationJob
+class Webhooks::WhatsAppEventsJob < ApplicationJob
   queue_as :low
 
   def perform(params = {})
