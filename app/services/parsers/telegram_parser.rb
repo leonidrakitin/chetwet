@@ -33,7 +33,7 @@ class Parsers::TelegramParser < Parsers::ConversationParser
       contact_name: name || 'Unknown Telegram User',
       contact_avatar_url: chat.dig('photo', 'file'),
       title: name,
-      messages: process_messages(chat['messages'] || [], options[:agent_user_id].to_i, options)
+      messages: process_messages(chat['messages'] || [], extract_user_id(options[:agent_user_id].to_s), options)
     }
   end
 
