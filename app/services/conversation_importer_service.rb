@@ -18,28 +18,9 @@ class ConversationImporterService
       contact_inbox = find_or_create_contact_inbox(dialog)
       contact = contact_inbox.contact
       conversation = create_conversation(contact_inbox, dialog)
-
-      create_messages(conversation, dialog[:messages])
-
-      first_reply_at = first_user_reply_at(dialog[:messages])
-
-      conversation.update!(
-        status: :resolved,
-        first_reply_created_at: first_reply_at,
-        additional_attributes: conversation.additional_attributes.merge(
-          imported_from: dialog[:source],
-          migration_external_id: dialog[:external_id],
-          original_title: dialog[:title]
-        )
-      )
-      conversation.update_columns(created_at: dialog[:messages].first[:created_at])
-
-      {
-        success: true,
-        conversation_id: conversation.id,
-        faqs_generated: 0,
-        contact_id: contact.id
-      }
+      create_messages(conversation, dialog[:messages], contact)
+      finalize_conversation(conversation, dialog)
+      { success: true, conversation_id: conversation.id, faqs_generated: 0, contact_id: contact.id }
     end
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
     Rails.logger.error "[ConversationImporterService] Ошибка импорта #{dialog[:external_id]}: #{e.message}"
@@ -70,28 +51,46 @@ class ConversationImporterService
     )
   end
 
-  def create_messages(conversation, raw_messages)
+  def create_messages(conversation, raw_messages, contact)
     return if raw_messages.blank?
 
     content_type_enum = Message.content_types
-    messages_to_insert = raw_messages.map do |msg|
-      ct = msg[:content_type].to_s
-      content_type = content_type_enum[ct == 'system' ? 'text' : ct] || content_type_enum[:text]
-      {
-        account_id: @account.id,
-        inbox_id: @inbox.id,
-        conversation_id: conversation.id,
-        message_type: message_type_for(msg[:sender_type]),
-        content: msg[:content],
-        content_type: content_type,
-        created_at: msg[:created_at],
-        updated_at: msg[:created_at],
-        source_id: msg[:external_id].to_s,
-        private: false
-      }
-    end
+    rows = raw_messages.map { |msg| message_row(msg, conversation, contact, content_type_enum) }
+    Message.insert_all!(rows) # rubocop:disable Rails/SkipsModelValidations
+  end
 
-    Message.insert_all!(messages_to_insert)
+  def message_row(msg, conversation, contact, content_type_enum)
+    ct = msg[:content_type].to_s
+    content_type = content_type_enum[ct == 'system' ? 'text' : ct] || content_type_enum[:text]
+    incoming = msg[:sender_type] != 'agent'
+    {
+      account_id: @account.id,
+      inbox_id: @inbox.id,
+      conversation_id: conversation.id,
+      message_type: message_type_for(msg[:sender_type]),
+      content: msg[:content],
+      content_type: content_type,
+      created_at: msg[:created_at],
+      updated_at: msg[:created_at],
+      source_id: msg[:external_id].to_s,
+      private: false,
+      sender_type: incoming ? 'Contact' : nil,
+      sender_id: incoming ? contact.id : nil
+    }
+  end
+
+  def finalize_conversation(conversation, dialog)
+    first_reply_at = first_user_reply_at(dialog[:messages])
+    conversation.update!(
+      status: :resolved,
+      first_reply_created_at: first_reply_at,
+      additional_attributes: conversation.additional_attributes.merge(
+        imported_from: dialog[:source],
+        migration_external_id: dialog[:external_id],
+        original_title: dialog[:title]
+      )
+    )
+    conversation.update_columns(created_at: dialog[:messages].first[:created_at]) # rubocop:disable Rails/SkipsModelValidations
   end
 
   def message_type_for(sender_type)
