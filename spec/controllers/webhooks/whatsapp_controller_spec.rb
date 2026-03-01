@@ -24,8 +24,8 @@ RSpec.describe 'Webhooks::WhatsAppController', type: :request do
 
   describe 'POST /webhooks/whatsapp/{:phone_number}' do
     it 'call the whatsapp events job with the params' do
-      allow(Webhooks::WhatsAppEventsJob).to receive(:perform_later)
-      expect(Webhooks::WhatsAppEventsJob).to receive(:perform_later)
+      allow(Webhooks::WhatsappEventsJob).to receive(:perform_later)
+      expect(Webhooks::WhatsappEventsJob).to receive(:perform_later)
       post '/webhooks/whatsapp/123221321', params: { content: 'hello' }
       expect(response).to have_http_status(:success)
     end
@@ -51,8 +51,8 @@ RSpec.describe 'Webhooks::WhatsAppController', type: :request do
       end
 
       it 'processes the webhook normally' do
-        allow(Webhooks::WhatsAppEventsJob).to receive(:perform_later)
-        expect(Webhooks::WhatsAppEventsJob).to receive(:perform_later)
+        allow(Webhooks::WhatsappEventsJob).to receive(:perform_later)
+        expect(Webhooks::WhatsappEventsJob).to receive(:perform_later)
 
         post '/webhooks/whatsapp/+1234567890', params: { content: 'hello' }
         expect(response).to have_http_status(:success)

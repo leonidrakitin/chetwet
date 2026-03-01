@@ -91,8 +91,8 @@ RSpec.describe BulkMigrationJob, type: :job do
       expect(job.send(:parser_for, 'telegram')).to eq(Parsers::TelegramParser)
     end
 
-    it 'returns Parsers::WhatsAppParser for whatsapp' do
-      expect(job.send(:parser_for, 'whatsapp')).to eq(Parsers::WhatsAppParser)
+    it 'returns Parsers::WhatsappParser for whatsapp' do
+      expect(job.send(:parser_for, 'whatsapp')).to eq(Parsers::WhatsappParser)
     end
 
     it 'returns Parsers::VkParser for vk or vkontakte' do

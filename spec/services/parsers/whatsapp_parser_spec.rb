@@ -5,7 +5,7 @@ require 'rails_helper'
 require Rails.root.join('app/services/parsers/conversation_parser').to_s
 require Rails.root.join('app/services/parsers/whatsapp_parser').to_s
 
-RSpec.describe WhatsAppParser do
+RSpec.describe WhatsappParser do
   let(:parser) { described_class.new }
   let(:fixture_path) { Rails.root.join('spec/fixtures/files/whatsapp_export_sample.json') }
 

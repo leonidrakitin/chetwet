@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Parsers
-  class WhatsAppParser < ConversationParser
+  class WhatsappParser < ConversationParser
     def extract_chats(data)
       if data.is_a?(Array)
         data

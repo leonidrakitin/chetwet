@@ -13,7 +13,7 @@ module Parsers
 
         case source.to_s.downcase.strip
         when 'telegram', 'tg' then TelegramParser
-        when 'whatsapp', 'wa' then WhatsAppParser
+        when 'whatsapp', 'wa' then WhatsappParser
         when 'vk', 'vkontakte', 'vkcom' then VkParser
         else
           raise ArgumentError, "Неизвестный источник диалогов: #{source}. Поддерживаются: telegram, whatsapp, vk"
