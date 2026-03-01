@@ -18,8 +18,9 @@ class Captain::Llm::ConversationFaqService < Llm::BaseAiService
     return [] if new_faqs.empty?
 
     duplicate_faqs, unique_faqs = find_and_separate_duplicates(new_faqs)
-    save_new_faqs(unique_faqs)
+    saved = save_new_faqs(unique_faqs)
     log_duplicate_faqs(duplicate_faqs) if Rails.env.development?
+    saved
   end
 
   private

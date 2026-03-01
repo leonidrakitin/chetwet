@@ -2,8 +2,7 @@
 
 # ConversationImporterService
 # Импортирует один унифицированный диалог в Chatwoot как полноценную Conversation.
-# После создания сразу переводит в :resolved → срабатывает существующая логика:
-# CaptainListener → ConversationFaqService → генерация FAQ + дедупликация + embeddings.
+# После создания переводит в :resolved и синхронно генерирует FAQ через Captain (если передан assistant).
 class ConversationImporterService
   def initialize(inbox, assistant = nil)
     @inbox = inbox
@@ -14,14 +13,19 @@ class ConversationImporterService
   # @param dialog [Hash] унифицированный диалог из парсера
   # @return [Hash] { success: true/false, conversation_id:, faqs_generated: 0, error: nil }
   def import!(dialog)
+    conversation = nil
+    contact = nil
+
     ActiveRecord::Base.transaction do
       contact_inbox = find_or_create_contact_inbox(dialog)
       contact = contact_inbox.contact
       conversation = create_conversation(contact_inbox, dialog)
       create_messages(conversation, dialog[:messages], contact)
       finalize_conversation(conversation, dialog)
-      { success: true, conversation_id: conversation.id, faqs_generated: 0, contact_id: contact.id }
     end
+
+    faqs_count = generate_faqs(conversation)
+    { success: true, conversation_id: conversation.id, faqs_generated: faqs_count, contact_id: contact.id }
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
     Rails.logger.error "[ConversationImporterService] Ошибка импорта #{dialog[:external_id]}: #{e.message}"
     { success: false, error: e.message, external_id: dialog[:external_id] }
@@ -100,5 +104,15 @@ class ConversationImporterService
   def first_user_reply_at(messages)
     first_user_msg = messages.find { |m| m[:sender_type] == 'user' }
     first_user_msg ? first_user_msg[:created_at] : messages.first[:created_at]
+  end
+
+  def generate_faqs(conversation)
+    return 0 if @assistant&.config&.dig('feature_faq').blank?
+
+    result = Captain::Llm::ConversationFaqService.new(@assistant, conversation).generate_and_deduplicate
+    Array(result).size
+  rescue StandardError => e
+    Rails.logger.error "[ConversationImporterService] FAQ generation failed: #{e.message}"
+    0
   end
 end
