@@ -1,4 +1,4 @@
-class Webhooks::WhatsAppController < ActionController::API
+class Webhooks::WhatsappController < ActionController::API
   include MetaTokenVerifyConcern
 
   def process_payload
