@@ -17,7 +17,13 @@ class ConversationDeduplicator
       text_for_embedding = dialog_text(dialog)
       next if text_for_embedding.blank?
 
-      embedding = @embedding_service.get_embedding(text_for_embedding)
+      begin
+        embedding = @embedding_service.get_embedding(text_for_embedding)
+      rescue Captain::Llm::EmbeddingService::EmbeddingsError => e
+        Rails.logger.warn "[ConversationDeduplicator] Embedding failed for dialog #{index}, including without deduplication: #{e.message}"
+        unique << dialog
+        next
+      end
 
       if duplicate?(embedding)
         next # пропускаем дубликат
@@ -50,10 +56,10 @@ class ConversationDeduplicator
   end
 
   # Cosine distance = 1 - cosine similarity
-  def cosine_distance(a, b)
-    dot = a.zip(b).sum { |x, y| x * y }
-    norm_a = Math.sqrt(a.sum { |x| x * x })
-    norm_b = Math.sqrt(b.sum { |x| x * x })
+  def cosine_distance(vec_a, vec_b)
+    dot = vec_a.zip(vec_b).sum { |x, y| x * y }
+    norm_a = Math.sqrt(vec_a.sum { |x| x * x })
+    norm_b = Math.sqrt(vec_b.sum { |x| x * x })
     return 1.0 if norm_a.zero? || norm_b.zero?
 
     1.0 - (dot / (norm_a * norm_b))
