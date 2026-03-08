@@ -20,21 +20,10 @@ class Crm::Yclients::ProcessorService < Crm::BaseProcessorService
   end
 
   def handle_conversation_created(conversation)
-    contact = conversation.contact
-    yclients_id = ensure_yclients_client(contact)
-    return if yclients_id.blank?
-
-    record_data = build_record_data(conversation, yclients_id)
-    result = records_client.create(record_data)
-    return if result.blank?
-
-    record_id = result.is_a?(Array) ? result.first&.dig('id') : result['id']
-    return if record_id.blank?
-
-    store_conversation_metadata(conversation, Crm::Yclients::Mappers::RecordMapper.map_to_metadata(result.is_a?(Array) ? result.first : result))
+    sync_contact(conversation.contact)
   rescue Crm::Yclients::Api::BaseClient::ApiError => e
     ChatwootExceptionTracker.new(e, account: @account).capture_exception
-    Rails.logger.error "YClients API error creating record: #{e.message}"
+    Rails.logger.error "YClients API error syncing contact on conversation create: #{e.message}"
   end
 
   def handle_conversation_resolved(conversation)
@@ -86,25 +75,24 @@ class Crm::Yclients::ProcessorService < Crm::BaseProcessorService
 
   def find_existing_client(contact)
     if contact.phone_number.present?
-      found = clients_client.find_by_phone(contact.phone_number)
+      found = lookup_client_by_phone(contact.phone_number)
       return found if found.present?
     end
 
     if contact.email.present?
-      found = clients_client.find_by_email(contact.email)
+      found = lookup_client_by_email(contact.email)
       return found if found.present?
     end
 
     nil
   end
 
-  def build_record_data(conversation, yclients_id)
-    {
-      'staff_id' => 0,
-      'services' => [],
-      'client' => { 'id' => yclients_id },
-      'comment' => "Chatwoot conversation ##{conversation.display_id}"
-    }
+  def get_external_id(contact)
+    Crm::Yclients::ContactIdentity.external_id_for(contact, company_id: @company_id)
+  end
+
+  def store_external_id(contact, external_id)
+    Crm::Yclients::ContactIdentity.store_external_id(contact, external_id, company_id: @company_id)
   end
 
   def clients_client
@@ -113,5 +101,17 @@ class Crm::Yclients::ProcessorService < Crm::BaseProcessorService
 
   def records_client
     @records_client ||= Crm::Yclients::Api::RecordsClient.new(@partner_token, @user_token, @company_id)
+  end
+
+  def lookup_client_by_phone(phone_number)
+    # rubocop:disable Rails/DynamicFindBy
+    clients_client.find_by_phone(phone_number)
+    # rubocop:enable Rails/DynamicFindBy
+  end
+
+  def lookup_client_by_email(email)
+    # rubocop:disable Rails/DynamicFindBy
+    clients_client.find_by_email(email)
+    # rubocop:enable Rails/DynamicFindBy
   end
 end

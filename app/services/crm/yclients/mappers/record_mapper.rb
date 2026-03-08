@@ -1,11 +1,12 @@
 class Crm::Yclients::Mappers::RecordMapper
   def self.map_to_metadata(record)
-    services = Array.wrap(record['services']).map { |s| s['title'] }.join(', ')
+    services = Array.wrap(record['services']).pluck('title').join(', ')
     staff = record.dig('staff', 'name')
     amount = record['cost'].to_f
 
     {
       'record_id' => record['id'],
+      'company_id' => record['company_id']&.to_s,
       'record_date' => record['date'],
       'service' => services.presence,
       'staff' => staff.presence,

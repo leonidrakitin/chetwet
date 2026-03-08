@@ -24,6 +24,19 @@ class Crm::Yclients::Mappers::ContactMapper
     }.compact
   end
 
+  def self.map_from_yclients_full(client)
+    base = map_from_yclients(client)
+    extra = {
+      'birth_date' => client['birth_date'],
+      'discount' => client['discount'],
+      'categories' => client['categories'],
+      'visits' => client['visits'],
+      'balance' => client['balance']
+    }.compact
+    base[:yclients_attributes] = extra if extra.any?
+    base
+  end
+
   private
 
   attr_reader :contact
