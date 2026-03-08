@@ -99,12 +99,10 @@ function closeFrame() {
     window.parent.postMessage({ type: 'yclients-connect-close' }, '*');
     return;
   }
-
   if (window.history.length > 1) {
     router.back();
     return;
   }
-
   window.location.href = '/app';
 }
 
@@ -166,6 +164,29 @@ async function connect() {
   }
 }
 
+async function connectFromWelcome() {
+  if (!canConnect.value) return;
+  isSubmitting.value = true;
+  errorMessage.value = '';
+  status.value = 'idle';
+  try {
+    await integrationAPI.connectYclientsMarketplace(
+      selectedAccountId.value,
+      salonIds.value
+    );
+    status.value = 'success';
+    view.value = 'welcome-success';
+  } catch (err) {
+    status.value = 'error';
+    errorMessage.value =
+      err.response?.data?.error ||
+      err.message ||
+      t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ERROR');
+  } finally {
+    isSubmitting.value = false;
+  }
+}
+
 onMounted(() => {
   store.dispatch('setUser');
   const parsed = parseUserDataFromQuery();
@@ -203,263 +224,569 @@ watch(
     }
   }
 );
-
-async function connectFromWelcome() {
-  if (!canConnect.value) return;
-  isSubmitting.value = true;
-  errorMessage.value = '';
-  status.value = 'idle';
-  try {
-    await integrationAPI.connectYclientsMarketplace(
-      selectedAccountId.value,
-      salonIds.value
-    );
-    status.value = 'success';
-    view.value = 'welcome-success';
-  } catch (err) {
-    status.value = 'error';
-    errorMessage.value =
-      err.response?.data?.error ||
-      err.message ||
-      t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ERROR');
-  } finally {
-    isSubmitting.value = false;
-  }
-}
 </script>
 
 <template>
-  <div class="flex flex-col min-h-[40vh] w-full max-w-lg mx-auto p-6 gap-4">
-    <template v-if="showWelcomeScreen && view === 'welcome-success'">
-      <div
-        class="flex justify-center w-20 h-20 mx-auto rounded-full bg-green-100 dark:bg-green-900/30 items-center text-3xl"
-      >
-        <fluent-icon icon="checkmark" size="28" class="text-green-11" />
-      </div>
-      <h1 class="text-xl font-bold text-slate-12 dark:text-slate-2 text-center">
-        {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS') }}
-      </h1>
-      <NextButton
-        :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CLOSE')"
-        @click="closeFrame"
-      />
-    </template>
-
-    <template v-else-if="showWelcomeScreen && view === 'welcome'">
-      <div
-        class="flex justify-center w-20 h-20 mx-auto rounded-full bg-yellow-100 dark:bg-yellow-900/30 items-center text-3xl"
-      >
-        <fluent-icon icon="person" size="28" class="text-amber-11" />
-      </div>
-      <h1 class="text-xl font-bold text-slate-12 dark:text-slate-2 text-center">
-        {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_TITLE') }}
-      </h1>
-      <p class="text-sm text-slate-11 dark:text-slate-4">
-        {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_REGISTERED_AT') }}
-      </p>
-      <div class="flex flex-col gap-1 text-slate-12 dark:text-slate-2">
-        <p v-if="displayUserData?.email" class="font-medium">
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_EMAIL') }}
-          {{ displayUserData.email }}
-        </p>
-        <p v-if="displayUserData?.phone" class="font-medium">
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_PHONE') }}
-          {{ formatPhoneDisplay(displayUserData.phone) }}
-        </p>
-        <p
-          v-if="
-            displayUserData && !displayUserData.email && !displayUserData.phone
-          "
-          class="text-slate-11 dark:text-slate-4 text-sm"
+  <div
+    class="flex min-h-screen w-full items-start justify-center bg-n-background p-4 sm:p-8"
+  >
+    <div class="w-full max-w-md">
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <!-- SUCCESS                                     -->
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <template v-if="showWelcomeScreen && view === 'welcome-success'">
+        <div
+          class="flex flex-col items-center gap-6 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
         >
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_REGISTERED_AT') }}
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.DATA_NOT_AVAILABLE') }}
-        </p>
-      </div>
+          <!-- success icon + logo -->
+          <div class="flex flex-col items-center gap-3">
+            <div
+              class="flex h-16 w-16 items-center justify-center rounded-full bg-n-teal-3"
+            >
+              <fluent-icon
+                icon="checkmark-circle"
+                size="32"
+                class="text-n-teal-11"
+              />
+            </div>
+            <img
+              src="/dashboard/images/integrations/yclients-full.png"
+              alt="YCLIENTS"
+              class="h-6 dark:invert"
+            />
+          </div>
 
-      <template v-if="!isLoggedIn">
-        <p class="text-sm text-slate-11 dark:text-slate-4">
-          {{
-            replaceInstallationName(
-              t(
-                'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CREATE_EXPLANATION'
-              )
-            )
-          }}
-        </p>
-        <p class="text-xs text-slate-10 dark:text-slate-5">
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CHANGE_HINT') }}
-        </p>
-        <p class="text-xs text-slate-10 dark:text-slate-5">
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_LOGIN_HINT') }}
-        </p>
-        <div class="flex flex-col gap-2 mt-2">
+          <div class="text-center">
+            <h1 class="text-lg font-semibold text-n-slate-12">
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS_TITLE') }}
+            </h1>
+            <p class="mt-1.5 text-sm leading-relaxed text-n-slate-11">
+              {{
+                t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS_DESCRIPTION')
+              }}
+            </p>
+          </div>
+
+          <!-- feature pills -->
+          <div class="flex flex-wrap justify-center gap-2">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-n-teal-3 px-3 py-1 text-xs font-medium text-n-teal-11"
+            >
+              <fluent-icon icon="people" size="12" />
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_CONTACTS') }}
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-n-teal-3 px-3 py-1 text-xs font-medium text-n-teal-11"
+            >
+              <fluent-icon icon="calendar" size="12" />
+              {{
+                t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_APPOINTMENTS')
+              }}
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-n-teal-3 px-3 py-1 text-xs font-medium text-n-teal-11"
+            >
+              <fluent-icon icon="bot" size="12" />
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_AI') }}
+            </span>
+          </div>
+
           <NextButton
-            class="bg-yellow-400 hover:bg-yellow-500 border-yellow-500 text-slate-12 font-semibold"
-            :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CREATE')"
-            @click="goToSignup"
-          />
-          <NextButton
-            faded
-            slate
-            :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CHANGE')"
-            @click="openEditData"
-          />
-          <NextButton
-            faded
-            slate
-            :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_LOGIN')"
-            @click="goToLogin"
-          />
-        </div>
-      </template>
-
-      <template v-else>
-        <p v-if="!hasAccounts" class="text-sm text-slate-11 dark:text-slate-4">
-          {{
-            replaceInstallationName(
-              t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ZERO_ACCOUNTS')
-            )
-          }}
-        </p>
-        <p
-          v-else-if="accounts.length > 1"
-          class="text-sm text-slate-11 dark:text-slate-4"
-        >
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SELECT_ACCOUNT') }}
-        </p>
-        <select
-          v-if="accounts.length > 1"
-          v-model="selectedAccountId"
-          class="rounded border border-slate-6 bg-slate-1 text-slate-12 dark:bg-slate-2 dark:text-slate-1 px-3 py-2"
-        >
-          <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
-            {{ acc.name }}
-          </option>
-        </select>
-        <div class="flex flex-col gap-2 mt-2">
-          <NextButton
-            :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CONNECT')"
-            :loading="isSubmitting"
-            :disabled="!canConnect"
-            @click="connectFromWelcome"
-          />
-          <p v-if="status === 'error'" class="text-ruby-11 text-sm">
-            {{ errorMessage }}
-          </p>
-        </div>
-      </template>
-    </template>
-
-    <template v-else-if="showWelcomeScreen && view === 'edit'">
-      <h1 class="text-xl font-bold text-slate-12 dark:text-slate-2">
-        {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_TITLE') }}
-      </h1>
-      <p class="text-sm text-slate-11 dark:text-slate-4">
-        {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_INTRO') }}
-      </p>
-      <p class="text-sm text-slate-11 dark:text-slate-4">
-        {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_INSTRUCTION') }}
-      </p>
-      <Input
-        v-if="editableUserData"
-        v-model="editableUserData.phone"
-        :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_PHONE')"
-        type="tel"
-        class="w-full"
-      />
-      <Input
-        v-if="editableUserData"
-        v-model="editableUserData.email"
-        :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_EMAIL')"
-        type="email"
-        class="w-full"
-      />
-      <div class="flex flex-col gap-2 mt-2">
-        <NextButton
-          :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_SAVE')"
-          @click="saveEditData"
-        />
-        <NextButton
-          faded
-          slate
-          :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_BACK')"
-          @click="backFromEdit"
-        />
-      </div>
-    </template>
-
-    <template v-else>
-      <h1 class="text-lg font-semibold text-slate-12 dark:text-slate-2">
-        {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.TITLE') }}
-      </h1>
-
-      <template v-if="!isLoggedIn">
-        <p class="text-slate-11 dark:text-slate-4">
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.LOGIN_REQUIRED') }}
-        </p>
-        <a
-          :href="`/app/login?return_url=${encodeURIComponent(route.fullPath)}`"
-          class="text-woot-500 hover:underline"
-        >
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.LOGIN_LINK') }}
-        </a>
-      </template>
-
-      <template v-else-if="!hasValidSalonIds">
-        <p class="text-slate-11 dark:text-slate-4">
-          {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.MISSING_SALON_IDS') }}
-        </p>
-      </template>
-
-      <template v-else>
-        <template v-if="status === 'success'">
-          <p class="text-slate-11 dark:text-slate-4">
-            {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS') }}
-          </p>
-          <NextButton
-            :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CLOSE')"
+            class="w-full"
+            :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS_CLOSE')"
             @click="closeFrame"
           />
-        </template>
-
-        <template v-else>
-          <p
-            v-if="!hasAccounts"
-            class="text-sm text-slate-11 dark:text-slate-4"
-          >
-            {{
-              replaceInstallationName(
-                t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ZERO_ACCOUNTS')
-              )
-            }}
-          </p>
-          <p
-            v-else-if="accounts.length > 1"
-            class="text-sm text-slate-11 dark:text-slate-4"
-          >
-            {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SELECT_ACCOUNT') }}
-          </p>
-          <select
-            v-if="accounts.length > 1"
-            v-model="selectedAccountId"
-            class="rounded border border-slate-6 bg-slate-1 text-slate-12 dark:bg-slate-2 dark:text-slate-1 px-3 py-2"
-          >
-            <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
-              {{ acc.name }}
-            </option>
-          </select>
-          <NextButton
-            :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CONNECT')"
-            :loading="isSubmitting"
-            :disabled="!canConnect"
-            @click="connect"
-          />
-          <p v-if="status === 'error'" class="text-ruby-11 text-sm">
-            {{ errorMessage }}
-          </p>
-        </template>
+        </div>
       </template>
-    </template>
+
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <!-- WELCOME                                     -->
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <template v-else-if="showWelcomeScreen && view === 'welcome'">
+        <div
+          class="flex flex-col gap-6 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
+        >
+          <!-- header -->
+          <div class="flex flex-col items-center gap-3 text-center">
+            <img
+              src="/dashboard/images/integrations/yclients-full.png"
+              alt="YCLIENTS"
+              class="h-8 dark:invert"
+            />
+            <h1 class="text-lg font-semibold text-n-slate-12">
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_TITLE') }}
+            </h1>
+            <p class="text-sm leading-relaxed text-n-slate-11">
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_SUBTITLE') }}
+            </p>
+          </div>
+
+          <!-- salon info card -->
+          <div class="rounded-xl border border-n-weak bg-n-alpha-1 p-4">
+            <p
+              class="mb-3 text-xs font-medium uppercase tracking-wide text-n-slate-10"
+            >
+              {{
+                t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_REGISTERED_AT')
+              }}
+            </p>
+
+            <div class="flex flex-col gap-3">
+              <!-- salon name -->
+              <div
+                v-if="displayUserData?.salon_name"
+                class="flex items-center gap-3"
+              >
+                <div
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-n-alpha-2"
+                >
+                  <fluent-icon
+                    icon="building"
+                    size="14"
+                    class="text-n-slate-11"
+                  />
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs text-n-slate-10">
+                    {{
+                      t(
+                        'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_SALON_NAME'
+                      )
+                    }}
+                  </p>
+                  <p class="truncate text-sm font-medium text-n-slate-12">
+                    {{ displayUserData.salon_name }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- email -->
+              <div
+                v-if="displayUserData?.email"
+                class="flex items-center gap-3"
+              >
+                <div
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-n-alpha-2"
+                >
+                  <fluent-icon icon="mail" size="14" class="text-n-slate-11" />
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs text-n-slate-10">
+                    {{
+                      t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_EMAIL')
+                    }}
+                  </p>
+                  <p class="truncate text-sm font-medium text-n-slate-12">
+                    {{ displayUserData.email }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- phone -->
+              <div
+                v-if="displayUserData?.phone"
+                class="flex items-center gap-3"
+              >
+                <div
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-n-alpha-2"
+                >
+                  <fluent-icon icon="call" size="14" class="text-n-slate-11" />
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs text-n-slate-10">
+                    {{
+                      t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_PHONE')
+                    }}
+                  </p>
+                  <p class="truncate text-sm font-medium text-n-slate-12">
+                    {{ formatPhoneDisplay(displayUserData.phone) }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- fallback when no data -->
+              <p
+                v-if="
+                  displayUserData &&
+                  !displayUserData.email &&
+                  !displayUserData.phone &&
+                  !displayUserData.salon_name
+                "
+                class="text-sm text-n-slate-10"
+              >
+                {{
+                  t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.DATA_NOT_AVAILABLE')
+                }}
+              </p>
+            </div>
+          </div>
+
+          <!-- ── NOT LOGGED IN ── -->
+          <template v-if="!isLoggedIn">
+            <div class="flex flex-col gap-3">
+              <p class="text-sm leading-relaxed text-n-slate-11">
+                {{
+                  replaceInstallationName(
+                    t(
+                      'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CREATE_EXPLANATION'
+                    )
+                  )
+                }}
+              </p>
+              <NextButton
+                class="w-full"
+                :label="
+                  t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CREATE')
+                "
+                @click="goToSignup"
+              />
+            </div>
+
+            <!-- divider -->
+            <div class="flex items-center gap-3">
+              <div class="h-px flex-1 bg-n-weak" />
+              <span class="text-xs text-n-slate-10">
+                {{
+                  t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_OR_DIVIDER')
+                }}
+              </span>
+              <div class="h-px flex-1 bg-n-weak" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <NextButton
+                faded
+                slate
+                class="w-full"
+                :label="
+                  t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_LOGIN')
+                "
+                @click="goToLogin"
+              />
+              <NextButton
+                faded
+                slate
+                class="w-full"
+                :label="
+                  t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CHANGE')
+                "
+                @click="openEditData"
+              />
+            </div>
+
+            <p class="text-center text-xs leading-relaxed text-n-slate-10">
+              {{
+                t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CHANGE_HINT')
+              }}
+            </p>
+          </template>
+
+          <!-- ── LOGGED IN ── -->
+          <template v-else>
+            <!-- zero accounts warning -->
+            <div
+              v-if="!hasAccounts"
+              class="flex items-start gap-2.5 rounded-lg bg-n-amber-3 p-3"
+            >
+              <fluent-icon
+                icon="warning"
+                size="16"
+                class="mt-0.5 shrink-0 text-n-amber-11"
+              />
+              <p class="text-sm text-n-amber-11">
+                {{
+                  replaceInstallationName(
+                    t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ZERO_ACCOUNTS')
+                  )
+                }}
+              </p>
+            </div>
+
+            <template v-else>
+              <!-- account picker -->
+              <div v-if="accounts.length > 1" class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{
+                    t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SELECT_ACCOUNT')
+                  }}
+                </label>
+                <select
+                  v-model="selectedAccountId"
+                  class="rounded-lg border border-n-weak bg-n-solid-2 px-3 py-2.5 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+                >
+                  <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
+                    {{ acc.name }}
+                  </option>
+                </select>
+              </div>
+
+              <NextButton
+                class="w-full"
+                :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CONNECT')"
+                :loading="isSubmitting"
+                :disabled="!canConnect"
+                @click="connectFromWelcome"
+              />
+            </template>
+
+            <!-- error -->
+            <div
+              v-if="status === 'error'"
+              class="flex items-start gap-2.5 rounded-lg bg-n-ruby-3 p-3"
+            >
+              <fluent-icon
+                icon="warning"
+                size="16"
+                class="mt-0.5 shrink-0 text-n-ruby-11"
+              />
+              <p class="text-sm text-n-ruby-11">{{ errorMessage }}</p>
+            </div>
+          </template>
+        </div>
+
+        <!-- feature bar below the card -->
+        <div class="mt-4 flex flex-col items-center gap-3">
+          <div class="flex flex-wrap justify-center gap-4">
+            <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+              <fluent-icon icon="people" size="12" />
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_CONTACTS') }}
+            </span>
+            <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+              <fluent-icon icon="calendar" size="12" />
+              {{
+                t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_APPOINTMENTS')
+              }}
+            </span>
+            <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+              <fluent-icon icon="bot" size="12" />
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_AI') }}
+            </span>
+          </div>
+          <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+            {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.POWERED_BY') }}
+            <img
+              src="/dashboard/images/integrations/yclients.png"
+              alt="YCLIENTS"
+              class="h-4 w-4 block dark:hidden"
+            />
+            <img
+              src="/dashboard/images/integrations/yclients-dark.png"
+              alt="YCLIENTS"
+              class="h-4 w-4 hidden dark:block"
+            />
+          </span>
+        </div>
+      </template>
+
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <!-- EDIT DATA                                   -->
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <template v-else-if="showWelcomeScreen && view === 'edit'">
+        <div
+          class="flex flex-col gap-5 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
+        >
+          <div class="flex flex-col items-center gap-2 text-center">
+            <div
+              class="flex h-14 w-14 items-center justify-center rounded-xl bg-n-alpha-2"
+            >
+              <fluent-icon icon="edit" size="24" class="text-n-slate-11" />
+            </div>
+            <h1 class="text-lg font-semibold text-n-slate-12">
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_TITLE') }}
+            </h1>
+            <p class="text-sm leading-relaxed text-n-slate-11">
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_INTRO') }}
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <Input
+              v-if="editableUserData"
+              v-model="editableUserData.phone"
+              :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_PHONE')"
+              type="tel"
+              class="w-full"
+            />
+            <Input
+              v-if="editableUserData"
+              v-model="editableUserData.email"
+              :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_EMAIL')"
+              type="email"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <NextButton
+              class="w-full"
+              :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_SAVE')"
+              @click="saveEditData"
+            />
+            <NextButton
+              faded
+              slate
+              class="w-full"
+              :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_BACK')"
+              @click="backFromEdit"
+            />
+          </div>
+        </div>
+      </template>
+
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <!-- FALLBACK (direct URL, no user_data)         -->
+      <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+      <template v-else>
+        <div
+          class="flex flex-col gap-6 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
+        >
+          <!-- header -->
+          <div class="flex flex-col items-center gap-3 text-center">
+            <img
+              src="/dashboard/images/integrations/yclients-full.png"
+              alt="YCLIENTS"
+              class="h-8 dark:invert"
+            />
+            <h1 class="text-lg font-semibold text-n-slate-12">
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.TITLE') }}
+            </h1>
+            <p class="text-sm leading-relaxed text-n-slate-11">
+              {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUBTITLE') }}
+            </p>
+          </div>
+
+          <!-- not logged in -->
+          <template v-if="!isLoggedIn">
+            <div
+              class="flex flex-col items-center gap-3 rounded-xl bg-n-alpha-1 p-5 text-center"
+            >
+              <fluent-icon
+                icon="person-lock"
+                size="24"
+                class="text-n-slate-10"
+              />
+              <p class="text-sm text-n-slate-11">
+                {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.LOGIN_REQUIRED') }}
+              </p>
+              <a
+                :href="`/app/login?return_url=${encodeURIComponent(route.fullPath)}`"
+                class="text-sm font-medium text-n-brand hover:underline"
+              >
+                {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.LOGIN_LINK') }}
+              </a>
+            </div>
+          </template>
+
+          <!-- no salon ids -->
+          <template v-else-if="!hasValidSalonIds">
+            <div
+              class="flex flex-col items-center gap-3 rounded-xl bg-n-amber-3 p-5 text-center"
+            >
+              <fluent-icon icon="warning" size="24" class="text-n-amber-11" />
+              <p class="text-sm font-medium text-n-amber-11">
+                {{
+                  t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.MISSING_SALON_IDS')
+                }}
+              </p>
+              <p class="text-xs text-n-amber-10">
+                {{
+                  t(
+                    'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.MISSING_SALON_IDS_HINT'
+                  )
+                }}
+              </p>
+            </div>
+          </template>
+
+          <!-- logged in + has salon ids -->
+          <template v-else>
+            <!-- success -->
+            <template v-if="status === 'success'">
+              <div
+                class="flex flex-col items-center gap-3 rounded-xl bg-n-teal-3 p-5 text-center"
+              >
+                <fluent-icon
+                  icon="checkmark-circle"
+                  size="28"
+                  class="text-n-teal-11"
+                />
+                <p class="text-sm font-medium text-n-teal-11">
+                  {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS_TITLE') }}
+                </p>
+              </div>
+              <NextButton
+                class="w-full"
+                :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CLOSE')"
+                @click="closeFrame"
+              />
+            </template>
+
+            <!-- connect form -->
+            <template v-else>
+              <div
+                v-if="!hasAccounts"
+                class="flex items-start gap-2.5 rounded-lg bg-n-amber-3 p-3"
+              >
+                <fluent-icon
+                  icon="warning"
+                  size="16"
+                  class="mt-0.5 shrink-0 text-n-amber-11"
+                />
+                <p class="text-sm text-n-amber-11">
+                  {{
+                    replaceInstallationName(
+                      t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ZERO_ACCOUNTS')
+                    )
+                  }}
+                </p>
+              </div>
+
+              <template v-else>
+                <div v-if="accounts.length > 1" class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-n-slate-12">
+                    {{
+                      t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SELECT_ACCOUNT')
+                    }}
+                  </label>
+                  <select
+                    v-model="selectedAccountId"
+                    class="rounded-lg border border-n-weak bg-n-solid-2 px-3 py-2.5 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+                  >
+                    <option
+                      v-for="acc in accounts"
+                      :key="acc.id"
+                      :value="acc.id"
+                    >
+                      {{ acc.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <NextButton
+                  class="w-full"
+                  :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CONNECT')"
+                  :loading="isSubmitting"
+                  :disabled="!canConnect"
+                  @click="connect"
+                />
+              </template>
+
+              <!-- error -->
+              <div
+                v-if="status === 'error'"
+                class="flex items-start gap-2.5 rounded-lg bg-n-ruby-3 p-3"
+              >
+                <fluent-icon
+                  icon="warning"
+                  size="16"
+                  class="mt-0.5 shrink-0 text-n-ruby-11"
+                />
+                <p class="text-sm text-n-ruby-11">{{ errorMessage }}</p>
+              </div>
+            </template>
+          </template>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
