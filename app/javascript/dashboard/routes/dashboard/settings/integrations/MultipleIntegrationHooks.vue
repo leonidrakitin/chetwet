@@ -68,6 +68,11 @@ const filteredHooks = computed(() => {
 });
 
 const inboxName = hook => (hook.inbox ? hook.inbox.name : '');
+
+function openYclientsConnect() {
+  const base = typeof window !== 'undefined' ? window.location.origin : '';
+  window.open(`${base}/app/yclients/connect`, '_blank', 'noopener,noreferrer');
+}
 </script>
 
 <template>
@@ -91,6 +96,14 @@ const inboxName = hook => (hook.inbox ? hook.inbox.name : '');
         </span>
       </template>
       <template #actions>
+        <NextButton
+          v-if="integrationId === 'yclients'"
+          faded
+          slate
+          size="sm"
+          :label="$t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.OPEN_CONNECT_PAGE')"
+          @click="openYclientsConnect"
+        />
         <NextButton
           v-if="showAddButton"
           :label="$t('INTEGRATION_APPS.ADD_BUTTON')"

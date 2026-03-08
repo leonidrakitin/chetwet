@@ -416,7 +416,8 @@
       "EDIT_SAVE": "Save",
       "EDIT_BACK": "Back",
       "WELCOME_CONNECT_ACCOUNT": "Connect to my account",
-      "ZERO_ACCOUNTS": "You need at least one Chatwoot account before you can connect this YClients salon."
+      "ZERO_ACCOUNTS": "You need at least one Chatwoot account before you can connect this YClients salon.",
+      "OPEN_CONNECT_PAGE": "Set up via Connect page"
     }
   },
   "CAPTAIN": {
