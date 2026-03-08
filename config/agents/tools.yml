@@ -39,3 +39,28 @@
   title: 'Handoff to Human'
   description: 'Hand off the conversation to a human agent'
   icon: 'user-switch'
+
+- id: yclients_lookup_client
+  title: 'YClients: Lookup Client'
+  description: 'Look up client records and appointments in YClients'
+  icon: 'calendar'
+
+- id: yclients_check_availability
+  title: 'YClients: Check Availability'
+  description: 'Check available time slots for booking'
+  icon: 'clock'
+
+- id: yclients_book_appointment
+  title: 'YClients: Book Appointment'
+  description: 'Book an appointment for the current contact'
+  icon: 'calendar'
+
+- id: yclients_get_services
+  title: 'YClients: Services & Staff'
+  description: 'Get list of available services and staff'
+  icon: 'list'
+
+- id: yclients_get_transactions
+  title: 'YClients: Transactions'
+  description: 'Get financial transaction history for a contact'
+  icon: 'currency'
