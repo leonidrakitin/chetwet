@@ -32,4 +32,9 @@ class Crm::Yclients::Api::ClientsClient < Crm::Yclients::Api::BaseClient
   def find_by_email(email)
     search(email: email).first
   end
+
+  def list(page: 1, count: 100)
+    result = get("clients/#{@company_id}", { page: page, count: count })
+    Array.wrap(result)
+  end
 end
