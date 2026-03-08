@@ -69,6 +69,7 @@ class Webhooks::YclientsMarketplaceController < ActionController::API
 
     YclientsIntegration.where(salon_id: salon_id).active.find_each do |integration|
       integration.update!(status: :revoked)
+      update_hook_status(integration, :disabled)
     end
     Rails.logger.info "YClients Marketplace webhook: revoked integrations for salon_id=#{salon_id}"
   end
@@ -80,7 +81,7 @@ class Webhooks::YclientsMarketplaceController < ActionController::API
     return if token.blank?
 
     YclientsIntegration.where(salon_id: salon_id).find_each do |integration|
-      integration.update!(bearer_token: token)
+      integration.update!(bearer_token: token, status: :active)
       update_hook_user_token(integration)
       Rails.logger.info "YClients Marketplace webhook: updated bearer_token for integration id=#{integration.id}"
     end
@@ -94,6 +95,17 @@ class Webhooks::YclientsMarketplaceController < ActionController::API
     return if hook.blank?
 
     hook.settings = (hook.settings || {}).merge('user_token' => integration.bearer_token.to_s)
+    hook.status = :enabled
     hook.save!
+  end
+
+  def update_hook_status(integration, status)
+    hook = integration.account.hooks
+                      .where(app_id: 'yclients')
+                      .where("(settings->>'company_id') = ?", integration.salon_id.to_s)
+                      .first
+    return if hook.blank?
+
+    hook.update!(status: status)
   end
 end

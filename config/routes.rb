@@ -352,9 +352,12 @@ Rails.application.routes.draw do
                 get 'contacts/:contact_id/records', action: :records
                 get 'contacts/:contact_id/finances', action: :finances
                 get :widget_snippet
+                post :sync_contacts
               end
             end
             post 'yclients_marketplace/connect', to: 'yclients_marketplace#connect'
+            post 'yclients_marketplace/payment', to: 'yclients_marketplace#payment'
+            post 'yclients_marketplace/payment/refund/:payment_id', to: 'yclients_marketplace#refund'
           end
           resources :working_hours, only: [:update]
 
