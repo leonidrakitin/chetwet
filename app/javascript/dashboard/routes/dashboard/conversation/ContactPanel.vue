@@ -20,6 +20,7 @@ import CustomAttributes from './customAttributes/CustomAttributes.vue';
 import Draggable from 'vuedraggable';
 import MacrosList from './Macros/List.vue';
 import ShopifyOrdersList from 'dashboard/components/widgets/conversation/ShopifyOrdersList.vue';
+import YclientsAppointmentsList from 'dashboard/components/widgets/conversation/yclients/YclientsAppointmentsList.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import LinearIssuesList from 'dashboard/components/widgets/conversation/linear/IssuesList.vue';
 import LinearSetupCTA from 'dashboard/components/widgets/conversation/linear/LinearSetupCTA.vue';
@@ -53,6 +54,13 @@ const shopifyIntegration = useFunctionGetter(
 const isShopifyFeatureEnabled = computed(
   () => shopifyIntegration.value.enabled
 );
+
+const yclientsIntegration = useFunctionGetter(
+  'integrations/getIntegration',
+  'yclients'
+);
+
+const isYclientsEnabled = computed(() => yclientsIntegration.value.enabled);
 
 const { isCloudFeatureEnabled } = useAccount();
 
@@ -134,8 +142,9 @@ onMounted(() => {
   conversationSidebarItems.value = conversationSidebarItemsOrder.value;
   getContactDetails();
   store.dispatch('attributes/get', 0);
-  // Load integrations to ensure linear integration state is available
+  // Load integrations to ensure integration states are available
   store.dispatch('integrations/get', 'linear');
+  store.dispatch('integrations/get', 'yclients');
 });
 </script>
 
@@ -300,6 +309,27 @@ onMounted(() => {
               "
             >
               <ShopifyOrdersList :contact-id="contactId" />
+            </AccordionItem>
+          </div>
+          <div v-else-if="element.name === 'yclients_appointments'">
+            <AccordionItem
+              :title="
+                $t('CONVERSATION_SIDEBAR.ACCORDION.YCLIENTS_APPOINTMENTS')
+              "
+              :is-open="
+                isContactSidebarItemOpen('is_yclients_appointments_open')
+              "
+              compact
+              @toggle="
+                value =>
+                  toggleSidebarUIState('is_yclients_appointments_open', value)
+              "
+            >
+              <YclientsAppointmentsList
+                :contact-id="contactId"
+                :integration-enabled="isYclientsEnabled"
+                :settings-path="`/app/accounts/${accountId}/settings/integrations`"
+              />
             </AccordionItem>
           </div>
           <div v-else-if="element.name === 'contact_notes'">

@@ -40,9 +40,9 @@ class IntegrationsAPI extends ApiClient {
   }
 
   connectYclientsMarketplace(accountId, salonIds) {
-    const accountsBase = this.baseUrl().replace(/\/[^/]*$/, '');
+    const base = this.apiVersion;
     return axios.post(
-      `${accountsBase}/${accountId}/yclients_marketplace/connect`,
+      `${base}/accounts/${accountId}/integrations/yclients_marketplace/connect`,
       { salon_ids: salonIds }
     );
   }

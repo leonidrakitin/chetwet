@@ -365,7 +365,25 @@
       "PREVIOUS_CONVERSATION": "Previous Conversations",
       "MACROS": "Macros",
       "LINEAR_ISSUES": "Linked Linear Issues",
-      "SHOPIFY_ORDERS": "Shopify Orders"
+      "SHOPIFY_ORDERS": "Shopify Orders",
+      "YCLIENTS_APPOINTMENTS": "YClients Appointments"
+    },
+    "YCLIENTS": {
+      "NO_APPOINTMENTS": "No appointments found",
+      "ERROR": "Error loading appointments",
+      "NOT_CONNECTED": "YClients is not connected for this account yet.",
+      "CONNECT_CTA": "Connect YClients",
+      "REFRESH": "Refresh",
+      "APPOINTMENTS_SECTION": "Appointments",
+      "TRANSACTIONS_SECTION": "Transactions",
+      "NO_SERVICE": "No service",
+      "PAYMENT": "Payment",
+      "COMPANY": "Salon #{id}",
+      "DISCOUNT": "Discount: {amount}",
+      "STATUS_VISITED": "Visited",
+      "STATUS_CONFIRMED": "Confirmed",
+      "STATUS_CANCELLED": "Cancelled",
+      "STATUS_PENDING": "Pending"
     },
     "SHOPIFY": {
       "ORDER_ID": "Order #{id}",

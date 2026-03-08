@@ -396,7 +396,27 @@
       "LOGIN_REQUIRED": "Please log in to connect YClients integration.",
       "LOGIN_LINK": "Log in",
       "ERROR": "There was an error connecting. Please try again.",
-      "MISSING_SALON_IDS": "Missing salon_id or salon_ids. Open this page from YClients Marketplace."
+      "MISSING_SALON_IDS": "Missing salon_id or salon_ids. Open this page from YClients Marketplace.",
+      "WELCOME_TITLE": "Welcome!",
+      "WELCOME_REGISTERED_AT": "Your YClients is registered at:",
+      "DATA_NOT_AVAILABLE": "(data not available)",
+      "WELCOME_EMAIL": "Email:",
+      "WELCOME_PHONE": "Phone:",
+      "WELCOME_CREATE_EXPLANATION": "Create a Chatwoot account with this data? We will send a password to the email. (This data is only used for account creation.)",
+      "WELCOME_CHANGE_HINT": "To change email or phone, click \"Change\".",
+      "WELCOME_LOGIN_HINT": "To log in to an existing account and link YClients to it, click \"Log in\".",
+      "WELCOME_CREATE": "Create",
+      "WELCOME_CHANGE": "Change",
+      "WELCOME_LOGIN": "Log in",
+      "EDIT_TITLE": "Change data",
+      "EDIT_INTRO": "Below are the data we received from YClients.",
+      "EDIT_INSTRUCTION": "To change them, enter new values and click \"Save\".",
+      "EDIT_PHONE": "Phone",
+      "EDIT_EMAIL": "Email",
+      "EDIT_SAVE": "Save",
+      "EDIT_BACK": "Back",
+      "WELCOME_CONNECT_ACCOUNT": "Connect to my account",
+      "ZERO_ACCOUNTS": "You need at least one Chatwoot account before you can connect this YClients salon."
     }
   },
   "CAPTAIN": {
