@@ -14,6 +14,11 @@ const store = useStore();
 const { t } = useI18n();
 const { replaceInstallationName } = useBranding();
 
+/** Public URL for Yclients integration images (avoids Vite resolving as module). */
+function yclientsImage(name) {
+  return `/dashboard/images/integrations/${name}`;
+}
+
 const selectedAccountId = ref(null);
 const isSubmitting = ref(false);
 const status = ref('idle');
@@ -250,7 +255,7 @@ watch(
               />
             </div>
             <img
-              src="/dashboard/images/integrations/yclients-full.png"
+              :src="yclientsImage('yclients-full.png')"
               alt="YCLIENTS"
               class="h-6 dark:invert"
             />
@@ -309,7 +314,7 @@ watch(
           <!-- header -->
           <div class="flex flex-col items-center gap-3 text-center">
             <img
-              src="/dashboard/images/integrations/yclients-full.png"
+              :src="yclientsImage('yclients-full.png')"
               alt="YCLIENTS"
               class="h-8 dark:invert"
             />
@@ -565,12 +570,12 @@ watch(
           <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
             {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.POWERED_BY') }}
             <img
-              src="/dashboard/images/integrations/yclients.png"
+              :src="yclientsImage('yclients.png')"
               alt="YCLIENTS"
               class="h-4 w-4 block dark:hidden"
             />
             <img
-              src="/dashboard/images/integrations/yclients-dark.png"
+              :src="yclientsImage('yclients-dark.png')"
               alt="YCLIENTS"
               class="h-4 w-4 hidden dark:block"
             />
@@ -643,7 +648,7 @@ watch(
           <!-- header -->
           <div class="flex flex-col items-center gap-3 text-center">
             <img
-              src="/dashboard/images/integrations/yclients-full.png"
+              :src="yclientsImage('yclients-full.png')"
               alt="YCLIENTS"
               class="h-8 dark:invert"
             />
