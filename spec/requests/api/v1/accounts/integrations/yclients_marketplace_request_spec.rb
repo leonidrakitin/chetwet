@@ -1,8 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe 'YClients Marketplace Integration API', type: :request do
-  include ActiveJob::TestHelper
-
   let(:account) { create(:account) }
   let(:agent) { create(:user, account: account, role: :agent) }
 
@@ -11,16 +9,95 @@ RSpec.describe 'YClients Marketplace Integration API', type: :request do
     allow(InstallationConfig).to receive(:find_by).with(name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS').and_return(nil)
   end
 
-  describe 'POST /api/v1/accounts/:account_id/integrations/yclients_marketplace/connect' do
-    it 'enqueues the marketplace connect job' do
-      expect do
-        post "/api/v1/accounts/#{account.id}/integrations/yclients_marketplace/connect",
-             params: { salon_ids: [111, 222] },
-             headers: agent.create_new_auth_token,
-             as: :json
-      end.to have_enqueued_job(Yclients::Marketplace::ConnectJob).with(account.id, [111, 222])
+  describe 'GET /api/v1/accounts/:account_id/integrations/yclients_marketplace/status' do
+    let!(:existing_hook) do
+      create(
+        :integrations_hook,
+        account: account,
+        app_id: 'yclients',
+        settings: {
+          'partner_token' => 'partner-token',
+          'user_token' => 'user-token',
+          'company_id' => '111'
+        }
+      )
+    end
+
+    it 'returns already connected salons for the selected account' do
+      get "/api/v1/accounts/#{account.id}/integrations/yclients_marketplace/status",
+          params: { salon_ids: [111, 222] },
+          headers: agent.create_new_auth_token,
+          as: :json
 
       expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to include(
+        'status' => 'not_connected',
+        'connected_salon_ids' => [111]
+      )
+    end
+  end
+
+  describe 'POST /api/v1/accounts/:account_id/integrations/yclients_marketplace/connect' do
+    let(:callback_service) { instance_double(Crm::Yclients::Marketplace::CallbackService) }
+
+    before do
+      allow(Crm::Yclients::Marketplace::CallbackService).to receive(:new).and_return(callback_service)
+      allow(callback_service).to receive(:call) do
+        [111, 222].each do |salon_id|
+          create(
+            :integrations_hook,
+            account: account,
+            app_id: 'yclients',
+            settings: {
+              'partner_token' => 'partner-token',
+              'user_token' => 'user-token',
+              'company_id' => salon_id.to_s
+            }
+          )
+        end
+
+        { success: [111, 222], errors: [] }
+      end
+    end
+
+    it 'connects salons immediately and returns the connected ids' do
+      post "/api/v1/accounts/#{account.id}/integrations/yclients_marketplace/connect",
+           params: { salon_ids: [111, 222] },
+           headers: agent.create_new_auth_token,
+           as: :json
+
+      expect(Crm::Yclients::Marketplace::CallbackService).to have_received(:new).with(
+        account_id: account.id,
+        salon_ids: [111, 222]
+      )
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body['status']).to eq('connected')
+      expect(response.parsed_body['connected_salon_ids']).to contain_exactly(111, 222)
+    end
+
+    it 'returns already connected when all salons are already linked' do
+      create(
+        :integrations_hook,
+        account: account,
+        app_id: 'yclients',
+        settings: {
+          'partner_token' => 'partner-token',
+          'user_token' => 'user-token',
+          'company_id' => '111'
+        }
+      )
+
+      post "/api/v1/accounts/#{account.id}/integrations/yclients_marketplace/connect",
+           params: { salon_ids: [111] },
+           headers: agent.create_new_auth_token,
+           as: :json
+
+      expect(Crm::Yclients::Marketplace::CallbackService).not_to have_received(:new)
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to include(
+        'status' => 'already_connected',
+        'connected_salon_ids' => [111]
+      )
     end
   end
 
@@ -50,7 +127,7 @@ RSpec.describe 'YClients Marketplace Integration API', type: :request do
       expect(notifications_service).to have_received(:notify_payment!).with(
         {
           salon_id: 111,
-          payment_sum: '1299.5',
+          payment_sum: 1299.5,
           currency_iso: 'RUB',
           payment_date: '2026-03-07T12:00:00Z',
           period_from: '2026-03-07',

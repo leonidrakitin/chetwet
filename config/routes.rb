@@ -39,6 +39,8 @@ Rails.application.routes.draw do
   get '/api', to: 'api#index'
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
+      post 'telegram_callback', to: 'webhooks/telegram#process_payload'
+
       # ----------------------------------
       # start of account scoped api routes
       resources :accounts, only: [:create, :show, :update] do
@@ -355,6 +357,7 @@ Rails.application.routes.draw do
                 post :sync_contacts
               end
             end
+            get 'yclients_marketplace/status', to: 'yclients_marketplace#status'
             post 'yclients_marketplace/connect', to: 'yclients_marketplace#connect'
             post 'yclients_marketplace/payment', to: 'yclients_marketplace#payment'
             post 'yclients_marketplace/payment/refund/:payment_id', to: 'yclients_marketplace#refund'

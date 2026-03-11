@@ -46,6 +46,16 @@ class IntegrationsAPI extends ApiClient {
       { salon_ids: salonIds }
     );
   }
+
+  getYclientsMarketplaceStatus(accountId, salonIds) {
+    const base = this.apiVersion;
+    return axios.get(
+      `${base}/accounts/${accountId}/integrations/yclients_marketplace/status`,
+      {
+        params: { salon_ids: salonIds },
+      }
+    );
+  }
 }
 
 export default new IntegrationsAPI();

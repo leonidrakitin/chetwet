@@ -21,8 +21,10 @@ function yclientsImage(name) {
 
 const selectedAccountId = ref(null);
 const isSubmitting = ref(false);
+const isCheckingConnectionStatus = ref(false);
 const status = ref('idle');
 const errorMessage = ref('');
+const connectedSalonIds = ref([]);
 
 const view = ref('connect');
 const userData = ref(null);
@@ -89,6 +91,22 @@ const showWelcomeScreen = computed(
 const displayUserData = computed(
   () => editableUserData.value || userData.value
 );
+const isAlreadyConnected = computed(
+  () =>
+    hasValidSalonIds.value &&
+    salonIds.value.every(id => connectedSalonIds.value.includes(id))
+);
+const connectButtonLabel = computed(() => {
+  if (isCheckingConnectionStatus.value) {
+    return t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CHECKING_STATUS');
+  }
+
+  if (isAlreadyConnected.value || status.value === 'already_connected') {
+    return t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ALREADY_CONNECTED');
+  }
+
+  return t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CONNECT');
+});
 
 const canConnect = computed(
   () =>
@@ -96,8 +114,53 @@ const canConnect = computed(
     hasValidSalonIds.value &&
     hasAccounts.value &&
     selectedAccountId.value &&
-    !isSubmitting.value
+    !isSubmitting.value &&
+    !isCheckingConnectionStatus.value &&
+    !isAlreadyConnected.value
 );
+
+async function refreshConnectionStatus() {
+  if (
+    !isLoggedIn.value ||
+    !hasValidSalonIds.value ||
+    !selectedAccountId.value
+  ) {
+    connectedSalonIds.value = [];
+    return;
+  }
+
+  isCheckingConnectionStatus.value = true;
+  try {
+    const response = await integrationAPI.getYclientsMarketplaceStatus(
+      selectedAccountId.value,
+      salonIds.value
+    );
+    connectedSalonIds.value = response.data.connected_salon_ids || [];
+    if (response.data.status === 'already_connected') {
+      status.value = 'already_connected';
+    } else if (status.value === 'already_connected') {
+      status.value = 'idle';
+    }
+  } catch {
+    connectedSalonIds.value = [];
+  } finally {
+    isCheckingConnectionStatus.value = false;
+  }
+}
+
+function applyConnectResponse(response, successView = false) {
+  connectedSalonIds.value = response.connected_salon_ids || [];
+
+  if (response.status === 'already_connected') {
+    status.value = 'already_connected';
+    return;
+  }
+
+  status.value = 'success';
+  if (successView) {
+    view.value = 'welcome-success';
+  }
+}
 
 function closeFrame() {
   if (window.parent !== window) {
@@ -153,12 +216,14 @@ async function connect() {
   errorMessage.value = '';
   status.value = 'idle';
   try {
-    await integrationAPI.connectYclientsMarketplace(
+    const { data } = await integrationAPI.connectYclientsMarketplace(
       selectedAccountId.value,
       salonIds.value
     );
-    status.value = 'success';
+    applyConnectResponse(data);
   } catch (err) {
+    connectedSalonIds.value =
+      err.response?.data?.connected_salon_ids || connectedSalonIds.value;
     status.value = 'error';
     errorMessage.value =
       err.response?.data?.error ||
@@ -175,13 +240,14 @@ async function connectFromWelcome() {
   errorMessage.value = '';
   status.value = 'idle';
   try {
-    await integrationAPI.connectYclientsMarketplace(
+    const { data } = await integrationAPI.connectYclientsMarketplace(
       selectedAccountId.value,
       salonIds.value
     );
-    status.value = 'success';
-    view.value = 'welcome-success';
+    applyConnectResponse(data, true);
   } catch (err) {
+    connectedSalonIds.value =
+      err.response?.data?.connected_salon_ids || connectedSalonIds.value;
     status.value = 'error';
     errorMessage.value =
       err.response?.data?.error ||
@@ -192,8 +258,8 @@ async function connectFromWelcome() {
   }
 }
 
-onMounted(() => {
-  store.dispatch('setUser');
+onMounted(async () => {
+  await store.dispatch('setUser');
   const parsed = parseUserDataFromQuery();
   if (hasValidSalonIds.value && route.query.user_data) {
     if (parsed) {
@@ -212,6 +278,7 @@ onMounted(() => {
   if (accounts.value.length === 1) {
     selectedAccountId.value = accounts.value[0].id;
   }
+  await refreshConnectionStatus();
 });
 
 watch(
@@ -227,6 +294,17 @@ watch(
       };
       if (hasValidSalonIds.value) view.value = 'welcome';
     }
+  }
+);
+
+watch(
+  [
+    () => isLoggedIn.value,
+    () => selectedAccountId.value,
+    () => salonIds.value.join(','),
+  ],
+  () => {
+    refreshConnectionStatus();
   }
 );
 </script>
@@ -527,11 +605,29 @@ watch(
 
               <NextButton
                 class="w-full"
-                :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CONNECT')"
-                :loading="isSubmitting"
+                :label="connectButtonLabel"
+                :loading="isSubmitting || isCheckingConnectionStatus"
                 :disabled="!canConnect"
                 @click="connectFromWelcome"
               />
+
+              <div
+                v-if="isAlreadyConnected || status === 'already_connected'"
+                class="flex items-start gap-2.5 rounded-lg bg-n-teal-3 p-3"
+              >
+                <fluent-icon
+                  icon="checkmark-circle"
+                  size="16"
+                  class="mt-0.5 shrink-0 text-n-teal-11"
+                />
+                <p class="text-sm text-n-teal-11">
+                  {{
+                    t(
+                      'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ALREADY_CONNECTED_HINT'
+                    )
+                  }}
+                </p>
+              </div>
             </template>
 
             <!-- error -->
@@ -769,12 +865,30 @@ watch(
 
                 <NextButton
                   class="w-full"
-                  :label="t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.CONNECT')"
-                  :loading="isSubmitting"
+                  :label="connectButtonLabel"
+                  :loading="isSubmitting || isCheckingConnectionStatus"
                   :disabled="!canConnect"
                   @click="connect"
                 />
               </template>
+
+              <div
+                v-if="isAlreadyConnected || status === 'already_connected'"
+                class="flex items-start gap-2.5 rounded-lg bg-n-teal-3 p-3"
+              >
+                <fluent-icon
+                  icon="checkmark-circle"
+                  size="16"
+                  class="mt-0.5 shrink-0 text-n-teal-11"
+                />
+                <p class="text-sm text-n-teal-11">
+                  {{
+                    t(
+                      'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ALREADY_CONNECTED_HINT'
+                    )
+                  }}
+                </p>
+              </div>
 
               <!-- error -->
               <div

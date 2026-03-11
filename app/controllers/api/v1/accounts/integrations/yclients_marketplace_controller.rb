@@ -1,12 +1,46 @@
 # frozen_string_literal: true
 
 class Api::V1::Accounts::Integrations::YclientsMarketplaceController < Api::V1::Accounts::BaseController
+  def status
+    salon_ids = normalized_salon_ids
+    return render json: { error: I18n.t('errors.yclients_marketplace.invalid_salon_ids') }, status: :unprocessable_entity unless salon_ids
+
+    connected_salon_ids = connected_salon_ids_for(salon_ids)
+
+    render json: {
+      status: connected_salon_ids.sort == salon_ids.sort ? 'already_connected' : 'not_connected',
+      connected_salon_ids: connected_salon_ids
+    }
+  end
+
   def connect
     salon_ids = normalized_salon_ids
     return render json: { error: I18n.t('errors.yclients_marketplace.invalid_salon_ids') }, status: :unprocessable_entity unless salon_ids
 
-    Yclients::Marketplace::ConnectJob.perform_later(Current.account.id, salon_ids)
-    render json: { status: 'accepted' }
+    connected_salon_ids = connected_salon_ids_for(salon_ids)
+    remaining_salon_ids = salon_ids - connected_salon_ids
+
+    if remaining_salon_ids.empty?
+      return render json: {
+        status: 'already_connected',
+        connected_salon_ids: connected_salon_ids
+      }
+    end
+
+    results = Crm::Yclients::Marketplace::CallbackService.new(
+      account_id: Current.account.id,
+      salon_ids: remaining_salon_ids
+    ).call
+
+    refreshed_connected_salon_ids = connected_salon_ids_for(salon_ids)
+    return render json: { status: 'connected', connected_salon_ids: refreshed_connected_salon_ids } if results[:errors].blank?
+
+    render json: {
+      status: 'error',
+      connected_salon_ids: refreshed_connected_salon_ids,
+      errors: results[:errors],
+      error: results[:errors].map { |entry| entry[:message] }.uniq.join(', ')
+    }, status: :unprocessable_entity
   end
 
   def payment
@@ -73,5 +107,14 @@ class Api::V1::Accounts::Integrations::YclientsMarketplaceController < Api::V1::
 
   def marketplace_notifications_service
     @marketplace_notifications_service ||= Crm::Yclients::Marketplace::NotificationsService.new
+  end
+
+  def connected_salon_ids_for(salon_ids)
+    Current.account.hooks
+           .where(app_id: 'yclients')
+           .where("settings->>'company_id' IN (?)", salon_ids.map(&:to_s))
+           .pluck(Arel.sql("settings->>'company_id'"))
+           .map(&:to_i)
+           .uniq
   end
 end
