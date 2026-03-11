@@ -434,6 +434,22 @@
   description: 'System User ID from YClients developer app settings. Passed in callback_with_settings as settings.user_id.'
   value:
   locked: false
+- name: YCLIENTS_MARKETPLACE_CALLBACK_URL
+  display_title: 'YClients Marketplace Callback URL'
+  description: 'Optional. Override the callback URL if your app documentation specifies a different endpoint (e.g. v1). Default: https://api.yclients.com/api/v2/marketplace/notifications/callback_with_settings'
+  value:
+  locked: false
+- name: YCLIENTS_MARKETPLACE_APPLICATION_ID
+  display_title: 'YClients Marketplace Application ID'
+  description: 'Application ID from YClients marketplace. Required for payment and refund notifications.'
+  value:
+  locked: false
+- name: YCLIENTS_MARKETPLACE_WEBHOOK_SECRET
+  display_title: 'YClients Marketplace Webhook Secret'
+  description: 'Secret to verify webhook requests via X-Yclients-Signature header.'
+  value:
+  locked: false
+  type: secret
 # ------- End of YClients Marketplace Integration ------- #
 
 # ------- Instagram Channel Related Config ------- #

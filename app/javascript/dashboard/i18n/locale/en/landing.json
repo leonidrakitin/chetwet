@@ -1,0 +1,32 @@
+{
+  "LANDING": {
+    "HERO": {
+      "TITLE": "Customer conversations, simplified",
+      "SUBTITLE": "Connect with your customers across every channel from one powerful platform.",
+      "CTA_SIGNUP": "Get started free",
+      "CTA_LOGIN": "Login"
+    },
+    "FEATURES": {
+      "TITLE": "Everything you need to delight customers",
+      "OMNICHANNEL": {
+        "TITLE": "Omnichannel support",
+        "DESCRIPTION": "Manage conversations from email, live chat, social media, and messaging apps in one place."
+      },
+      "COLLABORATION": {
+        "TITLE": "Team collaboration",
+        "DESCRIPTION": "Assign conversations, add private notes, and work together to resolve issues faster."
+      },
+      "AUTOMATIONS": {
+        "TITLE": "Automations",
+        "DESCRIPTION": "Automate repetitive tasks with rules, macros, and intelligent routing."
+      },
+      "ANALYTICS": {
+        "TITLE": "Reports & Analytics",
+        "DESCRIPTION": "Track team performance, response times, and customer satisfaction in real time."
+      }
+    },
+    "FOOTER": {
+      "POWERED_BY": "Powered by %{installationName}"
+    }
+  }
+}

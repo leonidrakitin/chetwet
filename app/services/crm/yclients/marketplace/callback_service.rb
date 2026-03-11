@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Crm::Yclients::Marketplace::CallbackService
-  CALLBACK_URL = 'https://api.yclients.com/api/v2/marketplace/notifications/callback_with_settings'
+  DEFAULT_CALLBACK_URL = 'https://api.yclients.com/marketplace/partner/callback'
 
   class CallbackError < StandardError
     attr_reader :code, :response
@@ -39,8 +39,7 @@ class Crm::Yclients::Marketplace::CallbackService
 
   def activate_salon(account, salon_id, partner_token, system_user_id, results)
     post_callback_with_settings(salon_id, system_user_id, partner_token)
-    bearer_token = fetch_bearer_token_after_activation(salon_id, partner_token)
-    integration = save_integration(account, salon_id, bearer_token, system_user_id)
+    integration = save_integration(account, salon_id, nil, system_user_id)
     ensure_hook_for_integration(account, integration, partner_token)
     Rails.logger.info "YClients Marketplace: activated salon_id=#{salon_id} for account_id=#{account.id}"
     results[:success] << salon_id
@@ -64,10 +63,21 @@ class Crm::Yclients::Marketplace::CallbackService
     integration
   end
 
+  def callback_url
+    InstallationConfig.find_by(name: 'YCLIENTS_MARKETPLACE_CALLBACK_URL')&.value.presence || DEFAULT_CALLBACK_URL
+  end
+
+  def marketplace_application_id
+    value = InstallationConfig.find_by(name: 'YCLIENTS_MARKETPLACE_APPLICATION_ID')&.value
+    raise ArgumentError, 'YCLIENTS_MARKETPLACE_APPLICATION_ID is not configured' if value.blank?
+
+    value.to_i
+  end
+
   def post_callback_with_settings(salon_id, system_user_id, partner_token)
-    body = { salon_id: salon_id, settings: { user_id: system_user_id.to_s } }
+    body = { salon_id: salon_id, application_id: marketplace_application_id, settings: { user_id: system_user_id.to_s } }
     response = HTTParty.post(
-      CALLBACK_URL,
+      callback_url,
       body: body.to_json,
       headers: {
         'Content-Type' => 'application/json',
@@ -99,28 +109,6 @@ class Crm::Yclients::Marketplace::CallbackService
       response.code,
       response
     )
-  end
-
-  def fetch_bearer_token_after_activation(salon_id, partner_token)
-    # YClients may return bearer_token via GET /api/v2/user or in webhook integration_activated.
-    # Try GET /api/v2/user with partner_token; if not available, leave nil and webhook can set it.
-    url = 'https://api.yclients.com/api/v2/user'
-    response = HTTParty.get(
-      url,
-      headers: {
-        'Accept' => 'application/vnd.yclients.v2+json',
-        'Authorization' => "Bearer #{partner_token}"
-      }
-    )
-    return nil unless response.success?
-
-    data = response.parsed_response
-    return nil unless data.is_a?(Hash)
-
-    data.dig('data', 'token') || data['token']
-  rescue StandardError => e
-    Rails.logger.warn "YClients Marketplace: could not fetch bearer token for salon_id=#{salon_id}: #{e.message}"
-    nil
   end
 
   def ensure_hook_for_integration(account, integration, partner_token)

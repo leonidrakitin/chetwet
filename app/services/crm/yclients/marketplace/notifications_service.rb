@@ -3,7 +3,7 @@
 class Crm::Yclients::Marketplace::NotificationsService
   include HTTParty
 
-  BASE_URL = 'https://api.yclients.com/api/v1/marketplace/partner'
+  BASE_URL = 'https://api.yclients.com/marketplace/partner'
 
   class NotificationError < StandardError
     attr_reader :code, :response

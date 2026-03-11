@@ -1,4 +1,3 @@
-import { frontendURL } from 'dashboard/helper/URLHelper';
 import { clearBrowserSessionCookies } from 'dashboard/store/utils/api';
 import { hasAuthCookie } from './AuthHelper';
 import { DEFAULT_REDIRECT_URL } from 'dashboard/constants/globals';
@@ -33,7 +32,13 @@ export const validateRouteAccess = (to, next, chatwootConfig = {}) => {
     return;
   }
 
-  // If the URL is an invalid path, redirect to login page
+  // Landing page is accessible without auth
+  if (to.meta && to.meta.isLandingPage) {
+    next();
+    return;
+  }
+
+  // If the URL is an invalid path, redirect to landing page
   // Disable navigation to signup page if signups are disabled
   // Signup route has an attribute (requireSignupEnabled) in it's definition
   const isAnInalidSignupNavigation =
@@ -49,7 +54,7 @@ export const validateRouteAccess = (to, next, chatwootConfig = {}) => {
     to.meta.requireEnterprise;
 
   if (!to.name || isAnInalidSignupNavigation || isEnterpriseOnlyPath) {
-    next(frontendURL('login'));
+    next('/');
     return;
   }
 

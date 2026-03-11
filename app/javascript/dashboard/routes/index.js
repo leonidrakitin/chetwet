@@ -18,7 +18,7 @@ export const validateAuthenticateRoutePermission = (to, next) => {
   }
 
   if (!isLoggedIn) {
-    window.location.assign('/app/login');
+    window.location.assign('/');
     return '';
   }
 

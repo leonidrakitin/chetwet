@@ -3,7 +3,7 @@
 # Inherits from ActionController::API (no CSRF). Do not add skip_before_action :verify_authenticity_token
 # or Rails will raise "callback :verify_authenticity_token has not been defined".
 class Webhooks::YclientsMarketplaceController < ActionController::API
-  def process
+  def receive
     Rails.logger.info "YClients Marketplace webhook: raw body=#{request.raw_post.truncate(500)}"
 
     payload = parse_payload
@@ -28,8 +28,10 @@ class Webhooks::YclientsMarketplaceController < ActionController::API
     salon_id = (payload['salon_id'] || payload[:salon_id])&.to_i
 
     case event.to_s
-    when 'integration_revoked', 'integration_disabled'
-      revoke_integrations(salon_id)
+    when 'integration_revoked'
+      revoke_integrations(salon_id, :revoked)
+    when 'integration_disabled'
+      revoke_integrations(salon_id, :disabled)
     when 'integration_activated'
       update_bearer_token(salon_id, payload)
     else
@@ -61,17 +63,17 @@ class Webhooks::YclientsMarketplaceController < ActionController::API
     false
   end
 
-  def revoke_integrations(salon_id)
+  def revoke_integrations(salon_id, status)
     if salon_id.blank?
-      Rails.logger.warn 'YClients Marketplace webhook: integration_revoked without salon_id'
+      Rails.logger.warn "YClients Marketplace webhook: #{status} without salon_id"
       return
     end
 
     YclientsIntegration.where(salon_id: salon_id).active.find_each do |integration|
-      integration.update!(status: :revoked)
+      integration.update!(status: status)
       update_hook_status(integration, :disabled)
     end
-    Rails.logger.info "YClients Marketplace webhook: revoked integrations for salon_id=#{salon_id}"
+    Rails.logger.info "YClients Marketplace webhook: #{status} integrations for salon_id=#{salon_id}"
   end
 
   def update_bearer_token(salon_id, payload)

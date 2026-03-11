@@ -24,6 +24,7 @@ Optional for webhook signature verification:
 | Name | Description |
 |------|-------------|
 | `YCLIENTS_MARKETPLACE_WEBHOOK_SECRET` | Secret used to verify webhook requests (e.g. `X-Yclients-Signature` or `X-Webhook-Signature` header). |
+| `YCLIENTS_MARKETPLACE_CALLBACK_URL` | Optional. Override the callback URL if you get 404 from the default. Use the exact URL from **«Документация для вашего приложения»** (e.g. a v1 variant). |
 
 ## 2. YClients developer cabinet settings
 
@@ -59,6 +60,7 @@ In the YClients developer dashboard, edit your application and open **“Нас�
 - Confirm the **exact callback URL** (v1 vs v2), e.g.:
   - `https://api.yclients.com/api/v2/marketplace/notifications/callback_with_settings`
   - or the v1 variant if specified there.
+- If the connect job fails with **404** and a message like «Произошла ошибка», set `YCLIENTS_MARKETPLACE_CALLBACK_URL` in Installation Config to the exact URL from this documentation.
 - Confirm the **webhook event names and payload** (e.g. `integration_revoked`, `integration_activated`) so you can adjust the webhook handler if needed.
 
 ## 3. Chatwoot endpoints used by the integration

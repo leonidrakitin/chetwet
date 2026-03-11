@@ -26,7 +26,7 @@ class YclientsIntegration < ApplicationRecord
   # TODO: Remove guard once encryption keys become mandatory (target 3-4 releases out).
   encrypts :bearer_token if Chatwoot.encryption_configured?
 
-  enum status: { active: 0, revoked: 1 }
+  enum status: { active: 0, revoked: 1, disabled: 2 }
 
   validates :account_id, presence: true
   validates :salon_id, presence: true, numericality: { only_integer: true }
