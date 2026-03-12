@@ -953,7 +953,7 @@ watch(conversationFilters, (newVal, oldVal) => {
 
 <template>
   <div
-    class="flex flex-col flex-shrink-0 conversations-list-wrap bg-n-surface-1 ltr:rounded-r-xl rtl:rounded-l-xl"
+    class="flex flex-col flex-shrink-0 conversations-list-wrap bg-n-surface-1 ltr:border-r rtl:border-l border-n-container"
     :class="[
       { hidden: !showConversationList },
       isOnExpandedLayout ? 'basis-full' : 'w-[340px] 2xl:w-[412px]',
@@ -998,7 +998,7 @@ watch(conversationFilters, (newVal, oldVal) => {
 
     <p
       v-if="!chatListLoading && !conversationList.length"
-      class="flex overflow-auto justify-center items-center p-4"
+      class="flex overflow-auto justify-center items-center p-6 text-sm text-n-slate-11"
     >
       {{ $t('CHAT_LIST.LIST.404') }}
     </p>
@@ -1019,7 +1019,7 @@ watch(conversationFilters, (newVal, oldVal) => {
     />
     <div
       ref="conversationListRef"
-      class="flex-1 min-h-0 overflow-y-auto conversations-list"
+      class="flex-1 min-h-0 overflow-y-auto conversations-list px-2 py-2"
       :class="{ '!overflow-hidden': isContextMenuOpen }"
     >
       <Virtualizer
@@ -1029,17 +1029,19 @@ watch(conversationFilters, (newVal, oldVal) => {
       >
         <div
           v-if="item._sectionHeader"
-          class="flex items-center justify-between px-4 py-2 cursor-pointer select-none"
+          class="flex items-center justify-between px-3 py-2 cursor-pointer select-none"
           @click="toggleSection(item.sectionId)"
         >
           <div class="flex items-center gap-2">
             <span
-              class="text-sm font-medium px-2 py-0.5 rounded"
+              class="text-xs font-semibold px-2.5 py-1 rounded-full tracking-wide"
               :class="item.badgeClass"
             >
               {{ item.label }}
             </span>
-            <span class="text-sm text-n-slate-10">{{ item.count }}</span>
+            <span class="text-xs font-medium text-n-slate-10">
+              {{ item.count }}
+            </span>
           </div>
           <span
             v-if="!collapsedSections.has(item.sectionId)"
@@ -1066,7 +1068,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       </div>
       <p
         v-else-if="showEndOfListMessage"
-        class="p-4 text-center text-n-slate-11"
+        class="p-4 text-center text-sm text-n-slate-11"
       >
         {{ $t('CHAT_LIST.EOF') }}
       </p>

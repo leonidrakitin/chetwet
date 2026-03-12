@@ -1458,10 +1458,10 @@ export default {
 }
 
 .reply-box {
-  @apply relative mb-2 mx-2 border border-n-weak rounded-xl bg-n-solid-1;
+  @apply relative mb-3 mx-3 border border-n-container rounded-[1.25rem] bg-n-surface-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)];
 
   &.is-private {
-    @apply bg-n-solid-amber dark:border-n-amber-3/10 border-n-amber-12/5;
+    @apply bg-n-solid-amber dark:border-n-amber-3/20 border-n-amber-12/10;
   }
 }
 

@@ -442,11 +442,13 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-col justify-between flex-grow h-full min-w-0 m-0">
+  <div
+    class="flex flex-col justify-between flex-grow h-full min-w-0 m-0 bg-n-background"
+  >
     <Banner
       v-if="!currentChat.can_reply"
       color-scheme="alert"
-      class="mx-2 mt-2 overflow-hidden rounded-lg"
+      class="mx-3 mt-3 overflow-hidden rounded-xl"
       :banner-message="replyWindowBannerMessage"
       :href-link="replyWindowLink"
       :href-link-text="replyWindowLinkText"
@@ -454,12 +456,12 @@ export default {
     <Banner
       v-else-if="hasDuplicateInstagramInbox"
       color-scheme="alert"
-      class="mx-2 mt-2 overflow-hidden rounded-lg"
+      class="mx-3 mt-3 overflow-hidden rounded-xl"
       :banner-message="$t('CONVERSATION.OLD_INSTAGRAM_INBOX_REPLY_BANNER')"
     />
     <MessageList
       ref="conversationPanelRef"
-      class="conversation-panel flex-shrink flex-grow basis-px flex flex-col overflow-y-auto relative h-full m-0 pb-4"
+      class="conversation-panel flex-shrink flex-grow basis-px flex flex-col overflow-y-auto relative h-full m-0 px-3 pb-4"
       :current-user-id="currentUserId"
       :first-unread-id="unReadMessages[0]?.id"
       :is-an-email-channel="isAnEmailChannel"
@@ -483,7 +485,7 @@ export default {
           class="list-none flex justify-center items-center"
         >
           <span
-            class="shadow-lg rounded-full bg-n-brand text-white text-xs font-medium my-2.5 mx-auto px-2.5 py-1.5"
+            class="rounded-full bg-n-brand text-white text-xs font-semibold my-2.5 mx-auto px-3 py-1.5 shadow-[0_8px_20px_rgba(39,129,246,0.22)]"
           >
             {{ unreadMessageLabel }}
           </span>
@@ -502,7 +504,7 @@ export default {
       class="flex relative flex-col"
       :class="{
         'modal-mask': isPopOutReplyBox,
-        'bg-n-surface-1': !isPopOutReplyBox,
+        'bg-n-surface-2': !isPopOutReplyBox,
       }"
     >
       <div
@@ -510,7 +512,7 @@ export default {
         class="absolute flex items-center w-full h-0 -top-7"
       >
         <div
-          class="flex py-2 pr-4 pl-5 shadow-md rounded-full bg-white dark:bg-n-solid-3 text-n-slate-11 text-xs font-semibold my-2.5 mx-auto"
+          class="flex py-2 pr-4 pl-5 shadow-[0_8px_24px_rgba(15,23,42,0.14)] rounded-full bg-n-surface-2 text-n-slate-11 text-xs font-semibold my-2.5 mx-auto border border-n-container"
         >
           {{ typingUserNames }}
           <img
@@ -530,7 +532,7 @@ export default {
 
 <style scoped lang="scss">
 .modal-mask {
-  @apply fixed;
+  @apply fixed bg-[rgba(15,23,42,0.24)];
 
   &::v-deep {
     .ProseMirror-woot-style {
@@ -538,7 +540,7 @@ export default {
     }
 
     .reply-box {
-      @apply border border-n-weak max-w-[75rem] w-[70%];
+      @apply border border-n-container max-w-[75rem] w-[70%] shadow-[0_24px_64px_rgba(15,23,42,0.24)];
 
       &.is-private {
         @apply dark:border-n-amber-3/30 border-n-amber-12/5;

@@ -53,9 +53,9 @@ const messageClass = computed(() => {
 const inputOutlineClass = computed(() => {
   switch (props.messageType) {
     case 'error':
-      return 'outline-n-ruby-8 dark:outline-n-ruby-8 hover:outline-n-ruby-9 dark:hover:outline-n-ruby-9 disabled:outline-n-ruby-8 dark:disabled:outline-n-ruby-8';
+      return 'outline-n-ruby-8 dark:outline-n-ruby-8 hover:outline-n-ruby-9 dark:hover:outline-n-ruby-9 disabled:outline-n-ruby-8 dark:disabled:outline-n-ruby-8 focus:outline-n-ruby-9 dark:focus:outline-n-ruby-9';
     default:
-      return 'outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 disabled:outline-n-weak dark:disabled:outline-n-weak focus:outline-n-brand dark:focus:outline-n-brand';
+      return 'outline-n-container dark:outline-n-container hover:outline-n-strong dark:hover:outline-n-slate-7 disabled:outline-n-container dark:disabled:outline-n-container focus:outline-n-brand dark:focus:outline-n-brand';
   }
 });
 
@@ -77,11 +77,11 @@ const handleFocus = event => {
 const sizeClass = computed(() => {
   switch (props.size) {
     case 'sm':
-      return 'h-8 !px-3 !py-2';
+      return 'h-9 !px-3.5 !py-2';
     case 'md':
-      return 'h-10 !px-3 !py-2.5';
+      return 'h-11 !px-4 !py-3';
     default:
-      return 'h-10 !px-3 !py-2.5';
+      return 'h-11 !px-4 !py-3';
   }
 });
 
@@ -137,7 +137,7 @@ onMounted(() => {
           ? max
           : undefined
       "
-      class="block w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-n-alpha-black2 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-n-slate-10 dark:placeholder:text-n-slate-10 disabled:cursor-not-allowed disabled:opacity-50 text-n-slate-12 transition-all duration-500 ease-in-out [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      class="block w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-xl bg-n-surface-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-n-slate-10 dark:placeholder:text-n-slate-10 disabled:cursor-not-allowed disabled:opacity-50 text-n-slate-12 transition-all duration-200 ease-out [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       @input="handleInput"
       @focus="handleFocus"
       @blur="handleBlur"

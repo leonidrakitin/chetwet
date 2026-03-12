@@ -975,11 +975,11 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
 }
 
 .ProseMirror-woot-style {
-  @apply overflow-auto min-h-[5rem] max-h-[7.5rem];
+  @apply overflow-auto min-h-[5rem] max-h-[7.5rem] px-0.5;
 }
 
 .ProseMirror-prompt {
-  @apply z-[9999] bg-n-alpha-3 backdrop-blur-[100px] border border-n-strong p-6 shadow-xl rounded-xl;
+  @apply z-[9999] bg-n-surface-2 border border-n-container p-6 shadow-xl rounded-2xl;
 
   h5 {
     @apply text-n-slate-12 mb-1.5;

@@ -56,7 +56,7 @@ const emitNewAccount = () => {
       <!-- Collapsed view: Logo trigger -->
       <button
         v-if="isCollapsed"
-        class="grid flex-shrink-0 place-content-center p-2 rounded-lg cursor-pointer hover:bg-n-alpha-1"
+        class="grid flex-shrink-0 place-content-center p-2 rounded-xl cursor-pointer hover:bg-n-alpha-1"
         :class="{ 'bg-n-alpha-1': isOpen }"
         :title="currentAccount.name"
         @click="toggle"
@@ -70,7 +70,7 @@ const emitNewAccount = () => {
         :data-account-id="accountId"
         aria-haspopup="listbox"
         aria-controls="account-options"
-        class="flex items-center gap-2 justify-between w-full rounded-lg px-2"
+        class="flex items-center gap-2 justify-between w-full rounded-xl px-3 py-2"
         :class="[
           isOpen && 'bg-n-alpha-1',
           showAccountSwitcher

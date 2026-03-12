@@ -288,7 +288,10 @@ export default {
 </script>
 
 <template>
-  <div class="flex justify-between p-3" :class="wrapClass">
+  <div
+    class="flex justify-between items-center gap-3 px-4 py-3 border-t border-n-container"
+    :class="wrapClass"
+  >
     <div class="left-wrap">
       <NextButton
         v-if="!isEditorDisabled"
@@ -415,7 +418,7 @@ export default {
         sm
         :color="isNote ? 'amber' : 'blue'"
         :disabled="isSendDisabled"
-        class="flex-shrink-0"
+        class="flex-shrink-0 min-w-[8.5rem]"
         @click="onSend"
       />
     </div>
@@ -424,7 +427,7 @@ export default {
 
 <style lang="scss" scoped>
 .left-wrap {
-  @apply items-center flex gap-2;
+  @apply items-center flex gap-2 flex-wrap;
 }
 
 .right-wrap {
@@ -437,7 +440,7 @@ export default {
   }
 
   &:hover button {
-    @apply enabled:bg-n-slate-9/20;
+    @apply enabled:bg-n-alpha-1;
   }
 }
 </style>

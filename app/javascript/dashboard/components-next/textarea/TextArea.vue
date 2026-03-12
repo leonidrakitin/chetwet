@@ -148,14 +148,14 @@ onMounted(() => {
       {{ label }}
     </label>
     <div
-      class="flex flex-col gap-2 px-3 pt-3 pb-3 transition-all duration-500 ease-in-out border rounded-lg bg-n-alpha-black2"
+      class="flex flex-col gap-2 px-4 pt-3.5 pb-3.5 transition-all duration-200 ease-out border rounded-xl bg-n-surface-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
       :class="[
         customTextAreaWrapperClass,
         {
-          'cursor-not-allowed opacity-50 !bg-n-alpha-black2 disabled:border-n-weak dark:disabled:border-n-weak':
+          'cursor-not-allowed opacity-50 !bg-n-surface-2 disabled:border-n-container dark:disabled:border-n-container':
             disabled,
           'border-n-brand dark:border-n-brand': isFocused,
-          'hover:border-n-slate-6 dark:hover:border-n-slate-6 border-n-weak dark:border-n-weak':
+          'hover:border-n-strong dark:hover:border-n-slate-7 border-n-container dark:border-n-container':
             !isFocused && messageType !== 'error',
           'border-n-ruby-8 dark:border-n-ruby-8 hover:border-n-ruby-9 dark:hover:border-n-ruby-9':
             messageType === 'error' && !isFocused,

@@ -738,10 +738,11 @@ const menuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="bg-n-background flex flex-col text-sm pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-n-weak"
+    class="bg-n-surface-1 flex flex-col text-sm pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[216px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-n-container"
     :class="[
       {
-        'shadow-lg md:shadow-none': isMobileSidebarOpen,
+        'shadow-[0_18px_48px_rgba(15,23,42,0.18)] md:shadow-none':
+          isMobileSidebarOpen,
         'ltr:-translate-x-full rtl:translate-x-full': !isMobileSidebarOpen,
         'transition-transform duration-200 ease-out md:transition-[width]':
           !isResizing,
@@ -751,13 +752,13 @@ const menuItems = computed(() => {
   >
     <section
       class="grid"
-      :class="isEffectivelyCollapsed ? 'mt-3 mb-6 gap-4' : 'mt-1 mb-4 gap-2'"
+      :class="isEffectivelyCollapsed ? 'mt-3 mb-6 gap-4' : 'mt-3 mb-5 gap-3'"
     >
       <div
         class="flex gap-2 items-center min-w-0"
         :class="{
           'justify-center px-1': isEffectivelyCollapsed,
-          'px-2': !isEffectivelyCollapsed,
+          'px-3': !isEffectivelyCollapsed,
         }"
       >
         <template v-if="isEffectivelyCollapsed">
@@ -767,24 +768,26 @@ const menuItems = computed(() => {
           />
         </template>
         <template v-else>
-          <div class="grid flex-shrink-0 place-content-center size-6">
-            <Logo class="size-4" />
+          <div
+            class="grid flex-shrink-0 place-content-center size-8 rounded-2xl bg-n-brand/10 text-n-blue-11"
+          >
+            <Logo class="size-4.5" />
           </div>
-          <div class="flex-shrink-0 w-px h-3 bg-n-strong" />
+          <div class="flex-shrink-0 w-px h-4 bg-n-container" />
           <SidebarAccountSwitcher
-            class="flex-grow -mx-1 min-w-0"
+            class="flex-grow min-w-0"
             @show-create-account-modal="emit('showCreateAccountModal')"
           />
         </template>
       </div>
       <div
         class="flex gap-2"
-        :class="isEffectivelyCollapsed ? 'flex-col items-center' : 'px-2'"
+        :class="isEffectivelyCollapsed ? 'flex-col items-center gap-2' : 'px-3'"
       >
         <RouterLink
           v-if="!isEffectivelyCollapsed"
           :to="{ name: 'search' }"
-          class="flex gap-2 items-center px-2 py-1 w-full h-7 rounded-lg outline outline-1 outline-n-weak bg-n-button-color transition-all duration-100 ease-out"
+          class="flex gap-2 items-center px-3 py-2 w-full h-10 rounded-xl outline outline-1 outline-n-container bg-n-surface-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-100 ease-out hover:bg-n-alpha-1"
         >
           <span class="flex-shrink-0 i-lucide-search size-4 text-n-slate-10" />
           <span class="flex-grow text-start text-n-slate-10">
@@ -799,7 +802,7 @@ const menuItems = computed(() => {
         <RouterLink
           v-else
           :to="{ name: 'search' }"
-          class="flex items-center justify-center size-8 rounded-lg outline outline-1 outline-n-weak bg-n-button-color transition-all duration-100 ease-out hover:bg-n-alpha-2 dark:hover:bg-n-slate-9/30"
+          class="flex items-center justify-center size-9 rounded-xl outline outline-1 outline-n-container bg-n-surface-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-100 ease-out hover:bg-n-alpha-1"
           :title="t('COMBOBOX.SEARCH_PLACEHOLDER')"
         >
           <span class="i-lucide-search size-4 text-n-slate-11" />
@@ -813,9 +816,9 @@ const menuItems = computed(() => {
               class="dark:hover:!bg-n-slate-9/30"
               :class="[
                 isEffectivelyCollapsed
-                  ? '!size-8 !outline-n-weak !text-n-slate-11'
-                  : '!h-7 !outline-n-weak !text-n-slate-11',
-                { '!bg-n-alpha-2 dark:!bg-n-slate-9/30': isOpen },
+                  ? '!size-9 !outline-n-container !text-n-slate-11'
+                  : '!h-10 !rounded-xl !outline-n-container !text-n-slate-11',
+                { '!bg-n-alpha-1': isOpen },
               ]"
               @click="onComposeOpen(toggle)"
             />
@@ -825,7 +828,7 @@ const menuItems = computed(() => {
     </section>
     <nav
       class="grid overflow-y-scroll flex-grow gap-2 pb-5 no-scrollbar min-w-0"
-      :class="isEffectivelyCollapsed ? 'px-1' : 'px-2'"
+      :class="isEffectivelyCollapsed ? 'px-1.5' : 'px-3'"
     >
       <ul
         class="flex flex-col gap-1 m-0 list-none min-w-0"
@@ -842,7 +845,7 @@ const menuItems = computed(() => {
       class="flex relative flex-col flex-shrink-0 gap-1 justify-between items-center"
     >
       <div
-        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-n-background to-transparent"
+        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-n-surface-1 to-transparent"
       />
       <SidebarChangelogCard
         v-if="
@@ -859,7 +862,7 @@ const menuItems = computed(() => {
         "
       />
       <div
-        class="px-1 py-1.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-n-weak shadow-[0px_-2px_4px_0px_rgba(27,28,29,0.02)]"
+        class="px-2 py-2.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-n-container bg-n-surface-1 shadow-[0_-1px_0_rgba(148,163,184,0.08)]"
         :class="isEffectivelyCollapsed ? 'justify-center' : 'justify-between'"
       >
         <SidebarProfileMenu

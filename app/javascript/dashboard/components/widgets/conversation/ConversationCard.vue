@@ -250,12 +250,13 @@ const deleteConversation = () => {
 
 <template>
   <div
-    class="relative flex items-start flex-grow-0 flex-shrink-0 w-auto max-w-full py-0 border-t-0 border-b-0 border-l-0 border-r-0 border-transparent border-solid cursor-pointer conversation hover:bg-n-alpha-1 dark:hover:bg-n-alpha-3 group"
+    class="relative flex items-start flex-grow-0 flex-shrink-0 w-auto max-w-full py-0 border border-transparent rounded-2xl cursor-pointer conversation hover:bg-n-alpha-1 group transition-colors duration-100"
     :class="{
-      'active animate-card-select bg-n-background border-n-weak': isActiveChat,
-      'bg-n-slate-2': selected,
+      'active animate-card-select bg-n-blue-3/70 border-n-blue-7/30 shadow-[0_8px_20px_rgba(39,129,246,0.08)]':
+        isActiveChat,
+      'bg-n-slate-2/70 border-n-container': selected && !isActiveChat,
       'px-0': compact,
-      'px-3': !compact,
+      'px-2': !compact,
     }"
     @click="onCardClick"
     @contextmenu="openContextMenu($event)"
@@ -293,9 +294,7 @@ const deleteConversation = () => {
         </template>
       </Avatar>
     </div>
-    <div
-      class="px-0 py-3 border-b group-hover:border-transparent flex-1 border-n-slate-3 min-w-0"
-    >
+    <div class="px-1 py-3 flex-1 min-w-0">
       <div
         v-if="showMetaSection"
         class="flex items-center min-w-0 gap-1"
@@ -322,7 +321,7 @@ const deleteConversation = () => {
         </div>
       </div>
       <h4
-        class="conversation--user text-sm my-0 mx-2 capitalize pt-0.5 text-ellipsis overflow-hidden whitespace-nowrap flex-1 min-w-0 ltr:pr-16 rtl:pl-16 text-n-slate-12"
+        class="conversation--user text-sm my-0 mx-2 capitalize pt-0.5 text-ellipsis overflow-hidden whitespace-nowrap flex-1 min-w-0 ltr:pr-16 rtl:pl-16 text-n-slate-12 tracking-tight"
         :class="hasUnread ? 'font-semibold' : 'font-medium'"
       >
         {{ currentContact.name }}
@@ -360,7 +359,7 @@ const deleteConversation = () => {
         class="absolute flex flex-col ltr:right-3 rtl:left-3"
         :class="showMetaSection ? 'top-8' : 'top-4'"
       >
-        <span class="ml-auto font-normal leading-4 text-xxs">
+        <span class="ml-auto font-medium leading-4 text-xxs text-n-slate-10">
           <TimeAgo
             :last-activity-timestamp="chat.timestamp"
             :created-at-timestamp="chat.created_at"
@@ -368,7 +367,7 @@ const deleteConversation = () => {
           />
         </span>
         <span
-          class="shadow-lg rounded-full text-xxs font-semibold h-4 leading-4 ltr:ml-auto rtl:mr-auto mt-1 min-w-[1rem] px-1 py-0 text-center text-white bg-n-teal-9"
+          class="rounded-full text-xxs font-semibold h-5 leading-5 ltr:ml-auto rtl:mr-auto mt-1 min-w-[1.25rem] px-1.5 py-0 text-center text-white bg-n-brand"
           :class="hasUnread ? 'block' : 'hidden'"
         >
           {{ unreadCount > 9 ? '9+' : unreadCount }}

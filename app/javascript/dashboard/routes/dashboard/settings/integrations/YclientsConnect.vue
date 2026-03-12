@@ -313,23 +313,23 @@ watch(
   <div
     class="flex min-h-screen w-full items-start justify-center bg-n-background p-4 sm:p-8"
   >
-    <div class="w-full max-w-md">
+    <div class="w-full max-w-md sm:max-w-lg">
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <!-- SUCCESS                                     -->
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-if="showWelcomeScreen && view === 'welcome-success'">
         <div
-          class="flex flex-col items-center gap-6 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
+          class="flex flex-col items-center gap-6 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
         >
           <!-- success icon + logo -->
           <div class="flex flex-col items-center gap-3">
             <div
-              class="flex h-16 w-16 items-center justify-center rounded-full bg-n-teal-3"
+              class="flex h-16 w-16 items-center justify-center rounded-full bg-n-blue-3"
             >
               <fluent-icon
                 icon="checkmark-circle"
                 size="32"
-                class="text-n-teal-11"
+                class="text-n-blue-11"
               />
             </div>
             <img
@@ -353,13 +353,13 @@ watch(
           <!-- feature pills -->
           <div class="flex flex-wrap justify-center gap-2">
             <span
-              class="inline-flex items-center gap-1.5 rounded-full bg-n-teal-3 px-3 py-1 text-xs font-medium text-n-teal-11"
+              class="inline-flex items-center gap-1.5 rounded-full bg-n-blue-3 px-3 py-1 text-xs font-medium text-n-blue-11"
             >
               <fluent-icon icon="people" size="12" />
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_CONTACTS') }}
             </span>
             <span
-              class="inline-flex items-center gap-1.5 rounded-full bg-n-teal-3 px-3 py-1 text-xs font-medium text-n-teal-11"
+              class="inline-flex items-center gap-1.5 rounded-full bg-n-blue-3 px-3 py-1 text-xs font-medium text-n-blue-11"
             >
               <fluent-icon icon="calendar" size="12" />
               {{
@@ -367,7 +367,7 @@ watch(
               }}
             </span>
             <span
-              class="inline-flex items-center gap-1.5 rounded-full bg-n-teal-3 px-3 py-1 text-xs font-medium text-n-teal-11"
+              class="inline-flex items-center gap-1.5 rounded-full bg-n-blue-3 px-3 py-1 text-xs font-medium text-n-blue-11"
             >
               <fluent-icon icon="bot" size="12" />
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_AI') }}
@@ -387,7 +387,7 @@ watch(
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-else-if="showWelcomeScreen && view === 'welcome'">
         <div
-          class="flex flex-col gap-6 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
+          class="flex flex-col gap-6 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
         >
           <!-- header -->
           <div class="flex flex-col items-center gap-3 text-center">
@@ -405,7 +405,7 @@ watch(
           </div>
 
           <!-- salon info card -->
-          <div class="rounded-xl border border-n-weak bg-n-alpha-1 p-4">
+          <div class="rounded-2xl border border-n-container bg-n-surface-1 p-5">
             <p
               class="mb-3 text-xs font-medium uppercase tracking-wide text-n-slate-10"
             >
@@ -421,12 +421,12 @@ watch(
                 class="flex items-center gap-3"
               >
                 <div
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-n-alpha-2"
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-n-blue-3 text-n-blue-11"
                 >
                   <fluent-icon
                     icon="building"
                     size="14"
-                    class="text-n-slate-11"
+                    class="text-n-blue-11"
                   />
                 </div>
                 <div class="min-w-0">
@@ -449,9 +449,9 @@ watch(
                 class="flex items-center gap-3"
               >
                 <div
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-n-alpha-2"
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-n-blue-3 text-n-blue-11"
                 >
-                  <fluent-icon icon="mail" size="14" class="text-n-slate-11" />
+                  <fluent-icon icon="mail" size="14" class="text-n-blue-11" />
                 </div>
                 <div class="min-w-0">
                   <p class="text-xs text-n-slate-10">
@@ -471,9 +471,9 @@ watch(
                 class="flex items-center gap-3"
               >
                 <div
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-n-alpha-2"
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-n-blue-3 text-n-blue-11"
                 >
-                  <fluent-icon icon="call" size="14" class="text-n-slate-11" />
+                  <fluent-icon icon="call" size="14" class="text-n-blue-11" />
                 </div>
                 <div class="min-w-0">
                   <p class="text-xs text-n-slate-10">
@@ -527,13 +527,13 @@ watch(
 
             <!-- divider -->
             <div class="flex items-center gap-3">
-              <div class="h-px flex-1 bg-n-weak" />
+              <div class="h-px flex-1 bg-n-container" />
               <span class="text-xs text-n-slate-10">
                 {{
                   t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_OR_DIVIDER')
                 }}
               </span>
-              <div class="h-px flex-1 bg-n-weak" />
+              <div class="h-px flex-1 bg-n-container" />
             </div>
 
             <div class="flex flex-col gap-2">
@@ -595,7 +595,7 @@ watch(
                 </label>
                 <select
                   v-model="selectedAccountId"
-                  class="rounded-lg border border-n-weak bg-n-solid-2 px-3 py-2.5 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+                  class="rounded-xl border border-n-container bg-n-surface-2 px-4 py-3 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
                 >
                   <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
                     {{ acc.name }}
@@ -613,14 +613,14 @@ watch(
 
               <div
                 v-if="isAlreadyConnected || status === 'already_connected'"
-                class="flex items-start gap-2.5 rounded-lg bg-n-teal-3 p-3"
+                class="flex items-start gap-2.5 rounded-xl border border-n-blue-7/30 bg-n-blue-3 p-3.5"
               >
                 <fluent-icon
                   icon="checkmark-circle"
                   size="16"
-                  class="mt-0.5 shrink-0 text-n-teal-11"
+                  class="mt-0.5 shrink-0 text-n-blue-11"
                 />
-                <p class="text-sm text-n-teal-11">
+                <p class="text-sm text-n-blue-11">
                   {{
                     t(
                       'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ALREADY_CONNECTED_HINT'
@@ -684,13 +684,13 @@ watch(
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-else-if="showWelcomeScreen && view === 'edit'">
         <div
-          class="flex flex-col gap-5 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
+          class="flex flex-col gap-5 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
         >
           <div class="flex flex-col items-center gap-2 text-center">
             <div
-              class="flex h-14 w-14 items-center justify-center rounded-xl bg-n-alpha-2"
+              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-n-blue-3"
             >
-              <fluent-icon icon="edit" size="24" class="text-n-slate-11" />
+              <fluent-icon icon="edit" size="24" class="text-n-blue-11" />
             </div>
             <h1 class="text-lg font-semibold text-n-slate-12">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_TITLE') }}
@@ -739,7 +739,7 @@ watch(
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-else>
         <div
-          class="flex flex-col gap-6 rounded-2xl border border-n-weak bg-n-solid-2 p-8 shadow-sm"
+          class="flex flex-col gap-6 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
         >
           <!-- header -->
           <div class="flex flex-col items-center gap-3 text-center">
@@ -759,7 +759,7 @@ watch(
           <!-- not logged in -->
           <template v-if="!isLoggedIn">
             <div
-              class="flex flex-col items-center gap-3 rounded-xl bg-n-alpha-1 p-5 text-center"
+              class="flex flex-col items-center gap-3 rounded-2xl border border-n-container bg-n-surface-1 p-5 text-center"
             >
               <fluent-icon
                 icon="person-lock"
@@ -781,7 +781,7 @@ watch(
           <!-- no salon ids -->
           <template v-else-if="!hasValidSalonIds">
             <div
-              class="flex flex-col items-center gap-3 rounded-xl bg-n-amber-3 p-5 text-center"
+              class="flex flex-col items-center gap-3 rounded-2xl bg-n-amber-3 p-5 text-center"
             >
               <fluent-icon icon="warning" size="24" class="text-n-amber-11" />
               <p class="text-sm font-medium text-n-amber-11">
@@ -804,14 +804,14 @@ watch(
             <!-- success -->
             <template v-if="status === 'success'">
               <div
-                class="flex flex-col items-center gap-3 rounded-xl bg-n-teal-3 p-5 text-center"
+                class="flex flex-col items-center gap-3 rounded-2xl border border-n-blue-7/30 bg-n-blue-3 p-5 text-center"
               >
                 <fluent-icon
                   icon="checkmark-circle"
                   size="28"
-                  class="text-n-teal-11"
+                  class="text-n-blue-11"
                 />
-                <p class="text-sm font-medium text-n-teal-11">
+                <p class="text-sm font-medium text-n-blue-11">
                   {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS_TITLE') }}
                 </p>
               </div>
@@ -851,7 +851,7 @@ watch(
                   </label>
                   <select
                     v-model="selectedAccountId"
-                    class="rounded-lg border border-n-weak bg-n-solid-2 px-3 py-2.5 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+                    class="rounded-xl border border-n-container bg-n-surface-2 px-4 py-3 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
                   >
                     <option
                       v-for="acc in accounts"
@@ -874,14 +874,14 @@ watch(
 
               <div
                 v-if="isAlreadyConnected || status === 'already_connected'"
-                class="flex items-start gap-2.5 rounded-lg bg-n-teal-3 p-3"
+                class="flex items-start gap-2.5 rounded-xl border border-n-blue-7/30 bg-n-blue-3 p-3.5"
               >
                 <fluent-icon
                   icon="checkmark-circle"
                   size="16"
-                  class="mt-0.5 shrink-0 text-n-teal-11"
+                  class="mt-0.5 shrink-0 text-n-blue-11"
                 />
-                <p class="text-sm text-n-teal-11">
+                <p class="text-sm text-n-blue-11">
                   {{
                     t(
                       'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.ALREADY_CONNECTED_HINT'
