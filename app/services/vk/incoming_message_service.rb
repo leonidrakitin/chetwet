@@ -7,6 +7,7 @@ class Vk::IncomingMessageService
 
   def perform
     return unless message_params?
+    return if outgoing_message?
     return if duplicate_message?
 
     set_contact
@@ -31,6 +32,10 @@ class Vk::IncomingMessageService
   end
 
   private
+
+  def outgoing_message?
+    message_params[:out].to_i == 1
+  end
 
   def duplicate_message?
     inbox.messages.exists?(source_id: vk_params_message_id.to_s)
