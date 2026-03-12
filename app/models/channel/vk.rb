@@ -106,6 +106,20 @@ class Channel::Vk < ApplicationRecord
     message.content_attributes['in_reply_to_external_id']
   end
 
+  def mark_as_read(peer_id)
+    HTTParty.post(
+      "#{vk_api_url}/messages.markAsRead",
+      body: { peer_id: peer_id, access_token: access_token, v: '5.199' }
+    )
+  end
+
+  def send_typing_activity(peer_id)
+    HTTParty.post(
+      "#{vk_api_url}/messages.setActivity",
+      body: { peer_id: peer_id, type: 'typing', access_token: access_token, v: '5.199' }
+    )
+  end
+
   def send_message(message)
     body = {
       peer_id: peer_id(message),

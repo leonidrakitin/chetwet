@@ -160,6 +160,8 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     # rubocop:disable Rails/SkipsModelValidations
     @conversation.update_columns(updates)
     # rubocop:enable Rails/SkipsModelValidations
+
+    Vk::MarkAsReadJob.perform_later(@conversation.id) if @conversation.inbox.channel_type == 'Channel::Vk'
   end
 
   def should_update_last_seen?
