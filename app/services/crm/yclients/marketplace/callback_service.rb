@@ -13,9 +13,10 @@ class Crm::Yclients::Marketplace::CallbackService
     end
   end
 
-  def initialize(account_id:, salon_ids:)
+  def initialize(account_id:, salon_ids:, inbox_ids_by_salon: {})
     @account_id = account_id
     @salon_ids = Array(salon_ids).map(&:to_i).uniq
+    @inbox_ids_by_salon = inbox_ids_by_salon.transform_keys(&:to_i)
   end
 
   def call
@@ -53,11 +54,13 @@ class Crm::Yclients::Marketplace::CallbackService
 
   def save_integration(account, salon_id, bearer_token, system_user_id)
     integration = YclientsIntegration.find_or_initialize_by(account_id: account.id, salon_id: salon_id)
+    inbox_id = resolved_inbox_id_for(account, salon_id)
     integration.assign_attributes(
       bearer_token: bearer_token.presence || integration.bearer_token,
       connected_at: Time.current,
       status: :active,
-      system_user_id: system_user_id
+      system_user_id: system_user_id,
+      inbox_id: inbox_id
     )
     integration.save!
     integration
@@ -112,15 +115,12 @@ class Crm::Yclients::Marketplace::CallbackService
   end
 
   def ensure_hook_for_integration(account, integration, partner_token)
-    inbox = account.inboxes.find_by(channel_type: 'Channel::WebWidget')
-    inbox_id = inbox&.id
-
     hook = account.hooks
                   .where(app_id: 'yclients')
                   .where("(settings->>'company_id') = ?", integration.salon_id.to_s)
                   .first_or_initialize
 
-    hook.inbox_id = inbox_id
+    hook.inbox_id = integration.inbox_id
     hook.settings = (hook.settings || {}).merge(
       'company_id' => integration.salon_id.to_s,
       'user_token' => integration.bearer_token.to_s,
@@ -128,5 +128,15 @@ class Crm::Yclients::Marketplace::CallbackService
     )
     hook.status = :enabled
     hook.save!
+  end
+
+  def resolved_inbox_id_for(account, salon_id)
+    configured_inbox_id = @inbox_ids_by_salon[salon_id]
+    return configured_inbox_id if configured_inbox_id.present?
+
+    existing_integration = account.yclients_integrations.find_by(salon_id: salon_id)
+    return existing_integration.inbox_id if existing_integration&.inbox_id.present?
+
+    account.inboxes.find_by(channel_type: 'Channel::WebWidget')&.id
   end
 end

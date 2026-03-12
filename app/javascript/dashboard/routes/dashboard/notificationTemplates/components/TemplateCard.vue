@@ -81,8 +81,9 @@ const processedMessages = computed(() => {
   return rawTexts
     .map(text =>
       text.replace(
-        /\{(\w+)\}/g,
-        (match, variable) => EXAMPLE_VALUES[variable] ?? match
+        /@(\w+)|\{(\w+)\}/g,
+        (match, atVariable, legacyVariable) =>
+          EXAMPLE_VALUES[atVariable || legacyVariable] ?? match
       )
     )
     .filter(Boolean);

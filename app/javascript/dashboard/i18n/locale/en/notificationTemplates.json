@@ -7,27 +7,37 @@
       "ALL": "All",
       "EVENT": "On Event",
       "TIME": "By Time",
-      "LOST_CLIENTS": "Lost Clients",
-      "CLIENT_CONSENT": "Client Consent",
+      "INTERVAL": "Interval",
       "STATISTICS": "Statistics"
     },
     "EVENTS": {
-      "CREATED": "On appointment creation",
-      "UPDATED": "On appointment update",
-      "DELETED": "On appointment deletion",
+      "CONVERSATION_CREATED": "On conversation creation",
+      "CONVERSATION_RESOLVED": "On conversation resolved",
+      "MESSAGE_RECEIVED": "On inbound message",
+      "BOOKING_CREATED": "On booking creation",
+      "BOOKING_CANCELLED": "On booking cancellation",
       "CONFIRMED": "On appointment confirmation",
-      "CANCELLED": "On appointment cancellation",
+      "CANCELLED": "On cancellation",
       "PAID": "On payment",
       "ARRIVED": "On client arrival"
     },
     "TYPES": {
       "EVENT": "On Event",
       "TIME": "By Time",
-      "LOST_CLIENTS": "Lost Clients",
-      "CLIENT_CONSENT": "Client Consent"
+      "INTERVAL": "Interval"
     },
-    "TIME_DIRECTION": { "BEFORE": "before visit", "AFTER": "after visit" },
-    "TIME_UNIT": { "HOURS": "hours", "DAYS": "days" },
+    "REPEAT": {
+      "NONE": "Does not repeat",
+      "DAILY": "Daily",
+      "WEEKLY": "Weekly",
+      "MONTHLY": "Monthly"
+    },
+    "SINCE": {
+      "LABEL": "Since",
+      "LAST_VISIT": "Last visit",
+      "LAST_MESSAGE": "Last message",
+      "REGISTRATION_DATE": "Registration date"
+    },
     "VARIABLES_HINT": "Available variables: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
     "FORM": {
       "REQUIRED_INDICATOR": "*",
@@ -41,8 +51,45 @@
         "PLACEHOLDER": "Optional description"
       },
       "TYPE": { "LABEL": "Type" },
+      "INBOX": {
+        "LABEL": "Inbox",
+        "PLACEHOLDER": "Select inbox"
+      },
+      "YCLIENTS_INTEGRATION": {
+        "LABEL": "Yclients salon",
+        "PLACEHOLDER": "No salon selected",
+        "OPTION": "Salon {salonId}"
+      },
       "TRIGGER_EVENT": { "LABEL": "Trigger Event" },
-      "TIME_OFFSET": { "LABEL": "Time Offset" },
+      "OFFSET_HOURS": { "LABEL": "Offset (hours, negative = before)" },
+      "SEND_AT": { "LABEL": "Send at" },
+      "TIMEZONE": { "LABEL": "Timezone" },
+      "REPEAT": { "LABEL": "Repeat" },
+      "REPEAT_UNTIL": { "LABEL": "Repeat until" },
+      "INTERVAL_DAYS": { "LABEL": "Every N days" },
+      "SINCE": { "LABEL": "Since" },
+      "MIN_INTERVAL_HOURS": { "LABEL": "Minimum interval between sends (hours)" },
+      "SERVICE_NAME": {
+        "LABEL": "Service filter",
+        "PLACEHOLDER": "Filter by service name"
+      },
+      "STAFF_NAME": {
+        "LABEL": "Staff filter",
+        "PLACEHOLDER": "Filter by staff name"
+      },
+      "TAGS": {
+        "LABEL": "Tags",
+        "PLACEHOLDER": "vip, reactivation"
+      },
+      "EXCLUDE_TAGS": {
+        "LABEL": "Exclude tags",
+        "PLACEHOLDER": "unsubscribe, blacklist"
+      },
+      "QUIET_HOURS_FROM": { "LABEL": "Quiet hours from" },
+      "QUIET_HOURS_TO": { "LABEL": "Quiet hours to" },
+      "MAX_PER_DAY": { "LABEL": "Max per day per client" },
+      "STOP_IF_REPLIED": { "LABEL": "Stop if client replied" },
+      "SKIP_IF_HAS_ACTIVE_DIALOG": { "LABEL": "Skip if active dialog exists" },
       "MESSAGE_TEXT": {
         "LABEL": "Message Text",
         "PLACEHOLDER": "Enter message text...",

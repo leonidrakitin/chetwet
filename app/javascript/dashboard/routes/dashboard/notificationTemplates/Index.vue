@@ -19,11 +19,7 @@ const tabs = computed(() => [
   { label: t('NOTIFICATION_TEMPLATES.TABS.ALL'), key: 'all' },
   { label: t('NOTIFICATION_TEMPLATES.TABS.EVENT'), key: 'event' },
   { label: t('NOTIFICATION_TEMPLATES.TABS.TIME'), key: 'time' },
-  { label: t('NOTIFICATION_TEMPLATES.TABS.LOST_CLIENTS'), key: 'lost_clients' },
-  {
-    label: t('NOTIFICATION_TEMPLATES.TABS.CLIENT_CONSENT'),
-    key: 'client_consent',
-  },
+  { label: t('NOTIFICATION_TEMPLATES.TABS.INTERVAL'), key: 'interval' },
   { label: t('NOTIFICATION_TEMPLATES.TABS.STATISTICS'), key: 'statistics' },
 ]);
 
@@ -38,6 +34,10 @@ const onTabChanged = tab => {
 const allTemplates = computed(
   () => store.getters['notificationTemplates/getTemplates']
 );
+const notificationTemplateMeta = computed(
+  () => store.getters['notificationTemplates/getMeta']
+);
+const inboxes = computed(() => store.getters['inboxes/getInboxes']);
 
 const searchQuery = ref('');
 const viewMode = ref('grid'); // 'grid' | 'flow'
@@ -137,6 +137,9 @@ const orderedTemplates = computed({
 
 onMounted(() => {
   store.dispatch('notificationTemplates/get');
+  if (!inboxes.value.length) {
+    store.dispatch('inboxes/get');
+  }
 });
 </script>
 
@@ -283,6 +286,8 @@ onMounted(() => {
     ref="templateModalRef"
     :template="editingTemplate"
     :all-templates="allTemplates"
+    :available-inboxes="inboxes"
+    :meta="notificationTemplateMeta"
     @save="handleSave"
   />
 
@@ -300,9 +305,7 @@ onMounted(() => {
   >
     <NotificationTemplatePreview
       v-if="previewingTemplate"
-      :message-text="previewingTemplate.messageText"
-      :attachments="previewingTemplate.attachments ?? []"
-      :buttons="previewingTemplate.buttons ?? []"
+      :messages="previewingTemplate.messages ?? []"
     />
   </Dialog>
 

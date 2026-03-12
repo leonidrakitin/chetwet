@@ -56,6 +56,14 @@ class IntegrationsAPI extends ApiClient {
       }
     );
   }
+
+  updateYclientsMarketplaceBinding(accountId, { salonId, inboxId }) {
+    const base = this.apiVersion;
+    return axios.patch(
+      `${base}/accounts/${accountId}/integrations/yclients_marketplace/binding`,
+      { salon_id: salonId, inbox_id: inboxId }
+    );
+  }
 }
 
 export default new IntegrationsAPI();

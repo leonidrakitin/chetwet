@@ -121,6 +121,14 @@ Rails.application.routes.draw do
             end
           end
           resources :campaigns, only: [:index, :create, :show, :update, :destroy]
+          resources :notification_templates, only: [:index, :create, :show, :update, :destroy] do
+            member do
+              post :clone
+            end
+            collection do
+              post :reorder
+            end
+          end
           resources :dashboard_apps, only: [:index, :show, :create, :update, :destroy]
           namespace :channels do
             resource :twilio_channel, only: [:create]
@@ -359,6 +367,7 @@ Rails.application.routes.draw do
             end
             get 'yclients_marketplace/status', to: 'yclients_marketplace#status'
             post 'yclients_marketplace/connect', to: 'yclients_marketplace#connect'
+            patch 'yclients_marketplace/binding', to: 'yclients_marketplace#update_binding'
             post 'yclients_marketplace/payment', to: 'yclients_marketplace#payment'
             post 'yclients_marketplace/payment/refund/:payment_id', to: 'yclients_marketplace#refund'
           end

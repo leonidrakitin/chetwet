@@ -22,6 +22,9 @@
 #
 class YclientsIntegration < ApplicationRecord
   belongs_to :account
+  belongs_to :inbox, optional: true
+
+  has_many :notification_templates, dependent: :nullify
 
   # TODO: Remove guard once encryption keys become mandatory (target 3-4 releases out).
   encrypts :bearer_token if Chatwoot.encryption_configured?

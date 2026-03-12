@@ -124,6 +124,8 @@ class Account < ApplicationRecord
   has_many :mentions, dependent: :destroy_async
   has_many :messages, dependent: :destroy_async
   has_many :notes, dependent: :destroy_async
+  has_many :notification_templates, dependent: :destroy_async
+  has_many :notification_template_deliveries, dependent: :destroy_async
   has_many :notification_settings, dependent: :destroy_async
   has_many :notifications, dependent: :destroy_async
   has_many :portals, dependent: :destroy_async, class_name: '::Portal'

@@ -16,8 +16,7 @@ const emit = defineEmits(['edit']);
 const TYPE_COLOR = {
   event: '#a5b4fc',
   time: '#fdba74',
-  lost_clients: '#f9a8d4',
-  client_consent: '#86efac',
+  interval: '#86efac',
 };
 const typeColor = type => TYPE_COLOR[type] ?? '#cbd5e1';
 
