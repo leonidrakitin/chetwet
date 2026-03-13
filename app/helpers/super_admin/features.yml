@@ -106,6 +106,12 @@ google:
   enabled: true
   icon: 'icon-google'
   config_key: 'google'
+vk_id:
+  name: 'VK ID'
+  description: 'Configuration for setting up VK ID OAuth Integration'
+  enabled: true
+  icon: 'icon-globe-line'
+  config_key: 'vk_id'
 microsoft:
   name: 'Microsoft'
   description: 'Configuration for setting up Microsoft Email'

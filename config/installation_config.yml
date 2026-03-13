@@ -533,6 +533,31 @@
   type: boolean
 ## ------ End of Configs added for Google OAuth ------ ##
 
+## ------ Configs added for VK ID OAuth ------ ##
+- name: VK_ID_CLIENT_ID
+  display_title: 'VK ID Client ID'
+  value:
+  locked: false
+  description: 'VK ID OAuth Client ID for authentication'
+- name: VK_ID_CLIENT_SECRET
+  display_title: 'VK ID Client Secret'
+  value:
+  locked: false
+  description: 'VK ID OAuth Client Secret for authentication'
+  type: secret
+- name: VK_ID_REDIRECT_URI
+  display_title: 'VK ID Redirect URI'
+  value:
+  locked: false
+  description: 'The redirect URI configured in your VK ID app'
+- name: ENABLE_VK_ID_OAUTH_LOGIN
+  display_title: 'Enable VK ID OAuth login'
+  value: false
+  locked: false
+  description: 'Show VK ID OAuth as a login option when credentials are configured'
+  type: boolean
+## ------ End of Configs added for VK ID OAuth ------ ##
+
 ## ------ Configs added for SAML SSO ------ ##
 - name: ENABLE_SAML_SSO_LOGIN
   display_title: 'Enable SAML SSO login'

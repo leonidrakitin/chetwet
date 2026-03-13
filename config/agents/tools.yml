@@ -64,3 +64,18 @@
   title: 'YClients: Transactions'
   description: 'Get financial transaction history for a contact'
   icon: 'currency'
+
+- id: vk_market_get_products
+  title: 'VK Market: Products'
+  description: 'Get list of products from VK community market'
+  icon: 'shopping-bag'
+
+- id: vk_market_get_product_by_id
+  title: 'VK Market: Product Details'
+  description: 'Get detailed product info from VK market by ID'
+  icon: 'shopping-bag'
+
+- id: vk_market_search_products
+  title: 'VK Market: Search'
+  description: 'Search products in VK community market'
+  icon: 'search'
