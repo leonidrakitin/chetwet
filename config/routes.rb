@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
       post 'telegram_callback', to: 'webhooks/telegram#process_payload'
+      post 'auth/vk_sdk_callback', to: 'vk_sdk_auth#create'
 
       # ----------------------------------
       # start of account scoped api routes
