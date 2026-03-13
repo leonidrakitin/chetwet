@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Api::V1::VkSdkAuthController < ApplicationController
-  skip_before_action :verify_authenticity_token
-
   def create
     user_info = fetch_vk_user_info
     email = user_info&.dig('email')
