@@ -39,6 +39,10 @@ module Chatwoot
     config.load_defaults 7.0
 
     config.eager_load_paths << Rails.root.join('lib')
+    # Custom OmniAuth strategy lives under lib/omniauth but defines OmniAuth::Strategies::Vkid
+    # (gem namespace). Zeitwerk would expect Omniauth::Strategies::Vkid from the path; ignore
+    # this subtree—the strategy is required in config/initializers/omniauth.rb.
+    Rails.autoloaders.main.ignore(Rails.root.join('lib/omniauth'))
     config.eager_load_paths << Rails.root.join('enterprise/lib')
     config.eager_load_paths << Rails.root.join('enterprise/listeners')
     # rubocop:disable Rails/FilePath
