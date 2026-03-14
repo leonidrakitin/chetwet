@@ -7,7 +7,7 @@ class Crm::Yclients::ContactsSyncService
     @company_id = hook.settings['company_id']
     @clients_client = Crm::Yclients::Api::ClientsClient.new(
       hook.settings['partner_token'],
-      hook.settings['user_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook),
       hook.settings['company_id']
     )
   end
@@ -88,9 +88,9 @@ class Crm::Yclients::ContactsSyncService
   def update_existing_contact(contact, client_data)
     mapped = Crm::Yclients::Mappers::ContactMapper.map_from_yclients_full(client_data.to_h)
     updates = {}
-    updates[:name] = mapped[:name] if mapped[:name].present? && contact.name.blank?
-    updates[:phone_number] = mapped[:phone_number] if mapped[:phone_number].present? && contact.phone_number.blank?
-    updates[:email] = mapped[:email] if mapped[:email].present? && contact.email.blank?
+    updates[:name] = mapped[:name] if mapped[:name].present?
+    updates[:phone_number] = mapped[:phone_number] if mapped[:phone_number].present?
+    updates[:email] = mapped[:email] if mapped[:email].present?
 
     if mapped[:yclients_attributes].present?
       attrs = (contact.additional_attributes || {}).deep_dup

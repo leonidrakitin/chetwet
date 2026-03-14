@@ -6,7 +6,7 @@ class Crm::Yclients::ProcessorService < Crm::BaseProcessorService
   def initialize(hook)
     super(hook)
     @partner_token = hook.settings['partner_token']
-    @user_token = hook.settings['user_token']
+    @user_token = Crm::Yclients::HookResolver.user_token_for(hook)
     @company_id = hook.settings['company_id']
   end
 

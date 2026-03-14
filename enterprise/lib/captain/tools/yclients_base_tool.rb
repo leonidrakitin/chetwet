@@ -34,7 +34,7 @@ class Captain::Tools::YclientsBaseTool < Captain::Tools::BasePublicTool
   def clients_client_for(hook)
     Crm::Yclients::Api::ClientsClient.new(
       hook.settings['partner_token'],
-      hook.settings['user_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook),
       hook.settings['company_id']
     )
   end
@@ -42,7 +42,7 @@ class Captain::Tools::YclientsBaseTool < Captain::Tools::BasePublicTool
   def records_client_for(hook)
     Crm::Yclients::Api::RecordsClient.new(
       hook.settings['partner_token'],
-      hook.settings['user_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook),
       hook.settings['company_id']
     )
   end
@@ -50,7 +50,7 @@ class Captain::Tools::YclientsBaseTool < Captain::Tools::BasePublicTool
   def booking_client_for(hook)
     Crm::Yclients::Api::BookingClient.new(
       hook.settings['partner_token'],
-      hook.settings['user_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook),
       hook.settings['company_id']
     )
   end

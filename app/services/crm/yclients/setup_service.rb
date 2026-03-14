@@ -16,7 +16,7 @@ class Crm::Yclients::SetupService
   def clients_client
     @clients_client ||= Crm::Yclients::Api::ClientsClient.new(
       @hook.settings['partner_token'],
-      @hook.settings['user_token'],
+      Crm::Yclients::HookResolver.user_token_for(@hook),
       @hook.settings['company_id']
     )
   end

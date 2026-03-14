@@ -150,3 +150,9 @@ shopify:
   enabled: true
   icon: 'icon-shopify'
   config_key: 'shopify'
+yclients:
+  name: 'YClients'
+  description: 'Configuration for YClients CRM integration (Marketplace and API).'
+  enabled: true
+  icon: 'icon-people-line'
+  config_key: 'yclients'

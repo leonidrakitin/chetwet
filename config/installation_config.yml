@@ -450,6 +450,12 @@
   value:
   locked: false
   type: secret
+- name: YCLIENTS_USER_TOKEN
+  display_title: 'YClients User Token'
+  description: 'User token for YClients API (required for API calls). Used when a hook has no user_token (e.g. callback does not return it). Get it from YClients developer/salon settings.'
+  value:
+  locked: false
+  type: secret
 # ------- End of YClients Marketplace Integration ------- #
 
 # ------- Instagram Channel Related Config ------- #

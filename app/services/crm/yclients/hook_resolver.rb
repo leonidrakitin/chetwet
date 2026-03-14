@@ -19,5 +19,10 @@ class Crm::Yclients::HookResolver
     def company_id_for(hook)
       hook&.settings&.fetch('company_id', nil)&.to_s
     end
+
+    # User token from hook settings, or fallback to Super Admin YCLIENTS_USER_TOKEN (callback does not return it).
+    def user_token_for(hook)
+      hook.settings['user_token'].presence || InstallationConfig.find_by(name: 'YCLIENTS_USER_TOKEN')&.value.to_s
+    end
   end
 end

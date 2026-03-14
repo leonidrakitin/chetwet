@@ -61,7 +61,7 @@ class Api::V1::Accounts::Integrations::YclientsController < Api::V1::Accounts::B
   def records_client_for(hook)
     Crm::Yclients::Api::RecordsClient.new(
       hook.settings['partner_token'],
-      hook.settings['user_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook),
       hook.settings['company_id']
     )
   end
