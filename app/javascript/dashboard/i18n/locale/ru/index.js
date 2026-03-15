@@ -8,9 +8,11 @@ import bulkActions from './bulkActions.json';
 import campaign from './campaign.json';
 import cannedMgmt from './cannedMgmt.json';
 import chatlist from './chatlist.json';
+import companies from './companies.json';
 import components from './components.json';
 import contact from './contact.json';
 import contactFilters from './contactFilters.json';
+import contentTemplates from './contentTemplates.json';
 import conversation from './conversation.json';
 import csatMgmt from './csatMgmt.json';
 import customRole from './customRole.json';
@@ -24,8 +26,11 @@ import inboxMgmt from './inboxMgmt.json';
 import integrationApps from './integrationApps.json';
 import integrations from './integrations.json';
 import labelsMgmt from './labelsMgmt.json';
+import landing from './landing.json';
 import login from './login.json';
 import macros from './macros.json';
+import mfa from './mfa.json';
+import notificationTemplates from './notificationTemplates.json';
 import report from './report.json';
 import resetPassword from './resetPassword.json';
 import search from './search.json';
@@ -33,8 +38,10 @@ import setNewPassword from './setNewPassword.json';
 import settings from './settings.json';
 import signup from './signup.json';
 import sla from './sla.json';
+import snooze from './snooze.json';
 import teamsSettings from './teamsSettings.json';
 import whatsappTemplates from './whatsappTemplates.json';
+import yearInReview from './yearInReview.json';
 
 export default {
   ...advancedFilters,
@@ -47,9 +54,11 @@ export default {
   ...campaign,
   ...cannedMgmt,
   ...chatlist,
+  ...companies,
   ...components,
   ...contact,
   ...contactFilters,
+  ...contentTemplates,
   ...conversation,
   ...csatMgmt,
   ...customRole,
@@ -63,8 +72,11 @@ export default {
   ...integrationApps,
   ...integrations,
   ...labelsMgmt,
+  ...landing,
   ...login,
   ...macros,
+  ...mfa,
+  ...notificationTemplates,
   ...report,
   ...resetPassword,
   ...search,
@@ -72,6 +84,8 @@ export default {
   ...settings,
   ...signup,
   ...sla,
+  ...snooze,
   ...teamsSettings,
   ...whatsappTemplates,
+  ...yearInReview,
 };

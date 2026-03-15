@@ -1,0 +1,221 @@
+{
+  "NOTIFICATION_TEMPLATES": {
+    "HEADER": "Шаблоны",
+    "DESCRIPTION": "Управление шаблонами уведомлений для записей клиентов",
+    "NEW_TEMPLATE": "Новый шаблон",
+    "TABS": {
+      "ALL": "Все",
+      "EVENT": "По событию",
+      "TIME": "По времени",
+      "INTERVAL": "Интервал",
+      "STATISTICS": "Статистика"
+    },
+    "EVENTS": {
+      "CONVERSATION_CREATED": "При создании диалога",
+      "CONVERSATION_RESOLVED": "При закрытии диалога",
+      "MESSAGE_RECEIVED": "При входящем сообщении",
+      "BOOKING_CREATED": "При создании записи",
+      "BOOKING_CANCELLED": "При отмене записи",
+      "CONFIRMED": "При подтверждении визита",
+      "CANCELLED": "При отмене",
+      "PAID": "При оплате",
+      "ARRIVED": "При прибытии клиента"
+    },
+    "TYPES": {
+      "EVENT": "По событию",
+      "TIME": "По времени",
+      "INTERVAL": "Интервал"
+    },
+    "REPEAT": {
+      "NONE": "Не повторяется",
+      "DAILY": "Ежедневно",
+      "WEEKLY": "Еженедельно",
+      "MONTHLY": "Ежемесячно"
+    },
+    "SINCE": {
+      "LABEL": "С момента",
+      "LAST_VISIT": "Последнего визита",
+      "LAST_MESSAGE": "Последнего сообщения",
+      "REGISTRATION_DATE": "Даты регистрации"
+    },
+    "VARIABLES_HINT": "Доступные переменные: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
+    "FORM": {
+      "REQUIRED_INDICATOR": "*",
+      "NAME": {
+        "LABEL": "Название",
+        "PLACEHOLDER": "Название шаблона",
+        "REQUIRED": "Название обязательно"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Описание",
+        "PLACEHOLDER": "Необязательное описание"
+      },
+      "TYPE": { "LABEL": "Тип" },
+      "INBOX": {
+        "LABEL": "Входящие",
+        "PLACEHOLDER": "Выберите входящие"
+      },
+      "YCLIENTS_INTEGRATION": {
+        "LABEL": "Салон Yclients",
+        "PLACEHOLDER": "Салон не выбран",
+        "OPTION": "Салон {salonId}"
+      },
+      "TRIGGER_EVENT": { "LABEL": "Событие" },
+      "OFFSET_HOURS": { "LABEL": "Смещение (часы, минус = до)" },
+      "SEND_AT": { "LABEL": "Отправить в" },
+      "TIMEZONE": { "LABEL": "Часовой пояс" },
+      "REPEAT": { "LABEL": "Повтор" },
+      "REPEAT_UNTIL": { "LABEL": "Повторять до" },
+      "INTERVAL_DAYS": { "LABEL": "Каждые N дней" },
+      "SINCE": { "LABEL": "С момента" },
+      "MIN_INTERVAL_HOURS": { "LABEL": "Минимальный интервал между отправками (часы)" },
+      "SERVICE_NAME": {
+        "LABEL": "Фильтр по услуге",
+        "PLACEHOLDER": "Фильтр по названию услуги"
+      },
+      "STAFF_NAME": {
+        "LABEL": "Фильтр по сотруднику",
+        "PLACEHOLDER": "Фильтр по имени сотрудника"
+      },
+      "TAGS": {
+        "LABEL": "Теги",
+        "PLACEHOLDER": "vip, реактивация"
+      },
+      "EXCLUDE_TAGS": {
+        "LABEL": "Исключить теги",
+        "PLACEHOLDER": "отписка, чёрный список"
+      },
+      "QUIET_HOURS_FROM": { "LABEL": "Тихие часы с" },
+      "QUIET_HOURS_TO": { "LABEL": "Тихие часы до" },
+      "MAX_PER_DAY": { "LABEL": "Макс. в день на клиента" },
+      "STOP_IF_REPLIED": { "LABEL": "Остановить при ответе клиента" },
+      "SKIP_IF_HAS_ACTIVE_DIALOG": { "LABEL": "Пропускать при активном диалоге" },
+      "MESSAGE_TEXT": {
+        "LABEL": "Текст сообщения",
+        "PLACEHOLDER": "Введите текст сообщения...",
+        "ADD_MESSAGE": "Добавить сообщение",
+        "MOVE_UP_ARIA": "Переместить сообщение вверх",
+        "MOVE_DOWN_ARIA": "Переместить сообщение вниз",
+        "REMOVE_MESSAGE_ARIA": "Удалить сообщение"
+      },
+      "ENABLED": { "LABEL": "Включено" }
+    },
+    "ADD": { "TITLE": "Новый шаблон" },
+    "EDIT": { "TITLE": "Редактировать шаблон", "BUTTON_TEXT": "Изменить" },
+    "CLONE": {
+      "BUTTON_TEXT": "Клонировать",
+      "SUCCESS": "Шаблон успешно клонирован.",
+      "ERROR": "Не удалось клонировать шаблон."
+    },
+    "DELETE": {
+      "BUTTON_TEXT": "Удалить",
+      "CONFIRM": {
+        "TITLE": "Подтверждение удаления",
+        "MESSAGE": "Удалить шаблон «{name}»?",
+        "YES": "Да, удалить",
+        "NO": "Отмена"
+      },
+      "SUCCESS": "Шаблон успешно удалён.",
+      "ERROR": "Не удалось удалить шаблон."
+    },
+    "TOGGLE": {
+      "SUCCESS": "Шаблон обновлён.",
+      "ERROR": "Не удалось обновить шаблон."
+    },
+    "SAVE": {
+      "SUCCESS": "Шаблон успешно сохранён.",
+      "ERROR": "Не удалось сохранить шаблон."
+    },
+    "STATISTICS": {
+      "COMING_SOON": "Статистика будет доступна в следующем обновлении."
+    },
+    "PREVIEW": {
+      "TITLE": "Предпросмотр",
+      "BUTTON_TEXT": "Предпросмотр",
+      "PLACEHOLDER": "Здесь будет отображаться ваше сообщение...",
+      "EXAMPLE_LABEL": "В предпросмотре используются примеры значений переменных"
+    },
+    "EMPTY": "Шаблоны не найдены. Создайте новый шаблон кнопкой выше.",
+    "SEARCH": {
+      "PLACEHOLDER": "Поиск шаблонов..."
+    },
+    "TOOLBAR": {
+      "BOLD": "Жирный (**текст**)",
+      "ITALIC": "Курсив (_текст_)",
+      "STRIKETHROUGH": "Зачёркнутый (~~текст~~)",
+      "CODE": "Код (`текст`)",
+      "LINK": "Вставить ссылку",
+      "LINK_PROMPT": "Введите URL",
+      "UNORDERED_LIST": "Маркированный список",
+      "ORDERED_LIST": "Нумерованный список",
+      "UNDO": "Отменить",
+      "REDO": "Повторить",
+      "ATTACHMENTS": "Вложения",
+      "INSERT_VARIABLE": "Вставить переменную (@)"
+    },
+    "VARIABLES": {
+      "LABEL": "Вставить переменную",
+      "PICKER_BUTTON": "Вставить переменную",
+      "PICKER_HINT": "Нажмите для вставки · Перетащите в редактор",
+      "REMOVE_ARIA": "Удалить переменную",
+      "NO_MATCH": "Переменные не найдены",
+      "EXAMPLE_PREFIX": "напр.",
+      "CATEGORIES": {
+        "ALL": "Все",
+        "CLIENT": "Клиент",
+        "APPOINTMENT": "Запись",
+        "PAYMENT": "Оплата",
+        "DATETIME": "Дата и время"
+      },
+      "client_name": "Имя клиента",
+      "client_name_description": "Полное имя клиента",
+      "client_name_example": "Иван Иванов",
+      "service_name": "Услуга или тип записи",
+      "service_name_description": "Название забронированной услуги",
+      "service_name_example": "Стрижка",
+      "branch_name": "Филиал или адрес",
+      "branch_name_description": "Название филиала или офиса",
+      "branch_name_example": "Центральный офис",
+      "master_name": "Сотрудник или мастер",
+      "master_name_description": "Имя назначенного сотрудника",
+      "master_name_example": "Мария",
+      "price": "Цена или сумма",
+      "price_description": "Форматированная цена или сумма оплаты",
+      "price_example": "1 500 ₽",
+      "date": "Дата визита",
+      "date_description": "Дата записи",
+      "date_example": "15 марта",
+      "time": "Время визита",
+      "time_description": "Время записи",
+      "time_example": "14:30"
+    },
+    "ATTACHMENTS": {
+      "LABEL": "Вложения",
+      "ADD_FILE": "+ Файл",
+      "ADD_PHOTO": "+ Фото",
+      "ADD_VIDEO": "+ Видео",
+      "ADD_LINK": "+ Ссылка",
+      "LINK_URL": "URL",
+      "LINK_LABEL": "Подпись",
+      "MAX_REACHED": "Максимум 10 вложений"
+    },
+    "BUTTONS": {
+      "LABEL": "Кнопки действий",
+      "ADD": "Добавить кнопку",
+      "BUTTON_LABEL": "Текст кнопки",
+      "TYPE": "Тип действия",
+      "TYPE_URL": "Открыть URL",
+      "TYPE_TEMPLATE": "Перейти к шаблону",
+      "URL": "URL",
+      "TEMPLATE": "Выберите шаблон...",
+      "MAX_REACHED": "Максимум 3 кнопки"
+    },
+    "COMMON": {
+      "CANCEL": "Отмена"
+    },
+    "VIEW": {
+      "GRID": "Сетка",
+      "FLOW": "Поток"
+    }
+  }
+}

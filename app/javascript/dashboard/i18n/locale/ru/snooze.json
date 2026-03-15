@@ -1,0 +1,72 @@
+{
+  "SNOOZE_PARSER": {
+    "UNITS": {
+      "MINUTE": "минута",
+      "MINUTES": "минут",
+      "HOUR": "час",
+      "HOURS": "часов",
+      "DAY": "день",
+      "DAYS": "дней",
+      "WEEK": "неделя",
+      "WEEKS": "недель",
+      "MONTH": "месяц",
+      "MONTHS": "месяцев",
+      "YEAR": "год",
+      "YEARS": "лет"
+    },
+    "HALF": "половина",
+    "NEXT": "следующий",
+    "THIS": "этот",
+    "AT": "в",
+    "IN": "через",
+    "FROM_NOW": "сейчас",
+    "NEXT_YEAR": "следующий год",
+    "MERIDIEM": {
+      "AM": "утра",
+      "PM": "вечера"
+    },
+    "RELATIVE": {
+      "TOMORROW": "завтра",
+      "DAY_AFTER_TOMORROW": "послезавтра",
+      "NEXT_WEEK": "на следующей неделе",
+      "NEXT_MONTH": "в следующем месяце",
+      "THIS_WEEKEND": "в эти выходные",
+      "NEXT_WEEKEND": "в следующие выходные"
+    },
+    "TIME_OF_DAY": {
+      "MORNING": "утро",
+      "AFTERNOON": "день",
+      "EVENING": "вечер",
+      "NIGHT": "ночь",
+      "NOON": "полдень",
+      "MIDNIGHT": "полночь"
+    },
+    "WORD_NUMBERS": {
+      "ONE": "один",
+      "TWO": "два",
+      "THREE": "три",
+      "FOUR": "четыре",
+      "FIVE": "пять",
+      "SIX": "шесть",
+      "SEVEN": "семь",
+      "EIGHT": "восемь",
+      "NINE": "девять",
+      "TEN": "десять",
+      "TWELVE": "двенадцать",
+      "FIFTEEN": "пятнадцать",
+      "TWENTY": "двадцать",
+      "THIRTY": "тридцать"
+    },
+    "ORDINALS": {
+      "FIRST": "первый",
+      "SECOND": "второй",
+      "THIRD": "третий",
+      "FOURTH": "четвёртый",
+      "FIFTH": "пятый"
+    },
+    "OF": "из",
+    "AFTER": "после",
+    "WEEK": "неделя",
+    "DAY": "день"
+  }
+}

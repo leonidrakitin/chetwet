@@ -1,64 +1,64 @@
 {
   "YEAR_IN_REVIEW": {
-    "TITLE": "Year in Review",
-    "LOADING": "Loading your year in review...",
-    "ERROR": "Failed to load year in review",
+    "TITLE": "Итоги года",
+    "LOADING": "Загрузка итогов года...",
+    "ERROR": "Не удалось загрузить итоги года",
     "CLOSE": "Закрыть",
     "CONVERSATIONS": {
-      "TITLE": "You have handled",
-      "SUBTITLE": "диалоги",
-      "FALLBACK": "This year wasn't about the numbers. It was about showing up.",
+      "TITLE": "Вы обработали",
+      "SUBTITLE": "диалогов",
+      "FALLBACK": "В этом году важны не цифры, а то, что вы были рядом с клиентами.",
       "COMPARISON": {
-        "0_50": "You showed up, and that's how every good inbox begins.",
-        "50_100": "You kept the replies flowing and the conversations alive.",
-        "100_500": "You handled serious volume and kept everything on track.",
-        "500_2000": "You kept things moving while the volume kept climbing.",
-        "2000_10000": "You ran high traffic through your inbox without breaking a sweat.",
-        "10000_PLUS": "That's a full city of customers knocking on your door. You made it look effortless."
+        "0_50": "Вы были на связи — с этого начинается хорошая поддержка.",
+        "50_100": "Вы поддерживали диалог и не оставляли обращения без ответа.",
+        "100_500": "Вы справлялись с серьёзным потоком и держали всё под контролем.",
+        "500_2000": "Объём рос, а вы продолжали успевать.",
+        "2000_10000": "Вы пропускали через свой ящик большой поток и делали это уверенно.",
+        "10000_PLUS": "Целый город клиентов стучался в вашу дверь — и вы справлялись с лёгкостью."
       }
     },
     "BUSIEST_DAY": {
-      "TITLE": "Your busiest day was",
-      "MESSAGE": "{count} conversations that day.",
+      "TITLE": "Самый загруженный день —",
+      "MESSAGE": "{count} диалогов в тот день.",
       "COMPARISON": {
-        "0_5": "A warm-up lap that barely woke the inbox.",
-        "5_10": "Enough action to justify a second cup of coffee.",
-        "10_25": "Things got busy and the inbox stayed on its toes.",
-        "25_50": "A proper rush that barely broke a sweat.",
-        "50_100": "Controlled chaos, handled like a normal Tuesday.",
-        "100_500": "Absolute dumpster fire, somehow still shipping replies.",
-        "500_PLUS": "The inbox lost all chill and never slowed down."
+        "0_5": "Лёгкая разминка для ящика.",
+        "5_10": "Достаточно, чтобы оправдать вторую чашку кофе.",
+        "10_25": "Дела пошли живее, ящик не простаивал.",
+        "25_50": "Настоящий наплыв, но вы справились.",
+        "50_100": "Контролируемый хаос, как обычный вторник.",
+        "100_500": "Настоящий огонь, но ответы всё равно уходили.",
+        "500_PLUS": "Ящик работал на пределе без передышки."
       }
     },
     "PERSONALITY": {
-      "TITLE": "Your support personality is",
+      "TITLE": "Ваш стиль поддержки —",
       "MESSAGES": {
-        "SWIFT_HELPER": "You replied in {time} on average. Faster than most notifications.",
-        "QUICK_RESPONDER": "You replied in {time} on average. The inbox barely waited.",
-        "STEADY_SUPPORT": "You replied in {time} on average. Calm pace, solid replies.",
-        "THOUGHTFUL_ADVISOR": "You replied in {time} on average. Took the time to get it right."
+        "SWIFT_HELPER": "В среднем вы отвечали за {time}. Быстрее многих уведомлений.",
+        "QUICK_RESPONDER": "В среднем вы отвечали за {time}. Ящик почти не ждал.",
+        "STEADY_SUPPORT": "В среднем вы отвечали за {time}. Спокойный темп, уверенные ответы.",
+        "THOUGHTFUL_ADVISOR": "В среднем вы отвечали за {time}. Время тратили на то, чтобы ответить по делу."
       }
     },
     "THANK_YOU": {
-      "TITLE": "Congratulations on surviving the inbox of {year}.",
-      "MESSAGE": "Thank you for your incredible dedication to supporting customers throughout this year. Your hard work has made a real difference, and we're grateful to have you on this journey. Here's to making {nextYear} even better together!"
+      "TITLE": "Поздравляем с завершением года поддержки {year}.",
+      "MESSAGE": "Спасибо за вашу работу и внимание к клиентам. Ваш вклад действительно важен. Пусть {nextYear} будет ещё продуктивнее!"
     },
     "SHARE_MODAL": {
-      "TITLE": "Share Your Year in Review",
-      "PREPARING": "Preparing your image...",
+      "TITLE": "Поделиться итогами года",
+      "PREPARING": "Подготовка изображения...",
       "DOWNLOAD": "Скачать",
-      "SHARE_TITLE": "My {year} Year in Review",
-      "SHARE_TEXT": "Check out my {year} Year in Review with Chatwoot!",
-      "BRANDING": "Made with Chatwoot"
+      "SHARE_TITLE": "Мои итоги {year} года",
+      "SHARE_TEXT": "Посмотрите мои итоги {year} года в Chatwoot!",
+      "BRANDING": "Сделано в Chatwoot"
     },
     "BANNER": {
-      "TITLE": "Your {year} Year in Review is here",
-      "BUTTON": "See your impact"
+      "TITLE": "Ваши итоги {year} года готовы",
+      "BUTTON": "Смотреть итоги"
     },
     "NAVIGATION": {
-      "PREVIOUS": "Previous",
-      "NEXT": "Next",
-      "SHARE": "Поделиться разговором"
+      "PREVIOUS": "Назад",
+      "NEXT": "Далее",
+      "SHARE": "Поделиться"
     }
   }
 }

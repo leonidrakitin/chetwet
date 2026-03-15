@@ -94,6 +94,11 @@
   display_title: 'Attachment size limit (MB)'
   description: 'Maximum attachment size in MB allowed for uploads'
   locked: false
+- name: DEFAULT_LOCALE
+  value: 'ru'
+  display_title: 'Default Locale'
+  description: 'Default language for the installation and for new accounts when no user/account locale is set'
+  locked: false
 # ------- End of Account Related Config ------- #
 
 # ------- Email Related Config ------- #

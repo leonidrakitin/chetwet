@@ -13,8 +13,8 @@ module SwitchLocale
     # Use the locale from a custom domain if applicable
     locale ||= locale_from_custom_domain
 
-    # if locale is not set in account, let's use DEFAULT_LOCALE env variable
-    locale ||= ENV.fetch('DEFAULT_LOCALE', nil)
+    # if locale is not set in account, use DEFAULT_LOCALE from ENV or installation config
+    locale ||= ENV.fetch('DEFAULT_LOCALE', nil) || GlobalConfig.get_value('DEFAULT_LOCALE')
 
     set_locale(locale, &)
   end
