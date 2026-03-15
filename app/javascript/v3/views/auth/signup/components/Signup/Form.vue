@@ -8,10 +8,13 @@ import { useAlert } from 'dashboard/composables';
 import { DEFAULT_REDIRECT_URL } from 'dashboard/constants/globals';
 import VueHcaptcha from '@hcaptcha/vue3-hcaptcha';
 import FormInput from '../../../../../components/Form/Input.vue';
+import FormCheckBox from '../../../../../components/Form/CheckBox.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import SimpleDivider from '../../../../../components/Divider/SimpleDivider.vue';
 import PasswordRequirements from './PasswordRequirements.vue';
 import { isValidPassword } from 'shared/helpers/Validators';
 import GoogleOAuthButton from '../../../../../components/GoogleOauth/Button.vue';
+import VkIdOAuthButton from '../../../../../components/VkIdOauth/Button.vue';
 import { register } from '../../../../../api/auth';
 import * as CompanyEmailValidator from 'company-email-validator';
 
@@ -23,6 +26,9 @@ const { t } = useI18n();
 const hCaptcha = ref(null);
 const isPasswordFocused = ref(false);
 const isSignupInProgress = ref(false);
+const consentPersonalData = ref(false);
+const consentMarketing = ref(false);
+const showConsentError = ref(false);
 
 const credentials = reactive({
   email: '',
@@ -70,7 +76,18 @@ const showGoogleOAuth = computed(
     Boolean(window.chatwootConfig.googleOAuthClientId)
 );
 
+const showVkIdOAuth = computed(
+  () =>
+    allowedLoginMethods.value.includes('vk_id_oauth') &&
+    Boolean(window.chatwootConfig.vkIdClientId)
+);
+
+const hasSocialLogin = computed(
+  () => showGoogleOAuth.value || showVkIdOAuth.value
+);
+
 const isFormValid = computed(() => !v$.value.$invalid);
+const isConsentValid = computed(() => consentPersonalData.value);
 
 const performRegistration = async () => {
   isSignupInProgress.value = true;
@@ -91,6 +108,14 @@ const performRegistration = async () => {
 
 const submit = () => {
   if (isSignupInProgress.value) return;
+
+  if (!isConsentValid.value) {
+    showConsentError.value = true;
+    useAlert(t('REGISTER.CONSENT.REQUIRED'));
+    return;
+  }
+  showConsentError.value = false;
+
   v$.value.$touch();
   if (v$.value.$invalid) return;
   isSignupInProgress.value = true;
@@ -111,10 +136,29 @@ const onCaptchaError = () => {
   credentials.hCaptchaClientResponse = '';
   hCaptcha.value.reset();
 };
+
+const handleConsentPersonalData = (_value, checked) => {
+  consentPersonalData.value = checked;
+  if (checked) showConsentError.value = false;
+};
+
+const handleConsentMarketing = (_value, checked) => {
+  consentMarketing.value = checked;
+};
 </script>
 
 <template>
   <div class="flex-1">
+    <!-- Social Login Buttons -->
+    <div v-if="hasSocialLogin" class="flex flex-col gap-3 mb-4">
+      <GoogleOAuthButton v-if="showGoogleOAuth">
+        {{ $t('REGISTER.OAUTH.GOOGLE_SIGNUP') }}
+      </GoogleOAuthButton>
+      <VkIdOAuthButton v-if="showVkIdOAuth" />
+      <SimpleDivider :label="$t('REGISTER.EMAIL_SECTION_TITLE')" class="mt-1" />
+    </div>
+
+    <!-- Email Signup Form -->
     <form class="space-y-3" @submit.prevent="submit">
       <FormInput
         v-model="credentials.email"
@@ -156,6 +200,37 @@ const onCaptchaError = () => {
           />
         </Transition>
       </div>
+
+      <!-- Consent Checkboxes -->
+      <div
+        class="space-y-3 pt-3 pb-1"
+        :class="{
+          'rounded-lg ring-1 ring-n-ruby-9 p-3': showConsentError,
+        }"
+      >
+        <label class="flex items-start gap-2 cursor-pointer">
+          <FormCheckBox
+            :is-checked="consentPersonalData"
+            value="personal_data"
+            @update="handleConsentPersonalData"
+          />
+          <span class="text-sm text-n-slate-11 leading-snug select-none">
+            {{ $t('REGISTER.CONSENT.PERSONAL_DATA') }}
+            <span class="text-n-ruby-9">*</span>
+          </span>
+        </label>
+        <label class="flex items-start gap-2 cursor-pointer">
+          <FormCheckBox
+            :is-checked="consentMarketing"
+            value="marketing"
+            @update="handleConsentMarketing"
+          />
+          <span class="text-sm text-n-slate-11 leading-snug select-none">
+            {{ $t('REGISTER.CONSENT.MARKETING') }}
+          </span>
+        </label>
+      </div>
+
       <VueHcaptcha
         v-if="globalConfig.hCaptchaSiteKey"
         ref="hCaptcha"
@@ -173,15 +248,12 @@ const onCaptchaError = () => {
         data-testid="submit_button"
         class="w-full font-medium"
         :label="$t('REGISTER.SUBMIT')"
-        :disabled="isSignupInProgress || !isFormValid"
+        :disabled="isSignupInProgress || !isFormValid || !isConsentValid"
         :is-loading="isSignupInProgress"
       />
     </form>
-    <GoogleOAuthButton v-if="showGoogleOAuth" class="mt-3">
-      {{ $t('REGISTER.OAUTH.GOOGLE_SIGNUP') }}
-    </GoogleOAuthButton>
     <p
-      class="text-sm mt-5 mb-0 text-n-slate-11 [&>a]:text-n-blue-10 [&>a]:font-medium [&>a]:hover:text-n-blue-11"
+      class="text-xs mt-4 mb-0 text-n-slate-10 [&>a]:text-n-blue-10 [&>a]:font-medium [&>a]:hover:text-n-blue-11"
       v-html="termsLink"
     />
   </div>

@@ -1,6 +1,10 @@
 {
   "LOGIN": {
     "TITLE": "Login to Chatwoot",
+    "SUBTITLE": "Welcome back! Choose a way to sign in.",
+    "NO_ACCOUNT": "Don't have an account?",
+    "SIGN_UP_LINK": "Sign up for free",
+    "EMAIL_SECTION_TITLE": "Or sign in with email",
     "EMAIL": {
       "LABEL": "Email",
       "PLACEHOLDER": "example{'@'}companyname.com",
@@ -16,15 +20,15 @@
       "UNAUTH": "Username or password is incorrect. Please try again."
     },
     "OAUTH": {
-      "GOOGLE_LOGIN": "Login with Google",
+      "GOOGLE_LOGIN": "Continue with Google",
       "VK": "VK",
-      "VK_ID_LOGIN": "Login with VK ID",
+      "VK_ID_LOGIN": "Continue with VK ID",
       "BUSINESS_ACCOUNTS_ONLY": "Please use your company email address to login",
-      "NO_ACCOUNT_FOUND": "We couldn't find an account for your email address."
+      "NO_ACCOUNT_FOUND": "We couldn't find an account for your email address. Would you like to sign up?"
     },
     "FORGOT_PASSWORD": "Forgot your password?",
     "CREATE_NEW_ACCOUNT": "Create a new account",
-    "SUBMIT": "Login",
+    "SUBMIT": "Sign in",
     "SAML": {
       "LABEL": "Login via SSO",
       "TITLE": "Initiate Single Sign-on (SSO)",

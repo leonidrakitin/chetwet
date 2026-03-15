@@ -4,7 +4,6 @@ import { useStore } from 'vuex';
 import SignupForm from './components/Signup/Form.vue';
 import Testimonials from './components/Testimonials/Index.vue';
 import Spinner from 'shared/components/Spinner.vue';
-import signupBg from 'assets/images/auth/signup-bg.jpg';
 
 const store = useStore();
 
@@ -25,42 +24,45 @@ const resizeContainers = () => {
 
 <template>
   <div
-    class="relative w-full h-full min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat p-4"
-    :style="{ backgroundImage: `url(${signupBg})` }"
+    class="relative w-full h-full min-h-screen flex items-center justify-center bg-gradient-to-br from-n-brand/5 via-n-background to-n-brand/10 dark:from-n-background dark:via-n-solid-1 dark:to-n-background p-4"
   >
     <div
-      class="absolute inset-0 bg-n-gray-12/60 dark:bg-n-gray-1/80 backdrop-blur-sm"
-    />
-    <div
       v-show="!isLoading"
-      class="relative flex max-w-[960px] bg-white dark:bg-n-solid-2 rounded-lg outline outline-1 outline-n-container shadow-sm"
+      class="relative flex max-w-[960px] bg-white dark:bg-n-solid-2 rounded-2xl ring-1 ring-n-container/50 dark:ring-n-container shadow-lg"
       :class="{ 'w-auto xl:w-full': isAChatwootInstance }"
     >
       <div class="flex-1 flex items-center justify-center py-10 px-10">
         <div class="max-w-[420px] w-full">
           <div class="mb-6">
-            <img
-              :src="globalConfig.logo"
-              :alt="globalConfig.installationName"
-              class="block w-auto h-7 dark:hidden"
-            />
-            <img
-              v-if="globalConfig.logoDark"
-              :src="globalConfig.logoDark"
-              :alt="globalConfig.installationName"
-              class="hidden w-auto h-7 dark:block"
-            />
-            <h2 class="mt-6 text-2xl font-semibold text-n-slate-12">
+            <div class="flex justify-start mb-4">
+              <div class="p-2 rounded-xl bg-n-background dark:bg-n-solid-3">
+                <img
+                  :src="globalConfig.logo"
+                  :alt="globalConfig.installationName"
+                  class="block w-auto h-8 dark:hidden"
+                />
+                <img
+                  v-if="globalConfig.logoDark"
+                  :src="globalConfig.logoDark"
+                  :alt="globalConfig.installationName"
+                  class="hidden w-auto h-8 dark:block"
+                />
+              </div>
+            </div>
+            <h2 class="text-2xl font-bold text-n-slate-12">
               {{
                 isAChatwootInstance
                   ? $t('REGISTER.GET_STARTED')
                   : $t('REGISTER.TRY_WOOT')
               }}
             </h2>
+            <p class="mt-1 text-sm text-n-slate-11">
+              {{ $t('REGISTER.SUBTITLE') }}
+            </p>
             <p class="mt-2 text-sm text-n-slate-11">
               {{ $t('REGISTER.HAVE_AN_ACCOUNT') }}{{ ' '
               }}<router-link
-                class="text-n-blue-10 font-medium hover:text-n-blue-11"
+                class="font-semibold text-n-brand hover:text-n-brand/80 transition-colors"
                 to="/app/login"
               >
                 {{ $t('LOGIN.SUBMIT') }}

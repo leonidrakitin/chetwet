@@ -7,6 +7,7 @@ import Signup from './auth/signup/Index.vue';
 import ResetPassword from './auth/reset/password/Index.vue';
 import Confirmation from './auth/confirmation/Index.vue';
 import PasswordEdit from './auth/password/Edit.vue';
+import AiOnboardingWizard from './onboarding/AiOnboardingWizard.vue';
 
 export default [
   {
@@ -70,5 +71,11 @@ export default [
     path: frontendURL('auth/reset/password'),
     name: 'auth_reset_password',
     component: ResetPassword,
+  },
+  {
+    path: frontendURL('onboarding/wizard'),
+    name: 'onboarding_wizard',
+    component: AiOnboardingWizard,
+    meta: { ignoreSession: true },
   },
 ];
