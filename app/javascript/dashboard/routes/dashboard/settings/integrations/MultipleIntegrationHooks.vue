@@ -10,6 +10,8 @@ import {
 import { useI18n } from 'vue-i18n';
 import BaseSettingsHeader from 'dashboard/routes/dashboard/settings/components/BaseSettingsHeader.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import { useAlert } from 'dashboard/composables';
+import YclientsAPI from 'dashboard/api/integrations/yclients';
 
 const props = defineProps({
   integrationId: {
@@ -69,9 +71,28 @@ const filteredHooks = computed(() => {
 
 const inboxName = hook => (hook.inbox ? hook.inbox.name : '');
 
+const isSyncingContacts = ref(false);
+
 function openYclientsConnect() {
   const base = typeof window !== 'undefined' ? window.location.origin : '';
   window.open(`${base}/app/yclients/connect`, '_blank', 'noopener,noreferrer');
+}
+
+async function syncYclientsContacts() {
+  if (isSyncingContacts.value) return;
+  isSyncingContacts.value = true;
+  try {
+    await YclientsAPI.syncContacts();
+    useAlert(t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SYNC_CONTACTS_SUCCESS'));
+  } catch (err) {
+    const message =
+      err.response?.data?.error ||
+      err.message ||
+      t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SYNC_CONTACTS_ERROR');
+    useAlert(message);
+  } finally {
+    isSyncingContacts.value = false;
+  }
 }
 </script>
 
@@ -96,6 +117,21 @@ function openYclientsConnect() {
         </span>
       </template>
       <template #actions>
+        <NextButton
+          v-if="integrationId === 'yclients'"
+          v-tooltip.top="
+            $t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SYNC_CONTACTS_TOOLTIP')
+          "
+          faded
+          slate
+          size="sm"
+          :label="
+            $t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SYNC_CONTACTS_BUTTON')
+          "
+          :loading="isSyncingContacts"
+          :disabled="isSyncingContacts"
+          @click="syncYclientsContacts"
+        />
         <NextButton
           v-if="integrationId === 'yclients'"
           faded

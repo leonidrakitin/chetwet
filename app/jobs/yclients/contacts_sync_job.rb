@@ -16,7 +16,8 @@ class Yclients::ContactsSyncJob < ApplicationJob
 
     service = Crm::Yclients::ContactsSyncService.new(account, hook)
     total = service.sync_all
+    pushed = service.push_contacts_to_yclients
 
-    Rails.logger.info "YClients ContactsSyncJob: synced #{total} contacts for account_id=#{account_id}"
+    Rails.logger.info "YClients ContactsSyncJob: synced #{total} contacts, pushed #{pushed} to YClients for account_id=#{account_id}"
   end
 end

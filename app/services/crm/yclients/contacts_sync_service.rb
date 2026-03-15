@@ -33,6 +33,26 @@ class Crm::Yclients::ContactsSyncService
     total_synced
   end
 
+  def push_contacts_to_yclients
+    pushed = 0
+    contacts_linked_to_company.find_each do |contact|
+      next unless should_push_contact?(contact)
+
+      yclients_id = Crm::Yclients::ContactIdentity.external_id_for(contact, company_id: @company_id)
+      next if yclients_id.blank?
+
+      data = Crm::Yclients::Mappers::ContactMapper.map(contact)
+      next if data['phone'].blank? && data['email'].blank?
+
+      @clients_client.update(yclients_id, data)
+      mark_source_synced(contact)
+      pushed += 1
+    rescue Crm::Yclients::Api::BaseClient::ApiError => e
+      Rails.logger.warn "YClients ContactsSyncService: push failed for contact #{contact.id}: #{e.message}"
+    end
+    pushed
+  end
+
   def find_or_create_from_yclients(client_data)
     client_data = client_data.with_indifferent_access if client_data.is_a?(Hash)
     yclients_id = client_data['id']&.to_s
@@ -77,9 +97,10 @@ class Crm::Yclients::ContactsSyncService
     return nil if mapped[:phone_number].blank? && mapped[:email].blank?
 
     yclients_attrs = mapped.delete(:yclients_attributes) || {}
+    company_attrs = yclients_attrs.merge(source_attrs_from_yclients(client_data))
     additional = {}
     additional['yclients'] = yclients_attrs if yclients_attrs.any?
-    additional['yclients_companies'] = { @company_id.to_s => yclients_attrs } if yclients_attrs.any? && @company_id.present?
+    additional['yclients_companies'] = { @company_id.to_s => company_attrs } if @company_id.present?
 
     @account.contacts.create!(mapped.merge(additional_attributes: additional))
   end
@@ -92,12 +113,13 @@ class Crm::Yclients::ContactsSyncService
     updates[:phone_number] = mapped[:phone_number] if mapped[:phone_number].present?
     updates[:email] = mapped[:email] if mapped[:email].present?
 
-    if mapped[:yclients_attributes].present?
+    company_attrs = (mapped[:yclients_attributes] || {}).merge(source_attrs_from_yclients(client_data))
+    if company_attrs.present?
       attrs = (contact.additional_attributes || {}).deep_dup
-      attrs['yclients'] = (attrs['yclients'] || {}).merge(mapped[:yclients_attributes])
+      attrs['yclients'] = (attrs['yclients'] || {}).merge(mapped[:yclients_attributes] || {})
       attrs['yclients_companies'] ||= {}
       attrs['yclients_companies'][@company_id.to_s] =
-        (attrs['yclients_companies'][@company_id.to_s] || {}).merge(mapped[:yclients_attributes])
+        (attrs['yclients_companies'][@company_id.to_s] || {}).merge(company_attrs)
       updates[:additional_attributes] = attrs
     end
 
@@ -119,5 +141,36 @@ class Crm::Yclients::ContactsSyncService
     return unless contact&.account_id == @account.id
 
     contact
+  end
+
+  def source_attrs_from_yclients(client_data)
+    {}.tap do |h|
+      h['source_phone'] = client_data['phone'].to_s.presence
+      h['source_email'] = client_data['email'].to_s.presence
+    end.compact
+  end
+
+  def contacts_linked_to_company
+    @account.contacts.where(
+      "additional_attributes -> 'external' -> 'yclients_ids' ->> ? IS NOT NULL",
+      @company_id.to_s
+    )
+  end
+
+  def should_push_contact?(contact)
+    company_data = contact.additional_attributes.dig('yclients_companies', @company_id.to_s) || {}
+    source_phone = company_data['source_phone'].to_s.presence
+    source_email = company_data['source_email'].to_s.presence
+    (contact.phone_number.present? && source_phone.blank?) ||
+      (contact.email.present? && source_email.blank?)
+  end
+
+  def mark_source_synced(contact)
+    attrs = (contact.additional_attributes || {}).deep_dup
+    attrs['yclients_companies'] ||= {}
+    attrs['yclients_companies'][@company_id.to_s] ||= {}
+    attrs['yclients_companies'][@company_id.to_s]['source_phone'] = contact.phone_number.to_s.presence
+    attrs['yclients_companies'][@company_id.to_s]['source_email'] = contact.email.to_s.presence
+    contact.update_columns(additional_attributes: attrs)
   end
 end
