@@ -239,6 +239,8 @@
           "WHATSAPP_CLOUD": "WhatsApp Cloud",
           "WHATSAPP_CLOUD_DESC": "Quick setup through Meta",
           "TWILIO_DESC": "Connect via Twilio credentials",
+          "EVOLUTION_API": "Evolution API",
+          "EVOLUTION_API_DESC": "Self-hosted WhatsApp via Evolution API",
           "360_DIALOG": "360Dialog"
         },
         "SELECT_PROVIDER": {
@@ -275,6 +277,16 @@
           "SUBTITLE": "Configure the WhatsApp API key.",
           "PLACEHOLDER": "API key",
           "ERROR": "Please enter a valid value."
+        },
+        "EVOLUTION_API_URL": {
+          "LABEL": "API URL",
+          "PLACEHOLDER": "Enter your Evolution API URL (e.g. https://evo.example.com)",
+          "ERROR": "Please enter a valid URL"
+        },
+        "EVOLUTION_INSTANCE_NAME": {
+          "LABEL": "Instance Name",
+          "PLACEHOLDER": "Enter the Evolution API instance name",
+          "ERROR": "This field is required"
         },
         "API_CALLBACK": {
           "TITLE": "Callback URL",

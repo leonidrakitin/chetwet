@@ -25,7 +25,7 @@ class Conversations::MessageWindowService
     when 'Channel::Tiktok'
       tiktok_messaging_window
     when 'Channel::Whatsapp'
-      MESSAGING_WINDOW_24_HOURS
+      whatsapp_messaging_window
     when 'Channel::TwilioSms'
       twilio_messaging_window
     end
@@ -58,6 +58,11 @@ class Conversations::MessageWindowService
 
   def tiktok_messaging_window
     48.hours
+  end
+
+  # Evolution API (Baileys) has no 24h messaging window restriction
+  def whatsapp_messaging_window
+    @conversation.inbox.channel.provider == 'evolution_api' ? nil : MESSAGING_WINDOW_24_HOURS
   end
 
   def meta_messaging_window(config_key)
