@@ -7,7 +7,7 @@ import Signup from './auth/signup/Index.vue';
 import ResetPassword from './auth/reset/password/Index.vue';
 import Confirmation from './auth/confirmation/Index.vue';
 import PasswordEdit from './auth/password/Edit.vue';
-import AiOnboardingWizard from './onboarding/AiOnboardingWizard.vue';
+import OnboardingWizard from './onboarding/OnboardingWizard.vue';
 
 export default [
   {
@@ -75,7 +75,7 @@ export default [
   {
     path: frontendURL('onboarding/wizard'),
     name: 'onboarding_wizard',
-    component: AiOnboardingWizard,
+    component: OnboardingWizard,
     meta: { ignoreSession: true },
   },
 ];
