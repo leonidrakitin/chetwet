@@ -26,7 +26,7 @@ const count = computed(() =>
 <template>
   <component
     :is="to ? 'router-link' : 'div'"
-    class="flex items-center gap-2 px-1.5 py-1 rounded-lg h-8 min-w-0"
+    class="flex items-center gap-2 px-2 py-1.5 rounded-xl h-8 min-w-0 transition-colors duration-100"
     role="button"
     draggable="false"
     :to="to"
@@ -34,7 +34,7 @@ const count = computed(() =>
     :class="{
       'text-n-slate-12 bg-n-alpha-2 font-medium': isActive && !hasActiveChild,
       'text-n-slate-12 font-medium': hasActiveChild,
-      'text-n-slate-11 hover:bg-n-alpha-2': !isActive && !hasActiveChild,
+      'text-n-slate-11 hover:bg-n-alpha-1': !isActive && !hasActiveChild,
     }"
     @click.stop="emit('toggle')"
   >

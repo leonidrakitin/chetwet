@@ -14,6 +14,7 @@ import PasswordRequirements from './PasswordRequirements.vue';
 import { isValidPassword } from 'shared/helpers/Validators';
 import GoogleOAuthButton from '../../../../../components/GoogleOauth/Button.vue';
 import VkIdOAuthButton from '../../../../../components/VkIdOauth/Button.vue';
+import YandexOAuthButton from '../../../../../components/YandexOauth/Button.vue';
 import { register } from '../../../../../api/auth';
 import * as CompanyEmailValidator from 'company-email-validator';
 
@@ -81,8 +82,14 @@ const showVkIdOAuth = computed(
     Boolean(window.chatwootConfig.vkIdClientId)
 );
 
+const showYandexOAuth = computed(
+  () =>
+    allowedLoginMethods.value.includes('yandex_oauth') &&
+    Boolean(window.chatwootConfig.yandexOAuthClientId)
+);
+
 const hasSocialLogin = computed(
-  () => showGoogleOAuth.value || showVkIdOAuth.value
+  () => showGoogleOAuth.value || showVkIdOAuth.value || showYandexOAuth.value
 );
 
 const isFormValid = computed(() => !v$.value.$invalid);
@@ -154,6 +161,7 @@ const handleConsentMarketing = (_value, checked) => {
         {{ $t('REGISTER.OAUTH.GOOGLE_SIGNUP') }}
       </GoogleOAuthButton>
       <VkIdOAuthButton v-if="showVkIdOAuth" />
+      <YandexOAuthButton v-if="showYandexOAuth" />
       <SimpleDivider :label="$t('REGISTER.EMAIL_SECTION_TITLE')" class="mt-1" />
     </div>
 

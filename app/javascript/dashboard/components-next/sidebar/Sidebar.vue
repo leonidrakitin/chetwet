@@ -828,10 +828,10 @@ const menuItems = computed(() => {
     </section>
     <nav
       class="grid overflow-y-scroll flex-grow gap-2 pb-5 no-scrollbar min-w-0"
-      :class="isEffectivelyCollapsed ? 'px-1.5' : 'px-3'"
+      :class="isEffectivelyCollapsed ? 'px-1.5' : 'px-2'"
     >
       <ul
-        class="flex flex-col gap-1 m-0 list-none min-w-0"
+        class="flex flex-col gap-1.5 m-0 list-none min-w-0"
         :class="{ 'items-center': isEffectivelyCollapsed }"
       >
         <SidebarGroup
@@ -862,7 +862,7 @@ const menuItems = computed(() => {
         "
       />
       <div
-        class="px-2 py-2.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-n-container bg-n-surface-1 shadow-[0_-1px_0_rgba(148,163,184,0.08)]"
+        class="px-2 py-2.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-n-container bg-n-surface-1"
         :class="isEffectivelyCollapsed ? 'justify-center' : 'justify-between'"
       >
         <SidebarProfileMenu

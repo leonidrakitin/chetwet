@@ -89,12 +89,13 @@ class DashboardController < ActionController::Base
     methods = ['email']
     methods << 'google_oauth' if GlobalConfigService.load('ENABLE_GOOGLE_OAUTH_LOGIN', 'true').to_s != 'false'
     methods << 'vk_id_oauth' if GlobalConfigService.load('ENABLE_VK_ID_OAUTH_LOGIN', 'false').to_s != 'false'
+    methods << 'yandex_oauth' if GlobalConfigService.load('ENABLE_YANDEX_OAUTH_LOGIN', 'false').to_s != 'false'
     methods << 'saml' if ChatwootHub.pricing_plan != 'community' && GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s != 'false'
     methods
   end
 
   def set_application_pack
-    @application_pack = if request.path == '/' || request.path.include?('/auth') || request.path.include?('/login')
+    @application_pack = if request.path == '/' || request.path.include?('/auth') || request.path.include?('/login') || request.path.include?('/onboarding')
                           'v3app'
                         else
                           'dashboard'

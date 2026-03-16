@@ -14,6 +14,7 @@ import SimpleDivider from '../../components/Divider/SimpleDivider.vue';
 import FormInput from '../../components/Form/Input.vue';
 import GoogleOAuthButton from '../../components/GoogleOauth/Button.vue';
 import VkIdOAuthButton from '../../components/VkIdOauth/Button.vue';
+import YandexOAuthButton from '../../components/YandexOauth/Button.vue';
 import Spinner from 'shared/components/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -33,6 +34,7 @@ export default {
     FormInput,
     GoogleOAuthButton,
     VkIdOAuthButton,
+    YandexOAuthButton,
     Spinner,
     NextButton,
     SimpleDivider,
@@ -102,11 +104,22 @@ export default {
         Boolean(window.chatwootConfig.vkIdClientId)
       );
     },
+    showYandexOAuth() {
+      return (
+        this.allowedLoginMethods.includes('yandex_oauth') &&
+        Boolean(window.chatwootConfig.yandexOAuthClientId)
+      );
+    },
     showSamlLogin() {
       return this.allowedLoginMethods.includes('saml');
     },
     hasSocialLogin() {
-      return this.showGoogleOAuth || this.showVkIdOAuth || this.showSamlLogin;
+      return (
+        this.showGoogleOAuth ||
+        this.showVkIdOAuth ||
+        this.showYandexOAuth ||
+        this.showSamlLogin
+      );
     },
   },
   created() {
@@ -263,6 +276,7 @@ export default {
           <div v-if="hasSocialLogin" class="flex flex-col gap-3">
             <GoogleOAuthButton v-if="showGoogleOAuth" />
             <VkIdOAuthButton v-if="showVkIdOAuth" />
+            <YandexOAuthButton v-if="showYandexOAuth" />
             <div v-if="showSamlLogin">
               <router-link
                 to="/app/login/sso"

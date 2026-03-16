@@ -23,6 +23,7 @@
       "GOOGLE_LOGIN": "Continue with Google",
       "VK": "VK",
       "VK_ID_LOGIN": "Continue with VK ID",
+      "YANDEX_LOGIN": "Continue with Yandex",
       "BUSINESS_ACCOUNTS_ONLY": "Please use your company email address to login",
       "NO_ACCOUNT_FOUND": "We couldn't find an account for your email address. Would you like to sign up?"
     },
