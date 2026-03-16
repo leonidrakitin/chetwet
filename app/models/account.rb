@@ -31,6 +31,9 @@ class Account < ApplicationRecord
   include CaptainFeaturable
   include AccountEmailRateLimitable
 
+  # Store feature_flags in decimal column (supports >63 bits) but cast to Integer for bitwise ops
+  attribute :feature_flags, FeatureFlagsIntegerType.new
+
   SETTINGS_PARAMS_SCHEMA = {
     'type': 'object',
     'properties':
