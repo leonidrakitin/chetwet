@@ -361,12 +361,13 @@ const handleClose = () => {
         ? t('NOTIFICATION_TEMPLATES.EDIT.BUTTON_TEXT')
         : t('NOTIFICATION_TEMPLATES.ADD.TITLE')
     "
-    width="5xl"
+    width="6xl"
+    max-height="90vh"
     @confirm="handleConfirm"
     @close="handleClose"
   >
-    <div class="flex flex-row gap-6 max-h-[80vh] min-h-0 overflow-y-auto">
-      <div class="flex flex-col gap-4 flex-1 min-w-0">
+    <div class="flex flex-row gap-6 min-h-0">
+      <div class="flex flex-col gap-4 flex-1 min-w-[22rem]">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium text-n-slate-12">
@@ -393,7 +394,7 @@ const handleClose = () => {
             </label>
             <select
               v-model="form.inboxId"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
             >
               <option value="">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.PLACEHOLDER') }}
@@ -430,7 +431,7 @@ const handleClose = () => {
             </label>
             <select
               v-model="form.type"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in typeOptions"
@@ -448,7 +449,7 @@ const handleClose = () => {
             </label>
             <select
               v-model="form.yclientsIntegrationId"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
             >
               <option value="">
                 {{
@@ -482,7 +483,7 @@ const handleClose = () => {
             </label>
             <select
               v-model="form.triggerEvent"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in triggerEventOptions"
@@ -538,7 +539,7 @@ const handleClose = () => {
             </label>
             <select
               v-model="form.schedule.repeat"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in repeatOptions"
@@ -584,7 +585,7 @@ const handleClose = () => {
             </label>
             <select
               v-model="form.conditions.since"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in intervalSinceOptions"
@@ -643,69 +644,71 @@ const handleClose = () => {
         </div>
 
         <div
-          class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
         >
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.TAGS.LABEL') }}
-            </label>
-            <input
-              v-model="form.audience.tags"
-              type="text"
-              :placeholder="t('NOTIFICATION_TEMPLATES.FORM.TAGS.PLACEHOLDER')"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-            />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.TAGS.LABEL') }}
+              </label>
+              <input
+                v-model="form.audience.tags"
+                type="text"
+                :placeholder="t('NOTIFICATION_TEMPLATES.FORM.TAGS.PLACEHOLDER')"
+                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.LABEL') }}
+              </label>
+              <input
+                v-model="form.audience.excludeTags"
+                type="text"
+                :placeholder="
+                  t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.PLACEHOLDER')
+                "
+                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_FROM.LABEL') }}
+              </label>
+              <input
+                v-model="form.limits.quietHoursFrom"
+                type="time"
+                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_TO.LABEL') }}
+              </label>
+              <input
+                v-model="form.limits.quietHoursTo"
+                type="time"
+                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.MAX_PER_DAY.LABEL') }}
+              </label>
+              <input
+                v-model.number="form.limits.maxPerDay"
+                type="number"
+                min="1"
+                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              />
+            </div>
           </div>
 
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.LABEL') }}
-            </label>
-            <input
-              v-model="form.audience.excludeTags"
-              type="text"
-              :placeholder="
-                t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.PLACEHOLDER')
-              "
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-            />
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_FROM.LABEL') }}
-            </label>
-            <input
-              v-model="form.limits.quietHoursFrom"
-              type="time"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-            />
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_TO.LABEL') }}
-            </label>
-            <input
-              v-model="form.limits.quietHoursTo"
-              type="time"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-            />
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.MAX_PER_DAY.LABEL') }}
-            </label>
-            <input
-              v-model.number="form.limits.maxPerDay"
-              type="number"
-              min="1"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-            />
-          </div>
-
-          <div class="flex flex-col justify-end gap-3">
+          <div class="flex flex-col gap-3 border-t border-n-weak pt-4">
             <div class="flex items-center gap-3">
               <Switch v-model="form.limits.stopIfReplied" />
               <label class="text-sm font-medium text-n-slate-12">
@@ -807,7 +810,7 @@ const handleClose = () => {
         </div>
       </div>
 
-      <div class="w-80 flex-shrink-0 self-start sticky top-0">
+      <div class="w-80 flex-shrink-0">
         <NotificationTemplatePreview
           :messages="form.messages"
           :active-variable="activeVariable"
