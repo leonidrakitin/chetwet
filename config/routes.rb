@@ -364,6 +364,7 @@ Rails.application.routes.draw do
                 get 'contacts/:contact_id/finances', action: :finances
                 get :widget_snippet
                 post :sync_contacts
+                post :sync_labels
               end
             end
             get 'yclients_marketplace/status', to: 'yclients_marketplace#status'

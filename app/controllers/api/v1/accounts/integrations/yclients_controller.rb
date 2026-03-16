@@ -37,6 +37,14 @@ class Api::V1::Accounts::Integrations::YclientsController < Api::V1::Accounts::B
     render json: { status: 'accepted', hooks_count: @hooks.size }
   end
 
+  def sync_labels
+    @hooks.find_each do |hook|
+      Yclients::LabelsSyncJob.perform_later(Current.account.id, hook.id)
+    end
+
+    render json: { status: 'accepted', hooks_count: @hooks.size }
+  end
+
   private
 
   def fetch_hooks
