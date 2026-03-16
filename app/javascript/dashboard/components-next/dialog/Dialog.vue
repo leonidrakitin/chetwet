@@ -52,7 +52,13 @@ const props = defineProps({
     type: String,
     default: 'lg',
     validator: value =>
-      ['4xl', '3xl', '2xl', 'xl', 'lg', 'md', 'sm'].includes(value),
+      ['6xl', '5xl', '4xl', '3xl', '2xl', 'xl', 'lg', 'md', 'sm'].includes(
+        value
+      ),
+  },
+  maxHeight: {
+    type: String,
+    default: '',
   },
   position: {
     type: String,
@@ -71,6 +77,8 @@ const isOpen = ref(false);
 
 const maxWidthClass = computed(() => {
   const classesMap = {
+    '6xl': 'max-w-6xl',
+    '5xl': 'max-w-5xl',
     '4xl': 'max-w-4xl',
     '3xl': 'max-w-3xl',
     '2xl': 'max-w-2xl',
@@ -109,22 +117,27 @@ defineExpose({ open, close });
   <TeleportWithDirection to="body">
     <dialog
       ref="dialogRef"
-      class="w-full transition-all duration-300 ease-in-out shadow-xl rounded-xl"
+      class="w-full transition-all duration-300 ease-in-out shadow-xl rounded-xl flex flex-col"
       :class="[
         maxWidthClass,
         positionClass,
         overflowYAuto ? 'overflow-y-auto' : 'overflow-visible',
       ]"
+      :style="maxHeight ? { maxHeight } : undefined"
       @close="close"
     >
       <OnClickOutside @trigger="close">
         <form
           ref="dialogContentRef"
-          class="flex flex-col w-full h-auto gap-6 p-6 overflow-visible text-start align-middle transition-all duration-300 ease-in-out transform bg-n-alpha-3 backdrop-blur-[100px] shadow-xl rounded-xl"
+          class="flex flex-col w-full gap-6 p-6 overflow-hidden text-start align-middle transition-all duration-300 ease-in-out transform bg-n-alpha-3 backdrop-blur-[100px] shadow-xl rounded-xl min-h-0"
+          :class="maxHeight ? 'flex-1 min-h-0' : 'h-auto'"
           @submit.prevent="confirm"
           @click.stop
         >
-          <div v-if="title || description" class="flex flex-col gap-2">
+          <div
+            v-if="title || description"
+            class="flex flex-col gap-2 flex-shrink-0"
+          >
             <h3 class="text-base font-medium leading-6 text-n-slate-12">
               {{ title }}
             </h3>
@@ -134,12 +147,17 @@ defineExpose({ open, close });
               </p>
             </slot>
           </div>
-          <slot v-if="isOpen" />
-          <!-- Dialog content will be injected here -->
+          <div
+            v-if="isOpen"
+            class="flex flex-col min-h-0 overflow-x-hidden"
+            :class="maxHeight ? 'flex-1 overflow-y-auto' : ''"
+          >
+            <slot />
+          </div>
           <slot name="footer">
             <div
               v-if="showCancelButton || showConfirmButton"
-              class="flex items-center justify-between w-full gap-3"
+              class="flex items-center justify-between w-full gap-3 flex-shrink-0"
             >
               <Button
                 v-if="showCancelButton"
