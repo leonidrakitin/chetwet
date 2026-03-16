@@ -13,6 +13,7 @@ class Crm::Yclients::ContactsSyncService
   end
 
   def sync_all
+    @contact_ids_synced_from_yclients = Set.new
     page = 1
     total_synced = 0
 
@@ -21,7 +22,8 @@ class Crm::Yclients::ContactsSyncService
       break if clients.blank?
 
       clients.each do |client_data|
-        find_or_create_from_yclients(client_data)
+        contact = find_or_create_from_yclients(client_data)
+        @contact_ids_synced_from_yclients << contact.id if contact
         total_synced += 1
       end
 
@@ -35,7 +37,9 @@ class Crm::Yclients::ContactsSyncService
 
   def push_contacts_to_yclients
     pushed = 0
+    contact_ids_just_synced = @contact_ids_synced_from_yclients || Set.new
     contacts_linked_to_company.find_each do |contact|
+      next if contact_ids_just_synced.include?(contact.id)
       next unless should_push_contact?(contact)
 
       yclients_id = Crm::Yclients::ContactIdentity.external_id_for(contact, company_id: @company_id)
@@ -65,6 +69,7 @@ class Crm::Yclients::ContactsSyncService
       contact = create_contact(client_data)
     end
 
+    sync_note_from_yclients_comment(contact, client_data['comment']) if contact
     store_yclients_id(contact, yclients_id) if contact && yclients_id.present?
     contact
   rescue ActiveRecord::RecordInvalid => e
@@ -172,5 +177,14 @@ class Crm::Yclients::ContactsSyncService
     attrs['yclients_companies'][@company_id.to_s]['source_phone'] = contact.phone_number.to_s.presence
     attrs['yclients_companies'][@company_id.to_s]['source_email'] = contact.email.to_s.presence
     contact.update_columns(additional_attributes: attrs)
+  end
+
+  def sync_note_from_yclients_comment(contact, comment_text)
+    return if comment_text.blank?
+
+    last_note = contact.notes.latest.first
+    return if last_note&.content == comment_text
+
+    contact.notes.create!(content: comment_text.strip, account_id: @account.id)
   end
 end
