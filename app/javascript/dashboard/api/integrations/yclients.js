@@ -25,6 +25,13 @@ class YclientsAPI extends ApiClient {
       companyId ? { company_id: companyId } : {}
     );
   }
+
+  syncLabels(companyId = null) {
+    return axios.post(
+      `${this.url}/sync_labels`,
+      companyId ? { company_id: companyId } : {}
+    );
+  }
 }
 
 export default new YclientsAPI();

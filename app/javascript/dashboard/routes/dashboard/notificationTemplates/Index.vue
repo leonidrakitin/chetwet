@@ -38,6 +38,7 @@ const notificationTemplateMeta = computed(
   () => store.getters['notificationTemplates/getMeta']
 );
 const inboxes = computed(() => store.getters['inboxes/getInboxes']);
+const accountLabels = computed(() => store.getters['labels/getLabels']);
 
 const searchQuery = ref('');
 const viewMode = ref('grid'); // 'grid' | 'flow'
@@ -139,6 +140,9 @@ onMounted(() => {
   store.dispatch('notificationTemplates/get');
   if (!inboxes.value.length) {
     store.dispatch('inboxes/get');
+  }
+  if (!accountLabels.value.length) {
+    store.dispatch('labels/get');
   }
 });
 </script>
@@ -287,6 +291,7 @@ onMounted(() => {
     :template="editingTemplate"
     :all-templates="allTemplates"
     :available-inboxes="inboxes"
+    :account-labels="accountLabels"
     :meta="notificationTemplateMeta"
     @save="handleSave"
   />

@@ -79,11 +79,13 @@
       },
       "TAGS": {
         "LABEL": "Tags",
-        "PLACEHOLDER": "vip, reactivation"
+        "PLACEHOLDER": "Select tags...",
+        "SEARCH": "Search labels...",
+        "NO_LABELS": "No labels found"
       },
       "EXCLUDE_TAGS": {
         "LABEL": "Exclude tags",
-        "PLACEHOLDER": "unsubscribe, blacklist"
+        "PLACEHOLDER": "Select tags to exclude..."
       },
       "QUIET_HOURS_FROM": { "LABEL": "Quiet hours from" },
       "QUIET_HOURS_TO": { "LABEL": "Quiet hours to" },

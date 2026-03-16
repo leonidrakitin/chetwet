@@ -7,11 +7,13 @@ import NotificationTemplatePreview from './NotificationTemplatePreview.vue';
 import TemplateMessageEditor from './TemplateMessageEditor.vue';
 import AttachmentEditor from './AttachmentEditor.vue';
 import ButtonEditor from './ButtonEditor.vue';
+import TagMultiSelect from './TagMultiSelect.vue';
 
 const props = defineProps({
   template: { type: Object, default: null },
   allTemplates: { type: Array, default: () => [] },
   availableInboxes: { type: Array, default: () => [] },
+  accountLabels: { type: Array, default: () => [] },
   meta: {
     type: Object,
     default: () => ({
@@ -55,8 +57,8 @@ const defaultForm = () => ({
     staffName: '',
   },
   audience: {
-    tags: '',
-    excludeTags: '',
+    tags: [],
+    excludeTags: [],
   },
   limits: {
     minIntervalHours: 24,
@@ -189,8 +191,8 @@ const normalizeForm = template => ({
     staffName: template.conditions?.staff_name ?? '',
   },
   audience: {
-    tags: (template.audience?.tags ?? []).join(', '),
-    excludeTags: (template.audience?.exclude_tags ?? []).join(', '),
+    tags: [...(template.audience?.tags ?? [])],
+    excludeTags: [...(template.audience?.exclude_tags ?? [])],
   },
   limits: {
     minIntervalHours: template.limits?.min_interval_hours ?? 24,
@@ -281,12 +283,6 @@ const toggleAttachments = idx => {
   showAttachments.value[idx] = !showAttachments.value[idx];
 };
 
-const splitTags = value =>
-  value
-    .split(',')
-    .map(item => item.trim())
-    .filter(Boolean);
-
 const handleConfirm = () => {
   if (!form.value.name.trim()) {
     nameError.value = t('NOTIFICATION_TEMPLATES.FORM.NAME.REQUIRED');
@@ -324,8 +320,8 @@ const handleConfirm = () => {
       staff_name: form.value.conditions.staffName,
     },
     audience: {
-      tags: splitTags(form.value.audience.tags),
-      exclude_tags: splitTags(form.value.audience.excludeTags),
+      tags: [...form.value.audience.tags],
+      exclude_tags: [...form.value.audience.excludeTags],
     },
     limits: {
       min_interval_hours: Number(form.value.limits.minIntervalHours || 0),
@@ -651,11 +647,10 @@ const handleClose = () => {
               <label class="text-sm font-medium text-n-slate-12">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.TAGS.LABEL') }}
               </label>
-              <input
+              <TagMultiSelect
                 v-model="form.audience.tags"
-                type="text"
+                :labels="accountLabels"
                 :placeholder="t('NOTIFICATION_TEMPLATES.FORM.TAGS.PLACEHOLDER')"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
               />
             </div>
 
@@ -663,13 +658,12 @@ const handleClose = () => {
               <label class="text-sm font-medium text-n-slate-12">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.LABEL') }}
               </label>
-              <input
+              <TagMultiSelect
                 v-model="form.audience.excludeTags"
-                type="text"
+                :labels="accountLabels"
                 :placeholder="
                   t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.PLACEHOLDER')
                 "
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
               />
             </div>
 
