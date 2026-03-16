@@ -75,13 +75,12 @@ class Webhooks::YclientsController < ActionController::API
   end
   # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
-  # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def update_contact_from_yclients(contact, client_data)
     mapped = Crm::Yclients::Mappers::ContactMapper.map_from_yclients_full(client_data.to_h)
     updates = {}
-    updates[:name] = mapped[:name] if mapped[:name].present? && contact.name.blank?
-    updates[:phone_number] = mapped[:phone_number] if mapped[:phone_number].present? && contact.phone_number.blank?
-    updates[:email] = mapped[:email] if mapped[:email].present? && contact.email.blank?
+    updates[:name] = mapped[:name] if mapped[:name].present?
+    updates[:phone_number] = mapped[:phone_number] if mapped[:phone_number].present?
+    updates[:email] = mapped[:email] if mapped[:email].present?
 
     if mapped[:yclients_attributes].present?
       Crm::Yclients::ContactIdentity.merge_company_attributes(
@@ -93,7 +92,6 @@ class Webhooks::YclientsController < ActionController::API
 
     contact.update(updates) if updates.any?
   end
-  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
   def store_record_metadata(contact, record_data)
     record_id = record_data[:id]&.to_s

@@ -12,7 +12,7 @@ class Crm::Yclients::Mappers::ContactMapper
       'name' => contact.name.presence,
       'phone' => contact.phone_number.presence,
       'email' => contact.email.presence,
-      'comment' => "Imported from Chatwoot ##{contact.id}"
+      'comment' => comment_for_yclients
     }.compact
   end
 
@@ -31,10 +31,20 @@ class Crm::Yclients::Mappers::ContactMapper
       'discount' => client['discount'],
       'categories' => client['categories'],
       'visits' => client['visits'],
-      'balance' => client['balance']
+      'balance' => client['balance'],
+      'comment' => client['comment']
     }.compact
     base[:yclients_attributes] = extra if extra.any?
     base
+  end
+
+  def comment_for_yclients
+    note_contents = contact.notes.latest.limit(10).pluck(:content).compact_blank
+    if note_contents.any?
+      note_contents.join("\n\n")
+    else
+      "Imported from Chatwoot ##{contact.id}"
+    end
   end
 
   private
