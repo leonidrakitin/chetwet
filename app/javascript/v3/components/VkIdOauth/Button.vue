@@ -30,7 +30,11 @@ async function handleVkSuccess(data) {
     });
     const result = await response.json();
     if (result.sso_auth_token) {
-      window.location = `/app/login?email=${encodeURIComponent(result.email)}&sso_auth_token=${result.sso_auth_token}`;
+      let url = `/app/login?email=${encodeURIComponent(result.email)}&sso_auth_token=${result.sso_auth_token}`;
+      if (result.redirect) {
+        url += `&redirect=${encodeURIComponent(result.redirect)}`;
+      }
+      window.location = url;
     } else {
       useAlert(t('LOGIN.OAUTH.NO_ACCOUNT_FOUND'));
     }

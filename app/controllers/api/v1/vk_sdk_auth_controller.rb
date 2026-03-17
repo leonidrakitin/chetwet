@@ -9,11 +9,14 @@ class Api::V1::VkSdkAuthController < ApplicationController
 
     return render json: { error: 'email_not_provided' }, status: :unprocessable_entity if email.blank?
 
-    user = User.from_email(email) || create_account_for_user(user_info, email)
+    existing_user = User.from_email(email)
+    user = existing_user || create_account_for_user(user_info, email)
     return render json: { error: 'account_creation_failed' }, status: :unprocessable_entity unless user&.persisted?
 
     user.skip_confirmation! if user.respond_to?(:skip_confirmation!) && !user.confirmed?
-    render json: { email: user.email, sso_auth_token: user.generate_sso_auth_token }
+    response_data = { email: user.email, sso_auth_token: user.generate_sso_auth_token }
+    response_data[:redirect] = '/app/onboarding/wizard' unless existing_user
+    render json: response_data
   end
 
   private

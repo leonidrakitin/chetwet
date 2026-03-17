@@ -47,6 +47,7 @@ export default {
     ssoConversationId: { type: String, default: '' },
     email: { type: String, default: '' },
     authError: { type: String, default: '' },
+    redirect: { type: String, default: '' },
   },
   setup() {
     const { replaceInstallationName } = useBranding();
@@ -191,6 +192,10 @@ export default {
           }
 
           this.handleImpersonation();
+          if (this.redirect) {
+            window.location = this.redirect;
+            return;
+          }
           this.showAlertMessage(this.$t('LOGIN.API.SUCCESS_MESSAGE'));
         })
         .catch(response => {

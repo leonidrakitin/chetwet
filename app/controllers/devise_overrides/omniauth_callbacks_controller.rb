@@ -33,17 +33,16 @@ class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCa
   end
 
   def sign_up_user
-    return redirect_to login_page_url(error: 'business-account-only') unless validate_signup_email_is_business_domain?
-
     create_account_for_user
-    token = @resource.send(:set_reset_password_token)
-    frontend_url = ENV.fetch('FRONTEND_URL', nil)
-    redirect_to "#{frontend_url}/app/auth/password/edit?config=default&reset_password_token=#{token}"
+    @resource.skip_confirmation! if confirmable_enabled?
+
+    encoded_email = ERB::Util.url_encode(@resource.email)
+    redirect_to login_page_url(email: encoded_email, sso_auth_token: @resource.generate_sso_auth_token, redirect: '/app/onboarding/wizard')
   end
 
-  def login_page_url(error: nil, email: nil, sso_auth_token: nil)
+  def login_page_url(error: nil, email: nil, sso_auth_token: nil, redirect: nil)
     frontend_url = ENV.fetch('FRONTEND_URL', nil)
-    params = { email: email, sso_auth_token: sso_auth_token }.compact
+    params = { email: email, sso_auth_token: sso_auth_token, redirect: redirect }.compact
     params[:error] = error if error.present?
 
     "#{frontend_url}/app/login?#{params.to_query}"
@@ -76,7 +75,8 @@ class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCa
       user_full_name: auth_hash['info']['name'],
       email: auth_hash['info']['email'],
       locale: I18n.locale,
-      confirmed: auth_hash['info']['email_verified']
+      confirmed: auth_hash['info']['email_verified'],
+      allow_disposable: true
     ).perform
     Avatar::AvatarFromUrlJob.perform_later(@resource, auth_hash['info']['image'])
   end
