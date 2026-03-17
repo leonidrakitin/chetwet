@@ -33,7 +33,6 @@ class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCa
   end
 
   def sign_up_user
-    return redirect_to login_page_url(error: 'no-account-found') unless account_signup_allowed?
     return redirect_to login_page_url(error: 'business-account-only') unless validate_signup_email_is_business_domain?
 
     create_account_for_user
