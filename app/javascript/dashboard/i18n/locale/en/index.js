@@ -42,6 +42,7 @@ import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import yearInReview from './yearInReview.json';
 import notificationTemplates from './notificationTemplates.json';
+import suggestions from './suggestions.json';
 
 export default {
   ...advancedFilters,
@@ -88,4 +89,5 @@ export default {
   ...mfa,
   ...yearInReview,
   ...notificationTemplates,
+  ...suggestions,
 };

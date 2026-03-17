@@ -1,0 +1,60 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold mb-6">Suggestions</h1>
+
+  <div class="flex gap-4 mb-6">
+    <%= form_tag super_admin_suggestions_path, method: :get, class: 'flex gap-4 items-center' do %>
+      <%= text_field_tag :query, params[:query], placeholder: 'Search...', class: 'border rounded px-3 py-2 text-sm' %>
+      <%= select_tag :status, options_for_select([['All', ''], ['Pending', 'pending'], ['Approved', 'approved'], ['Rejected', 'rejected']], params[:status]), class: 'border rounded px-3 py-2 text-sm' %>
+      <%= submit_tag 'Filter', class: 'bg-blue-600 text-white px-4 py-2 rounded text-sm cursor-pointer hover:bg-blue-700' %>
+    <% end %>
+  </div>
+
+  <table class="w-full border-collapse">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="text-left p-3 text-sm font-semibold">ID</th>
+        <th class="text-left p-3 text-sm font-semibold">Title</th>
+        <th class="text-left p-3 text-sm font-semibold">Account</th>
+        <th class="text-left p-3 text-sm font-semibold">Author</th>
+        <th class="text-left p-3 text-sm font-semibold">Votes</th>
+        <th class="text-left p-3 text-sm font-semibold">Status</th>
+        <th class="text-left p-3 text-sm font-semibold">Tags</th>
+        <th class="text-left p-3 text-sm font-semibold">Created</th>
+        <th class="text-left p-3 text-sm font-semibold">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @suggestions.each do |suggestion| %>
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-3 text-sm"><%= suggestion.id %></td>
+          <td class="p-3 text-sm font-medium"><%= link_to suggestion.title, super_admin_suggestion_path(suggestion), class: 'text-blue-600 hover:underline' %></td>
+          <td class="p-3 text-sm"><%= suggestion.account.name %></td>
+          <td class="p-3 text-sm"><%= suggestion.user.name %></td>
+          <td class="p-3 text-sm">
+            <span class="text-green-600">&#x25B2; <%= suggestion.upvotes_count %></span>
+            <span class="text-red-600 ml-2">&#x25BC; <%= suggestion.downvotes_count %></span>
+          </td>
+          <td class="p-3 text-sm">
+            <% status_classes = { 'pending' => 'bg-yellow-100 text-yellow-800', 'approved' => 'bg-green-100 text-green-800', 'rejected' => 'bg-red-100 text-red-800' } %>
+            <span class="px-2 py-1 rounded-full text-xs font-medium <%= status_classes[suggestion.status] %>">
+              <%= suggestion.status.capitalize %>
+            </span>
+          </td>
+          <td class="p-3 text-sm">
+            <% (suggestion.tags || []).each do |tag| %>
+              <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded mr-1 mb-1"><%= tag %></span>
+            <% end %>
+          </td>
+          <td class="p-3 text-sm"><%= suggestion.created_at.strftime('%Y-%m-%d') %></td>
+          <td class="p-3 text-sm flex gap-2">
+            <% if suggestion.status == 'pending' %>
+              <%= button_to 'Approve', approve_super_admin_suggestion_path(suggestion), method: :post, class: 'text-green-600 hover:underline text-xs' %>
+              <%= button_to 'Reject', reject_super_admin_suggestion_path(suggestion), method: :post, class: 'text-red-600 hover:underline text-xs' %>
+            <% end %>
+            <%= button_to 'Delete', super_admin_suggestion_path(suggestion), method: :delete, data: { confirm: 'Are you sure?' }, class: 'text-red-600 hover:underline text-xs' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -530,6 +530,12 @@ const menuItems = computed(() => {
       to: accountScopedRoute('notification_templates_index'),
     },
     {
+      name: 'Suggestions',
+      label: t('SIDEBAR.SUGGESTIONS'),
+      icon: 'i-lucide-lightbulb',
+      to: accountScopedRoute('suggestions_index'),
+    },
+    {
       name: 'Portals',
       label: t('SIDEBAR.HELP_CENTER.TITLE'),
       icon: 'i-lucide-library-big',

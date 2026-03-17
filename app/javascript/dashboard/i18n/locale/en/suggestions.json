@@ -1,0 +1,28 @@
+{
+  "SUGGESTIONS": {
+    "TITLE": "Suggestions",
+    "ADD": "New Suggestion",
+    "SEARCH_PLACEHOLDER": "Search suggestions...",
+    "FILTER_ALL": "All statuses",
+    "SORT_VOTES": "Most voted",
+    "SORT_LATEST": "Latest",
+    "STATUS_PENDING": "Pending",
+    "STATUS_APPROVED": "Approved",
+    "STATUS_REJECTED": "Rejected",
+    "LOADING": "Loading suggestions...",
+    "EMPTY": "No suggestions yet. Be the first to suggest a feature!",
+    "VOTES_LABEL": "↑{up} ↓{down}",
+    "CREATE_TITLE": "New Suggestion",
+    "FIELD_TITLE": "Title",
+    "FIELD_TITLE_PLACEHOLDER": "Short description of your suggestion",
+    "FIELD_DESCRIPTION": "Description",
+    "FIELD_DESCRIPTION_PLACEHOLDER": "Describe your suggestion in detail...",
+    "CANCEL": "Cancel",
+    "SUBMIT": "Submit",
+    "CREATE_SUCCESS": "Suggestion created successfully",
+    "CREATE_ERROR": "Failed to create suggestion",
+    "VOTE_ERROR": "Failed to vote",
+    "DELETE_SUCCESS": "Suggestion deleted",
+    "DELETE_ERROR": "Failed to delete suggestion"
+  }
+}
