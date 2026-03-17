@@ -67,7 +67,7 @@ class Captain::Assistant < ApplicationRecord
   def built_in_tools_with_status
     disabled_ids = disabled_built_in_tools || []
     self.class.built_in_agent_tools.map do |tool|
-      tool.merge(enabled: !disabled_ids.include?(tool[:id]))
+      tool.merge(enabled: disabled_ids.exclude?(tool[:id]))
     end
   end
 

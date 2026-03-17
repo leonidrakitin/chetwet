@@ -62,17 +62,19 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
                                                     :autonomy_self_check_enabled, :autonomy_return_to_scenario
                                                   ])
 
-    # Handle array parameters separately to allow partial updates
-    permitted[:response_guidelines] = params[:assistant][:response_guidelines] if params[:assistant].key?(:response_guidelines)
-
-    permitted[:guardrails] = params[:assistant][:guardrails] if params[:assistant].key?(:guardrails)
-
-    if params[:assistant].key?(:config) && params[:assistant][:config].key?(:disabled_built_in_tools)
-      permitted[:config] ||= {}
-      permitted[:config][:disabled_built_in_tools] = params[:assistant][:config][:disabled_built_in_tools]
-    end
-
+    merge_array_params(permitted)
     permitted
+  end
+
+  def merge_array_params(permitted)
+    assistant_input = params[:assistant]
+    permitted[:response_guidelines] = assistant_input[:response_guidelines] if assistant_input.key?(:response_guidelines)
+    permitted[:guardrails] = assistant_input[:guardrails] if assistant_input.key?(:guardrails)
+
+    return unless assistant_input.key?(:config) && assistant_input[:config].key?(:disabled_built_in_tools)
+
+    permitted[:config] ||= {}
+    permitted[:config][:disabled_built_in_tools] = assistant_input[:config][:disabled_built_in_tools]
   end
 
   def playground_params
