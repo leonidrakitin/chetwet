@@ -8,14 +8,14 @@ class Account::SignUpEmailValidationService
     @email = email
   end
 
-  def perform
+  def perform(allow_disposable: false)
     address = ValidEmail2::Address.new(email)
 
     raise InvalidEmail.new({ valid: false, disposable: nil }) unless address.valid?
 
     raise InvalidEmail.new({ domain_blocked: true }) if domain_blocked?
 
-    raise InvalidEmail.new({ valid: true, disposable: true }) if address.disposable?
+    raise InvalidEmail.new({ valid: true, disposable: true }) if !allow_disposable && address.disposable?
 
     true
   end

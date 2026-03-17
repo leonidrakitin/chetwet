@@ -2,7 +2,7 @@
 
 class AccountBuilder
   include CustomExceptions::Account
-  pattr_initialize [:account_name, :email!, :confirmed, :user, :user_full_name, :user_password, :super_admin, :locale]
+  pattr_initialize [:account_name, :email!, :confirmed, :user, :user_full_name, :user_password, :super_admin, :locale, :allow_disposable]
 
   def perform
     if @user.nil?
@@ -32,7 +32,7 @@ class AccountBuilder
   end
 
   def validate_email
-    Account::SignUpEmailValidationService.new(@email).perform
+    Account::SignUpEmailValidationService.new(@email).perform(allow_disposable: @allow_disposable.present?)
   end
 
   def validate_user

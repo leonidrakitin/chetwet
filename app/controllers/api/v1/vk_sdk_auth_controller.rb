@@ -19,7 +19,7 @@ class Api::V1::VkSdkAuthController < ApplicationController
   private
 
   def fetch_vk_user_info
-    uri = URI('https://id.vk.com/oauth2/user_info')
+    uri = URI('https://id.vk.ru/oauth2/user_info')
     response = Net::HTTP.post_form(uri, {
                                      client_id: ENV.fetch('VK_ID_CLIENT_ID'),
                                      access_token: params[:access_token]
@@ -38,11 +38,12 @@ class Api::V1::VkSdkAuthController < ApplicationController
       user_full_name: full_name,
       email: email,
       locale: I18n.locale,
-      confirmed: true
+      confirmed: true,
+      allow_disposable: true
     ).perform
     user
   rescue StandardError => e
-    Rails.logger.error("VK SDK account creation failed: #{e.message}")
+    Rails.logger.error("VK SDK account creation failed: #{e.class.name} - #{e.message}")
     nil
   end
 end
