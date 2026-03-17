@@ -111,7 +111,7 @@ class Crm::Yclients::ProcessorService < Crm::BaseProcessorService
 
   def push_notes_as_comments(contact, yclients_id)
     existing_comments = comments_client.list(yclients_id)
-    existing_texts = Array.wrap(existing_comments).map { |c| c['text'].to_s.strip }.to_set
+    existing_texts = Array.wrap(existing_comments).to_set { |c| c['text'].to_s.strip }
 
     contact.notes.latest.limit(20).each do |note|
       text = note.content.strip

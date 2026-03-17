@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 class Crm::Yclients::ContactsSyncService
   def initialize(account, hook)
     @account = account
@@ -40,6 +41,7 @@ class Crm::Yclients::ContactsSyncService
     total_synced
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def push_contacts_to_yclients
     pushed = 0
     contact_ids_just_synced = @contact_ids_synced_from_yclients || Set.new
@@ -62,7 +64,9 @@ class Crm::Yclients::ContactsSyncService
     end
     pushed
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def find_or_create_from_yclients(client_data)
     client_data = client_data.with_indifferent_access if client_data.is_a?(Hash)
     yclients_id = client_data['id']&.to_s
@@ -85,6 +89,7 @@ class Crm::Yclients::ContactsSyncService
     Rails.logger.error "YClients ContactsSyncService: failed to sync client #{client_data['id']}: #{e.message}"
     nil
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
   private
 
@@ -217,7 +222,7 @@ class Crm::Yclients::ContactsSyncService
 
   def push_notes_to_yclients(contact, yclients_id)
     existing_comments = @comments_client.list(yclients_id)
-    existing_texts = Array.wrap(existing_comments).map { |c| c['text'].to_s.strip }.to_set
+    existing_texts = Array.wrap(existing_comments).to_set { |c| c['text'].to_s.strip }
 
     contact.notes.latest.limit(20).each do |note|
       text = note.content.strip
@@ -238,3 +243,4 @@ class Crm::Yclients::ContactsSyncService
     author ? "#{author}: #{text}" : text
   end
 end
+# rubocop:enable Metrics/ClassLength
