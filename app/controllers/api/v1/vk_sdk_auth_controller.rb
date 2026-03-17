@@ -13,13 +13,21 @@ class Api::V1::VkSdkAuthController < ApplicationController
     user = existing_user || create_account_for_user(user_info, email)
     return render json: { error: 'account_creation_failed' }, status: :unprocessable_entity unless user&.persisted?
 
-    user.skip_confirmation! if user.respond_to?(:skip_confirmation!) && !user.confirmed?
-    response_data = { email: user.email, sso_auth_token: user.generate_sso_auth_token }
-    response_data[:redirect] = '/app/onboarding/wizard' unless existing_user
-    render json: response_data
+    process_auth_response(user, existing_user)
   end
 
   private
+
+  def process_auth_response(user, existing_user)
+    user.skip_confirmation! if user.respond_to?(:skip_confirmation!) && !user.confirmed?
+    render json: build_auth_response(user, existing_user)
+  end
+
+  def build_auth_response(user, existing_user)
+    response_data = { email: user.email, sso_auth_token: user.generate_sso_auth_token }
+    response_data[:redirect] = '/app/onboarding/wizard' unless existing_user
+    response_data
+  end
 
   def fetch_vk_user_info
     uri = URI('https://id.vk.ru/oauth2/user_info')
