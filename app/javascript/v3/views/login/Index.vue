@@ -272,31 +272,6 @@ export default {
         }"
       >
         <div v-if="!email">
-          <!-- Social Login Buttons -->
-          <div v-if="hasSocialLogin" class="flex flex-col gap-3">
-            <GoogleOAuthButton v-if="showGoogleOAuth" />
-            <VkIdOAuthButton v-if="showVkIdOAuth" />
-            <YandexOAuthButton v-if="showYandexOAuth" />
-            <div v-if="showSamlLogin">
-              <router-link
-                to="/app/login/sso"
-                class="inline-flex justify-center w-full px-4 py-3 items-center bg-n-background dark:bg-n-solid-3 rounded-xl shadow-sm ring-1 ring-inset ring-n-container dark:ring-n-container focus:outline-offset-0 hover:bg-n-alpha-2 dark:hover:bg-n-alpha-2 transition-colors"
-              >
-                <Icon
-                  icon="i-lucide-lock-keyhole"
-                  class="size-5 text-n-slate-11"
-                />
-                <span class="ml-2 text-base font-medium text-n-slate-12">
-                  {{ $t('LOGIN.SAML.LABEL') }}
-                </span>
-              </router-link>
-            </div>
-            <SimpleDivider
-              :label="$t('LOGIN.EMAIL_SECTION_TITLE')"
-              class="mt-2"
-            />
-          </div>
-
           <!-- Email Login Form -->
           <form class="space-y-4" @submit.prevent="submitFormLogin">
             <FormInput
@@ -344,6 +319,31 @@ export default {
               :is-loading="loginApi.showLoading"
             />
           </form>
+
+          <!-- Social Login Buttons -->
+          <div v-if="hasSocialLogin" class="flex flex-col gap-3">
+            <SimpleDivider
+              :label="$t('LOGIN.EMAIL_SECTION_TITLE')"
+              class="mb-2"
+            />
+            <GoogleOAuthButton v-if="showGoogleOAuth" />
+            <VkIdOAuthButton v-if="showVkIdOAuth" />
+            <YandexOAuthButton v-if="showYandexOAuth" />
+            <div v-if="showSamlLogin">
+              <router-link
+                to="/app/login/sso"
+                class="inline-flex justify-center w-full px-4 py-3 items-center bg-n-background dark:bg-n-solid-3 rounded-xl shadow-sm ring-1 ring-inset ring-n-container dark:ring-n-container focus:outline-offset-0 hover:bg-n-alpha-2 dark:hover:bg-n-alpha-2 transition-colors"
+              >
+                <Icon
+                  icon="i-lucide-lock-keyhole"
+                  class="size-5 text-n-slate-11"
+                />
+                <span class="ml-2 text-base font-medium text-n-slate-12">
+                  {{ $t('LOGIN.SAML.LABEL') }}
+                </span>
+              </router-link>
+            </div>
+          </div>
         </div>
         <div v-else class="flex items-center justify-center py-8">
           <Spinner color-scheme="primary" size="" />

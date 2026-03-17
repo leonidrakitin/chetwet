@@ -155,16 +155,6 @@ const handleConsentMarketing = (_value, checked) => {
 
 <template>
   <div class="flex-1">
-    <!-- Social Login Buttons -->
-    <div v-if="hasSocialLogin" class="flex flex-col gap-3 mb-4">
-      <GoogleOAuthButton v-if="showGoogleOAuth">
-        {{ $t('REGISTER.OAUTH.GOOGLE_SIGNUP') }}
-      </GoogleOAuthButton>
-      <VkIdOAuthButton v-if="showVkIdOAuth" />
-      <YandexOAuthButton v-if="showYandexOAuth" />
-      <SimpleDivider :label="$t('REGISTER.EMAIL_SECTION_TITLE')" class="mt-1" />
-    </div>
-
     <!-- Email Signup Form -->
     <form class="space-y-3" @submit.prevent="submit">
       <FormInput
@@ -259,6 +249,17 @@ const handleConsentMarketing = (_value, checked) => {
         :is-loading="isSignupInProgress"
       />
     </form>
+
+    <!-- Social Login Buttons -->
+    <div v-if="hasSocialLogin" class="flex flex-col gap-3 mt-4">
+      <SimpleDivider :label="$t('REGISTER.EMAIL_SECTION_TITLE')" class="mb-1" />
+      <GoogleOAuthButton v-if="showGoogleOAuth">
+        {{ $t('REGISTER.OAUTH.GOOGLE_SIGNUP') }}
+      </GoogleOAuthButton>
+      <VkIdOAuthButton v-if="showVkIdOAuth" />
+      <YandexOAuthButton v-if="showYandexOAuth" />
+    </div>
+
     <p
       class="text-xs mt-4 mb-0 text-n-slate-10 [&>a]:text-n-blue-10 [&>a]:font-medium [&>a]:hover:text-n-blue-11"
       v-html="termsLink"
