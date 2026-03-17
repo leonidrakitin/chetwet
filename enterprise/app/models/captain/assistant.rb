@@ -39,7 +39,8 @@ class Captain::Assistant < ApplicationRecord
 
   store_accessor :config, :temperature, :feature_faq, :feature_memory, :feature_document_faq_generation, :product_name,
                  :autonomy_max_retries, :faq_auto_answer_threshold, :faq_suggest_threshold,
-                 :autonomy_self_check_enabled, :autonomy_return_to_scenario
+                 :autonomy_self_check_enabled, :autonomy_return_to_scenario,
+                 :disabled_built_in_tools
 
   validates :name, presence: true
   validates :description, presence: true
@@ -54,12 +55,20 @@ class Captain::Assistant < ApplicationRecord
   end
 
   def available_agent_tools
-    tools = self.class.built_in_agent_tools.dup
+    disabled_ids = disabled_built_in_tools || []
+    tools = self.class.built_in_agent_tools.reject { |t| disabled_ids.include?(t[:id]) }
 
     custom_tools = account.captain_custom_tools.enabled.map(&:to_tool_metadata)
     tools.concat(custom_tools)
 
     tools
+  end
+
+  def built_in_tools_with_status
+    disabled_ids = disabled_built_in_tools || []
+    self.class.built_in_agent_tools.map do |tool|
+      tool.merge(enabled: !disabled_ids.include?(tool[:id]))
+    end
   end
 
   def available_tool_ids

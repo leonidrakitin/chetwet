@@ -1,16 +1,23 @@
 <script setup>
 import { computed, onMounted, ref, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
+import CaptainAssistantAPI from 'dashboard/api/captain/assistant';
 
 import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
 import CaptainPaywall from 'dashboard/components-next/captain/pageComponents/Paywall.vue';
 import CustomToolsPageEmptyState from 'dashboard/components-next/captain/pageComponents/emptyStates/CustomToolsPageEmptyState.vue';
 import CreateCustomToolDialog from 'dashboard/components-next/captain/pageComponents/customTool/CreateCustomToolDialog.vue';
 import CustomToolCard from 'dashboard/components-next/captain/pageComponents/customTool/CustomToolCard.vue';
+import BuiltInToolCard from 'dashboard/components-next/captain/pageComponents/customTool/BuiltInToolCard.vue';
 import DeleteDialog from 'dashboard/components-next/captain/pageComponents/DeleteDialog.vue';
 
 const store = useStore();
+const route = useRoute();
+const { t } = useI18n();
 
 const uiFlags = useMapGetter('captainCustomTools/getUIFlags');
 const customTools = useMapGetter('captainCustomTools/getRecords');
@@ -22,8 +29,54 @@ const deleteDialogRef = ref(null);
 const selectedTool = ref(null);
 const dialogType = ref('');
 
+const builtInTools = ref([]);
+const isFetchingBuiltIn = ref(false);
+
+const assistantId = computed(() => route.params.assistantId);
+
+const isEmpty = computed(
+  () => !customTools.value.length && !builtInTools.value.length
+);
+
 const fetchCustomTools = (page = 1) => {
   store.dispatch('captainCustomTools/get', { page });
+};
+
+const fetchBuiltInTools = async () => {
+  if (!assistantId.value) return;
+  isFetchingBuiltIn.value = true;
+  try {
+    const { data } = await CaptainAssistantAPI.getBuiltInTools(
+      assistantId.value
+    );
+    builtInTools.value = data;
+  } catch {
+    builtInTools.value = [];
+  } finally {
+    isFetchingBuiltIn.value = false;
+  }
+};
+
+const handleBuiltInToolToggle = async ({ id, enabled }) => {
+  const tool = builtInTools.value.find(bt => bt.id === id);
+  if (!tool) return;
+
+  tool.enabled = enabled;
+
+  const disabledIds = builtInTools.value
+    .filter(bt => !bt.enabled)
+    .map(bt => bt.id);
+
+  try {
+    await CaptainAssistantAPI.updateDisabledBuiltInTools(
+      assistantId.value,
+      disabledIds
+    );
+    useAlert(t('CAPTAIN.BUILT_IN_TOOLS.TOGGLE_SUCCESS'));
+  } catch {
+    tool.enabled = !enabled;
+    useAlert(t('CAPTAIN.BUILT_IN_TOOLS.TOGGLE_ERROR'));
+  }
 };
 
 const onPageChange = page => fetchCustomTools(page);
@@ -46,7 +99,7 @@ const handleDelete = tool => {
 };
 
 const handleAction = ({ action, id }) => {
-  const tool = customTools.value.find(t => t.id === id);
+  const tool = customTools.value.find(item => item.id === id);
   if (action === 'edit') {
     handleEdit(tool);
   } else if (action === 'delete') {
@@ -73,6 +126,7 @@ const onDeleteSuccess = () => {
 
 onMounted(() => {
   fetchCustomTools();
+  fetchBuiltInTools();
 });
 </script>
 
@@ -84,8 +138,8 @@ onMounted(() => {
     :total-count="customToolsMeta.totalCount"
     :current-page="customToolsMeta.page"
     :show-pagination-footer="!isFetching && !!customTools.length"
-    :is-fetching="isFetching"
-    :is-empty="!customTools.length"
+    :is-fetching="isFetching && isFetchingBuiltIn"
+    :is-empty="isEmpty"
     :feature-flag="FEATURE_FLAGS.CAPTAIN_V2"
     :show-know-more="false"
     @update:current-page="onPageChange"
@@ -100,22 +154,47 @@ onMounted(() => {
     </template>
 
     <template #body>
-      <div class="flex flex-col gap-4">
-        <CustomToolCard
-          v-for="tool in customTools"
-          :id="tool.id"
-          :key="tool.id"
-          :title="tool.title"
-          :description="tool.description"
-          :endpoint-url="tool.endpoint_url"
-          :http-method="tool.http_method"
-          :auth-type="tool.auth_type"
-          :param-schema="tool.param_schema"
-          :enabled="tool.enabled"
-          :created-at="tool.created_at"
-          :updated-at="tool.updated_at"
-          @action="handleAction"
-        />
+      <div class="flex flex-col gap-6">
+        <div v-if="builtInTools.length" class="flex flex-col gap-3">
+          <h3 class="text-sm font-medium text-n-slate-11">
+            {{ $t('CAPTAIN.BUILT_IN_TOOLS.HEADER') }}
+          </h3>
+          <div class="flex flex-col gap-2">
+            <BuiltInToolCard
+              v-for="tool in builtInTools"
+              :id="tool.id"
+              :key="tool.id"
+              :title="tool.title"
+              :description="tool.description"
+              :icon="tool.icon"
+              :enabled="tool.enabled"
+              @toggle="handleBuiltInToolToggle"
+            />
+          </div>
+        </div>
+
+        <div v-if="customTools.length" class="flex flex-col gap-3">
+          <h3 class="text-sm font-medium text-n-slate-11">
+            {{ $t('CAPTAIN.BUILT_IN_TOOLS.CUSTOM_HEADER') }}
+          </h3>
+          <div class="flex flex-col gap-2">
+            <CustomToolCard
+              v-for="tool in customTools"
+              :id="tool.id"
+              :key="tool.id"
+              :title="tool.title"
+              :description="tool.description"
+              :endpoint-url="tool.endpoint_url"
+              :http-method="tool.http_method"
+              :auth-type="tool.auth_type"
+              :param-schema="tool.param_schema"
+              :enabled="tool.enabled"
+              :created-at="tool.created_at"
+              :updated-at="tool.updated_at"
+              @action="handleAction"
+            />
+          </div>
+        </div>
       </div>
     </template>
   </PageLayout>

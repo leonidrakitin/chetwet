@@ -21,6 +21,18 @@ class CaptainAssistant extends ApiClient {
       message_history: messageHistory,
     });
   }
+
+  getBuiltInTools(assistantId) {
+    return axios.get(`${this.url}/${assistantId}/built_in_tools`);
+  }
+
+  updateDisabledBuiltInTools(assistantId, disabledToolIds) {
+    return axios.put(`${this.url}/${assistantId}`, {
+      assistant: {
+        config: { disabled_built_in_tools: disabledToolIds },
+      },
+    });
+  }
 }
 
 export default new CaptainAssistant();

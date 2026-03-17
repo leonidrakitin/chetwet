@@ -844,6 +844,12 @@
         }
       }
     },
+    "BUILT_IN_TOOLS": {
+      "HEADER": "Built-in Tools",
+      "CUSTOM_HEADER": "Custom Tools",
+      "TOGGLE_SUCCESS": "Tool setting updated successfully",
+      "TOGGLE_ERROR": "Failed to update tool setting"
+    },
     "CUSTOM_TOOLS": {
       "HEADER": "Tools",
       "ADD_NEW": "Create a new tool",

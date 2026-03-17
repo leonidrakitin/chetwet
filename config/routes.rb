@@ -63,6 +63,7 @@ Rails.application.routes.draw do
             resources :assistants do
               member do
                 post :playground
+                get :built_in_tools
               end
               collection do
                 get :tools
@@ -122,6 +123,13 @@ Rails.application.routes.draw do
             end
           end
           resources :campaigns, only: [:index, :create, :show, :update, :destroy]
+          resources :suggestions, only: [:index, :create, :show, :update, :destroy] do
+            member do
+              post :vote
+              post :add_tag
+              delete :remove_tag
+            end
+          end
           resources :notification_templates, only: [:index, :create, :show, :update, :destroy] do
             member do
               post :clone
@@ -674,6 +682,14 @@ Rails.application.routes.draw do
         delete :avatar, on: :member, action: :destroy_avatar
       end
       resources :platform_apps, only: [:index, :new, :create, :show, :edit, :update, :destroy]
+      resources :suggestions, only: [:index, :show, :destroy] do
+        member do
+          post :approve
+          post :reject
+          post :add_tag
+          delete :remove_tag
+        end
+      end
       resource :instance_status, only: [:show]
 
       resource :settings, only: [:show] do

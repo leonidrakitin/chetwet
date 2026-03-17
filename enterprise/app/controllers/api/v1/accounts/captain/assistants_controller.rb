@@ -2,7 +2,7 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
   before_action :current_account
   before_action -> { check_authorization(Captain::Assistant) }
 
-  before_action :set_assistant, only: [:show, :update, :destroy, :playground]
+  before_action :set_assistant, only: [:show, :update, :destroy, :playground, :built_in_tools]
 
   def index
     @assistants = account_assistants.ordered
@@ -37,6 +37,10 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
     @tools = assistant.available_agent_tools
   end
 
+  def built_in_tools
+    render json: @assistant.built_in_tools_with_status
+  end
+
   private
 
   def set_assistant
@@ -62,6 +66,11 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
     permitted[:response_guidelines] = params[:assistant][:response_guidelines] if params[:assistant].key?(:response_guidelines)
 
     permitted[:guardrails] = params[:assistant][:guardrails] if params[:assistant].key?(:guardrails)
+
+    if params[:assistant].key?(:config) && params[:assistant][:config].key?(:disabled_built_in_tools)
+      permitted[:config] ||= {}
+      permitted[:config][:disabled_built_in_tools] = params[:assistant][:config][:disabled_built_in_tools]
+    end
 
     permitted
   end

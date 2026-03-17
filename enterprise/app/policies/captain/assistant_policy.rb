@@ -26,4 +26,8 @@ class Captain::AssistantPolicy < ApplicationPolicy
   def playground?
     true
   end
+
+  def built_in_tools?
+    true
+  end
 end
