@@ -45,9 +45,11 @@ class Crm::Yclients::ProcessorService < Crm::BaseProcessorService
 
     if client_id.present?
       clients_client.update(client_id, Crm::Yclients::Mappers::ContactMapper.map(contact))
+      push_notes_as_comments(contact, client_id)
     else
       new_id = find_or_create_client(contact)
       store_external_id(contact, new_id) if new_id.present?
+      push_notes_as_comments(contact, new_id) if new_id.present?
     end
   rescue Crm::Yclients::Api::BaseClient::ApiError => e
     ChatwootExceptionTracker.new(e, account: @account).capture_exception
@@ -101,6 +103,25 @@ class Crm::Yclients::ProcessorService < Crm::BaseProcessorService
 
   def records_client
     @records_client ||= Crm::Yclients::Api::RecordsClient.new(@partner_token, @user_token, @company_id)
+  end
+
+  def comments_client
+    @comments_client ||= Crm::Yclients::Api::CommentsClient.new(@partner_token, @user_token, @company_id)
+  end
+
+  def push_notes_as_comments(contact, yclients_id)
+    existing_comments = comments_client.list(yclients_id)
+    existing_texts = Array.wrap(existing_comments).map { |c| c['text'].to_s.strip }.to_set
+
+    contact.notes.latest.limit(20).each do |note|
+      text = note.content.strip
+      next if text.blank?
+      next if existing_texts.include?(text)
+
+      comments_client.create(yclients_id, text)
+    end
+  rescue Crm::Yclients::Api::BaseClient::ApiError => e
+    Rails.logger.warn "YClients ProcessorService: failed to push comments for contact #{contact.id}: #{e.message}"
   end
 
   def lookup_client_by_phone(phone_number)

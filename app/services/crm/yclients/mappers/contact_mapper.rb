@@ -39,12 +39,7 @@ class Crm::Yclients::Mappers::ContactMapper
   end
 
   def comment_for_yclients
-    note_contents = contact.notes.latest.limit(10).pluck(:content).compact_blank
-    if note_contents.any?
-      note_contents.join("\n\n")
-    else
-      "Imported from Chatwoot ##{contact.id}"
-    end
+    "Imported from Chatwoot ##{contact.id}"
   end
 
   private

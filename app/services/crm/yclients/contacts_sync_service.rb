@@ -10,6 +10,11 @@ class Crm::Yclients::ContactsSyncService
       Crm::Yclients::HookResolver.user_token_for(hook),
       hook.settings['company_id']
     )
+    @comments_client = Crm::Yclients::Api::CommentsClient.new(
+      hook.settings['partner_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook),
+      hook.settings['company_id']
+    )
   end
 
   def sync_all
@@ -49,6 +54,7 @@ class Crm::Yclients::ContactsSyncService
       next if data['phone'].blank? && data['email'].blank?
 
       @clients_client.update(yclients_id, data)
+      push_notes_to_yclients(contact, yclients_id)
       mark_source_synced(contact)
       pushed += 1
     rescue Crm::Yclients::Api::BaseClient::ApiError => e
@@ -69,7 +75,10 @@ class Crm::Yclients::ContactsSyncService
       contact = create_contact(client_data)
     end
 
-    sync_note_from_yclients_comment(contact, client_data['comment']) if contact
+    if contact
+      sync_note_from_yclients_comment(contact, client_data['comment'])
+      sync_comments_from_yclients(contact, yclients_id) if yclients_id.present?
+    end
     store_yclients_id(contact, yclients_id) if contact && yclients_id.present?
     contact
   rescue ActiveRecord::RecordInvalid => e
@@ -186,5 +195,46 @@ class Crm::Yclients::ContactsSyncService
     return if last_note&.content == comment_text
 
     contact.notes.create!(content: comment_text.strip, account_id: @account.id)
+  end
+
+  def sync_comments_from_yclients(contact, yclients_id)
+    comments = @comments_client.list(yclients_id)
+    return if comments.blank?
+
+    existing_contents = contact.notes.pluck(:content).to_set
+
+    comments.each do |comment|
+      text = build_comment_text(comment)
+      next if text.blank?
+      next if existing_contents.include?(text)
+
+      contact.notes.create!(content: text, account_id: @account.id)
+      existing_contents << text
+    end
+  rescue Crm::Yclients::Api::BaseClient::ApiError => e
+    Rails.logger.warn "YClients ContactsSyncService: failed to fetch comments for client #{yclients_id}: #{e.message}"
+  end
+
+  def push_notes_to_yclients(contact, yclients_id)
+    existing_comments = @comments_client.list(yclients_id)
+    existing_texts = Array.wrap(existing_comments).map { |c| c['text'].to_s.strip }.to_set
+
+    contact.notes.latest.limit(20).each do |note|
+      text = note.content.strip
+      next if text.blank?
+      next if existing_texts.include?(text)
+
+      @comments_client.create(yclients_id, text)
+    end
+  rescue Crm::Yclients::Api::BaseClient::ApiError => e
+    Rails.logger.warn "YClients ContactsSyncService: failed to push comments for contact #{contact.id}: #{e.message}"
+  end
+
+  def build_comment_text(comment)
+    text = comment['text'].to_s.strip
+    return nil if text.blank?
+
+    author = comment.dig('author', 'name').presence
+    author ? "#{author}: #{text}" : text
   end
 end
