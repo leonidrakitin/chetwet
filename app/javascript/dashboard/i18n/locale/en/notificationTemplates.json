@@ -126,7 +126,9 @@
     },
     "TOGGLE": {
       "SUCCESS": "Template updated.",
-      "ERROR": "Could not update template."
+      "ERROR": "Could not update template.",
+      "ENABLE": "Enable template",
+      "DISABLE": "Disable template"
     },
     "SAVE": {
       "SUCCESS": "Template saved successfully.",
@@ -226,8 +228,64 @@
       "CANCEL": "Cancel"
     },
     "VIEW": {
+      "CATEGORIES": "Categories",
       "GRID": "Grid",
       "FLOW": "Flow"
+    },
+    "CATEGORIES": {
+      "SYSTEM": {
+        "TITLE": "System",
+        "DESCRIPTION": "Built-in system notifications",
+        "WELCOME_MESSAGE": {
+          "NAME": "Welcome Message",
+          "DESCRIPTION": "Greet new contacts automatically"
+        },
+        "UPDATE_PROFILE": {
+          "NAME": "Update Profile",
+          "DESCRIPTION": "Ask clients to complete their profile"
+        },
+        "VERIFY_EMAIL": {
+          "NAME": "Verify Email",
+          "DESCRIPTION": "Send email verification link"
+        },
+        "PASSWORD_RESET": {
+          "NAME": "Password Reset",
+          "DESCRIPTION": "Password reset instructions"
+        },
+        "FEEDBACK_REQUEST": {
+          "NAME": "Feedback Request",
+          "DESCRIPTION": "Request feedback after service"
+        }
+      },
+      "YCLIENTS": {
+        "TITLE": "Y-Clients",
+        "DESCRIPTION": "Booking & appointment templates",
+        "BOOKING_REMINDER": {
+          "NAME": "Booking Reminder",
+          "DESCRIPTION": "Remind about upcoming appointment"
+        },
+        "RECORD_UPDATE": {
+          "NAME": "Record Update",
+          "DESCRIPTION": "Notify about record changes"
+        },
+        "LOOKUP_RESULT": {
+          "NAME": "Lookup Result",
+          "DESCRIPTION": "Send available time slots"
+        },
+        "VISIT_FOLLOWUP": {
+          "NAME": "Visit Follow-up",
+          "DESCRIPTION": "Thank clients after visit"
+        },
+        "CANCEL_CONFIRM": {
+          "NAME": "Cancellation Confirm",
+          "DESCRIPTION": "Confirm appointment cancellation"
+        }
+      },
+      "YOURS": {
+        "TITLE": "Yours",
+        "DESCRIPTION": "Your custom templates",
+        "EMPTY": "No custom templates yet. Create one using the button above."
+      }
     }
   }
 }

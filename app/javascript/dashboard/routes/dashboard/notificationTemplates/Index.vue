@@ -11,6 +11,8 @@ import TemplateCard from './components/TemplateCard.vue';
 import TemplateModal from './components/TemplateModal.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 import FlowMap from './components/FlowMap.vue';
+import TemplateCategorySection from './components/TemplateCategorySection.vue';
+import { BUILTIN_CATEGORIES } from './constants/builtinCategories.js';
 
 const { t } = useI18n();
 const store = useStore();
@@ -42,7 +44,7 @@ const accountLabels = computed(() => store.getters['labels/getLabels']);
 
 const searchQuery = ref('');
 const searchExpanded = ref(false);
-const viewMode = ref('grid'); // 'grid' | 'flow'
+const viewMode = ref('categories'); // 'categories' | 'grid' | 'flow'
 
 const filteredTemplates = computed(() => {
   const key = activeTab.value.key;
@@ -137,6 +139,48 @@ const orderedTemplates = computed({
   },
 });
 
+// Categories view
+const categorizedTemplates = computed(() => {
+  return BUILTIN_CATEGORIES.map(cat => {
+    if (cat.key === 'yours') {
+      return {
+        ...cat,
+        templates: filteredTemplates.value.map(tmpl => ({
+          ...tmpl,
+          icon: 'i-lucide-file-text',
+        })),
+      };
+    }
+    return {
+      ...cat,
+      templates: cat.templates.map(bt => ({
+        ...bt,
+        name: t(
+          `NOTIFICATION_TEMPLATES.CATEGORIES.${cat.key.toUpperCase()}.${bt.builtinKey}.NAME`
+        ),
+        description: t(
+          `NOTIFICATION_TEMPLATES.CATEGORIES.${cat.key.toUpperCase()}.${bt.builtinKey}.DESCRIPTION`
+        ),
+        enabled: true,
+        builtin: true,
+      })),
+    };
+  });
+});
+
+const handleToggle = async template => {
+  if (template.builtin) return;
+  try {
+    await store.dispatch('notificationTemplates/update', {
+      ...template,
+      enabled: !template.enabled,
+    });
+    useAlert(t('NOTIFICATION_TEMPLATES.TOGGLE.SUCCESS'));
+  } catch {
+    useAlert(t('NOTIFICATION_TEMPLATES.TOGGLE.ERROR'));
+  }
+};
+
 onMounted(() => {
   store.dispatch('notificationTemplates/get');
   if (!inboxes.value.length) {
@@ -225,6 +269,20 @@ onMounted(() => {
 
           <!-- View mode toggle -->
           <div class="flex rounded-lg border border-n-weak overflow-hidden">
+            <button
+              class="flex items-center gap-1.5 px-2 py-2 md:px-3 text-sm transition-colors"
+              :class="
+                viewMode === 'categories'
+                  ? 'bg-n-brand text-white'
+                  : 'text-n-slate-10 hover:bg-n-alpha-1'
+              "
+              @click="viewMode = 'categories'"
+            >
+              <span class="i-lucide-layers size-4" />
+              <span class="hidden md:inline">
+                {{ t('NOTIFICATION_TEMPLATES.VIEW.CATEGORIES') }}
+              </span>
+            </button>
             <button
               class="flex items-center gap-1.5 px-2 py-2 md:px-3 text-sm transition-colors"
               :class="
@@ -337,6 +395,21 @@ onMounted(() => {
           icon="i-lucide-plus"
           :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
           @click="openNewTemplate"
+        />
+      </div>
+
+      <!-- Categories view -->
+      <div
+        v-else-if="viewMode === 'categories'"
+        class="flex flex-col gap-4 max-w-2xl"
+      >
+        <TemplateCategorySection
+          v-for="cat in categorizedTemplates"
+          :key="cat.key"
+          :category="cat"
+          :templates="cat.templates"
+          @toggle="handleToggle"
+          @edit="handleEdit"
         />
       </div>
 

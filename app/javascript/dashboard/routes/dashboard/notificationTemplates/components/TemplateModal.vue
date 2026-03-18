@@ -366,8 +366,35 @@ const handleClose = () => {
     @confirm="handleConfirm"
     @close="handleClose"
   >
-    <div class="flex flex-col md:flex-row gap-4 md:gap-6 min-h-0">
-      <div class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem]">
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6 min-h-0 flex-1">
+      <!-- Mobile preview toggle -->
+      <button
+        type="button"
+        class="md:hidden inline-flex items-center gap-1.5 self-start rounded-md border border-n-weak px-2.5 py-1.5 text-xs text-n-slate-10 hover:border-n-strong hover:text-n-slate-12 transition-colors flex-shrink-0"
+        @click="showMobilePreview = !showMobilePreview"
+      >
+        <span
+          class="size-3.5"
+          :class="showMobilePreview ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+        />
+        {{
+          showMobilePreview
+            ? t('NOTIFICATION_TEMPLATES.PREVIEW.HIDE')
+            : t('NOTIFICATION_TEMPLATES.PREVIEW.TOGGLE')
+        }}
+      </button>
+
+      <!-- Mobile preview -->
+      <div v-if="showMobilePreview" class="md:hidden flex-shrink-0">
+        <NotificationTemplatePreview
+          :messages="form.messages"
+          :active-variable="activeVariable"
+        />
+      </div>
+
+      <div
+        class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem] md:overflow-y-auto"
+      >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium text-n-slate-12">
@@ -821,33 +848,8 @@ const handleClose = () => {
         </div>
       </div>
 
-      <!-- Mobile preview toggle -->
-      <button
-        type="button"
-        class="md:hidden inline-flex items-center gap-1.5 self-start rounded-md border border-n-weak px-2.5 py-1.5 text-xs text-n-slate-10 hover:border-n-strong hover:text-n-slate-12 transition-colors"
-        @click="showMobilePreview = !showMobilePreview"
-      >
-        <span
-          class="size-3.5"
-          :class="showMobilePreview ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-        />
-        {{
-          showMobilePreview
-            ? t('NOTIFICATION_TEMPLATES.PREVIEW.HIDE')
-            : t('NOTIFICATION_TEMPLATES.PREVIEW.TOGGLE')
-        }}
-      </button>
-
-      <!-- Mobile preview -->
-      <div v-if="showMobilePreview" class="md:hidden">
-        <NotificationTemplatePreview
-          :messages="form.messages"
-          :active-variable="activeVariable"
-        />
-      </div>
-
       <!-- Desktop preview sidebar -->
-      <div class="hidden md:block w-80 flex-shrink-0">
+      <div class="hidden md:block w-80 flex-shrink-0 self-start sticky top-0">
         <NotificationTemplatePreview
           :messages="form.messages"
           :active-variable="activeVariable"
