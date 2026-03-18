@@ -373,6 +373,7 @@ Rails.application.routes.draw do
                 get :widget_snippet
                 post :sync_contacts
                 post :sync_labels
+                put 'visits/:visit_id/records/:record_id/status', action: :update_record_status
               end
             end
             get 'yclients_marketplace/status', to: 'yclients_marketplace#status'

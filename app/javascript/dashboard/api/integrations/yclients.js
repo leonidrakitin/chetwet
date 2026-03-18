@@ -26,6 +26,13 @@ class YclientsAPI extends ApiClient {
     );
   }
 
+  updateRecordStatus(visitId, recordId, attendance, companyId = null) {
+    return axios.put(
+      `${this.url}/visits/${visitId}/records/${recordId}/status`,
+      { attendance, ...(companyId ? { company_id: companyId } : {}) }
+    );
+  }
+
   syncLabels(companyId = null) {
     return axios.post(
       `${this.url}/sync_labels`,

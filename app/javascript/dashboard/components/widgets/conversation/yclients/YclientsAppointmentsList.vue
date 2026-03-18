@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAlert } from 'dashboard/composables';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import YclientsAPI from '../../../../api/integrations/yclients';
@@ -26,6 +27,7 @@ const transactions = ref([]);
 const loading = ref(true);
 const refreshing = ref(false);
 const errorMessage = ref('');
+const updatingRecordId = ref(null);
 const { t } = useI18n();
 const hasLoadError = computed(() => Boolean(errorMessage.value));
 const loadErrorText = computed(() =>
@@ -66,6 +68,32 @@ const fetchYclientsData = async () => {
   } finally {
     loading.value = false;
     refreshing.value = false;
+  }
+};
+
+const handleUpdateStatus = async ({
+  visitId,
+  recordId,
+  attendance,
+  companyId,
+}) => {
+  updatingRecordId.value = recordId;
+  try {
+    await YclientsAPI.updateRecordStatus(
+      visitId,
+      recordId,
+      attendance,
+      companyId
+    );
+    const record = records.value.find(r => r.id === recordId);
+    if (record) {
+      record.attendance = attendance;
+    }
+    useAlert(t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_UPDATED'));
+  } catch {
+    useAlert(t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_UPDATE_ERROR'));
+  } finally {
+    updatingRecordId.value = null;
   }
 };
 
@@ -123,6 +151,8 @@ watch(
           v-for="record in records"
           :key="`${record.company_id || 'default'}-${record.id}`"
           :record="record"
+          :updating="updatingRecordId === record.id"
+          @update-status="handleUpdateStatus"
         />
       </div>
       <div v-if="transactions.length" class="flex flex-col gap-2 pt-1">

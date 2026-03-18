@@ -383,7 +383,10 @@
       "STATUS_VISITED": "Visited",
       "STATUS_CONFIRMED": "Confirmed",
       "STATUS_CANCELLED": "Cancelled",
-      "STATUS_PENDING": "Pending"
+      "STATUS_PENDING": "Pending",
+      "UPDATE_STATUS": "Update status",
+      "STATUS_UPDATED": "Status updated",
+      "STATUS_UPDATE_ERROR": "Failed to update status"
     },
     "SHOPIFY": {
       "ORDER_ID": "Order #{id}",

@@ -37,6 +37,25 @@ class Api::V1::Accounts::Integrations::YclientsController < Api::V1::Accounts::B
     render json: { status: 'accepted', hooks_count: @hooks.size }
   end
 
+  def update_record_status
+    visit_id = params.require(:visit_id)
+    record_id = params.require(:record_id)
+    attendance = params.require(:attendance)
+
+    hook = Crm::Yclients::HookResolver.single_hook_for(Current.account, company_id: params[:company_id])
+    return render json: { error: 'YClients hook not found or ambiguous' }, status: :not_found if hook.blank?
+
+    visits_client = Crm::Yclients::Api::VisitsClient.new(
+      hook.settings['partner_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook)
+    )
+    visits_client.update_status(visit_id, record_id, { 'attendance' => attendance.to_i })
+
+    render json: { success: true }
+  rescue Crm::Yclients::Api::BaseClient::ApiError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   def sync_labels
     @hooks.find_each do |hook|
       Yclients::LabelsSyncJob.perform_later(Current.account.id, hook.id)

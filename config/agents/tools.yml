@@ -65,6 +65,11 @@
   description: 'Get financial transaction history for a contact'
   icon: 'currency'
 
+- id: yclients_update_visit_status
+  title: 'YClients: Update Visit Status'
+  description: 'Update attendance status of a YClients appointment'
+  icon: 'checkmark-circle'
+
 - id: vk_market_get_products
   title: 'VK Market: Products'
   description: 'Get list of products from VK community market'

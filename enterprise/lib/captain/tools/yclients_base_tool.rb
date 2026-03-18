@@ -47,6 +47,13 @@ class Captain::Tools::YclientsBaseTool < Captain::Tools::BasePublicTool
     )
   end
 
+  def visits_client_for(hook)
+    Crm::Yclients::Api::VisitsClient.new(
+      hook.settings['partner_token'],
+      Crm::Yclients::HookResolver.user_token_for(hook)
+    )
+  end
+
   def booking_client_for(hook)
     Crm::Yclients::Api::BookingClient.new(
       hook.settings['partner_token'],

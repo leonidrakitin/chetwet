@@ -1,15 +1,47 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { vOnClickOutside } from '@vueuse/components';
+import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 
 const props = defineProps({
   record: {
     type: Object,
     required: true,
   },
+  updating: {
+    type: Boolean,
+    default: false,
+  },
 });
 
+const emit = defineEmits(['updateStatus']);
+
 const { t } = useI18n();
+const showDropdown = ref(false);
+
+const statusOptions = computed(() => [
+  {
+    attendance: 2,
+    label: t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_CONFIRMED'),
+    classes: 'bg-n-blue-5 text-n-blue-12',
+  },
+  {
+    attendance: 1,
+    label: t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_VISITED'),
+    classes: 'bg-n-teal-5 text-n-teal-12',
+  },
+  {
+    attendance: -1,
+    label: t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_CANCELLED'),
+    classes: 'bg-n-ruby-5 text-n-ruby-12',
+  },
+  {
+    attendance: 0,
+    label: t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_PENDING'),
+    classes: 'bg-n-solid-3 text-n-slate-12',
+  },
+]);
 
 const serviceName = computed(() => {
   const services = props.record.services || [];
@@ -36,9 +68,10 @@ const recordDate = computed(() => {
   }).format(parsedDate);
 });
 
+const currentAttendance = computed(() => Number(props.record.attendance));
+
 const statusLabel = computed(() => {
-  const attendance = props.record.attendance;
-  switch (Number(attendance)) {
+  switch (currentAttendance.value) {
     case 1:
       return t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_VISITED');
     case 2:
@@ -51,10 +84,9 @@ const statusLabel = computed(() => {
 });
 
 const statusClass = computed(() => {
-  const attendance = Number(props.record.attendance);
-  if (attendance === 1) return 'bg-n-teal-5 text-n-teal-12';
-  if (attendance === -1) return 'bg-n-ruby-5 text-n-ruby-12';
-  if (attendance === 2) return 'bg-n-blue-5 text-n-blue-12';
+  if (currentAttendance.value === 1) return 'bg-n-teal-5 text-n-teal-12';
+  if (currentAttendance.value === -1) return 'bg-n-ruby-5 text-n-ruby-12';
+  if (currentAttendance.value === 2) return 'bg-n-blue-5 text-n-blue-12';
   return 'bg-n-solid-3 text-n-slate-12';
 });
 
@@ -65,6 +97,30 @@ const companyLabel = computed(() => {
     id: props.record.company_id,
   });
 });
+
+const toggleDropdown = () => {
+  if (!props.updating) {
+    showDropdown.value = !showDropdown.value;
+  }
+};
+
+const closeDropdown = () => {
+  showDropdown.value = false;
+};
+
+const selectStatus = attendance => {
+  if (attendance === currentAttendance.value) {
+    closeDropdown();
+    return;
+  }
+  emit('updateStatus', {
+    visitId: props.record.visit_id,
+    recordId: props.record.id,
+    attendance,
+    companyId: props.record.company_id,
+  });
+  closeDropdown();
+};
 </script>
 
 <template>
@@ -75,11 +131,36 @@ const companyLabel = computed(() => {
       <div class="font-medium text-n-slate-12 truncate">
         {{ serviceName }}
       </div>
-      <div
-        :class="statusClass"
-        class="text-xs px-2 py-1 rounded capitalize truncate"
-      >
-        {{ statusLabel }}
+      <div v-on-click-outside="closeDropdown" class="relative">
+        <button
+          class="text-xs px-2 py-1 rounded capitalize truncate cursor-pointer flex items-center gap-1"
+          :class="statusClass"
+          :title="t('CONVERSATION_SIDEBAR.YCLIENTS.UPDATE_STATUS')"
+          @click="toggleDropdown"
+        >
+          <Spinner v-if="updating" size="12" />
+          <span>{{ statusLabel }}</span>
+        </button>
+        <div
+          v-if="showDropdown"
+          class="absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-lg border border-n-weak bg-n-solid-2 py-1 shadow-lg"
+        >
+          <button
+            v-for="option in statusOptions"
+            :key="option.attendance"
+            class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-n-slate-12 hover:bg-n-alpha-1"
+            :class="{
+              'font-semibold': option.attendance === currentAttendance,
+            }"
+            @click="selectStatus(option.attendance)"
+          >
+            <span
+              class="inline-block h-2 w-2 rounded-full"
+              :class="option.classes"
+            />
+            {{ option.label }}
+          </button>
+        </div>
       </div>
     </div>
     <div class="text-sm text-n-slate-11">
