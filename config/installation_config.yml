@@ -505,6 +505,26 @@
   type: secret
 # ------- End of TikTok Channel Related Config ------- #
 
+# ------- Telegram Personal Channel Related Config ------- #
+- name: ENABLE_TELEGRAM_PERSONAL_CHANNEL
+  display_title: 'Enable Telegram Personal Channel'
+  value: false
+  description: 'Allow accounts to create and use Telegram Personal inboxes'
+  locked: false
+  type: boolean
+- name: TELEGRAM_PERSONAL_API_ID
+  display_title: 'Telegram Personal API ID'
+  value: ''
+  description: 'API ID from my.telegram.org'
+  locked: false
+- name: TELEGRAM_PERSONAL_API_HASH
+  display_title: 'Telegram Personal API HASH'
+  value: ''
+  description: 'API Hash from my.telegram.org'
+  locked: false
+  type: secret
+# ------- End of Telegram Personal Channel Related Config ------- #
+
 # ------- OG Image Related Config ------- #
 - name: OG_IMAGE_CDN_URL
   display_title: 'OG Image CDN URL'

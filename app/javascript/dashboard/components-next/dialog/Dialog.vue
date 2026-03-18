@@ -91,9 +91,12 @@ const maxWidthClass = computed(() => {
   return classesMap[props.width] ?? 'max-w-md';
 });
 
-const positionClass = computed(() =>
-  props.position === 'top' ? 'dialog-position-top' : ''
-);
+const positionClass = computed(() => {
+  if (props.position === 'top') return 'dialog-position-top';
+  if (props.position === 'center') return 'dialog-position-center';
+
+  return '';
+});
 
 const open = () => {
   isOpen.value = true;
@@ -101,6 +104,7 @@ const open = () => {
 };
 
 const close = () => {
+  if (!isOpen.value) return;
   emit('close');
   dialogRef.value?.close();
   isOpen.value = false;
@@ -124,6 +128,8 @@ defineExpose({ open, close });
         overflowYAuto ? 'overflow-y-auto' : 'overflow-visible',
       ]"
       :style="maxHeight ? { maxHeight } : undefined"
+      @cancel.prevent
+      @keydown.esc.stop="close"
       @close="close"
     >
       <OnClickOutside @trigger="close">
@@ -193,5 +199,15 @@ dialog::backdrop {
 .dialog-position-top {
   margin-top: clamp(2rem, 5vh, 5rem);
   margin-bottom: auto;
+}
+
+.dialog-position-center {
+  /* HTML <dialog> default positioning is inconsistent across browsers.
+   * We explicitly center to make modal placement stable. */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 </style>

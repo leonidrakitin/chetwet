@@ -93,6 +93,12 @@ telegram:
   description: 'Manage your Telegram customer interactions from Chatwoot.'
   enabled: true
   icon: 'icon-telegram-line'
+telegram_personal:
+  name: 'Telegram Personal'
+  description: 'Enable Telegram Personal channel and configure API credentials'
+  enabled: true
+  icon: 'icon-telegram-line'
+  config_key: 'telegram_personal'
 line:
   name: 'Line'
   description: 'Manage your Line customer interactions from Chatwoot.'

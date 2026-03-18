@@ -27,9 +27,18 @@ const hasTiktokConfigured = computed(() => {
   return window.chatwootConfig?.tiktokAppId;
 });
 
+const isTelegramPersonalEnabledGlobally = computed(() => {
+  return window.globalConfig?.ENABLE_TELEGRAM_PERSONAL_CHANNEL;
+});
+
 const isActive = computed(() => {
   const { key } = props.channel;
   if (Object.keys(props.enabledFeatures).length === 0) {
+    if (key === 'telegram_personal') {
+      const globalEnabled = isTelegramPersonalEnabledGlobally.value;
+      return globalEnabled !== undefined ? globalEnabled : true;
+    }
+
     return false;
   }
   if (key === 'website') {
@@ -57,6 +66,14 @@ const isActive = computed(() => {
   }
 
   if (key === 'telegram_personal') {
+    const globalEnabled = isTelegramPersonalEnabledGlobally.value;
+
+    // If super admin disabled Telegram Personal globally, hide it regardless of
+    // account-level feature flags.
+    if (globalEnabled !== undefined) {
+      return globalEnabled;
+    }
+
     return props.enabledFeatures.channel_telegram_personal ?? true;
   }
 

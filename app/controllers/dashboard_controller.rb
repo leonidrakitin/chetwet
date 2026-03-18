@@ -24,6 +24,7 @@ class DashboardController < ActionController::Base
     DISABLE_USER_PROFILE_UPDATE
     DEPLOYMENT_ENV
     INSTALLATION_PRICING_PLAN
+    ENABLE_TELEGRAM_PERSONAL_CHANNEL
   ].freeze
 
   before_action :set_application_pack

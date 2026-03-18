@@ -20,8 +20,6 @@ const lastError = ref('');
 const form = reactive({
   name: '',
   phoneNumber: '',
-  apiId: '',
-  apiHash: '',
   code: '',
   password: '',
 });
@@ -78,8 +76,6 @@ const startAuthentication = async () => {
     TelegramSessionsAPI.create({
       name: form.name,
       phone_number: form.phoneNumber,
-      api_id: form.apiId,
-      api_hash: form.apiHash,
     })
   );
 };
@@ -162,34 +158,6 @@ const goToAgentsStep = () => {
             class="w-full"
             :placeholder="
               $t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.PHONE_NUMBER.PLACEHOLDER')
-            "
-          />
-        </label>
-
-        <label class="block">
-          <span class="mb-1 block text-sm font-medium text-n-slate-12">
-            {{ $t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.API_ID.LABEL') }}
-          </span>
-          <input
-            v-model="form.apiId"
-            type="text"
-            class="w-full"
-            :placeholder="
-              $t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.API_ID.PLACEHOLDER')
-            "
-          />
-        </label>
-
-        <label class="block">
-          <span class="mb-1 block text-sm font-medium text-n-slate-12">
-            {{ $t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.API_HASH.LABEL') }}
-          </span>
-          <input
-            v-model="form.apiHash"
-            type="password"
-            class="w-full"
-            :placeholder="
-              $t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.API_HASH.PLACEHOLDER')
             "
           />
         </label>

@@ -1,7 +1,24 @@
 class Api::V1::Accounts::TelegramSessionsController < Api::V1::Accounts::BaseController
   before_action :fetch_telegram_session, only: %i[show submit_code submit_password reconnect]
 
+  def show
+    render json: session_payload(@telegram_session, @telegram_session.inbox)
+  end
+
   def create
+    unless GlobalConfig.get_value('ENABLE_TELEGRAM_PERSONAL_CHANNEL')
+      render json: { error: 'Telegram Personal is disabled' }, status: :forbidden
+      return
+    end
+
+    api_id = GlobalConfig.get_value('TELEGRAM_PERSONAL_API_ID')
+    api_hash = GlobalConfig.get_value('TELEGRAM_PERSONAL_API_HASH')
+
+    if api_id.blank? || api_hash.blank?
+      render json: { error: 'Telegram Personal API credentials are not configured' }, status: :unprocessable_entity
+      return
+    end
+
     result = Inbox::TelegramPersonalService.new(
       account: Current.account,
       user: Current.user,
@@ -11,10 +28,6 @@ class Api::V1::Accounts::TelegramSessionsController < Api::V1::Accounts::BaseCon
     render json: session_payload(result[:telegram_session], result[:inbox]), status: :created
   rescue Telegram::TdlibError, ActiveRecord::RecordInvalid => e
     render json: { error: e.message }, status: :unprocessable_entity
-  end
-
-  def show
-    render json: session_payload(@telegram_session, @telegram_session.inbox)
   end
 
   def submit_code
@@ -45,7 +58,7 @@ class Api::V1::Accounts::TelegramSessionsController < Api::V1::Accounts::BaseCon
   end
 
   def telegram_session_create_params
-    params.permit(:name, :phone_number, :api_id, :api_hash)
+    params.permit(:name, :phone_number)
   end
 
   def session_payload(telegram_session, inbox)

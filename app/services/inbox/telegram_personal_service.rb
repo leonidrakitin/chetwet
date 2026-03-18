@@ -33,8 +33,8 @@ class Inbox::TelegramPersonalService
   def build_session(inbox)
     TelegramSession.create!(
       phone_number: params[:phone_number],
-      api_id: params[:api_id],
-      api_hash: params[:api_hash],
+      api_id: GlobalConfig.get_value('TELEGRAM_PERSONAL_API_ID'),
+      api_hash: GlobalConfig.get_value('TELEGRAM_PERSONAL_API_HASH'),
       user: user,
       inbox: inbox,
       status: :authenticating,
