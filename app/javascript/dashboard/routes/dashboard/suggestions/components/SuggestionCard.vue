@@ -1,4 +1,5 @@
 <script setup>
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
@@ -8,9 +9,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['vote']);
+const emit = defineEmits(['vote', 'delete']);
 
 const { t } = useI18n();
+
+const expanded = ref(false);
 
 const statusClasses = {
   pending:
@@ -26,19 +29,24 @@ const statusLabel = {
   rejected: t('SUGGESTIONS.STATUS_REJECTED'),
 };
 
-const score = props.suggestion.upvotes_count - props.suggestion.downvotes_count;
+const score = computed(
+  () => props.suggestion.upvotes_count - props.suggestion.downvotes_count
+);
 
 const formatDate = dateStr => {
-  return new Date(dateStr).toLocaleDateString();
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString();
 };
 </script>
 
 <template>
   <div
-    class="flex gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"
+    class="flex gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 w-full"
   >
     <!-- Vote buttons -->
-    <div class="flex flex-col items-center gap-1 min-w-[48px]">
+    <div class="flex flex-col items-center gap-1 shrink-0 w-12">
       <button
         class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
         :class="
@@ -83,20 +91,39 @@ const formatDate = dateStr => {
         >
           {{ suggestion.title }}
         </h3>
-        <span
-          class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium"
-          :class="statusClasses[suggestion.status]"
-        >
-          {{ statusLabel[suggestion.status] }}
-        </span>
+        <div class="flex items-center gap-2 shrink-0">
+          <span
+            v-if="suggestion.status"
+            class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+            :class="statusClasses[suggestion.status]"
+          >
+            {{ statusLabel[suggestion.status] }}
+          </span>
+          <button
+            type="button"
+            class="flex items-center justify-center rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-red-500 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-red-400"
+            :aria-label="t('SUGGESTIONS.DELETE')"
+            @click="emit('delete', suggestion.id)"
+          >
+            <i class="i-lucide-trash-2 size-4" />
+          </button>
+        </div>
       </div>
 
-      <p
-        v-if="suggestion.description"
-        class="text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-2"
-      >
-        {{ suggestion.description }}
-      </p>
+      <div v-if="suggestion.description" class="mb-2">
+        <p
+          class="text-sm text-slate-600 dark:text-slate-400"
+          :class="{ 'line-clamp-2': !expanded }"
+        >
+          {{ suggestion.description }}
+        </p>
+        <button
+          class="text-xs text-woot-500 hover:text-woot-600 mt-0.5"
+          @click="expanded = !expanded"
+        >
+          {{ expanded ? t('SUGGESTIONS.COLLAPSE') : t('SUGGESTIONS.EXPAND') }}
+        </button>
+      </div>
 
       <div class="flex flex-wrap items-center gap-2">
         <span
@@ -112,7 +139,9 @@ const formatDate = dateStr => {
         class="flex items-center gap-3 mt-2 text-xs text-slate-400 dark:text-slate-500"
       >
         <span v-if="suggestion.user">{{ suggestion.user.name }}</span>
-        <span>{{ formatDate(suggestion.created_at) }}</span>
+        <span v-if="formatDate(suggestion.created_at)">
+          {{ formatDate(suggestion.created_at) }}
+        </span>
         <span>
           {{
             t('SUGGESTIONS.VOTES_LABEL', {

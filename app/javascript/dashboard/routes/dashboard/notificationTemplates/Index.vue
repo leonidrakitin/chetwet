@@ -46,6 +46,24 @@ const searchQuery = ref('');
 const searchExpanded = ref(false);
 const viewMode = ref('categories'); // 'categories' | 'grid' | 'flow'
 
+const viewModes = computed(() => [
+  {
+    key: 'categories',
+    icon: 'i-lucide-layers',
+    label: t('NOTIFICATION_TEMPLATES.VIEW.CATEGORIES'),
+  },
+  {
+    key: 'grid',
+    icon: 'i-lucide-layout-grid',
+    label: t('NOTIFICATION_TEMPLATES.VIEW.GRID'),
+  },
+  {
+    key: 'flow',
+    icon: 'i-lucide-git-fork',
+    label: t('NOTIFICATION_TEMPLATES.VIEW.FLOW'),
+  },
+]);
+
 const filteredTemplates = computed(() => {
   const key = activeTab.value.key;
   let templates =
@@ -267,52 +285,6 @@ onMounted(() => {
             />
           </div>
 
-          <!-- View mode toggle -->
-          <div class="flex rounded-lg border border-n-weak overflow-hidden">
-            <button
-              class="flex items-center gap-1.5 px-2 py-2 md:px-3 text-sm transition-colors"
-              :class="
-                viewMode === 'categories'
-                  ? 'bg-n-brand text-white'
-                  : 'text-n-slate-10 hover:bg-n-alpha-1'
-              "
-              @click="viewMode = 'categories'"
-            >
-              <span class="i-lucide-layers size-4" />
-              <span class="hidden md:inline">
-                {{ t('NOTIFICATION_TEMPLATES.VIEW.CATEGORIES') }}
-              </span>
-            </button>
-            <button
-              class="flex items-center gap-1.5 px-2 py-2 md:px-3 text-sm transition-colors"
-              :class="
-                viewMode === 'grid'
-                  ? 'bg-n-brand text-white'
-                  : 'text-n-slate-10 hover:bg-n-alpha-1'
-              "
-              @click="viewMode = 'grid'"
-            >
-              <span class="i-lucide-layout-grid size-4" />
-              <span class="hidden md:inline">
-                {{ t('NOTIFICATION_TEMPLATES.VIEW.GRID') }}
-              </span>
-            </button>
-            <button
-              class="flex items-center gap-1.5 px-2 py-2 md:px-3 text-sm transition-colors"
-              :class="
-                viewMode === 'flow'
-                  ? 'bg-n-brand text-white'
-                  : 'text-n-slate-10 hover:bg-n-alpha-1'
-              "
-              @click="viewMode = 'flow'"
-            >
-              <span class="i-lucide-git-fork size-4" />
-              <span class="hidden md:inline">
-                {{ t('NOTIFICATION_TEMPLATES.VIEW.FLOW') }}
-              </span>
-            </button>
-          </div>
-
           <!-- New template: desktop with label -->
           <Button
             class="hidden md:inline-flex"
@@ -330,13 +302,35 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 overflow-x-auto">
-      <TabBar
-        :tabs="tabs"
-        :initial-active-tab="activeTabIndex"
-        @tab-changed="onTabChanged"
-      />
+    <!-- Tabs + View toggle -->
+    <div
+      class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 flex items-center justify-between gap-4"
+    >
+      <div class="overflow-x-auto">
+        <TabBar
+          :tabs="tabs"
+          :initial-active-tab="activeTabIndex"
+          @tab-changed="onTabChanged"
+        />
+      </div>
+      <div
+        class="flex items-center rounded-lg bg-n-alpha-1 p-0.5 flex-shrink-0"
+      >
+        <button
+          v-for="mode in viewModes"
+          :key="mode.key"
+          class="flex items-center justify-center size-7 rounded-md transition-colors"
+          :class="
+            viewMode === mode.key
+              ? 'bg-n-solid-active shadow-sm text-n-blue-11'
+              : 'text-n-slate-10 hover:text-n-slate-12'
+          "
+          :title="mode.label"
+          @click="viewMode = mode.key"
+        >
+          <span :class="mode.icon" class="size-4" />
+        </button>
+      </div>
     </div>
 
     <!-- Content -->

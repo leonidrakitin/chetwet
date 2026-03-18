@@ -23,6 +23,9 @@
     "CREATE_ERROR": "Failed to create suggestion",
     "VOTE_ERROR": "Failed to vote",
     "DELETE_SUCCESS": "Suggestion deleted",
-    "DELETE_ERROR": "Failed to delete suggestion"
+    "DELETE_ERROR": "Failed to delete suggestion",
+    "DELETE": "Delete",
+    "EXPAND": "Show more",
+    "COLLAPSE": "Show less"
   }
 }

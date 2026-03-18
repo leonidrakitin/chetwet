@@ -70,7 +70,7 @@ const hasValue = computed(() => {
           () => toggleDropdown() // ensure that the event is not passed to the button
         "
       >
-        <div class="flex items-center justify-between w-full min-w-0">
+        <div class="flex items-center justify-between min-w-0 flex-1">
           <h4 v-if="!hasValue" class="text-sm text-ellipsis text-n-slate-12">
             {{ multiselectorPlaceholder }}
           </h4>
