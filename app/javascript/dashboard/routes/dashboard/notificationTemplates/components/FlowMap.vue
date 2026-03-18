@@ -130,13 +130,17 @@ const nodeRefs = ref({});
 const btnRefs = ref({});
 const arrows = ref([]);
 
-// Pan state
+// Pan & zoom state
 const isPanning = ref(false);
 const hasDragged = ref(false);
 const panX = ref(0);
 const panY = ref(0);
+const scale = ref(1);
 let dragStartX = 0;
 let dragStartY = 0;
+let lastTouchDist = 0;
+let lastTouchCenterX = 0;
+let lastTouchCenterY = 0;
 
 const onMouseDown = e => {
   if (e.button !== 0) return;
@@ -163,6 +167,72 @@ const onMouseMove = e => {
 
 const stopPan = () => {
   isPanning.value = false;
+};
+
+// Touch handlers
+const onTouchStart = e => {
+  if (e.touches.length === 1) {
+    isPanning.value = true;
+    hasDragged.value = false;
+    dragStartX = e.touches[0].clientX - panX.value;
+    dragStartY = e.touches[0].clientY - panY.value;
+  } else if (e.touches.length === 2) {
+    isPanning.value = false;
+    const dx = e.touches[1].clientX - e.touches[0].clientX;
+    const dy = e.touches[1].clientY - e.touches[0].clientY;
+    lastTouchDist = Math.hypot(dx, dy);
+    lastTouchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    lastTouchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+  }
+};
+
+const onTouchMove = e => {
+  if (e.touches.length === 1 && isPanning.value) {
+    const nx = e.touches[0].clientX - dragStartX;
+    const ny = e.touches[0].clientY - dragStartY;
+    if (
+      !hasDragged.value &&
+      Math.abs(nx - panX.value) + Math.abs(ny - panY.value) > 4
+    ) {
+      hasDragged.value = true;
+    }
+    panX.value = nx;
+    panY.value = ny;
+  } else if (e.touches.length === 2) {
+    const dx = e.touches[1].clientX - e.touches[0].clientX;
+    const dy = e.touches[1].clientY - e.touches[0].clientY;
+    const dist = Math.hypot(dx, dy);
+    if (lastTouchDist > 0) {
+      scale.value = Math.min(
+        2,
+        Math.max(0.3, scale.value * (dist / lastTouchDist))
+      );
+    }
+    lastTouchDist = dist;
+    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    panX.value += cx - lastTouchCenterX;
+    panY.value += cy - lastTouchCenterY;
+    lastTouchCenterX = cx;
+    lastTouchCenterY = cy;
+  }
+};
+
+const onTouchEnd = () => {
+  isPanning.value = false;
+  lastTouchDist = 0;
+};
+
+const zoomIn = () => {
+  scale.value = Math.min(2, scale.value + 0.2);
+};
+const zoomOut = () => {
+  scale.value = Math.max(0.3, scale.value - 0.2);
+};
+const zoomReset = () => {
+  scale.value = 1;
+  panX.value = 0;
+  panY.value = 0;
 };
 
 // Arrow computation — coords relative to containerRef (the canvas)
@@ -294,10 +364,12 @@ onMounted(async () => {
   ro = new ResizeObserver(computeArrows);
   if (containerRef.value) ro.observe(containerRef.value);
   window.addEventListener('mouseup', stopPan);
+  window.addEventListener('touchend', onTouchEnd);
 });
 onBeforeUnmount(() => {
   ro?.disconnect();
   window.removeEventListener('mouseup', stopPan);
+  window.removeEventListener('touchend', onTouchEnd);
 });
 watch(() => props.templates, computeArrows, { deep: true });
 
@@ -324,22 +396,47 @@ const preview = txt => {
 </script>
 
 <template>
-  <!-- Outer viewport: clips overflow, handles mouse events -->
+  <!-- Outer viewport: clips overflow, handles mouse + touch events -->
   <div
     ref="outerRef"
-    class="h-full w-full overflow-hidden relative select-none"
+    class="h-full w-full overflow-hidden relative select-none touch-none"
     :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
     :style="BG_STYLE"
     @mousedown="onMouseDown"
     @mousemove="onMouseMove"
     @mouseup="stopPan"
+    @touchstart.passive="onTouchStart"
+    @touchmove.prevent="onTouchMove"
+    @touchend="onTouchEnd"
   >
-    <!-- Canvas: centered, panned via transform, SVG + cards inside -->
+    <!-- Zoom controls -->
+    <div class="absolute bottom-4 right-4 z-30 flex flex-col gap-1">
+      <button
+        class="size-8 rounded-lg bg-n-solid-1 border border-n-weak shadow-sm flex items-center justify-center text-n-slate-11 hover:text-n-slate-12 transition-colors"
+        @click.stop="zoomIn"
+      >
+        <span class="i-lucide-plus size-4" />
+      </button>
+      <button
+        class="size-8 rounded-lg bg-n-solid-1 border border-n-weak shadow-sm flex items-center justify-center text-n-slate-11 hover:text-n-slate-12 transition-colors"
+        @click.stop="zoomOut"
+      >
+        <span class="i-lucide-minus size-4" />
+      </button>
+      <button
+        class="size-8 rounded-lg bg-n-solid-1 border border-n-weak shadow-sm flex items-center justify-center text-n-slate-11 hover:text-n-slate-12 transition-colors"
+        @click.stop="zoomReset"
+      >
+        <span class="i-lucide-maximize size-4" />
+      </button>
+    </div>
+
+    <!-- Canvas: centered, panned + scaled via transform, SVG + cards inside -->
     <div
       ref="containerRef"
       class="absolute left-1/2 top-1/2 flex flex-col gap-20 p-10 pr-32"
       :style="{
-        transform: `translate(calc(-50% + ${panX}px), calc(-50% + ${panY}px))`,
+        transform: `translate(calc(-50% + ${panX}px), calc(-50% + ${panY}px)) scale(${scale})`,
       }"
     >
       <!-- SVG arrows on top of cards so lines are always visible -->

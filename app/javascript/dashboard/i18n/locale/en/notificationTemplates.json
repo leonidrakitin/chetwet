@@ -92,6 +92,10 @@
       "MAX_PER_DAY": { "LABEL": "Max per day per client" },
       "STOP_IF_REPLIED": { "LABEL": "Stop if client replied" },
       "SKIP_IF_HAS_ACTIVE_DIALOG": { "LABEL": "Skip if active dialog exists" },
+      "REQUIRE_MAILING_CONSENT": {
+        "LABEL": "Require mailing consent",
+        "HINT": "Only send to clients who consented to advertising mailings in YCLIENTS"
+      },
       "MESSAGE_TEXT": {
         "LABEL": "Message Text",
         "PLACEHOLDER": "Enter message text...",
@@ -135,9 +139,15 @@
       "TITLE": "Preview",
       "BUTTON_TEXT": "Preview",
       "PLACEHOLDER": "Your message will appear here...",
-      "EXAMPLE_LABEL": "Example variable values are used for preview"
+      "EXAMPLE_LABEL": "Example variable values are used for preview",
+      "TOGGLE": "Preview",
+      "HIDE": "Hide preview"
     },
     "EMPTY": "No templates found. Create a new template using the button above.",
+    "EMPTY_TITLE": "No templates yet",
+    "EMPTY_DESCRIPTION": "Create your first notification template to start automating client communications.",
+    "EMPTY_SEARCH_TITLE": "No templates found",
+    "EMPTY_SEARCH_DESCRIPTION": "Try adjusting your search query.",
     "SEARCH": {
       "PLACEHOLDER": "Search templates..."
     },

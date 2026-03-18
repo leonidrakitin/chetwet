@@ -32,6 +32,7 @@ const activeEditorIndex = ref(0);
 const showAttachments = ref([]);
 const activeVariable = ref(null);
 const nameError = ref('');
+const showMobilePreview = ref(false);
 
 const defaultBlock = () => ({ text: '', attachments: [], buttons: [] });
 
@@ -59,6 +60,7 @@ const defaultForm = () => ({
   audience: {
     tags: [],
     excludeTags: [],
+    requireMailingConsent: false,
   },
   limits: {
     minIntervalHours: 24,
@@ -193,6 +195,7 @@ const normalizeForm = template => ({
   audience: {
     tags: [...(template.audience?.tags ?? [])],
     excludeTags: [...(template.audience?.exclude_tags ?? [])],
+    requireMailingConsent: template.audience?.require_mailing_consent ?? false,
   },
   limits: {
     minIntervalHours: template.limits?.min_interval_hours ?? 24,
@@ -322,6 +325,7 @@ const handleConfirm = () => {
     audience: {
       tags: [...form.value.audience.tags],
       exclude_tags: [...form.value.audience.excludeTags],
+      require_mailing_consent: form.value.audience.requireMailingConsent,
     },
     limits: {
       min_interval_hours: Number(form.value.limits.minIntervalHours || 0),
@@ -362,8 +366,8 @@ const handleClose = () => {
     @confirm="handleConfirm"
     @close="handleClose"
   >
-    <div class="flex flex-row gap-6 min-h-0">
-      <div class="flex flex-col gap-4 flex-1 min-w-[22rem]">
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6 min-h-0">
+      <div class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem]">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium text-n-slate-12">
@@ -719,6 +723,19 @@ const handleClose = () => {
                 }}
               </label>
             </div>
+            <div v-if="yclientsEnabled" class="flex items-center gap-3">
+              <Switch v-model="form.audience.requireMailingConsent" />
+              <label class="text-sm font-medium text-n-slate-12">
+                {{
+                  t('NOTIFICATION_TEMPLATES.FORM.REQUIRE_MAILING_CONSENT.LABEL')
+                }}
+              </label>
+              <span class="text-xs text-n-slate-9">
+                {{
+                  t('NOTIFICATION_TEMPLATES.FORM.REQUIRE_MAILING_CONSENT.HINT')
+                }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -804,7 +821,33 @@ const handleClose = () => {
         </div>
       </div>
 
-      <div class="w-80 flex-shrink-0">
+      <!-- Mobile preview toggle -->
+      <button
+        type="button"
+        class="md:hidden inline-flex items-center gap-1.5 self-start rounded-md border border-n-weak px-2.5 py-1.5 text-xs text-n-slate-10 hover:border-n-strong hover:text-n-slate-12 transition-colors"
+        @click="showMobilePreview = !showMobilePreview"
+      >
+        <span
+          class="size-3.5"
+          :class="showMobilePreview ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+        />
+        {{
+          showMobilePreview
+            ? t('NOTIFICATION_TEMPLATES.PREVIEW.HIDE')
+            : t('NOTIFICATION_TEMPLATES.PREVIEW.TOGGLE')
+        }}
+      </button>
+
+      <!-- Mobile preview -->
+      <div v-if="showMobilePreview" class="md:hidden">
+        <NotificationTemplatePreview
+          :messages="form.messages"
+          :active-variable="activeVariable"
+        />
+      </div>
+
+      <!-- Desktop preview sidebar -->
+      <div class="hidden md:block w-80 flex-shrink-0">
         <NotificationTemplatePreview
           :messages="form.messages"
           :active-variable="activeVariable"

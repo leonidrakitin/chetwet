@@ -41,6 +41,7 @@ const inboxes = computed(() => store.getters['inboxes/getInboxes']);
 const accountLabels = computed(() => store.getters['labels/getLabels']);
 
 const searchQuery = ref('');
+const searchExpanded = ref(false);
 const viewMode = ref('grid'); // 'grid' | 'flow'
 
 const filteredTemplates = computed(() => {
@@ -151,68 +152,128 @@ onMounted(() => {
   <div class="flex flex-col h-full w-full min-w-0 overflow-hidden">
     <!-- Header -->
     <div
-      class="flex items-center justify-between px-6 py-5 border-b border-n-weak flex-shrink-0"
+      class="flex flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6 md:py-5 border-b border-n-weak flex-shrink-0"
     >
-      <div>
-        <h1 class="text-lg font-semibold text-n-slate-12">
-          {{ t('NOTIFICATION_TEMPLATES.HEADER') }}
-        </h1>
-        <p class="text-sm text-n-slate-10 mt-0.5">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-semibold text-n-slate-12 truncate">
+            {{ t('NOTIFICATION_TEMPLATES.HEADER') }}
+          </h1>
+          <span class="text-sm font-normal text-n-slate-9">
+            {{ filteredTemplates.length }}
+          </span>
+        </div>
+        <p class="hidden md:block text-sm text-n-slate-10 mt-0.5">
           {{ t('NOTIFICATION_TEMPLATES.DESCRIPTION') }}
         </p>
       </div>
+
+      <!-- Controls row -->
       <div class="flex items-center gap-2 flex-shrink-0">
-        <!-- Search -->
-        <div class="relative">
-          <span
-            class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 size-4 text-n-slate-9 pointer-events-none"
-          />
-          <input
-            v-model="searchQuery"
-            type="text"
-            :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
-            class="h-9 w-48 rounded-lg border border-n-weak bg-n-alpha-1 pl-9 pr-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
+        <!-- Mobile search expanded -->
+        <div
+          v-if="searchExpanded"
+          class="flex items-center gap-2 flex-1 md:hidden"
+        >
+          <div class="relative flex-1">
+            <span
+              class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 size-4 text-n-slate-9 pointer-events-none"
+            />
+            <input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
+              class="h-9 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-9 pr-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
+            />
+          </div>
+          <Button
+            variant="ghost"
+            color="slate"
+            size="sm"
+            icon="i-lucide-x"
+            @click="
+              searchExpanded = false;
+              searchQuery = '';
+            "
           />
         </div>
 
-        <!-- View mode toggle -->
-        <div class="flex rounded-lg border border-n-weak overflow-hidden">
-          <button
-            class="flex items-center gap-1.5 px-3 py-2 text-sm transition-colors"
-            :class="
-              viewMode === 'grid'
-                ? 'bg-n-brand text-white'
-                : 'text-n-slate-10 hover:bg-n-alpha-1'
-            "
-            @click="viewMode = 'grid'"
-          >
-            <span class="i-lucide-layout-grid size-4" />
-            {{ t('NOTIFICATION_TEMPLATES.VIEW.GRID') }}
-          </button>
-          <button
-            class="flex items-center gap-1.5 px-3 py-2 text-sm transition-colors"
-            :class="
-              viewMode === 'flow'
-                ? 'bg-n-brand text-white'
-                : 'text-n-slate-10 hover:bg-n-alpha-1'
-            "
-            @click="viewMode = 'flow'"
-          >
-            <span class="i-lucide-git-fork size-4" />
-            {{ t('NOTIFICATION_TEMPLATES.VIEW.FLOW') }}
-          </button>
-        </div>
+        <!-- Normal controls (hidden when mobile search is expanded) -->
+        <template v-if="!searchExpanded">
+          <!-- Mobile search icon -->
+          <Button
+            class="md:hidden"
+            variant="ghost"
+            color="slate"
+            size="sm"
+            icon="i-lucide-search"
+            @click="searchExpanded = true"
+          />
 
-        <Button
-          icon="i-lucide-plus"
-          :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
-          @click="openNewTemplate"
-        />
+          <!-- Desktop search -->
+          <div class="relative hidden md:block">
+            <span
+              class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 size-4 text-n-slate-9 pointer-events-none"
+            />
+            <input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
+              class="h-9 w-48 rounded-lg border border-n-weak bg-n-alpha-1 pl-9 pr-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
+            />
+          </div>
+
+          <!-- View mode toggle -->
+          <div class="flex rounded-lg border border-n-weak overflow-hidden">
+            <button
+              class="flex items-center gap-1.5 px-2 py-2 md:px-3 text-sm transition-colors"
+              :class="
+                viewMode === 'grid'
+                  ? 'bg-n-brand text-white'
+                  : 'text-n-slate-10 hover:bg-n-alpha-1'
+              "
+              @click="viewMode = 'grid'"
+            >
+              <span class="i-lucide-layout-grid size-4" />
+              <span class="hidden md:inline">
+                {{ t('NOTIFICATION_TEMPLATES.VIEW.GRID') }}
+              </span>
+            </button>
+            <button
+              class="flex items-center gap-1.5 px-2 py-2 md:px-3 text-sm transition-colors"
+              :class="
+                viewMode === 'flow'
+                  ? 'bg-n-brand text-white'
+                  : 'text-n-slate-10 hover:bg-n-alpha-1'
+              "
+              @click="viewMode = 'flow'"
+            >
+              <span class="i-lucide-git-fork size-4" />
+              <span class="hidden md:inline">
+                {{ t('NOTIFICATION_TEMPLATES.VIEW.FLOW') }}
+              </span>
+            </button>
+          </div>
+
+          <!-- New template: desktop with label -->
+          <Button
+            class="hidden md:inline-flex"
+            icon="i-lucide-plus"
+            :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
+            @click="openNewTemplate"
+          />
+          <!-- New template: mobile icon only -->
+          <Button
+            class="inline-flex md:hidden"
+            icon="i-lucide-plus"
+            @click="openNewTemplate"
+          />
+        </template>
       </div>
     </div>
 
     <!-- Tabs -->
-    <div class="px-6 pt-4 flex-shrink-0">
+    <div class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 overflow-x-auto">
       <TabBar
         :tabs="tabs"
         :initial-active-tab="activeTabIndex"
@@ -226,25 +287,57 @@ onMounted(() => {
       :class="
         viewMode === 'flow'
           ? 'overflow-hidden min-w-0'
-          : 'overflow-y-auto px-6 py-4'
+          : 'overflow-y-auto px-4 py-3 md:px-6 md:py-4'
       "
     >
+      <!-- Statistics tab -->
       <div
         v-if="isStatisticsTab"
-        class="flex items-center justify-center h-full"
+        class="flex flex-col items-center justify-center h-full gap-4 py-12"
       >
-        <p class="text-sm text-n-slate-10">
+        <div
+          class="flex items-center justify-center size-16 rounded-2xl bg-n-alpha-1"
+        >
+          <span class="i-lucide-bar-chart-3 size-8 text-n-slate-9" />
+        </div>
+        <p class="text-sm text-n-slate-10 text-center">
           {{ t('NOTIFICATION_TEMPLATES.STATISTICS.COMING_SOON') }}
         </p>
       </div>
 
+      <!-- Empty state -->
       <div
         v-else-if="filteredTemplates.length === 0"
-        class="flex items-center justify-center h-full"
+        class="flex flex-col items-center justify-center h-full gap-4 py-12"
       >
-        <p class="text-sm text-n-slate-10">
-          {{ t('NOTIFICATION_TEMPLATES.EMPTY') }}
-        </p>
+        <div
+          class="flex items-center justify-center size-16 rounded-2xl bg-n-alpha-1"
+        >
+          <span class="i-lucide-mail-plus size-8 text-n-slate-9" />
+        </div>
+        <div class="flex flex-col items-center gap-1 text-center">
+          <p class="text-base font-medium text-n-slate-12">
+            {{
+              searchQuery
+                ? t('NOTIFICATION_TEMPLATES.EMPTY_SEARCH_TITLE')
+                : t('NOTIFICATION_TEMPLATES.EMPTY_TITLE')
+            }}
+          </p>
+          <p class="text-sm text-n-slate-10 max-w-sm">
+            {{
+              searchQuery
+                ? t('NOTIFICATION_TEMPLATES.EMPTY_SEARCH_DESCRIPTION')
+                : t('NOTIFICATION_TEMPLATES.EMPTY_DESCRIPTION')
+            }}
+          </p>
+        </div>
+        <Button
+          v-if="!searchQuery"
+          variant="outline"
+          icon="i-lucide-plus"
+          :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
+          @click="openNewTemplate"
+        />
       </div>
 
       <!-- Grid view with DnD -->
@@ -255,13 +348,13 @@ onMounted(() => {
         handle=".drag-handle"
         ghost-class="opacity-40"
         animation="200"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
         <template #item="{ element }">
           <div class="relative group">
             <!-- Drag handle -->
             <div
-              class="drag-handle absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab p-1 rounded text-n-slate-9 hover:text-n-slate-12"
+              class="drag-handle absolute top-2 left-2 z-10 opacity-50 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-grab p-2 rounded text-n-slate-9 hover:text-n-slate-12"
             >
               <span class="i-lucide-grip-vertical size-4" />
             </div>

@@ -6,6 +6,7 @@ class NotificationTemplates::EligibilityService
     return failure('template_disabled') unless template.enabled?
     return failure('blocked_contact') if conversation.contact.blocked?
     return failure('no_contact_inbox') if conversation.contact_inbox.blank?
+    return failure('no_mailing_consent') if require_mailing_consent? && !has_mailing_consent?
     return failure('quiet_hours') if within_quiet_hours?
     return failure('active_dialog') if skip_if_has_active_dialog? && active_dialog?
     return failure('stop_if_replied') if stop_if_replied? && replied_after_last_delivery?
@@ -93,6 +94,24 @@ class NotificationTemplates::EligibilityService
 
   def active_dialog?
     conversation.open? || conversation.pending?
+  end
+
+  def require_mailing_consent?
+    template.audience['require_mailing_consent'] == true
+  end
+
+  def has_mailing_consent?
+    attrs = conversation.contact.additional_attributes || {}
+
+    # Check company-specific consent first (when template is linked to a YCLIENTS integration)
+    if template.yclients_integration.present?
+      company_id = template.yclients_integration.salon_id.to_s
+      company_attrs = attrs.dig('yclients_companies', company_id) || {}
+      return company_attrs['consent_mailing'] == true if company_attrs.key?('consent_mailing')
+    end
+
+    # Fallback to top-level yclients consent
+    (attrs.dig('yclients', 'consent_mailing') == true)
   end
 
   def minutes_for(value)
