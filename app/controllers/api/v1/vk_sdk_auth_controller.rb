@@ -2,6 +2,7 @@
 
 class Api::V1::VkSdkAuthController < ApplicationController
   include EmailHelper
+  include OauthSignupTokenable
 
   def create
     user_info = fetch_vk_user_info
@@ -10,10 +11,19 @@ class Api::V1::VkSdkAuthController < ApplicationController
     return render json: { error: 'email_not_provided' }, status: :unprocessable_entity if email.blank?
 
     existing_user = User.from_email(email)
-    user = existing_user || create_account_for_user(user_info, email)
-    return render json: { error: 'account_creation_failed' }, status: :unprocessable_entity unless user&.persisted?
-
-    process_auth_response(user, existing_user)
+    if existing_user
+      process_auth_response(existing_user, existing_user)
+    else
+      full_name = [user_info['first_name'], user_info['last_name']].compact.join(' ').presence
+      token = generate_oauth_signup_token(
+        email: email,
+        name: full_name,
+        provider: 'vk',
+        avatar_url: user_info['avatar'],
+        email_verified: true
+      )
+      render json: { needs_signup: true, signup_token: token, email: email }
+    end
   end
 
   private
@@ -38,23 +48,6 @@ class Api::V1::VkSdkAuthController < ApplicationController
     JSON.parse(response.body)['user']
   rescue StandardError => e
     Rails.logger.error("VK SDK user info fetch failed: #{e.message}")
-    nil
-  end
-
-  def create_account_for_user(user_info, email)
-    full_name = [user_info['first_name'], user_info['last_name']].compact.join(' ').presence
-
-    user, _account = AccountBuilder.new(
-      account_name: extract_domain_without_tld(email),
-      user_full_name: full_name,
-      email: email,
-      locale: I18n.locale,
-      confirmed: true,
-      allow_disposable: true
-    ).perform
-    user
-  rescue StandardError => e
-    Rails.logger.error("VK SDK account creation failed: #{e.class.name} - #{e.message}")
     nil
   end
 end

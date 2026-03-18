@@ -53,7 +53,14 @@
       "ERROR_MESSAGE": "Could not connect to Woot server. Please try again."
     },
     "SUBMIT": "Create account",
-    "HAVE_AN_ACCOUNT": "Already have an account?"
+    "HAVE_AN_ACCOUNT": "Already have an account?",
+    "COMPLETE_SIGNUP": {
+      "TITLE": "Complete your registration",
+      "SUBTITLE": "Set a password to finish creating your account",
+      "SUBMIT": "Create account",
+      "TOKEN_EXPIRED": "Your signup link has expired. Please try signing in again.",
+      "ERROR": "Could not create account. Please try again."
+    }
   },
   "ONBOARDING_WIZARD": {
     "SKIP": "Skip setup",

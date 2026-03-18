@@ -1,5 +1,6 @@
 class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCallbacksController
   include EmailHelper
+  include OauthSignupTokenable
 
   def omniauth_success
     get_resource_from_auth_hash
@@ -33,11 +34,15 @@ class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCa
   end
 
   def sign_up_user
-    create_account_for_user
-    @resource.skip_confirmation! if confirmable_enabled?
-
-    encoded_email = ERB::Util.url_encode(@resource.email)
-    redirect_to login_page_url(email: encoded_email, sso_auth_token: @resource.generate_sso_auth_token, redirect: '/app/onboarding/wizard')
+    token = generate_oauth_signup_token(
+      email: auth_hash['info']['email'],
+      name: auth_hash['info']['name'],
+      provider: auth_hash['provider'],
+      avatar_url: auth_hash['info']['image'],
+      email_verified: auth_hash['info']['email_verified']
+    )
+    encoded_email = ERB::Util.url_encode(auth_hash['info']['email'])
+    redirect_to complete_signup_page_url(signup_token: token, email: encoded_email)
   end
 
   def login_page_url(error: nil, email: nil, sso_auth_token: nil, redirect: nil)
@@ -46,6 +51,12 @@ class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCa
     params[:error] = error if error.present?
 
     "#{frontend_url}/app/login?#{params.to_query}"
+  end
+
+  def complete_signup_page_url(signup_token:, email:)
+    frontend_url = ENV.fetch('FRONTEND_URL', nil)
+    params = { signup_token: signup_token, email: email }.to_query
+    "#{frontend_url}/app/auth/complete-signup?#{params}"
   end
 
   def account_signup_allowed?
@@ -67,18 +78,6 @@ class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCa
     Account::SignUpEmailValidationService.new(auth_hash['info']['email']).perform
   rescue CustomExceptions::Account::InvalidEmail
     false
-  end
-
-  def create_account_for_user
-    @resource, @account = AccountBuilder.new(
-      account_name: extract_domain_without_tld(auth_hash['info']['email']),
-      user_full_name: auth_hash['info']['name'],
-      email: auth_hash['info']['email'],
-      locale: I18n.locale,
-      confirmed: auth_hash['info']['email_verified'],
-      allow_disposable: true
-    ).perform
-    Avatar::AvatarFromUrlJob.perform_later(@resource, auth_hash['info']['image'])
   end
 
   def default_devise_mapping

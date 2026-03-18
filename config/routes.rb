@@ -41,6 +41,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       post 'telegram_callback', to: 'webhooks/telegram#process_payload'
       post 'auth/vk_sdk_callback', to: 'vk_sdk_auth#create'
+      post 'auth/complete_oauth_signup', to: 'oauth_signups#create'
 
       # ----------------------------------
       # start of account scoped api routes

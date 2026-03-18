@@ -95,3 +95,17 @@ export const setNewPassword = async ({
 
 export const resetPassword = async ({ email }) =>
   wootAPI.post('auth/password', { email });
+
+export const completeOauthSignup = async ({ signupToken, password }) => {
+  try {
+    const response = await wootAPI.post('api/v1/auth/complete_oauth_signup', {
+      signup_token: signupToken,
+      password,
+    });
+    setAuthCredentials(response);
+    return response.data;
+  } catch (error) {
+    throwErrorMessage(error);
+    return null;
+  }
+};

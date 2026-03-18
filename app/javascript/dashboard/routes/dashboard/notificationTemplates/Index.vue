@@ -91,12 +91,20 @@ const editingTemplate = ref(null);
 const deletingTemplate = ref(null);
 const previewingTemplate = ref(null);
 
+const closeAllDialogs = () => {
+  templateModalRef.value?.close();
+  deleteDialogRef.value?.close();
+  previewDialogRef.value?.close();
+};
+
 const openNewTemplate = () => {
+  closeAllDialogs();
   editingTemplate.value = null;
   templateModalRef.value?.open();
 };
 
 const handleEdit = template => {
+  closeAllDialogs();
   editingTemplate.value = { ...template };
   templateModalRef.value?.open();
 };
@@ -124,11 +132,13 @@ const handleClone = async id => {
 };
 
 const handlePreview = template => {
+  closeAllDialogs();
   previewingTemplate.value = template;
   previewDialogRef.value?.open();
 };
 
 const handleDeleteRequest = template => {
+  closeAllDialogs();
   deletingTemplate.value = template;
   deleteDialogRef.value?.open();
 };

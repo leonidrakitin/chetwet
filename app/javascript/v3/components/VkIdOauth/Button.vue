@@ -29,7 +29,9 @@ async function handleVkSuccess(data) {
       body: JSON.stringify({ access_token: data.access_token }),
     });
     const result = await response.json();
-    if (result.sso_auth_token) {
+    if (result.needs_signup && result.signup_token) {
+      window.location = `/app/auth/complete-signup?signup_token=${encodeURIComponent(result.signup_token)}&email=${encodeURIComponent(result.email || '')}`;
+    } else if (result.sso_auth_token) {
       let url = `/app/login?email=${encodeURIComponent(result.email)}&sso_auth_token=${result.sso_auth_token}`;
       if (result.redirect) {
         url += `&redirect=${encodeURIComponent(result.redirect)}`;

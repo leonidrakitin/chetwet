@@ -4,6 +4,7 @@ import Landing from './landing/Index.vue';
 import Login from './login/Index.vue';
 import SamlLogin from './login/Saml.vue';
 import Signup from './auth/signup/Index.vue';
+import CompleteSignup from './auth/complete-signup/Index.vue';
 import ResetPassword from './auth/reset/password/Index.vue';
 import Confirmation from './auth/confirmation/Index.vue';
 import PasswordEdit from './auth/password/Edit.vue';
@@ -45,6 +46,16 @@ export default [
     name: 'auth_signup',
     component: Signup,
     meta: { requireSignupEnabled: true },
+  },
+  {
+    path: frontendURL('auth/complete-signup'),
+    name: 'auth_complete_signup',
+    component: CompleteSignup,
+    meta: { ignoreSession: true },
+    props: route => ({
+      signupToken: route.query.signup_token,
+      email: route.query.email,
+    }),
   },
   {
     path: frontendURL('auth/confirmation'),
