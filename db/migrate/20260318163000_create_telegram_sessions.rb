@@ -21,12 +21,11 @@ class CreateTelegramSessions < ActiveRecord::Migration[7.1]
       t.text :last_error
       t.jsonb :metadata, null: false, default: {}
       t.references :user, null: false, foreign_key: true
-      t.references :inbox, null: false, foreign_key: true
+      t.references :inbox, null: false, foreign_key: true, index: { unique: true }
 
       t.timestamps
     end
 
     add_index :telegram_sessions, :phone_number
-    add_index :telegram_sessions, :inbox_id, unique: true
   end
 end

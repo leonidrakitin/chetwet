@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_17_100000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_18_163000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -579,6 +579,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_17_100000) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["bot_token"], name: "index_channel_telegram_on_bot_token", unique: true
+  end
+
+  create_table "channel_telegram_personal", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "title"
+    t.string "telegram_user_id"
+    t.string "telegram_username"
+    t.string "status", default: "disconnected", null: false
+    t.text "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_channel_telegram_personal_on_account_id"
   end
 
   create_table "channel_tiktok", force: :cascade do |t|
@@ -1303,6 +1315,34 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_17_100000) do
     t.index ["account_id"], name: "index_sla_policies_on_account_id"
   end
 
+  create_table "suggestion_votes", force: :cascade do |t|
+    t.bigint "suggestion_id", null: false
+    t.bigint "user_id", null: false
+    t.string "vote_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["suggestion_id", "user_id"], name: "index_suggestion_votes_on_suggestion_id_and_user_id", unique: true
+    t.index ["suggestion_id"], name: "index_suggestion_votes_on_suggestion_id"
+    t.index ["user_id"], name: "index_suggestion_votes_on_user_id"
+  end
+
+  create_table "suggestions", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.string "status", default: "pending", null: false
+    t.bigint "account_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "upvotes_count", default: 0, null: false
+    t.integer "downvotes_count", default: 0, null: false
+    t.string "tags", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_suggestions_on_account_id"
+    t.index ["status"], name: "index_suggestions_on_status"
+    t.index ["tags"], name: "index_suggestions_on_tags", using: :gin
+    t.index ["user_id"], name: "index_suggestions_on_user_id"
+  end
+
   create_table "taggings", id: :serial, force: :cascade do |t|
     t.integer "tag_id"
     t.string "taggable_type"
@@ -1348,6 +1388,24 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_17_100000) do
     t.datetime "updated_at", precision: nil, null: false
     t.index ["account_id"], name: "index_teams_on_account_id"
     t.index ["name", "account_id"], name: "index_teams_on_name_and_account_id", unique: true
+  end
+
+  create_table "telegram_sessions", force: :cascade do |t|
+    t.string "phone_number", null: false
+    t.text "encrypted_session_data"
+    t.string "api_id", null: false
+    t.string "api_hash", null: false
+    t.integer "status", default: 0, null: false
+    t.string "auth_state"
+    t.text "last_error"
+    t.jsonb "metadata", default: {}, null: false
+    t.bigint "user_id", null: false
+    t.bigint "inbox_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inbox_id"], name: "index_telegram_sessions_on_inbox_id", unique: true
+    t.index ["phone_number"], name: "index_telegram_sessions_on_phone_number"
+    t.index ["user_id"], name: "index_telegram_sessions_on_user_id"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
@@ -1445,6 +1503,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_17_100000) do
   add_foreign_key "bulk_migrations", "captain_assistants"
   add_foreign_key "bulk_migrations", "inboxes"
   add_foreign_key "channel_avito", "accounts"
+  add_foreign_key "channel_telegram_personal", "accounts"
   add_foreign_key "channel_vk", "accounts"
   add_foreign_key "inboxes", "portals"
   add_foreign_key "notification_template_deliveries", "accounts"
@@ -1454,6 +1513,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_17_100000) do
   add_foreign_key "notification_templates", "accounts"
   add_foreign_key "notification_templates", "inboxes"
   add_foreign_key "notification_templates", "yclients_integrations"
+  add_foreign_key "suggestion_votes", "suggestions"
+  add_foreign_key "suggestion_votes", "users"
+  add_foreign_key "suggestions", "accounts"
+  add_foreign_key "suggestions", "users"
+  add_foreign_key "telegram_sessions", "inboxes"
+  add_foreign_key "telegram_sessions", "users"
   add_foreign_key "yclients_integrations", "inboxes"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").

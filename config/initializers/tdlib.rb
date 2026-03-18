@@ -12,14 +12,19 @@ TD.configure do |config|
   config.client.use_chat_info_database = true
   config.client.use_message_database = true
   config.client.use_secret_chats = false
-  config.client.enable_storage_optimizer = true
   config.client.system_language_code = 'en'
   config.client.device_model = 'Chatwoot TDLib'
   config.client.system_version = RUBY_PLATFORM
   config.client.application_version = ENV.fetch('CHATWOOT_VERSION', 'development')
 end
 
-TD::Api.set_log_verbosity_level(1) if defined?(TD::Api)
+if defined?(TD::Api)
+  begin
+    TD::Api.set_log_verbosity_level(1)
+  rescue LoadError => e
+    Rails.logger.warn("[TDLIB] libtdjson is unavailable: #{e.message}")
+  end
+end
 
 module Telegram
   class TdlibError < StandardError; end
@@ -29,7 +34,7 @@ module Telegram
     module_function
 
     def base_directory
-      Rails.root.join('tmp', 'tdlib')
+      Rails.root.join('tmp/tdlib')
     end
 
     def database_directory(session)
@@ -90,9 +95,9 @@ module Telegram
       raise map_error(e)
     end
 
-    def on(update_type, &block)
+    def on(update_type)
       client.on(update_type) do |payload|
-        block.call(normalize(payload))
+        yield(normalize(payload))
       end
     end
 
@@ -147,9 +152,9 @@ module Telegram
         message_id: message_id,
         input_message_content: {
           '@type' => 'inputMessageText',
-          text: formatted_text,
-          link_preview_options: { '@type' => 'linkPreviewOptions', is_disabled: false },
-          clear_draft: false
+          :text => formatted_text,
+          :link_preview_options => { '@type' => 'linkPreviewOptions', :is_disabled => false },
+          :clear_draft => false
         }
       )
     end
@@ -163,12 +168,12 @@ module Telegram
         'sendMessage',
         chat_id: chat_id,
         reply_to: reply_to_payload(reply_to_message_id),
-        options: { '@type' => 'messageSendOptions', disable_notification: false, from_background: true },
+        options: { '@type' => 'messageSendOptions', :disable_notification => false, :from_background => true },
         input_message_content: {
           '@type' => 'inputMessageText',
-          text: formatted_text,
-          link_preview_options: { '@type' => 'linkPreviewOptions', is_disabled: false },
-          clear_draft: false
+          :text => formatted_text,
+          :link_preview_options => { '@type' => 'linkPreviewOptions', :is_disabled => false },
+          :clear_draft => false
         }
       )
     end
@@ -178,11 +183,11 @@ module Telegram
         'sendMessage',
         chat_id: chat_id,
         reply_to: reply_to_payload(reply_to_message_id),
-        options: { '@type' => 'messageSendOptions', disable_notification: false, from_background: true },
+        options: { '@type' => 'messageSendOptions', :disable_notification => false, :from_background => true },
         input_message_content: {
           '@type' => 'inputMessageDocument',
-          document: { '@type' => 'inputFileLocal', path: file_path },
-          caption: caption
+          :document => { '@type' => 'inputFileLocal', :path => file_path },
+          :caption => caption
         }
       )
     end
@@ -192,11 +197,11 @@ module Telegram
         'sendMessage',
         chat_id: chat_id,
         reply_to: reply_to_payload(reply_to_message_id),
-        options: { '@type' => 'messageSendOptions', disable_notification: false, from_background: true },
+        options: { '@type' => 'messageSendOptions', :disable_notification => false, :from_background => true },
         input_message_content: {
           '@type' => 'inputMessagePhoto',
-          photo: { '@type' => 'inputFileLocal', path: file_path },
-          caption: caption
+          :photo => { '@type' => 'inputFileLocal', :path => file_path },
+          :caption => caption
         }
       )
     end
@@ -206,11 +211,11 @@ module Telegram
         'sendMessage',
         chat_id: chat_id,
         reply_to: reply_to_payload(reply_to_message_id),
-        options: { '@type' => 'messageSendOptions', disable_notification: false, from_background: true },
+        options: { '@type' => 'messageSendOptions', :disable_notification => false, :from_background => true },
         input_message_content: {
           '@type' => 'inputMessageVoiceNote',
-          voice_note: { '@type' => 'inputFileLocal', path: file_path },
-          caption: caption
+          :voice_note => { '@type' => 'inputFileLocal', :path => file_path },
+          :caption => caption
         }
       )
     end
@@ -277,7 +282,7 @@ module Telegram
 
       {
         '@type' => 'inputMessageReplyToMessage',
-        message_id: reply_to_message_id.to_i
+        :message_id => reply_to_message_id.to_i
       }
     end
   end
