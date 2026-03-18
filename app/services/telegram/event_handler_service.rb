@@ -26,21 +26,21 @@ class Telegram::EventHandlerService
 
   def process_new_message
     message_payload = update['message'] || {}
-    return if Chatwoot::API.find_message(inbox: inbox, source_id: message_payload['id']).present?
+    return if Chatwoot::Api.find_message(inbox: inbox, source_id: message_payload['id']).present?
 
-    contact_inbox = Chatwoot::API.find_or_create_contact_inbox(
+    contact_inbox = Chatwoot::Api.find_or_create_contact_inbox(
       inbox: inbox,
       source_id: peer_source_id(message_payload),
       contact_attributes: contact_attributes(message_payload)
     )
 
-    conversation = Chatwoot::API.find_or_create_conversation(
+    conversation = Chatwoot::Api.find_or_create_conversation(
       inbox: inbox,
       contact_inbox: contact_inbox,
       additional_attributes: conversation_attributes(message_payload)
     )
 
-    message = Chatwoot::API.create_message(
+    message = Chatwoot::Api.create_message(
       conversation: conversation,
       attributes: message_attributes(message_payload, contact_inbox.contact)
     )
@@ -49,10 +49,10 @@ class Telegram::EventHandlerService
   end
 
   def process_message_edit
-    existing_message = Chatwoot::API.find_message(inbox: inbox, source_id: update['message_id'])
+    existing_message = Chatwoot::Api.find_message(inbox: inbox, source_id: update['message_id'])
     return unless existing_message
 
-    message = Chatwoot::API.update_message(
+    message = Chatwoot::Api.update_message(
       inbox: inbox,
       source_id: update['message_id'],
       attributes: {
@@ -66,13 +66,13 @@ class Telegram::EventHandlerService
 
   def process_message_delete
     Array(update['message_ids']).each do |message_id|
-      message = Chatwoot::API.find_message(inbox: inbox, source_id: message_id)
-      Chatwoot::API.mark_message_deleted!(message) if message
+      message = Chatwoot::Api.find_message(inbox: inbox, source_id: message_id)
+      Chatwoot::Api.mark_message_deleted!(message) if message
     end
   end
 
   def process_delivery_update
-    message = Chatwoot::API.find_message(inbox: inbox, source_id: update['old_message_id'])
+    message = Chatwoot::Api.find_message(inbox: inbox, source_id: update['old_message_id'])
     return unless message
 
     message.update!(source_id: update.dig('message', 'id').to_s, status: :delivered)

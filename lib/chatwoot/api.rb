@@ -1,5 +1,5 @@
 module Chatwoot
-  module API
+  module Api
     module_function
 
     def find_or_create_contact_inbox(inbox:, source_id:, contact_attributes:)
