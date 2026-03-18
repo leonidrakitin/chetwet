@@ -569,6 +569,31 @@
   type: boolean
 ## ------ End of Configs added for VK ID OAuth ------ ##
 
+## ------ Configs added for Yandex OAuth ------ ##
+- name: YANDEX_OAUTH_CLIENT_ID
+  display_title: 'Yandex OAuth Client ID'
+  value:
+  locked: false
+  description: 'Yandex OAuth Client ID for authentication'
+- name: YANDEX_OAUTH_CLIENT_SECRET
+  display_title: 'Yandex OAuth Client Secret'
+  value:
+  locked: false
+  description: 'Yandex OAuth Client Secret for authentication'
+  type: secret
+- name: YANDEX_OAUTH_CALLBACK_URL
+  display_title: 'Yandex OAuth Callback URL'
+  value:
+  locked: false
+  description: 'The callback URL configured in your Yandex OAuth app'
+- name: ENABLE_YANDEX_OAUTH_LOGIN
+  display_title: 'Enable Yandex OAuth login'
+  value: false
+  locked: false
+  description: 'Show Yandex OAuth as a login option when credentials are configured'
+  type: boolean
+## ------ End of Configs added for Yandex OAuth ------ ##
+
 ## ------ Configs added for SAML SSO ------ ##
 - name: ENABLE_SAML_SSO_LOGIN
   display_title: 'Enable SAML SSO login'

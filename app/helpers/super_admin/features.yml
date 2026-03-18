@@ -112,6 +112,12 @@ vk_id:
   enabled: true
   icon: 'icon-globe-line'
   config_key: 'vk_id'
+yandex:
+  name: 'Yandex'
+  description: 'Configuration for setting up Yandex OAuth Integration'
+  enabled: true
+  icon: 'icon-globe-line'
+  config_key: 'yandex'
 microsoft:
   name: 'Microsoft'
   description: 'Configuration for setting up Microsoft Email'
