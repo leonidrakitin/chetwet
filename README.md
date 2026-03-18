@@ -118,6 +118,33 @@ Chatwoot now supports 1-Click deployment to DigitalOcean as a kubernetes app.
 
 For other supported options, checkout our [deployment page](https://chatwoot.com/deploy).
 
+## Как подключить `telegram_personal` inbox
+
+1. Установите TDLib и `libtdjson`.
+2. Добавьте путь к библиотеке в `TDLIB_LIB_PATH`.
+3. Выполните `bundle install`.
+4. Примените миграции: `eval "$(rbenv init -)" && bundle exec rails db:migrate`.
+5. Получите `api_id` и `api_hash` на [my.telegram.org](https://my.telegram.org).
+6. В интерфейсе Chatwoot откройте создание inbox и выберите `Telegram Personal`.
+7. Введите имя inbox, номер телефона, `api_id` и `api_hash`.
+8. Подтвердите вход кодом из Telegram, а при включенной 2FA введите пароль.
+9. После статуса `Connected` завершите wizard и добавьте агентов в inbox.
+
+### Переменные окружения
+
+- `TDLIB_LIB_PATH`: директория, в которой лежит `libtdjson`.
+- `TDLIB_ENCRYPTION_KEY`: ключ шифрования базы TDLib.
+- `TDLIB_SESSION_ENCRYPTION_KEY`: ключ для `encrypted_session_data`.
+- `TDLIB_SESSION_ENCRYPTION_SALT`: salt для `ActiveSupport::MessageEncryptor`.
+- `TDLIB_USE_TEST_DC`: использовать Telegram test DC вместо production.
+
+### Примечания
+
+- Для каждого `telegram_personal` inbox создается отдельная TDLib-сессия и отдельный persistent worker.
+- Сессия хранится в TDLib database directory и дублирует метаданные в `telegram_sessions.encrypted_session_data`.
+- Периодическая синхронизация запускается через `TelegramSyncWorker`.
+- При ошибках авторизации или rate limiting смотрите `last_error` у `TelegramSession` и канала inbox.
+
 ## Security
 
 Looking to report a vulnerability? Please refer our [SECURITY.md](./SECURITY.md) file.

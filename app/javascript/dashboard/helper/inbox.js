@@ -7,6 +7,7 @@ export const INBOX_TYPES = {
   API: 'Channel::Api',
   EMAIL: 'Channel::Email',
   TELEGRAM: 'Channel::Telegram',
+  TELEGRAM_PERSONAL: 'Channel::TelegramPersonal',
   VK: 'Channel::Vk',
   AVITO: 'Channel::Avito',
   LINE: 'Channel::Line',
@@ -29,6 +30,7 @@ const INBOX_ICON_MAP_FILL = {
   [INBOX_TYPES.API]: 'i-ri-cloudy-fill',
   [INBOX_TYPES.EMAIL]: 'i-ri-mail-fill',
   [INBOX_TYPES.TELEGRAM]: 'i-ri-telegram-fill',
+  [INBOX_TYPES.TELEGRAM_PERSONAL]: 'i-ri-telegram-fill',
   [INBOX_TYPES.VK]: 'i-woot-vk',
   [INBOX_TYPES.AVITO]: 'i-woot-avito',
   [INBOX_TYPES.LINE]: 'i-ri-line-fill',
@@ -47,6 +49,7 @@ const INBOX_ICON_MAP_LINE = {
   [INBOX_TYPES.API]: 'i-woot-api',
   [INBOX_TYPES.EMAIL]: 'i-woot-mail',
   [INBOX_TYPES.TELEGRAM]: 'i-woot-telegram',
+  [INBOX_TYPES.TELEGRAM_PERSONAL]: 'i-woot-telegram',
   [INBOX_TYPES.VK]: 'i-woot-vk',
   [INBOX_TYPES.AVITO]: 'i-woot-avito',
   [INBOX_TYPES.LINE]: 'i-woot-line',
@@ -65,6 +68,7 @@ export const getInboxSource = (type, phoneNumber, inbox) => {
     case INBOX_TYPES.TWILIO:
     case INBOX_TYPES.WHATSAPP:
     case INBOX_TYPES.VOICE:
+    case INBOX_TYPES.TELEGRAM_PERSONAL:
       return phoneNumber || '';
 
     case INBOX_TYPES.EMAIL:
@@ -98,6 +102,9 @@ export const getReadableInboxByType = (type, phoneNumber) => {
       return 'email';
 
     case INBOX_TYPES.TELEGRAM:
+      return 'telegram';
+
+    case INBOX_TYPES.TELEGRAM_PERSONAL:
       return 'telegram';
 
     case INBOX_TYPES.VK:
@@ -143,6 +150,9 @@ export const getInboxClassByType = (type, phoneNumber) => {
       return 'mail';
 
     case INBOX_TYPES.TELEGRAM:
+      return 'brand-telegram';
+
+    case INBOX_TYPES.TELEGRAM_PERSONAL:
       return 'brand-telegram';
 
     case INBOX_TYPES.VK:

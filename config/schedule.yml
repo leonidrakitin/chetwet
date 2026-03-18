@@ -76,3 +76,9 @@ close_stale_activity_logs:
   cron: "*/30 * * * *"
   class: "CloseStaleActivityLogsJob"
   queue: low
+
+# executed every 5 minutes to resync TDLib personal Telegram inboxes
+telegram_personal_sync_worker:
+  cron: '*/5 * * * *'
+  class: 'TelegramSyncWorker'
+  queue: scheduled_jobs

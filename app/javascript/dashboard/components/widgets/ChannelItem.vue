@@ -56,6 +56,10 @@ const isActive = computed(() => {
     return props.enabledFeatures.channel_voice;
   }
 
+  if (key === 'telegram_personal') {
+    return props.enabledFeatures.channel_telegram_personal ?? true;
+  }
+
   return [
     'website',
     'twilio',
@@ -63,6 +67,7 @@ const isActive = computed(() => {
     'whatsapp',
     'sms',
     'telegram',
+    'telegram_personal',
     'vk',
     'avito',
     'line',

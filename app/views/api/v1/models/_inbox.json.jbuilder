@@ -123,6 +123,14 @@ json.provider resource.channel.try(:provider)
 ## Telegram Attributes
 json.bot_name resource.channel.try(:bot_name) if resource.telegram?
 
+if resource.telegram_personal?
+  json.phone_number resource.channel.try(:phone_number)
+  json.connection_status resource.channel.try(:connection_status)
+  json.telegram_username resource.channel.try(:telegram_username)
+  json.telegram_user_id resource.channel.try(:telegram_user_id)
+  json.last_error resource.channel.try(:last_error)
+end
+
 ### WhatsApp Channel
 if resource.whatsapp?
   json.message_templates resource.channel.try(:message_templates)

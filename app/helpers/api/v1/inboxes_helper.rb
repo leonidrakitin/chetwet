@@ -1,6 +1,7 @@
 module Api::V1::InboxesHelper
   def inbox_name(channel)
     return channel.try(:bot_name) if channel.is_a?(Channel::Telegram)
+    return channel.try(:display_name) if channel.is_a?(Channel::TelegramPersonal)
     return channel.try(:group_name) if channel.is_a?(Channel::Vk)
 
     permitted_params[:name]
@@ -103,6 +104,7 @@ module Api::V1::InboxesHelper
       'email' => Current.account.email_channels,
       'line' => Current.account.line_channels,
       'telegram' => Current.account.telegram_channels,
+      'telegram_personal' => Current.account.telegram_personal_channels,
       'vk' => Current.account.vk_channels,
       'avito' => Current.account.avito_channels,
       'whatsapp' => Current.account.whatsapp_channels,

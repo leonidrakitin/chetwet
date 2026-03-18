@@ -72,6 +72,7 @@ class Inbox < ApplicationRecord
   has_one :assignment_policy, through: :inbox_assignment_policy
   has_one :agent_bot_inbox, dependent: :destroy_async
   has_one :agent_bot, through: :agent_bot_inbox
+  has_one :telegram_session, dependent: :destroy_async
   has_many :webhooks, dependent: :destroy_async
   has_many :hooks, dependent: :destroy_async, class_name: 'Integrations::Hook'
 
@@ -152,6 +153,10 @@ class Inbox < ApplicationRecord
 
   def telegram?
     channel_type == 'Channel::Telegram'
+  end
+
+  def telegram_personal?
+    channel_type == 'Channel::TelegramPersonal'
   end
 
   def avito?

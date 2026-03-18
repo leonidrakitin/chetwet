@@ -14,6 +14,7 @@ import Avito from './channels/Avito.vue';
 import Instagram from './channels/Instagram.vue';
 import Tiktok from './channels/Tiktok.vue';
 import Voice from './channels/Voice.vue';
+import TelegramAuthWizard from 'dashboard/components/TelegramAuthWizard.vue';
 
 const channelViewList = {
   facebook: Facebook,
@@ -25,6 +26,7 @@ const channelViewList = {
   whatsapp: Whatsapp,
   line: Line,
   telegram: Telegram,
+  telegram_personal: TelegramAuthWizard,
   vk: Vk,
   avito: Avito,
   instagram: Instagram,

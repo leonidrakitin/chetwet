@@ -236,3 +236,6 @@
 - name: advanced_assignment
   display_name: Advanced Assignment
   enabled: true
+- name: channel_telegram_personal
+  display_name: Telegram Personal Channel
+  enabled: true

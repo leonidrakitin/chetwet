@@ -451,6 +451,49 @@
           "ERROR_MESSAGE": "We were not able to save the telegram channel"
         }
       },
+      "TELEGRAM_PERSONAL": {
+        "TITLE": "Telegram Personal Inbox",
+        "DESC": "Connect a personal Telegram account through TDLib and use it as a Chatwoot inbox.",
+        "CONNECTION_STATUS": "Connection status",
+        "INBOX_NAME": {
+          "LABEL": "Inbox Name",
+          "PLACEHOLDER": "Personal Telegram"
+        },
+        "PHONE_NUMBER": {
+          "LABEL": "Phone Number",
+          "PLACEHOLDER": "+1234567890"
+        },
+        "API_ID": {
+          "LABEL": "API ID",
+          "PLACEHOLDER": "Enter API ID from my.telegram.org"
+        },
+        "API_HASH": {
+          "LABEL": "API Hash",
+          "PLACEHOLDER": "Enter API Hash from my.telegram.org"
+        },
+        "AUTH_CODE": {
+          "LABEL": "Authentication Code",
+          "PLACEHOLDER": "Enter the code from Telegram"
+        },
+        "PASSWORD": {
+          "LABEL": "2FA Password",
+          "PLACEHOLDER": "Enter your Telegram 2FA password"
+        },
+        "SUBMIT_PHONE_BUTTON": "Send code",
+        "SUBMIT_CODE_BUTTON": "Verify code",
+        "SUBMIT_PASSWORD_BUTTON": "Verify password",
+        "RECONNECT_BUTTON": "Reconnect",
+        "READY_MESSAGE": "The Telegram personal inbox is authenticated and ready. Continue to assign agents.",
+        "CONTINUE_BUTTON": "Continue",
+        "STATUS": {
+          "AUTHENTICATING": "Waiting for Telegram authentication",
+          "ACTIVE": "Connected",
+          "DISCONNECTED": "Disconnected"
+        },
+        "API": {
+          "ERROR_MESSAGE": "We were not able to connect your personal Telegram account"
+        }
+      },
       "AVITO_CHANNEL": {
         "TITLE": "Avito Channel",
         "DESC": "Integrate with Avito Messenger to support your customers directly from classifieds conversations.",
@@ -529,6 +572,10 @@
           "TELEGRAM": {
             "TITLE": "Telegram",
             "DESCRIPTION": "Configure Telegram channel using Bot token"
+          },
+          "TELEGRAM_PERSONAL": {
+            "TITLE": "Telegram Personal",
+            "DESCRIPTION": "Connect a personal Telegram account through TDLib"
           },
           "VK": {
             "TITLE": "VK",
@@ -1184,6 +1231,7 @@
       "SMS": "SMS",
       "EMAIL": "Email",
       "TELEGRAM": "Telegram",
+      "TELEGRAM_PERSONAL": "Telegram Personal",
       "VK": "VK",
       "AVITO": "Avito",
       "LINE": "Line",
