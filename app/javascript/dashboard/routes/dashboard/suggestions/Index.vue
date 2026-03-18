@@ -100,7 +100,7 @@ onMounted(() => {
         <div class="flex gap-3">
           <select
             v-model="statusFilter"
-            class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            class="flex-1 rounded-xl border border-slate-200 bg-white py-2 pl-4 pr-8 text-sm text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
           >
             <option value="">
               {{ t('SUGGESTIONS.FILTER_ALL') }}
@@ -117,7 +117,7 @@ onMounted(() => {
           </select>
           <select
             v-model="sortBy"
-            class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            class="flex-1 rounded-xl border border-slate-200 bg-white py-2 pl-4 pr-8 text-sm text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
           >
             <option value="votes">
               {{ t('SUGGESTIONS.SORT_VOTES') }}
