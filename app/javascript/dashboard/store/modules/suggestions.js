@@ -93,7 +93,7 @@ export const mutations = {
   },
   [types.ADD_SUGGESTION]: MutationHelpers.create,
   [types.SET_SUGGESTIONS]: MutationHelpers.set,
-  [types.EDIT_SUGGESTION]: MutationHelpers.update,
+  [types.EDIT_SUGGESTION]: MutationHelpers.updateAttributes,
   [types.DELETE_SUGGESTION]: MutationHelpers.destroy,
 };
 
