@@ -84,7 +84,7 @@ const formatDate = dateStr => {
     </div>
 
     <!-- Content -->
-    <div class="flex-1 min-w-0">
+    <div class="flex-1 min-w-0 overflow-hidden">
       <div class="flex items-start justify-between gap-2 mb-1">
         <h3
           class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate"
@@ -110,9 +110,9 @@ const formatDate = dateStr => {
         </div>
       </div>
 
-      <div v-if="suggestion.description" class="mb-2">
+      <div v-if="suggestion.description" class="mb-2 overflow-hidden">
         <p
-          class="text-sm text-slate-600 dark:text-slate-400"
+          class="text-sm text-slate-600 dark:text-slate-400 break-words"
           :class="{ 'line-clamp-2': !expanded }"
         >
           {{ suggestion.description }}

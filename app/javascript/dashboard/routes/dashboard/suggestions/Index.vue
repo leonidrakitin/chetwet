@@ -77,7 +77,7 @@ onMounted(() => {
 
 <template>
   <div class="flex flex-col h-full overflow-auto p-6">
-    <div class="w-full max-w-3xl mx-auto flex flex-col">
+    <div class="w-full flex flex-col">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
           {{ t('SUGGESTIONS.TITLE') }}
