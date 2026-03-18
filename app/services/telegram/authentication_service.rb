@@ -1,5 +1,11 @@
 class Telegram::AuthenticationService
-  AUTH_FLOW_STATES = %i[wait_tdlib_parameters wait_phone_number wait_code wait_password ready].freeze
+  AUTH_FLOW_STATES = %i[
+    wait_encryption_key
+    wait_phone_number
+    wait_code
+    wait_password
+    ready
+  ].freeze
 
   pattr_initialize [:telegram_session!]
 
@@ -8,6 +14,11 @@ class Telegram::AuthenticationService
   def start_authentication!
     with_client do |client|
       state = client.wait_for_state(*AUTH_FLOW_STATES)
+      if state == :wait_encryption_key
+        # TDLib cannot decrypt local database and asks us to provide database encryption key.
+        client.set_database_encryption_key(Telegram::TdlibConfig.tdlib_database_key(telegram_session))
+        state = client.wait_for_state(:wait_phone_number, :wait_code, :wait_password, :ready)
+      end
       client.set_phone_number(telegram_session.phone_number) if state == :wait_phone_number
       update_session_state!(client.wait_for_state(:wait_code, :wait_password, :ready))
       sync_profile!(client) if telegram_session.active?

@@ -59,7 +59,9 @@ module Telegram
         api_hash: session.api_hash.to_s,
         database_directory: database_directory(session).to_s,
         files_directory: files_directory(session).to_s,
-        encryption_key: tdlib_database_key(session)
+        # TDLib expects `database_encryption_key` (not `encryption_key`).
+        # Passing the wrong keyword breaks tdlib-ruby during auth initialization.
+        database_encryption_key: tdlib_database_key(session)
       }
     end
 
@@ -79,6 +81,7 @@ module Telegram
     AUTH_STATES = {
       'authorizationStateWaitTdlibParameters' => :wait_tdlib_parameters,
       'authorizationStateWaitPhoneNumber' => :wait_phone_number,
+      'authorizationStateWaitEncryptionKey' => :wait_encryption_key,
       'authorizationStateWaitCode' => :wait_code,
       'authorizationStateWaitPassword' => :wait_password,
       'authorizationStateReady' => :ready,
@@ -106,11 +109,26 @@ module Telegram
     end
 
     def normalized_authorization_state(payload = authorization_state)
-      AUTH_STATES[dig_type(payload, 'authorization_state')] || :unknown
+      # tdlib-ruby иногда возвращает состояние напрямую (`{ '@type' => ... }`),
+      # а иногда обёрткой (`{ 'authorization_state' => { '@type' => ... } }`).
+      # Нормализуем оба формата, чтобы wait_for_state не упирался в :unknown.
+      type =
+        if payload.is_a?(Hash) && payload.key?('@type')
+          payload['@type']
+        else
+          dig_type(payload, 'authorization_state')
+        end
+
+      AUTH_STATES[type] || :unknown
     end
 
     def set_phone_number(phone_number)
       request('setAuthenticationPhoneNumber', phone_number: phone_number, settings: nil)
+    end
+
+    def set_database_encryption_key(new_encryption_key)
+      # TDLib asks for database encryption key when it cannot decrypt an existing local DB.
+      request('setDatabaseEncryptionKey', new_encryption_key: new_encryption_key)
     end
 
     def check_code(code)
