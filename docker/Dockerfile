@@ -58,6 +58,11 @@ WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
 
+# tdlib-ruby is added as a path gem (vendored under vendor/gems/tdlib-ruby).
+# Docker pre-builder stage runs `bundle install` before copying the full repo,
+# so we must copy the vendored gem directory here.
+COPY vendor/gems/tdlib-ruby /app/vendor/gems/tdlib-ruby
+
 # natively compile grpc and protobuf to support alpine musl (dialogflow-docker workflow)
 # https://github.com/googleapis/google-cloud-ruby/issues/13306
 # adding xz as nokogiri was failing to build libxml
