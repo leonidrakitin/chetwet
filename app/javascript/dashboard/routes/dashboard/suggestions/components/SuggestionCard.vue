@@ -48,7 +48,7 @@ const formatDate = dateStr => {
         "
         @click="emit('vote', suggestion.id, 'upvote')"
       >
-        <span class="i-lucide-thumbs-up text-base" />
+        <i class="i-lucide-thumbs-up w-4 h-4" />
       </button>
       <span
         class="text-sm font-semibold"
@@ -71,7 +71,7 @@ const formatDate = dateStr => {
         "
         @click="emit('vote', suggestion.id, 'downvote')"
       >
-        <span class="i-lucide-thumbs-down text-base" />
+        <i class="i-lucide-thumbs-down w-4 h-4" />
       </button>
     </div>
 
