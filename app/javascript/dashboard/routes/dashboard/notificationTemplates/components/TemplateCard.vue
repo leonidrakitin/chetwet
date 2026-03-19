@@ -1,8 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import Button from 'dashboard/components-next/button/Button.vue';
-import CardLayout from 'dashboard/components-next/CardLayout.vue';
 import { getChainLabel } from '../helpers/chainLabel';
 
 const props = defineProps({
@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['edit', 'delete', 'preview']);
+const emit = defineEmits(['edit', 'delete', 'clone', 'preview']);
 
 const EXAMPLE_VALUES = {
   client_name: 'Иван Иванов',
@@ -35,10 +35,35 @@ const getAttachmentIcon = type => {
 };
 
 const { t } = useI18n();
+const menuOpen = ref(false);
 
-const handlePreview = () => emit('preview', props.template);
-const handleEdit = () => emit('edit', props.template);
-const handleDelete = () => emit('delete', props.template);
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value;
+};
+
+const closeMenu = () => {
+  menuOpen.value = false;
+};
+
+const handlePreview = () => {
+  closeMenu();
+  emit('preview', props.template);
+};
+
+const handleEdit = () => {
+  closeMenu();
+  emit('edit', props.template);
+};
+
+const handleClone = () => {
+  closeMenu();
+  emit('clone', props.template.id);
+};
+
+const handleDelete = () => {
+  closeMenu();
+  emit('delete', props.template);
+};
 
 const processedMessages = computed(() => {
   let rawTexts;
@@ -64,9 +89,6 @@ const processedMessages = computed(() => {
     .filter(Boolean);
 });
 
-const firstMessage = computed(() => processedMessages.value[0] ?? '');
-const extraMessageCount = computed(() => processedMessages.value.length - 1);
-
 const allAttachments = computed(() => {
   if (!props.template.messages?.length) return props.template.attachments ?? [];
   const first = props.template.messages[0];
@@ -83,124 +105,119 @@ const allButtons = computed(() => {
 
 const eventLabel = template => getChainLabel(template, t);
 
-// Show more
-const messageRef = ref(null);
-const isExpanded = ref(false);
-const hasOverflow = ref(false);
-
-onMounted(() => {
-  if (messageRef.value) {
-    hasOverflow.value =
-      messageRef.value.scrollHeight > messageRef.value.clientHeight;
-  }
+const borderColorClass = computed(() => {
+  const colors = {
+    event: 'border-l-indigo-400',
+    time: 'border-l-amber-400',
+    interval: 'border-l-emerald-400',
+  };
+  return colors[props.template.type] ?? 'border-l-n-slate-8';
 });
 </script>
 
 <template>
-  <CardLayout layout="row">
-    <div
-      class="flex flex-col items-start flex-1 min-w-0 gap-2 cursor-pointer"
-      @click="handleEdit"
-    >
-      <!-- Row 1: name + status badge -->
-      <div class="flex items-center gap-2 w-full">
+  <div
+    class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-weak border-l-[3px] bg-n-solid-1 hover:border-n-strong hover:shadow-md transition-all duration-200 cursor-pointer"
+    :class="[borderColorClass, { 'opacity-60': !template.enabled }]"
+    @click="handleEdit"
+  >
+    <!-- Top row: name + status dot | menu -->
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
         <span
-          class="text-base font-medium text-n-slate-12 line-clamp-1 flex-1"
-          :class="{ 'opacity-60': !template.enabled }"
-        >
+          class="size-2 rounded-full flex-shrink-0"
+          :class="template.enabled ? 'bg-n-teal-9' : 'bg-n-slate-8'"
+        />
+        <h3 class="text-sm font-semibold text-n-slate-12 leading-snug truncate">
           {{ template.name }}
-        </span>
-        <span
-          class="text-xs font-medium inline-flex items-center h-6 px-2 py-0.5 rounded-md bg-n-alpha-2 flex-shrink-0"
-          :class="template.enabled ? 'text-n-teal-11' : 'text-n-slate-12'"
-        >
-          {{
-            template.enabled
-              ? t('NOTIFICATION_TEMPLATES.CARD.ENABLED')
-              : t('NOTIFICATION_TEMPLATES.CARD.DISABLED')
-          }}
-        </span>
+        </h3>
       </div>
-
-      <!-- Row 2: message preview with show more -->
-      <div v-if="firstMessage" class="w-full">
-        <div
-          ref="messageRef"
-          class="text-sm text-n-slate-11 [&>p]:mb-0"
-          :class="isExpanded ? '' : 'line-clamp-2'"
-        >
-          {{ firstMessage
-          }}<span
-            v-if="extraMessageCount > 0 && !isExpanded"
-            class="text-n-slate-9"
-          >
-            {{ ` +${extraMessageCount}` }}
-          </span>
-        </div>
-        <button
-          v-if="hasOverflow || isExpanded"
-          class="text-xs text-n-blue-11 hover:underline mt-0.5"
-          @click.stop="isExpanded = !isExpanded"
-        >
-          {{
-            isExpanded
-              ? t('NOTIFICATION_TEMPLATES.CARD.SHOW_LESS')
-              : t('NOTIFICATION_TEMPLATES.CARD.SHOW_MORE')
-          }}
-        </button>
-      </div>
-
-      <!-- Row 3: event badge + attachments + buttons indicators -->
-      <div class="flex items-center gap-2 w-full h-6 overflow-hidden">
-        <span
-          class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-n-alpha-2 text-n-slate-11 truncate max-w-xs"
-        >
-          {{ eventLabel(template) }}
-        </span>
-        <div
-          v-if="allAttachments.length"
-          class="flex items-center gap-1 flex-shrink-0"
-        >
-          <span
-            v-for="att in allAttachments"
-            :key="att.id"
-            :class="getAttachmentIcon(att.type)"
-            class="size-3.5 text-n-slate-9"
+      <OnClickOutside @trigger="closeMenu">
+        <div class="relative flex-shrink-0">
+          <Button
+            variant="ghost"
+            color="slate"
+            size="xs"
+            icon="i-lucide-ellipsis"
+            @click.stop="toggleMenu"
           />
+          <div
+            v-if="menuOpen"
+            class="absolute right-0 top-8 z-50 min-w-36 rounded-lg border border-n-weak bg-n-solid-1 shadow-lg py-1"
+          >
+            <button
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+              @click.stop="handlePreview"
+            >
+              <span class="i-lucide-eye size-4 text-n-slate-10" />
+              {{ t('NOTIFICATION_TEMPLATES.PREVIEW.BUTTON_TEXT') }}
+            </button>
+            <button
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+              @click.stop="handleEdit"
+            >
+              <span class="i-lucide-pencil size-4 text-n-slate-10" />
+              {{ t('NOTIFICATION_TEMPLATES.EDIT.BUTTON_TEXT') }}
+            </button>
+            <button
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+              @click.stop="handleClone"
+            >
+              <span class="i-lucide-copy size-4 text-n-slate-10" />
+              {{ t('NOTIFICATION_TEMPLATES.CLONE.BUTTON_TEXT') }}
+            </button>
+            <button
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-ruby-11 hover:bg-n-alpha-1 transition-colors"
+              @click.stop="handleDelete"
+            >
+              <span class="i-lucide-trash-2 size-4" />
+              {{ t('NOTIFICATION_TEMPLATES.DELETE.BUTTON_TEXT') }}
+            </button>
+          </div>
         </div>
-        <div
-          v-if="allButtons.length"
-          class="flex items-center gap-1 flex-shrink-0"
+      </OnClickOutside>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <!-- Inline message bubbles preview -->
+      <div
+        v-for="(text, idx) in processedMessages"
+        :key="idx"
+        class="rounded-xl rounded-tr-sm bg-n-brand px-3 py-2 text-xs text-white max-w-full line-clamp-2 leading-relaxed whitespace-pre-wrap break-words"
+      >
+        {{ text }}
+      </div>
+
+      <!-- Attachments icons -->
+      <div v-if="allAttachments.length" class="flex flex-wrap gap-1 mt-1">
+        <span
+          v-for="att in allAttachments"
+          :key="att.id"
+          class="flex items-center gap-1 text-xs text-n-slate-10"
         >
-          <span class="i-lucide-mouse-pointer-click size-3.5 text-n-slate-9" />
-          <span class="text-xs text-n-slate-9">{{ allButtons.length }}</span>
-        </div>
+          <span class="size-3" :class="getAttachmentIcon(att.type)" />
+          <span class="max-w-20 truncate">{{ att.name }}</span>
+        </span>
+      </div>
+
+      <!-- Buttons compact view -->
+      <div v-if="allButtons.length" class="flex flex-wrap gap-1 mt-1">
+        <span
+          v-for="btn in allButtons"
+          :key="btn.id"
+          class="inline-flex items-center rounded-full border border-n-blue-9 px-2 py-0.5 text-xs text-n-blue-11"
+        >
+          {{ btn.label }}
+        </span>
       </div>
     </div>
 
-    <!-- Action buttons -->
-    <div class="flex items-center gap-2 flex-shrink-0">
-      <Button
-        variant="faded"
-        size="sm"
-        color="slate"
-        icon="i-lucide-eye"
-        @click.stop="handlePreview"
-      />
-      <Button
-        variant="faded"
-        size="sm"
-        color="slate"
-        icon="i-lucide-pencil"
-        @click.stop="handleEdit"
-      />
-      <Button
-        variant="faded"
-        size="sm"
-        color="ruby"
-        icon="i-lucide-trash"
-        @click.stop="handleDelete"
-      />
+    <div class="flex items-center">
+      <span
+        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-n-brand/10 text-n-blue-11"
+      >
+        {{ eventLabel(template) }}
+      </span>
     </div>
-  </CardLayout>
+  </div>
 </template>
