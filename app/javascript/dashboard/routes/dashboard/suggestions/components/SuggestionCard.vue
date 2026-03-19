@@ -1,6 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import CardLayout from 'dashboard/components-next/CardLayout.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   suggestion: {
@@ -14,24 +16,56 @@ const emit = defineEmits(['vote', 'delete']);
 const { t } = useI18n();
 
 const expanded = ref(false);
+const descRef = ref(null);
+const isClamped = ref(false);
 
-const statusClasses = {
-  pending:
-    'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  approved:
-    'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  rejected: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+const checkClamped = () => {
+  if (!descRef.value) return;
+  isClamped.value = descRef.value.scrollHeight > descRef.value.clientHeight + 1;
 };
 
-const statusLabel = {
+onMounted(async () => {
+  await nextTick();
+  checkClamped();
+});
+
+watch(
+  () => props.suggestion.description,
+  async () => {
+    expanded.value = false;
+    await nextTick();
+    checkClamped();
+  }
+);
+
+const toggleExpanded = () => {
+  expanded.value = !expanded.value;
+  if (!expanded.value) {
+    nextTick(checkClamped);
+  }
+};
+
+const statusClasses = {
+  pending: 'text-n-amber-11',
+  approved: 'text-n-teal-11',
+  rejected: 'text-n-ruby-11',
+};
+
+const statusLabel = computed(() => ({
   pending: t('SUGGESTIONS.STATUS_PENDING'),
   approved: t('SUGGESTIONS.STATUS_APPROVED'),
   rejected: t('SUGGESTIONS.STATUS_REJECTED'),
-};
+}));
 
 const score = computed(
   () => props.suggestion.upvotes_count - props.suggestion.downvotes_count
 );
+
+const scoreClass = computed(() => {
+  if (score.value > 0) return 'text-n-teal-11';
+  if (score.value < 0) return 'text-n-ruby-11';
+  return 'text-n-slate-11';
+});
 
 const formatDate = dateStr => {
   if (!dateStr) return '';
@@ -42,102 +76,81 @@ const formatDate = dateStr => {
 </script>
 
 <template>
-  <div
-    class="flex gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 w-full"
-  >
-    <!-- Vote buttons -->
-    <div class="flex flex-col items-center gap-1 shrink-0 w-12">
-      <button
-        class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-        :class="
-          suggestion.current_user_vote === 'upvote'
-            ? 'bg-green-100 text-green-600 dark:bg-green-900/40'
-            : 'text-slate-400 hover:bg-slate-100 hover:text-green-500 dark:hover:bg-slate-700'
-        "
+  <CardLayout layout="row">
+    <!-- Vote column -->
+    <div class="flex flex-col items-center gap-1 shrink-0 w-10">
+      <Button
+        variant="ghost"
+        size="xs"
+        icon="i-lucide-thumbs-up"
+        :color="suggestion.current_user_vote === 'upvote' ? 'success' : 'slate'"
         @click="emit('vote', suggestion.id, 'upvote')"
-      >
-        <i class="i-lucide-thumbs-up w-4 h-4" />
-      </button>
-      <span
-        class="text-sm font-semibold"
-        :class="
-          score > 0
-            ? 'text-green-600'
-            : score < 0
-              ? 'text-red-500'
-              : 'text-slate-400'
-        "
-      >
+      />
+      <span class="text-xs font-semibold" :class="scoreClass">
         {{ score }}
       </span>
-      <button
-        class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-        :class="
-          suggestion.current_user_vote === 'downvote'
-            ? 'bg-red-100 text-red-600 dark:bg-red-900/40'
-            : 'text-slate-400 hover:bg-slate-100 hover:text-red-500 dark:hover:bg-slate-700'
-        "
+      <Button
+        variant="ghost"
+        size="xs"
+        icon="i-lucide-thumbs-down"
+        :color="suggestion.current_user_vote === 'downvote' ? 'ruby' : 'slate'"
         @click="emit('vote', suggestion.id, 'downvote')"
-      >
-        <i class="i-lucide-thumbs-down w-4 h-4" />
-      </button>
+      />
     </div>
 
     <!-- Content -->
     <div class="flex-1 min-w-0 overflow-hidden">
       <div class="flex items-start justify-between gap-2 mb-1">
-        <h3
-          class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate"
-        >
+        <span class="text-sm font-medium text-n-slate-12 truncate">
           {{ suggestion.title }}
-        </h3>
+        </span>
         <div class="flex items-center gap-2 shrink-0">
           <span
             v-if="suggestion.status"
-            class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+            class="text-xs font-medium inline-flex items-center h-5 px-2 rounded-md bg-n-alpha-2"
             :class="statusClasses[suggestion.status]"
           >
             {{ statusLabel[suggestion.status] }}
           </span>
-          <button
-            type="button"
-            class="flex items-center justify-center rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-red-500 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-red-400"
+          <Button
+            variant="ghost"
+            color="ruby"
+            size="xs"
+            icon="i-lucide-trash-2"
             :aria-label="t('SUGGESTIONS.DELETE')"
             @click="emit('delete', suggestion.id)"
-          >
-            <i class="i-lucide-trash-2 size-4" />
-          </button>
+          />
         </div>
       </div>
 
-      <div v-if="suggestion.description" class="mb-2 overflow-hidden">
+      <div v-if="suggestion.description" class="mb-2">
         <p
-          class="text-sm text-slate-600 dark:text-slate-400 break-words"
+          ref="descRef"
+          class="text-sm text-n-slate-11 break-words"
           :class="{ 'line-clamp-2': !expanded }"
         >
           {{ suggestion.description }}
         </p>
         <button
+          v-if="isClamped || expanded"
           class="text-xs text-woot-500 hover:text-woot-600 mt-0.5"
-          @click="expanded = !expanded"
+          @click="toggleExpanded"
         >
           {{ expanded ? t('SUGGESTIONS.COLLAPSE') : t('SUGGESTIONS.EXPAND') }}
         </button>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-1.5 mb-2">
         <span
           v-for="tag in suggestion.tags || []"
           :key="tag"
-          class="rounded-full bg-woot-50 px-2.5 py-0.5 text-xs font-medium text-woot-600 dark:bg-woot-900/30 dark:text-woot-400"
+          class="rounded-full bg-n-alpha-2 px-2.5 py-0.5 text-xs font-medium text-n-slate-11"
         >
           {{ tag }}
         </span>
       </div>
 
-      <div
-        class="flex items-center gap-3 mt-2 text-xs text-slate-400 dark:text-slate-500"
-      >
+      <div class="flex items-center gap-3 text-xs text-n-slate-9">
         <span v-if="suggestion.user">{{ suggestion.user.name }}</span>
         <span v-if="formatDate(suggestion.created_at)">
           {{ formatDate(suggestion.created_at) }}
@@ -152,5 +165,5 @@ const formatDate = dateStr => {
         </span>
       </div>
     </div>
-  </div>
+  </CardLayout>
 </template>

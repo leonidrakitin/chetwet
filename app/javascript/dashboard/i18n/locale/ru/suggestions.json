@@ -1,0 +1,31 @@
+{
+  "SUGGESTIONS": {
+    "TITLE": "Предложения",
+    "ADD": "Новое предложение",
+    "SEARCH_PLACEHOLDER": "Поиск предложений...",
+    "FILTER_ALL": "Все статусы",
+    "SORT_VOTES": "По голосам",
+    "SORT_LATEST": "Новые",
+    "STATUS_PENDING": "На рассмотрении",
+    "STATUS_APPROVED": "Одобрено",
+    "STATUS_REJECTED": "Отклонено",
+    "LOADING": "Загрузка предложений...",
+    "EMPTY": "Предложений пока нет. Будьте первым!",
+    "VOTES_LABEL": "↑{up} ↓{down}",
+    "CREATE_TITLE": "Новое предложение",
+    "FIELD_TITLE": "Заголовок",
+    "FIELD_TITLE_PLACEHOLDER": "Краткое описание предложения",
+    "FIELD_DESCRIPTION": "Описание",
+    "FIELD_DESCRIPTION_PLACEHOLDER": "Опишите ваше предложение подробнее...",
+    "CANCEL": "Отмена",
+    "SUBMIT": "Отправить",
+    "CREATE_SUCCESS": "Предложение успешно создано",
+    "CREATE_ERROR": "Не удалось создать предложение",
+    "VOTE_ERROR": "Не удалось проголосовать",
+    "DELETE_SUCCESS": "Предложение удалено",
+    "DELETE_ERROR": "Не удалось удалить предложение",
+    "DELETE": "Удалить",
+    "EXPAND": "Показать больше",
+    "COLLAPSE": "Свернуть"
+  }
+}

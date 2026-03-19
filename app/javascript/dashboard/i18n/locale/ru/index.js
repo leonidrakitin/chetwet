@@ -42,6 +42,7 @@ import snooze from './snooze.json';
 import teamsSettings from './teamsSettings.json';
 import whatsappTemplates from './whatsappTemplates.json';
 import yearInReview from './yearInReview.json';
+import suggestions from './suggestions.json';
 
 export default {
   ...advancedFilters,
@@ -88,4 +89,5 @@ export default {
   ...teamsSettings,
   ...whatsappTemplates,
   ...yearInReview,
+  ...suggestions,
 };
