@@ -12,7 +12,24 @@
       </span>
     </div>
 
-    <p class="text-gray-700 mb-4 whitespace-pre-wrap"><%= @suggestion.description %></p>
+    <div class="text-gray-700 mb-4 prose max-w-none">
+      <%= sanitize(
+            @suggestion.description.to_s,
+            tags: Suggestion::DESCRIPTION_HTML_TAGS,
+            attributes: %w[href rel target]
+          ) %>
+    </div>
+
+    <% if @suggestion.images.attached? %>
+      <div class="mb-4">
+        <h3 class="text-sm font-medium text-gray-700 mb-2">Photos</h3>
+        <div class="flex flex-wrap gap-2">
+          <% @suggestion.images.each do |image| %>
+            <%= image_tag image.variant(resize_to_limit: [400, 400]), class: 'w-24 h-24 object-cover rounded border border-gray-200' %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
 
     <div class="flex gap-4 text-sm text-gray-500 mb-4">
       <span>Account: <strong><%= @suggestion.account.name %></strong></span>

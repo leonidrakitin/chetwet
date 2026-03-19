@@ -6,7 +6,7 @@ class SuperAdmin::SuggestionsController < SuperAdmin::ApplicationController
   end
 
   def show
-    @suggestion = Suggestion.find(params[:id])
+    @suggestion = Suggestion.includes(images_attachments: :blob).find(params[:id])
   end
 
   def destroy

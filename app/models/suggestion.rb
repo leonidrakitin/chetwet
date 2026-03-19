@@ -1,14 +1,37 @@
 class Suggestion < ApplicationRecord
+  MAX_IMAGES = 10
+  ALLOWED_IMAGE_TYPES = %w[image/jpeg image/png image/gif image/webp image/heic image/heif].freeze
+
   belongs_to :account
   belongs_to :user
   has_many :suggestion_votes, dependent: :destroy
+  has_many_attached :images
+
+  DESCRIPTION_HTML_TAGS = %w[p br strong b i em u ul ol li a h1 h2 h3 h4 blockquote code pre].freeze
+  DESCRIPTION_HTML_ATTRIBUTES = %w[href rel target].freeze
 
   validates :title, presence: true
   validates :status, inclusion: { in: %w[pending approved rejected] }
+  validate :validate_images
+
+  before_validation :sanitize_description_html
+  before_validation :sync_description_plain
 
   scope :ordered_by_votes, -> { order(upvotes_count: :desc, created_at: :desc) }
   scope :by_status, ->(status) { where(status: status) if status.present? }
-  scope :search_by, ->(query) { where('title ILIKE :q OR description ILIKE :q', q: "%#{query}%") if query.present? }
+  scope :for_user, ->(user_id) { user_id.present? ? where(user_id: user_id) : all }
+  scope :search_by, lambda { |query|
+    if query.blank?
+      all
+    else
+      escaped = ActiveRecord::Base.sanitize_sql_like(query)
+      q = "%#{escaped}%"
+      where(
+        'title ILIKE :q OR COALESCE(description_plain, \'\') ILIKE :q',
+        q: q
+      )
+    end
+  }
 
   def vote_by(user, vote_type)
     existing_vote = suggestion_votes.find_by(user: user)
@@ -40,6 +63,37 @@ class Suggestion < ApplicationRecord
   end
 
   private
+
+  def validate_images
+    return unless images.attached?
+
+    if images.attachments.size > MAX_IMAGES
+      errors.add(:images, :too_many, count: MAX_IMAGES)
+      return
+    end
+
+    invalid_type = images.attachments.any? do |att|
+      ct = att.blob&.content_type
+      ct.blank? || ALLOWED_IMAGE_TYPES.exclude?(ct)
+    end
+
+    errors.add(:images, :invalid_type) if invalid_type
+  end
+
+  def sanitize_description_html
+    return if description.blank?
+
+    self.description = Rails::HTML5::SafeListSanitizer.new.sanitize(
+      description,
+      tags: DESCRIPTION_HTML_TAGS,
+      attributes: DESCRIPTION_HTML_ATTRIBUTES
+    )
+  end
+
+  def sync_description_plain
+    self.description_plain =
+      description.present? ? ActionController::Base.helpers.strip_tags(description).squish.presence : nil
+  end
 
   def recalculate_votes!
     update_columns(
