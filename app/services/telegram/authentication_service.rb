@@ -79,7 +79,7 @@ class Telegram::AuthenticationService
 
   def sync_profile!(client)
     me = client.get_me
-    username = me['usernames'].to_a.first&.dig('username') || me['username']
+    username = me.dig('usernames', 'active_usernames')&.first || me['username']
 
     telegram_session.update!(
       status: :active,
