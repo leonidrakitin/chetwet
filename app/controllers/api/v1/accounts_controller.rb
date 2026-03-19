@@ -47,7 +47,7 @@ class Api::V1::AccountsController < Api::BaseController
     @account.assign_attributes(account_params.slice(:name, :locale, :domain, :support_email))
     @account.custom_attributes.merge!(custom_attributes_params)
     @account.settings.merge!(settings_params)
-    @account.custom_attributes['onboarding_step'] = 'invite_team' if @account.custom_attributes['onboarding_step'] == 'account_update'
+    # Auto-advance onboarding step is now handled by the frontend wizard
     @account.save!
   end
 
@@ -88,7 +88,7 @@ class Api::V1::AccountsController < Api::BaseController
   end
 
   def custom_attributes_params
-    params.permit(:industry, :company_size, :timezone)
+    params.permit(:industry, :company_size, :timezone, :onboarding_step)
   end
 
   def settings_params

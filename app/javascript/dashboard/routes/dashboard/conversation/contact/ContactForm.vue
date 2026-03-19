@@ -54,19 +54,14 @@ export default {
       },
       city: '',
       socialProfileUserNames: {
-        facebook: '',
-        twitter: '',
-        linkedin: '',
-        github: '',
+        instagram: '',
         telegram: '',
+        vk: '',
       },
       socialProfileKeys: [
-        { key: 'facebook', prefixURL: 'https://facebook.com/' },
-        { key: 'twitter', prefixURL: 'https://twitter.com/' },
-        { key: 'linkedin', prefixURL: 'https://linkedin.com/' },
-        { key: 'github', prefixURL: 'https://github.com/' },
+        { key: 'instagram', prefixURL: 'https://instagram.com/' },
         { key: 'telegram', prefixURL: 'https://t.me/' },
-        { key: 'tiktok', prefixURL: 'https://tiktok.com/@' },
+        { key: 'vk', prefixURL: 'https://vk.com/' },
       ],
     };
   },
@@ -176,17 +171,12 @@ export default {
       this.avatarUrl = this.contact.thumbnail || '';
       const {
         social_profiles: socialProfiles = {},
-        screen_name: twitterScreenName,
         social_telegram_user_name: telegramUserName,
       } = additionalAttributes;
       this.socialProfileUserNames = {
-        twitter: socialProfiles.twitter || twitterScreenName || '',
-        facebook: socialProfiles.facebook || '',
-        linkedin: socialProfiles.linkedin || '',
-        github: socialProfiles.github || '',
-        telegram: socialProfiles.telegram || telegramUserName || '',
         instagram: socialProfiles.instagram || '',
-        tiktok: socialProfiles.tiktok || '',
+        telegram: socialProfiles.telegram || telegramUserName || '',
+        vk: socialProfiles.vk || '',
       };
     },
     getContactObject() {

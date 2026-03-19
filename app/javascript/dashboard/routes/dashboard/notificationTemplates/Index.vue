@@ -1,20 +1,22 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Draggable from 'vuedraggable';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Input from 'dashboard/components-next/input/Input.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import TemplateCard from './components/TemplateCard.vue';
-import TemplateModal from './components/TemplateModal.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 import FlowMap from './components/FlowMap.vue';
-import TemplateCategorySection from './components/TemplateCategorySection.vue';
-import { BUILTIN_CATEGORIES } from './constants/builtinCategories.js';
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const store = useStore();
 
 const tabs = computed(() => [
@@ -36,22 +38,13 @@ const onTabChanged = tab => {
 const allTemplates = computed(
   () => store.getters['notificationTemplates/getTemplates']
 );
-const notificationTemplateMeta = computed(
-  () => store.getters['notificationTemplates/getMeta']
-);
 const inboxes = computed(() => store.getters['inboxes/getInboxes']);
 const accountLabels = computed(() => store.getters['labels/getLabels']);
 
 const searchQuery = ref('');
-const searchExpanded = ref(false);
-const viewMode = ref('categories'); // 'categories' | 'grid' | 'flow'
+const viewMode = ref('grid'); // 'grid' | 'flow'
 
 const viewModes = computed(() => [
-  {
-    key: 'categories',
-    icon: 'i-lucide-layers',
-    label: t('NOTIFICATION_TEMPLATES.VIEW.CATEGORIES'),
-  },
   {
     key: 'grid',
     icon: 'i-lucide-layout-grid',
@@ -84,42 +77,28 @@ const filteredTemplates = computed(() => {
 
 const isStatisticsTab = computed(() => activeTab.value.key === 'statistics');
 
-const templateModalRef = ref(null);
 const deleteDialogRef = ref(null);
 const previewDialogRef = ref(null);
-const editingTemplate = ref(null);
 const deletingTemplate = ref(null);
 const previewingTemplate = ref(null);
 
 const closeAllDialogs = () => {
-  templateModalRef.value?.close();
   deleteDialogRef.value?.close();
   previewDialogRef.value?.close();
 };
 
 const openNewTemplate = () => {
-  closeAllDialogs();
-  editingTemplate.value = null;
-  templateModalRef.value?.open();
+  router.push({
+    name: 'notification_templates_new',
+    params: { accountId: route.params.accountId },
+  });
 };
 
 const handleEdit = template => {
-  closeAllDialogs();
-  editingTemplate.value = { ...template };
-  templateModalRef.value?.open();
-};
-
-const handleSave = async formData => {
-  try {
-    if (formData.id) {
-      await store.dispatch('notificationTemplates/update', formData);
-    } else {
-      await store.dispatch('notificationTemplates/create', formData);
-    }
-    useAlert(t('NOTIFICATION_TEMPLATES.SAVE.SUCCESS'));
-  } catch {
-    useAlert(t('NOTIFICATION_TEMPLATES.SAVE.ERROR'));
-  }
+  router.push({
+    name: 'notification_templates_edit',
+    params: { accountId: route.params.accountId, templateId: template.id },
+  });
 };
 
 const handleClone = async id => {
@@ -167,48 +146,6 @@ const orderedTemplates = computed({
   },
 });
 
-// Categories view
-const categorizedTemplates = computed(() => {
-  return BUILTIN_CATEGORIES.map(cat => {
-    if (cat.key === 'yours') {
-      return {
-        ...cat,
-        templates: filteredTemplates.value.map(tmpl => ({
-          ...tmpl,
-          icon: 'i-lucide-file-text',
-        })),
-      };
-    }
-    return {
-      ...cat,
-      templates: cat.templates.map(bt => ({
-        ...bt,
-        name: t(
-          `NOTIFICATION_TEMPLATES.CATEGORIES.${cat.key.toUpperCase()}.${bt.builtinKey}.NAME`
-        ),
-        description: t(
-          `NOTIFICATION_TEMPLATES.CATEGORIES.${cat.key.toUpperCase()}.${bt.builtinKey}.DESCRIPTION`
-        ),
-        enabled: true,
-        builtin: true,
-      })),
-    };
-  });
-});
-
-const handleToggle = async template => {
-  if (template.builtin) return;
-  try {
-    await store.dispatch('notificationTemplates/update', {
-      ...template,
-      enabled: !template.enabled,
-    });
-    useAlert(t('NOTIFICATION_TEMPLATES.TOGGLE.SUCCESS'));
-  } catch {
-    useAlert(t('NOTIFICATION_TEMPLATES.TOGGLE.ERROR'));
-  }
-};
-
 onMounted(() => {
   store.dispatch('notificationTemplates/get');
   if (!inboxes.value.length) {
@@ -221,7 +158,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full w-full min-w-0 overflow-hidden">
+  <div
+    class="flex flex-col h-full w-full min-w-0 overflow-hidden bg-n-surface-1"
+  >
     <!-- Header -->
     <div
       class="flex flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6 md:py-5 border-b border-n-weak flex-shrink-0"
@@ -242,79 +181,44 @@ onMounted(() => {
 
       <!-- Controls row -->
       <div class="flex items-center gap-2 flex-shrink-0">
-        <!-- Mobile search expanded -->
-        <div
-          v-if="searchExpanded"
-          class="flex items-center gap-2 flex-1 md:hidden"
+        <Input
+          :model-value="searchQuery"
+          type="search"
+          :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
+          :custom-input-class="[
+            'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
+          ]"
+          class="w-48"
+          @input="searchQuery = $event.target.value"
         >
-          <div class="relative flex-1">
-            <span
-              class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 size-4 text-n-slate-9 pointer-events-none"
+          <template #prefix>
+            <Icon
+              icon="i-lucide-search"
+              class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
             />
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
-              class="h-9 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-9 pr-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
-            />
-          </div>
-          <Button
-            variant="ghost"
-            color="slate"
-            size="sm"
-            icon="i-lucide-x"
-            @click="
-              searchExpanded = false;
-              searchQuery = '';
-            "
-          />
-        </div>
+          </template>
+        </Input>
 
-        <!-- Normal controls (hidden when mobile search is expanded) -->
-        <template v-if="!searchExpanded">
-          <!-- Mobile search icon -->
-          <Button
-            class="md:hidden"
-            variant="ghost"
-            color="slate"
-            size="sm"
-            icon="i-lucide-search"
-            @click="searchExpanded = true"
-          />
-
-          <!-- Desktop search -->
-          <div class="relative hidden md:block">
-            <span
-              class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 size-4 text-n-slate-9 pointer-events-none"
-            />
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
-              class="h-9 w-48 rounded-lg border border-n-weak bg-n-alpha-1 pl-9 pr-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none transition-colors"
-            />
-          </div>
-
-          <!-- New template: desktop with label -->
-          <Button
-            class="hidden md:inline-flex"
-            icon="i-lucide-plus"
-            :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
-            @click="openNewTemplate"
-          />
-          <!-- New template: mobile icon only -->
-          <Button
-            class="inline-flex md:hidden"
-            icon="i-lucide-plus"
-            @click="openNewTemplate"
-          />
-        </template>
+        <!-- New template: desktop with label -->
+        <Button
+          class="hidden md:inline-flex"
+          icon="i-lucide-plus"
+          :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
+          @click="openNewTemplate"
+        />
+        <!-- New template: mobile icon only -->
+        <Button
+          class="inline-flex md:hidden"
+          icon="i-lucide-plus"
+          @click="openNewTemplate"
+        />
       </div>
     </div>
 
     <!-- Tabs + View toggle -->
     <div
       class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 flex items-center justify-between gap-4"
+      :class="viewMode === 'flow' ? 'pb-6' : ''"
     >
       <div class="overflow-x-auto">
         <TabBar
@@ -324,21 +228,21 @@ onMounted(() => {
         />
       </div>
       <div
-        class="flex items-center rounded-lg bg-n-alpha-1 p-0.5 flex-shrink-0"
+        class="flex items-center gap-1 rounded-lg bg-n-alpha-1 p-1 flex-shrink-0"
       >
         <button
           v-for="mode in viewModes"
           :key="mode.key"
-          class="flex items-center justify-center size-7 rounded-md transition-colors"
+          class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
           :class="
             viewMode === mode.key
               ? 'bg-n-solid-active shadow-sm text-n-blue-11'
               : 'text-n-slate-10 hover:text-n-slate-12'
           "
-          :title="mode.label"
           @click="viewMode = mode.key"
         >
-          <span :class="mode.icon" class="size-4" />
+          <span :class="mode.icon" class="size-3.5" />
+          {{ mode.label }}
         </button>
       </div>
     </div>
@@ -402,21 +306,6 @@ onMounted(() => {
         />
       </div>
 
-      <!-- Categories view -->
-      <div
-        v-else-if="viewMode === 'categories'"
-        class="flex flex-col gap-4 max-w-2xl"
-      >
-        <TemplateCategorySection
-          v-for="cat in categorizedTemplates"
-          :key="cat.key"
-          :category="cat"
-          :templates="cat.templates"
-          @toggle="handleToggle"
-          @edit="handleEdit"
-        />
-      </div>
-
       <!-- Grid view with DnD -->
       <Draggable
         v-else-if="viewMode === 'grid'"
@@ -455,16 +344,6 @@ onMounted(() => {
       />
     </div>
   </div>
-
-  <TemplateModal
-    ref="templateModalRef"
-    :template="editingTemplate"
-    :all-templates="allTemplates"
-    :available-inboxes="inboxes"
-    :account-labels="accountLabels"
-    :meta="notificationTemplateMeta"
-    @save="handleSave"
-  />
 
   <Dialog
     ref="previewDialogRef"

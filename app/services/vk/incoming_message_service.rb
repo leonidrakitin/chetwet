@@ -61,7 +61,8 @@ class Vk::IncomingMessageService
     {
       name: "#{first_name} #{last_name}".strip.presence || "User #{vk_params_from_id}",
       additional_attributes: {
-        social_vk_user_id: vk_params_from_id
+        social_vk_user_id: vk_params_from_id,
+        social_profiles: { vk: vk_params_from_id.to_s }
       }
     }
   end

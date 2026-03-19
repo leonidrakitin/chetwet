@@ -42,6 +42,7 @@ import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import yearInReview from './yearInReview.json';
 import notificationTemplates from './notificationTemplates.json';
+import onboarding from './onboarding.json';
 import suggestions from './suggestions.json';
 
 export default {
@@ -89,5 +90,6 @@ export default {
   ...mfa,
   ...yearInReview,
   ...notificationTemplates,
+  ...onboarding,
   ...suggestions,
 };

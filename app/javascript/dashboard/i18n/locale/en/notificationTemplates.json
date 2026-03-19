@@ -40,6 +40,7 @@
     },
     "VARIABLES_HINT": "Available variables: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
     "FORM": {
+      "CANCEL": "Cancel",
       "REQUIRED_INDICATOR": "*",
       "NAME": {
         "LABEL": "Name",

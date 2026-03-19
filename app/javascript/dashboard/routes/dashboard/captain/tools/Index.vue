@@ -11,9 +11,24 @@ import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
 import CaptainPaywall from 'dashboard/components-next/captain/pageComponents/Paywall.vue';
 import CustomToolsPageEmptyState from 'dashboard/components-next/captain/pageComponents/emptyStates/CustomToolsPageEmptyState.vue';
 import CreateCustomToolDialog from 'dashboard/components-next/captain/pageComponents/customTool/CreateCustomToolDialog.vue';
-import CustomToolCard from 'dashboard/components-next/captain/pageComponents/customTool/CustomToolCard.vue';
-import BuiltInToolCard from 'dashboard/components-next/captain/pageComponents/customTool/BuiltInToolCard.vue';
+import ToolCategorySection from 'dashboard/components-next/captain/pageComponents/customTool/ToolCategorySection.vue';
 import DeleteDialog from 'dashboard/components-next/captain/pageComponents/DeleteDialog.vue';
+import Policy from 'dashboard/components/policy.vue';
+
+const ICON_MAP = {
+  'note-add': 'i-lucide-notebook-pen',
+  'eye-off': 'i-lucide-eye-off',
+  'exclamation-triangle': 'i-lucide-triangle-alert',
+  tag: 'i-lucide-tag',
+  search: 'i-lucide-search',
+  checkmark: 'i-lucide-check',
+  'user-switch': 'i-lucide-user-round-cog',
+  calendar: 'i-lucide-calendar',
+  clock: 'i-lucide-clock',
+  list: 'i-lucide-list',
+  currency: 'i-lucide-banknote',
+  'shopping-bag': 'i-lucide-shopping-bag',
+};
 
 const store = useStore();
 const route = useRoute();
@@ -38,6 +53,21 @@ const isEmpty = computed(
   () => !customTools.value.length && !builtInTools.value.length
 );
 
+const builtInToolItems = computed(() =>
+  builtInTools.value.map(tool => ({
+    ...tool,
+    icon: ICON_MAP[tool.icon] || 'i-lucide-wrench',
+  }))
+);
+
+const customToolItems = computed(() =>
+  customTools.value.map(tool => ({
+    ...tool,
+    icon: 'i-lucide-wrench',
+    enabled: true,
+  }))
+);
+
 const fetchCustomTools = (page = 1) => {
   store.dispatch('captainCustomTools/get', { page });
 };
@@ -57,7 +87,9 @@ const fetchBuiltInTools = async () => {
   }
 };
 
-const handleBuiltInToolToggle = async ({ id, enabled }) => {
+const handleBuiltInToolToggle = async item => {
+  const id = item.id;
+  const enabled = !item.enabled;
   const tool = builtInTools.value.find(bt => bt.id === id);
   if (!tool) return;
 
@@ -96,15 +128,6 @@ const handleEdit = tool => {
 const handleDelete = tool => {
   selectedTool.value = tool;
   nextTick(() => deleteDialogRef.value.dialogRef.open());
-};
-
-const handleAction = ({ action, id }) => {
-  const tool = customTools.value.find(item => item.id === id);
-  if (action === 'edit') {
-    handleEdit(tool);
-  } else if (action === 'delete') {
-    handleDelete(tool);
-  }
 };
 
 const handleDialogClose = () => {
@@ -154,47 +177,48 @@ onMounted(() => {
     </template>
 
     <template #body>
-      <div class="flex flex-col gap-6">
-        <div v-if="builtInTools.length" class="flex flex-col gap-3">
-          <h3 class="text-sm font-medium text-n-slate-11">
-            {{ $t('CAPTAIN.BUILT_IN_TOOLS.HEADER') }}
-          </h3>
-          <div class="flex flex-col gap-2">
-            <BuiltInToolCard
-              v-for="tool in builtInTools"
-              :id="tool.id"
-              :key="tool.id"
-              :title="tool.title"
-              :description="tool.description"
-              :icon="tool.icon"
-              :enabled="tool.enabled"
-              @toggle="handleBuiltInToolToggle"
-            />
-          </div>
-        </div>
+      <div class="flex flex-col gap-4 max-w-2xl">
+        <ToolCategorySection
+          v-if="builtInToolItems.length"
+          :title="$t('CAPTAIN.BUILT_IN_TOOLS.HEADER')"
+          :description="$t('CAPTAIN.BUILT_IN_TOOLS.DESCRIPTION')"
+          icon="i-lucide-blocks"
+          icon-color="text-n-blue-11"
+          bg-color="bg-n-blue-3"
+          :items="builtInToolItems"
+          @toggle="handleBuiltInToolToggle"
+        />
 
-        <div v-if="customTools.length" class="flex flex-col gap-3">
-          <h3 class="text-sm font-medium text-n-slate-11">
-            {{ $t('CAPTAIN.BUILT_IN_TOOLS.CUSTOM_HEADER') }}
-          </h3>
-          <div class="flex flex-col gap-2">
-            <CustomToolCard
-              v-for="tool in customTools"
-              :id="tool.id"
-              :key="tool.id"
-              :title="tool.title"
-              :description="tool.description"
-              :endpoint-url="tool.endpoint_url"
-              :http-method="tool.http_method"
-              :auth-type="tool.auth_type"
-              :param-schema="tool.param_schema"
-              :enabled="tool.enabled"
-              :created-at="tool.created_at"
-              :updated-at="tool.updated_at"
-              @action="handleAction"
-            />
-          </div>
-        </div>
+        <ToolCategorySection
+          v-if="customTools.length"
+          :title="$t('CAPTAIN.BUILT_IN_TOOLS.CUSTOM_HEADER')"
+          :description="$t('CAPTAIN.BUILT_IN_TOOLS.CUSTOM_DESCRIPTION')"
+          icon="i-lucide-wrench"
+          icon-color="text-n-violet-11"
+          bg-color="bg-n-violet-3"
+          :items="customToolItems"
+          hide-toggle
+          @edit="handleEdit"
+        >
+          <template #item-actions="{ item }">
+            <Policy :permissions="['administrator']">
+              <button
+                class="flex-shrink-0 p-1 rounded text-n-slate-9 hover:text-n-slate-12 hover:bg-n-alpha-2 transition-colors"
+                :title="$t('CAPTAIN.CUSTOM_TOOLS.OPTIONS.EDIT_TOOL')"
+                @click.stop="handleEdit(item)"
+              >
+                <span class="i-lucide-pencil-line size-4" />
+              </button>
+              <button
+                class="flex-shrink-0 p-1 rounded text-n-slate-9 hover:text-n-ruby-11 hover:bg-n-alpha-2 transition-colors"
+                :title="$t('CAPTAIN.CUSTOM_TOOLS.OPTIONS.DELETE_TOOL')"
+                @click.stop="handleDelete(item)"
+              >
+                <span class="i-lucide-trash size-4" />
+              </button>
+            </Policy>
+          </template>
+        </ToolCategorySection>
       </div>
     </template>
   </PageLayout>

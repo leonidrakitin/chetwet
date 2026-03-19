@@ -449,26 +449,14 @@
       "SOCIAL_MEDIA": {
         "TITLE": "Edit social links",
         "FORM": {
-          "FACEBOOK": {
-            "PLACEHOLDER": "Add Facebook"
-          },
-          "GITHUB": {
-            "PLACEHOLDER": "Add Github"
-          },
           "INSTAGRAM": {
             "PLACEHOLDER": "Add Instagram"
           },
           "TELEGRAM": {
             "PLACEHOLDER": "Add Telegram"
           },
-          "TIKTOK": {
-            "PLACEHOLDER": "Add TikTok"
-          },
-          "LINKEDIN": {
-            "PLACEHOLDER": "Add LinkedIn"
-          },
-          "TWITTER": {
-            "PLACEHOLDER": "Add Twitter"
+          "VK": {
+            "PLACEHOLDER": "Add VK"
           }
         }
       },

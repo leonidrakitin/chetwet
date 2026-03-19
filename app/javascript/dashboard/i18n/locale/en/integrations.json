@@ -846,9 +846,14 @@
     },
     "BUILT_IN_TOOLS": {
       "HEADER": "Built-in Tools",
+      "DESCRIPTION": "Pre-configured tools available for your assistant",
       "CUSTOM_HEADER": "Custom Tools",
+      "CUSTOM_DESCRIPTION": "Your custom integrations and API tools",
       "TOGGLE_SUCCESS": "Tool setting updated successfully",
       "TOGGLE_ERROR": "Failed to update tool setting"
+    },
+    "TOOLS_CATEGORY": {
+      "EMPTY": "No tools available"
     },
     "CUSTOM_TOOLS": {
       "HEADER": "Tools",

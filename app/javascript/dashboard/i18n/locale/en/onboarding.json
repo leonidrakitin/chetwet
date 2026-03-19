@@ -1,0 +1,52 @@
+{
+  "ONBOARDING": {
+    "SKIP": "Skip",
+    "BACK": "Back",
+    "NEXT": "Continue",
+    "SAVING": "Saving...",
+    "ACCOUNT_STEP": {
+      "TITLE": "Set up your workspace",
+      "SUBTITLE": "Let's configure the basics for your account",
+      "NAME_LABEL": "Account name",
+      "NAME_PLACEHOLDER": "My Company",
+      "LOCALE_LABEL": "Language",
+      "LOCALE_PLACEHOLDER": "Select language",
+      "TIMEZONE_LABEL": "Timezone",
+      "TIMEZONE_PLACEHOLDER": "Select timezone",
+      "SUCCESS": "Account settings saved",
+      "ERROR": "Could not save account settings"
+    },
+    "INVITE_STEP": {
+      "TITLE": "Invite your team",
+      "SUBTITLE": "Add team members by entering their email addresses",
+      "EMAILS_LABEL": "Email addresses",
+      "EMAILS_PLACEHOLDER": "Type an email and press Enter",
+      "INVITED_AGENTS": "Already on the team",
+      "SUCCESS": "Invitations sent successfully",
+      "ERROR": "Could not send invitations",
+      "EMPTY": "No agents invited yet"
+    },
+    "INBOX_STEP": {
+      "TITLE": "Create your first inbox",
+      "SUBTITLE": "Connect a channel to start receiving messages",
+      "CHANNEL_WEBSITE": "Website live chat",
+      "CHANNEL_EMAIL": "Email",
+      "NAME_LABEL": "Inbox name",
+      "NAME_PLACEHOLDER": "My Website",
+      "URL_LABEL": "Website URL",
+      "URL_PLACEHOLDER": "https://example.com",
+      "EMAIL_LABEL": "Email address",
+      "EMAIL_PLACEHOLDER": "support@example.com",
+      "SUCCESS": "Inbox created successfully",
+      "ERROR": "Could not create inbox"
+    },
+    "COMPLETE_STEP": {
+      "TITLE": "You're all set!",
+      "SUBTITLE": "Your workspace is ready. Start engaging with your customers.",
+      "GO_TO_DASHBOARD": "Go to Dashboard",
+      "SUMMARY_ACCOUNT": "Account configured",
+      "SUMMARY_AGENTS": "{count} agent(s) invited",
+      "SUMMARY_INBOX": "Inbox created"
+    }
+  }
+}
