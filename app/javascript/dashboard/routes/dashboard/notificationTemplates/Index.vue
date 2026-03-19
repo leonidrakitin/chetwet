@@ -47,7 +47,7 @@ const viewMode = ref('grid'); // 'grid' | 'flow'
 const viewModes = computed(() => [
   {
     key: 'grid',
-    icon: 'i-lucide-layout-grid',
+    icon: 'i-lucide-list',
     label: t('NOTIFICATION_TEMPLATES.VIEW.GRID'),
   },
   {
@@ -99,15 +99,6 @@ const handleEdit = template => {
     name: 'notification_templates_edit',
     params: { accountId: route.params.accountId, templateId: template.id },
   });
-};
-
-const handleClone = async id => {
-  try {
-    await store.dispatch('notificationTemplates/clone', id);
-    useAlert(t('NOTIFICATION_TEMPLATES.CLONE.SUCCESS'));
-  } catch {
-    useAlert(t('NOTIFICATION_TEMPLATES.CLONE.ERROR'));
-  }
 };
 
 const handlePreview = template => {
@@ -314,7 +305,7 @@ onMounted(() => {
         handle=".drag-handle"
         ghost-class="opacity-40"
         animation="200"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+        class="flex flex-col gap-4"
       >
         <template #item="{ element }">
           <div class="relative group">
@@ -327,7 +318,6 @@ onMounted(() => {
             <TemplateCard
               :template="element"
               @edit="handleEdit"
-              @clone="handleClone"
               @delete="handleDeleteRequest"
               @preview="handlePreview"
             />

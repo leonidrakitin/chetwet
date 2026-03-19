@@ -15,7 +15,7 @@ class TdlibEventWorker < ApplicationJob
 
   def perform(telegram_session_id)
     @telegram_session = TelegramSession.find(telegram_session_id)
-    return unless @telegram_session.active? || @telegram_session.authenticating?
+    return unless @telegram_session.active?
     return unless acquire_lock!
 
     @client = Telegram::Client.new(@telegram_session)
@@ -24,7 +24,7 @@ class TdlibEventWorker < ApplicationJob
     # Русский комментарий: Sidekiq job держим живым как event loop для одного inbox.
     loop do
       @telegram_session.reload
-      break unless @telegram_session.active? || @telegram_session.authenticating?
+      break unless @telegram_session.active?
 
       refresh_lock!
       sleep 1
@@ -43,7 +43,14 @@ class TdlibEventWorker < ApplicationJob
   def register_handlers!
     @client.on('updateAuthorizationState') do |update|
       state = Telegram::Client::AUTH_STATES[update.dig('authorization_state', '@type')] || :unknown
-      status = state == :ready ? :active : %i[wait_tdlib_parameters wait_phone_number wait_code wait_password].include?(state) ? :authenticating : :disconnected
+      status = if state == :ready
+                 :active
+               elsif %i[wait_tdlib_parameters wait_phone_number wait_code
+                        wait_password].include?(state)
+                 :authenticating
+               else
+                 :disconnected
+               end
       @telegram_session.update!(
         auth_state: state.to_s,
         status: status,

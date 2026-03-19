@@ -74,7 +74,7 @@ class TelegramSession < ApplicationRecord
 
   def ensure_event_worker
     return unless inbox.channel_type == 'Channel::TelegramPersonal'
-    return unless active? || authenticating?
+    return unless active?
 
     TdlibEventWorker.perform_later(id)
   end

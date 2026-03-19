@@ -169,39 +169,39 @@
       "INSERT_VARIABLE": "Insert variable (@)"
     },
     "VARIABLES": {
-      "LABEL": "Insert variable",
-      "PICKER_BUTTON": "Insert variable",
-      "PICKER_HINT": "Click to insert · Drag to editor",
-      "REMOVE_ARIA": "Remove variable",
-      "NO_MATCH": "No variables found",
-      "EXAMPLE_PREFIX": "e.g.",
+      "LABEL": "Вставить переменную",
+      "PICKER_BUTTON": "Вставить переменную",
+      "PICKER_HINT": "Нажмите для вставки · Перетащите в редактор",
+      "REMOVE_ARIA": "Удалить переменную",
+      "NO_MATCH": "Переменные не найдены",
+      "EXAMPLE_PREFIX": "напр.",
       "CATEGORIES": {
-        "ALL": "All",
-        "CLIENT": "Client",
-        "APPOINTMENT": "Appointment",
-        "PAYMENT": "Payment",
-        "DATETIME": "Date & Time"
+        "ALL": "Все",
+        "CLIENT": "Клиент",
+        "APPOINTMENT": "Запись",
+        "PAYMENT": "Оплата",
+        "DATETIME": "Дата и время"
       },
-      "client_name": "Client name",
-      "client_name_description": "Full name of the client",
-      "client_name_example": "Ivan Ivanov",
-      "service_name": "Service or appointment type",
-      "service_name_description": "Name of the service booked",
-      "service_name_example": "Haircut",
-      "branch_name": "Branch or location",
-      "branch_name_description": "Name of the branch or office",
-      "branch_name_example": "Central office",
-      "master_name": "Staff or master name",
-      "master_name_description": "Name of the assigned staff member",
-      "master_name_example": "Maria",
-      "price": "Price or amount",
-      "price_description": "Formatted price or payment amount",
+      "client_name": "Имя клиента",
+      "client_name_description": "Полное имя клиента",
+      "client_name_example": "Иван Иванов",
+      "service_name": "Услуга",
+      "service_name_description": "Название забронированной услуги",
+      "service_name_example": "Стрижка",
+      "branch_name": "Филиал",
+      "branch_name_description": "Название филиала или офиса",
+      "branch_name_example": "Центральный офис",
+      "master_name": "Мастер",
+      "master_name_description": "Имя назначенного специалиста",
+      "master_name_example": "Мария",
+      "price": "Цена",
+      "price_description": "Сумма оплаты",
       "price_example": "1 500 ₽",
-      "date": "Appointment date",
-      "date_description": "Date of the appointment",
-      "date_example": "15 March",
-      "time": "Appointment time",
-      "time_description": "Time of the appointment",
+      "date": "Дата записи",
+      "date_description": "Дата приёма",
+      "date_example": "15 марта",
+      "time": "Время записи",
+      "time_description": "Время приёма",
       "time_example": "14:30"
     },
     "ATTACHMENTS": {
@@ -229,9 +229,15 @@
       "CANCEL": "Cancel"
     },
     "VIEW": {
-      "CATEGORIES": "Categories",
-      "GRID": "Grid",
-      "FLOW": "Flow"
+      "CATEGORIES": "Категории",
+      "GRID": "Список",
+      "FLOW": "Схема"
+    },
+    "CARD": {
+      "ENABLED": "Включён",
+      "DISABLED": "Отключён",
+      "SHOW_MORE": "Показать ещё",
+      "SHOW_LESS": "Скрыть"
     },
     "CATEGORIES": {
       "SYSTEM": {
