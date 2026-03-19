@@ -25,7 +25,8 @@
       "VK_ID_LOGIN": "Continue with VK ID",
       "YANDEX_LOGIN": "Continue with Yandex",
       "BUSINESS_ACCOUNTS_ONLY": "Please use your company email address to login",
-      "NO_ACCOUNT_FOUND": "We couldn't find an account for your email address. Would you like to sign up?"
+      "NO_ACCOUNT_FOUND": "We couldn't find an account for your email address. Would you like to sign up?",
+      "VK_EMAIL_REQUIRED": "Your VK account does not have a verified email address. Please add an email to your VK profile and try again."
     },
     "FORGOT_PASSWORD": "Forgot your password?",
     "CREATE_NEW_ACCOUNT": "Create a new account",

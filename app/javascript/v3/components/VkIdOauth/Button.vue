@@ -1,89 +1,45 @@
-<script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue';
-import { useAlert } from 'dashboard/composables';
-import { useI18n } from 'vue-i18n';
+<script>
+export default {
+  methods: {
+    getVkAuthUrl() {
+      const baseUrl = 'https://id.vk.com/authorize';
+      const clientId = window.chatwootConfig.vkIdClientId;
+      const redirectUri = window.chatwootConfig.vkIdCallbackUrl;
 
-const { t } = useI18n();
-const containerRef = ref(null);
-let oneTapInstance = null;
+      const queryString = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'email',
+      }).toString();
 
-function loadVkIdSdk() {
-  return new Promise((resolve, reject) => {
-    if (window.VKIDSDK) {
-      resolve(window.VKIDSDK);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js';
-    script.onload = () => resolve(window.VKIDSDK);
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
-
-async function handleVkSuccess(data) {
-  try {
-    const response = await fetch('/api/v1/auth/vk_sdk_callback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: data.access_token }),
-    });
-    const result = await response.json();
-    if (result.needs_signup && result.signup_token) {
-      window.location = `/app/auth/complete-signup?signup_token=${encodeURIComponent(result.signup_token)}&email=${encodeURIComponent(result.email || '')}`;
-    } else if (result.sso_auth_token) {
-      let url = `/app/login?email=${encodeURIComponent(result.email)}&sso_auth_token=${result.sso_auth_token}`;
-      if (result.redirect) {
-        url += `&redirect=${encodeURIComponent(result.redirect)}`;
-      }
-      window.location = url;
-    } else {
-      useAlert(t('LOGIN.OAUTH.NO_ACCOUNT_FOUND'));
-    }
-  } catch {
-    useAlert(t('LOGIN.API.UNAUTH'));
-  }
-}
-
-onMounted(async () => {
-  try {
-    const VKID = await loadVkIdSdk();
-
-    VKID.Config.init({
-      app: parseInt(window.chatwootConfig.vkIdClientId, 10),
-      redirectUrl: window.chatwootConfig.vkIdCallbackUrl,
-      responseMode: VKID.ConfigResponseMode.Callback,
-      source: VKID.ConfigSource.LOWCODE,
-      scope: 'email',
-    });
-
-    oneTapInstance = new VKID.OneTap();
-    oneTapInstance
-      .render({
-        container: containerRef.value,
-        showAlternativeLogin: true,
-        oauthList: ['mail_ru', 'ok_ru'],
-      })
-      .on(VKID.WidgetEvents.ERROR, () => {
-        useAlert(t('LOGIN.API.UNAUTH'));
-      })
-      .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, payload => {
-        VKID.Auth.exchangeCode(payload.code, payload.device_id)
-          .then(handleVkSuccess)
-          .catch(() => useAlert(t('LOGIN.API.UNAUTH')));
-      });
-  } catch {
-    // SDK failed to load, fall back silently
-  }
-});
-
-onBeforeUnmount(() => {
-  if (oneTapInstance) {
-    oneTapInstance.close();
-  }
-});
+      return `${baseUrl}?${queryString}`;
+    },
+  },
+};
 </script>
 
 <template>
-  <div ref="containerRef" />
+  <div class="flex flex-col">
+    <a
+      :href="getVkAuthUrl()"
+      class="inline-flex justify-center w-full px-4 py-3 bg-n-background dark:bg-n-solid-3 items-center rounded-xl shadow-sm ring-1 ring-inset ring-n-container dark:ring-n-container focus:outline-offset-0 hover:bg-n-alpha-2 dark:hover:bg-n-alpha-2 transition-colors"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M12.77 17.29c-5.47 0-8.59-3.74-8.72-9.96h2.74c.09 4.56 2.1 6.49 3.69 6.89V7.33h2.58v3.93c1.57-.17 3.22-1.97 3.78-3.93h2.58c-.43 2.41-2.22 4.21-3.5 4.95 1.28.6 3.31 2.17 4.09 5.01h-2.84c-.61-1.9-2.13-3.37-4.11-3.57v3.57h-.29z"
+          fill="#0077FF"
+        />
+      </svg>
+      <span class="ml-2 text-base font-medium text-n-slate-12">
+        {{ $t('LOGIN.OAUTH.VK_ID_LOGIN') }}
+      </span>
+    </a>
+  </div>
 </template>

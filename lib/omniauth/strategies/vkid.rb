@@ -34,6 +34,29 @@ module OmniAuth
         { 'raw_info' => raw_info }
       end
 
+      # VK ID requires device_id in both authorize and token requests.
+      # Generate a stable device_id per session and include it in the authorize URL.
+      def authorize_params
+        super.tap do |params|
+          params[:device_id] = session['vkid.device_id'] ||= SecureRandom.uuid
+        end
+      end
+
+      # Override token exchange to include device_id required by VK ID API.
+      def build_access_token
+        verifier = request.params['code']
+        device_id = request.params['device_id'] || session.delete('vkid.device_id') || SecureRandom.uuid
+
+        client.auth_code.get_token(
+          verifier,
+          {
+            redirect_uri: callback_url,
+            device_id: device_id
+          }.merge(token_params.to_hash(symbolize_keys: true)),
+          deep_symbolize(options.auth_token_params)
+        )
+      end
+
       private
 
       def raw_info
