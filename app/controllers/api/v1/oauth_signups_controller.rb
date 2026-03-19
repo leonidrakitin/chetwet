@@ -1,4 +1,4 @@
-class Api::V1::OauthSignupsController < ApplicationController
+class Api::V1::OauthSignupsController < Api::BaseController
   include OauthSignupTokenable
   include AuthHelper
   include EmailHelper
