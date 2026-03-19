@@ -23,7 +23,7 @@ export const actions = {
   get: async function getSuggestions({ commit }, params = {}) {
     commit(types.SET_SUGGESTION_UI_FLAG, { isFetching: true });
     try {
-      const response = await SuggestionsAPI.get(params);
+      const response = await SuggestionsAPI.get(params ?? {});
       commit(types.SET_SUGGESTIONS, response.data);
     } catch (error) {
       // Ignore error
@@ -36,27 +36,17 @@ export const actions = {
     try {
       const response = await SuggestionsAPI.create(data);
       commit(types.ADD_SUGGESTION, response.data);
-    } catch (error) {
-      throw new Error(error);
     } finally {
       commit(types.SET_SUGGESTION_UI_FLAG, { isCreating: false });
     }
   },
   update: async ({ commit }, { id, ...updateObj }) => {
-    try {
-      const response = await SuggestionsAPI.update(id, updateObj);
-      commit(types.EDIT_SUGGESTION, response.data);
-    } catch (error) {
-      throw new Error(error);
-    }
+    const response = await SuggestionsAPI.update(id, updateObj);
+    commit(types.EDIT_SUGGESTION, response.data);
   },
   delete: async ({ commit }, id) => {
-    try {
-      await SuggestionsAPI.delete(id);
-      commit(types.DELETE_SUGGESTION, id);
-    } catch (error) {
-      throw new Error(error);
-    }
+    await SuggestionsAPI.delete(id);
+    commit(types.DELETE_SUGGESTION, id);
   },
   vote: async ({ commit }, { id, voteType }) => {
     try {

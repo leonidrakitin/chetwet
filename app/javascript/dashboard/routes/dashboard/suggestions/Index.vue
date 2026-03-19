@@ -1,20 +1,29 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useStore } from 'dashboard/composables/store';
+import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
+import Input from 'dashboard/components-next/input/Input.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import SuggestionCard from './components/SuggestionCard.vue';
-import CreateSuggestionModal from './components/CreateSuggestionModal.vue';
+import SuggestionFilterMenu from './components/SuggestionFilterMenu.vue';
+import SuggestionSortMenu from './components/SuggestionSortMenu.vue';
+import SuggestionFormModal from './components/SuggestionFormModal.vue';
 
 const { t } = useI18n();
 const store = useStore();
+const currentUser = useMapGetter('getCurrentUser');
 
 const searchQuery = ref('');
 const statusFilter = ref('');
 const sortBy = ref('votes');
-const showCreateModal = ref(false);
+const showFormModal = ref(false);
+const editingSuggestion = ref(null);
+const listScope = ref('all');
+
+const currentUserId = computed(() => currentUser.value?.id);
 
 const uiFlags = computed(() => store.getters['suggestions/getUIFlags']);
 const allSuggestions = computed(
@@ -26,11 +35,10 @@ const filteredSuggestions = computed(() => {
 
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase();
-    list = list.filter(
-      s =>
-        s.title.toLowerCase().includes(q) ||
-        (s.description || '').toLowerCase().includes(q)
-    );
+    list = list.filter(s => {
+      const plain = (s.description_plain || '').toLowerCase();
+      return (s.title || '').toLowerCase().includes(q) || plain.includes(q);
+    });
   }
 
   if (statusFilter.value) {
@@ -63,69 +71,126 @@ const onDelete = async id => {
   try {
     await store.dispatch('suggestions/delete', id);
     useAlert(t('SUGGESTIONS.DELETE_SUCCESS'));
-  } catch {
-    useAlert(t('SUGGESTIONS.DELETE_ERROR'));
+  } catch (error) {
+    const status = error?.response?.status;
+    if (status === 403) {
+      useAlert(t('SUGGESTIONS.DELETE_FORBIDDEN'));
+    } else {
+      useAlert(t('SUGGESTIONS.DELETE_ERROR'));
+    }
   }
 };
 
-const onCreated = () => {
-  showCreateModal.value = false;
+const openCreateModal = () => {
+  editingSuggestion.value = null;
+  showFormModal.value = true;
 };
 
+const openEditModal = suggestion => {
+  editingSuggestion.value = suggestion;
+  showFormModal.value = true;
+};
+
+const onFormClose = () => {
+  showFormModal.value = false;
+  editingSuggestion.value = null;
+};
+
+const onFormSaved = () => {
+  showFormModal.value = false;
+  editingSuggestion.value = null;
+};
+
+const fetchSuggestions = () => {
+  store.dispatch(
+    'suggestions/get',
+    listScope.value === 'mine' ? { scope: 'mine' } : {}
+  );
+};
+
+watch(listScope, fetchSuggestions);
+
 onMounted(() => {
-  store.dispatch('suggestions/get');
+  fetchSuggestions();
 });
 </script>
 
 <template>
   <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
     <header class="sticky top-0 z-10 px-6">
-      <div class="w-full max-w-5xl mx-auto">
-        <div class="flex items-center justify-between w-full h-20 gap-2">
-          <span class="text-heading-1 text-n-slate-12">
-            {{ t('SUGGESTIONS.TITLE') }}
-          </span>
-          <Button
-            :label="t('SUGGESTIONS.ADD')"
-            icon="i-lucide-plus"
-            size="sm"
-            @click="showCreateModal = true"
-          />
+      <div
+        class="flex items-start sm:items-center justify-between w-full py-6 gap-2 max-w-5xl mx-auto"
+      >
+        <span class="text-heading-1 text-n-slate-12 truncate">
+          {{ t('SUGGESTIONS.TITLE') }}
+        </span>
+        <div
+          class="flex items-center flex-col sm:flex-row flex-shrink-0 gap-4 w-full sm:w-auto"
+        >
+          <div
+            class="flex items-center gap-2 w-full sm:min-w-[12rem] sm:max-w-md"
+          >
+            <Input
+              v-model="searchQuery"
+              type="search"
+              :placeholder="t('SUGGESTIONS.SEARCH_PLACEHOLDER')"
+              :custom-input-class="[
+                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
+              ]"
+              class="w-full"
+            >
+              <template #prefix>
+                <Icon
+                  icon="i-lucide-search"
+                  class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
+                />
+              </template>
+            </Input>
+          </div>
+          <div class="flex items-center flex-shrink-0 gap-2 sm:gap-4">
+            <SuggestionFilterMenu v-model="statusFilter" />
+            <SuggestionSortMenu v-model="sortBy" />
+            <div class="hidden sm:block w-px h-4 bg-n-strong shrink-0" />
+            <Button
+              :label="t('SUGGESTIONS.ADD')"
+              icon="i-lucide-plus"
+              size="sm"
+              @click="openCreateModal"
+            />
+          </div>
         </div>
       </div>
     </header>
 
     <main class="flex-1 px-6 overflow-y-auto">
       <div class="w-full max-w-5xl mx-auto py-4">
-        <div class="flex gap-3 mb-4">
-          <input
-            v-model="searchQuery"
-            type="text"
-            :placeholder="t('SUGGESTIONS.SEARCH_PLACEHOLDER')"
-            class="flex-1 rounded-xl border border-n-container bg-n-solid-2 px-4 py-2 text-sm text-n-slate-12 placeholder-n-slate-9 outline-none focus:border-woot-500"
-          />
-          <select
-            v-model="statusFilter"
-            class="rounded-xl border border-n-container bg-n-solid-2 py-2 pl-4 pr-8 text-sm text-n-slate-12 outline-none focus:border-woot-500"
+        <div
+          class="flex w-fit gap-0.5 p-0.5 mb-4 rounded-lg bg-n-alpha-1 dark:bg-n-solid-1"
+        >
+          <button
+            type="button"
+            class="px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200"
+            :class="
+              listScope === 'all'
+                ? 'bg-n-solid-active text-n-blue-11 shadow-sm outline outline-1 outline-n-container'
+                : 'text-n-slate-10 hover:text-n-slate-12'
+            "
+            @click="listScope = 'all'"
           >
-            <option value="">{{ t('SUGGESTIONS.FILTER_ALL') }}</option>
-            <option value="pending">
-              {{ t('SUGGESTIONS.STATUS_PENDING') }}
-            </option>
-            <option value="approved">
-              {{ t('SUGGESTIONS.STATUS_APPROVED') }}
-            </option>
-            <option value="rejected">
-              {{ t('SUGGESTIONS.STATUS_REJECTED') }}
-            </option>
-          </select>
-          <select
-            v-model="sortBy"
-            class="rounded-xl border border-n-container bg-n-solid-2 py-2 pl-4 pr-8 text-sm text-n-slate-12 outline-none focus:border-woot-500"
+            {{ t('SUGGESTIONS.TAB_ALL') }}
+          </button>
+          <button
+            type="button"
+            class="px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200"
+            :class="
+              listScope === 'mine'
+                ? 'bg-n-solid-active text-n-blue-11 shadow-sm outline outline-1 outline-n-container'
+                : 'text-n-slate-10 hover:text-n-slate-12'
+            "
+            @click="listScope = 'mine'"
           >
-            <option value="votes">{{ t('SUGGESTIONS.SORT_VOTES') }}</option>
-            <option value="latest">{{ t('SUGGESTIONS.SORT_LATEST') }}</option>
-          </select>
+            {{ t('SUGGESTIONS.TAB_MINE') }}
+          </button>
         </div>
 
         <div
@@ -140,7 +205,11 @@ onMounted(() => {
           class="flex flex-col items-center justify-center py-20"
         >
           <span class="text-sm text-n-slate-11">
-            {{ t('SUGGESTIONS.EMPTY') }}
+            {{
+              listScope === 'mine'
+                ? t('SUGGESTIONS.EMPTY_MINE')
+                : t('SUGGESTIONS.EMPTY')
+            }}
           </span>
         </div>
 
@@ -149,17 +218,21 @@ onMounted(() => {
             v-for="suggestion in filteredSuggestions"
             :key="suggestion.id"
             :suggestion="suggestion"
+            :can-delete="suggestion.user?.id === currentUserId"
+            :can-edit="suggestion.user?.id === currentUserId"
             @vote="onVote"
             @delete="onDelete"
+            @edit="openEditModal"
           />
         </div>
       </div>
     </main>
 
-    <CreateSuggestionModal
-      v-if="showCreateModal"
-      @close="showCreateModal = false"
-      @created="onCreated"
+    <SuggestionFormModal
+      v-if="showFormModal"
+      :suggestion="editingSuggestion"
+      @close="onFormClose"
+      @saved="onFormSaved"
     />
   </section>
 </template>

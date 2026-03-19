@@ -9,9 +9,17 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  canDelete: {
+    type: Boolean,
+    default: false,
+  },
+  canEdit: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(['vote', 'delete']);
+const emit = defineEmits(['vote', 'delete', 'edit']);
 
 const { t } = useI18n();
 
@@ -73,6 +81,13 @@ const formatDate = dateStr => {
   if (Number.isNaN(d.getTime())) return '';
   return d.toLocaleDateString();
 };
+
+const resolveImageUrl = url => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const base = window.chatwootConfig?.hostURL?.replace(/\/$/, '') || '';
+  return base ? `${base}${url}` : url;
+};
 </script>
 
 <template>
@@ -83,7 +98,7 @@ const formatDate = dateStr => {
         variant="ghost"
         size="xs"
         icon="i-lucide-thumbs-up"
-        :color="suggestion.current_user_vote === 'upvote' ? 'success' : 'slate'"
+        :color="suggestion.current_user_vote === 'upvote' ? 'teal' : 'slate'"
         @click="emit('vote', suggestion.id, 'upvote')"
       />
       <span class="text-xs font-semibold" :class="scoreClass">
@@ -113,6 +128,16 @@ const formatDate = dateStr => {
             {{ statusLabel[suggestion.status] }}
           </span>
           <Button
+            v-if="canEdit"
+            variant="ghost"
+            color="slate"
+            size="xs"
+            icon="i-lucide-pencil"
+            :aria-label="t('SUGGESTIONS.EDIT')"
+            @click="emit('edit', suggestion)"
+          />
+          <Button
+            v-if="canDelete"
             variant="ghost"
             color="ruby"
             size="xs"
@@ -123,14 +148,35 @@ const formatDate = dateStr => {
         </div>
       </div>
 
+      <div
+        v-if="(suggestion.images || []).length"
+        class="flex flex-wrap gap-2 mb-2"
+      >
+        <a
+          v-for="img in suggestion.images"
+          :key="img.id"
+          :href="resolveImageUrl(img.url)"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block w-16 h-16 rounded-lg overflow-hidden border border-n-container shrink-0"
+        >
+          <img
+            :src="resolveImageUrl(img.url)"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </a>
+      </div>
+
       <div v-if="suggestion.description" class="mb-2">
-        <p
+        <div
           ref="descRef"
-          class="text-sm text-n-slate-11 break-words"
+          class="text-sm text-n-slate-11 break-words prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_p:first-child]:mt-0 [&_ul]:my-1 [&_ol]:my-1"
           :class="{ 'line-clamp-2': !expanded }"
         >
-          {{ suggestion.description }}
-        </p>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <div v-html="suggestion.description" />
+        </div>
         <button
           v-if="isClamped || expanded"
           class="text-xs text-woot-500 hover:text-woot-600 mt-0.5"

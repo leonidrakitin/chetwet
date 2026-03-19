@@ -6,6 +6,10 @@ class SuggestionsAPI extends ApiClient {
     super('suggestions', { accountScoped: true });
   }
 
+  get(params) {
+    return axios.get(this.url, { params: params ?? {} });
+  }
+
   vote(id, voteType) {
     return axios.post(`${this.url}/${id}/vote`, { vote_type: voteType });
   }
