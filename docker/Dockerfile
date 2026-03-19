@@ -67,20 +67,8 @@ COPY vendor/gems/tdlib-ruby /app/vendor/gems/tdlib-ruby
 # https://github.com/googleapis/google-cloud-ruby/issues/13306
 # adding xz as nokogiri was failing to build libxml
 # https://github.com/chatwoot/chatwoot/issues/4045
-RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips zlib-dev gperf cmake php
+RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips
 RUN bundle config set --local force_ruby_platform true
-
-# Build tdlib (produces libtdjson.so for tdlib-ruby via FFI)
-ARG TDLIB_REF="master"
-RUN git clone --depth 1 --single-branch --branch "${TDLIB_REF}" https://github.com/tdlib/td.git /tmp/tdlib \
-  && rm -rf /tmp/tdlib/build \
-  && mkdir -p /tmp/tdlib/build \
-  && cd /tmp/tdlib/build \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr/local .. \
-  && cmake --build . --target install -j1 \
-  && mkdir -p /tdlib-artifacts \
-  && cp -a /usr/local/lib/libtdjson.so* /tdlib-artifacts/ \
-  && rm -rf /tmp/tdlib
 
 # Do not install development or test gems in production
 # Use -j 1 to avoid OOM/timeouts when compiling native gems (grpc, nokogiri, pg, etc.) in constrained build environments (e.g. Coolify)
@@ -165,8 +153,8 @@ COPY --from=pre-builder /app /app
 # Copy .git_sha file from pre-builder stage
 COPY --from=pre-builder /app/.git_sha /app/.git_sha
 
-# Copy tdlib shared library built in pre-builder stage
-COPY --from=pre-builder /tdlib-artifacts/ /usr/local/lib/
+# Copy prebuilt tdlib shared library
+COPY libtdjson.so /usr/local/lib/libtdjson.so
 
 ENV TDLIB_LIB_PATH="/usr/local/lib"
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
