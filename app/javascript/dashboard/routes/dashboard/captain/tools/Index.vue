@@ -22,6 +22,7 @@ const ICON_MAP = {
   tag: 'i-lucide-tag',
   search: 'i-lucide-search',
   checkmark: 'i-lucide-check',
+  'checkmark-circle': 'i-lucide-circle-check',
   'user-switch': 'i-lucide-user-round-cog',
   calendar: 'i-lucide-calendar',
   clock: 'i-lucide-clock',
@@ -30,9 +31,29 @@ const ICON_MAP = {
   'shopping-bag': 'i-lucide-shopping-bag',
 };
 
+const BUILT_IN_CATEGORY_ORDER = ['core', 'vk_market', 'yclients'];
+
+const BUILT_IN_CATEGORY_SECTION_META = {
+  core: {
+    icon: 'i-lucide-blocks',
+    iconColor: 'text-n-blue-11',
+    bgColor: 'bg-n-blue-3',
+  },
+  vk_market: {
+    icon: 'i-lucide-shopping-bag',
+    iconColor: 'text-n-violet-11',
+    bgColor: 'bg-n-violet-3',
+  },
+  yclients: {
+    icon: 'i-lucide-calendar',
+    iconColor: 'text-n-teal-11',
+    bgColor: 'bg-n-teal-3',
+  },
+};
+
 const store = useStore();
 const route = useRoute();
-const { t } = useI18n();
+const { t, te } = useI18n();
 
 const uiFlags = useMapGetter('captainCustomTools/getUIFlags');
 const customTools = useMapGetter('captainCustomTools/getRecords');
@@ -49,15 +70,56 @@ const isFetchingBuiltIn = ref(false);
 
 const assistantId = computed(() => route.params.assistantId);
 
-const isEmpty = computed(
-  () => !customTools.value.length && !builtInTools.value.length
+const localizeBuiltInTool = tool => {
+  const titleKey = `CAPTAIN.BUILT_IN_TOOLS.TOOLS.${tool.id}.TITLE`;
+  const descKey = `CAPTAIN.BUILT_IN_TOOLS.TOOLS.${tool.id}.DESCRIPTION`;
+  return {
+    ...tool,
+    title: te(titleKey) ? t(titleKey) : tool.title,
+    description: te(descKey) ? t(descKey) : tool.description,
+  };
+};
+
+const builtInToolRows = computed(() =>
+  builtInTools.value.map(tool => ({
+    ...localizeBuiltInTool(tool),
+    icon: ICON_MAP[tool.icon] || 'i-lucide-wrench',
+    category: tool.category || 'core',
+  }))
 );
 
-const builtInToolItems = computed(() =>
-  builtInTools.value.map(tool => ({
-    ...tool,
-    icon: ICON_MAP[tool.icon] || 'i-lucide-wrench',
-  }))
+const builtInCategorySections = computed(() => {
+  const byCat = new Map();
+  builtInToolRows.value.forEach(item => {
+    const cat = item.category || 'core';
+    if (!byCat.has(cat)) byCat.set(cat, []);
+    byCat.get(cat).push(item);
+  });
+  const tailKeys = [...byCat.keys()]
+    .filter(k => !BUILT_IN_CATEGORY_ORDER.includes(k))
+    .sort();
+  const orderedKeys = [
+    ...BUILT_IN_CATEGORY_ORDER.filter(k => byCat.has(k)),
+    ...tailKeys,
+  ];
+  return orderedKeys.map(key => {
+    const meta =
+      BUILT_IN_CATEGORY_SECTION_META[key] ||
+      BUILT_IN_CATEGORY_SECTION_META.core;
+    const titleKey = `CAPTAIN.BUILT_IN_TOOLS.CATEGORIES.${key}.TITLE`;
+    const descKey = `CAPTAIN.BUILT_IN_TOOLS.CATEGORIES.${key}.DESCRIPTION`;
+    return {
+      key,
+      items: byCat.get(key),
+      title: te(titleKey) ? t(titleKey) : key,
+      description: te(descKey) ? t(descKey) : '',
+      ...meta,
+    };
+  });
+});
+
+const isEmpty = computed(
+  () => !customTools.value.length && !builtInTools.value.length
 );
 
 const customToolItems = computed(() =>
@@ -89,11 +151,14 @@ const fetchBuiltInTools = async () => {
 
 const handleBuiltInToolToggle = async item => {
   const id = item.id;
-  const enabled = !item.enabled;
-  const tool = builtInTools.value.find(bt => bt.id === id);
-  if (!tool) return;
+  const prevTool = builtInTools.value.find(bt => bt.id === id);
+  if (!prevTool) return;
 
-  tool.enabled = enabled;
+  const previousEnabled = prevTool.enabled;
+  const enabled = !previousEnabled;
+  builtInTools.value = builtInTools.value.map(bt =>
+    bt.id === id ? { ...bt, enabled } : bt
+  );
 
   const disabledIds = builtInTools.value
     .filter(bt => !bt.enabled)
@@ -106,7 +171,9 @@ const handleBuiltInToolToggle = async item => {
     );
     useAlert(t('CAPTAIN.BUILT_IN_TOOLS.TOGGLE_SUCCESS'));
   } catch {
-    tool.enabled = !enabled;
+    builtInTools.value = builtInTools.value.map(bt =>
+      bt.id === id ? { ...bt, enabled: previousEnabled } : bt
+    );
     useAlert(t('CAPTAIN.BUILT_IN_TOOLS.TOGGLE_ERROR'));
   }
 };
@@ -179,13 +246,14 @@ onMounted(() => {
     <template #body>
       <div class="flex flex-col gap-4 max-w-2xl">
         <ToolCategorySection
-          v-if="builtInToolItems.length"
-          :title="$t('CAPTAIN.BUILT_IN_TOOLS.HEADER')"
-          :description="$t('CAPTAIN.BUILT_IN_TOOLS.DESCRIPTION')"
-          icon="i-lucide-blocks"
-          icon-color="text-n-blue-11"
-          bg-color="bg-n-blue-3"
-          :items="builtInToolItems"
+          v-for="section in builtInCategorySections"
+          :key="section.key"
+          :title="section.title"
+          :description="section.description"
+          :icon="section.icon"
+          :icon-color="section.iconColor"
+          :bg-color="section.bgColor"
+          :items="section.items"
           @toggle="handleBuiltInToolToggle"
         />
 

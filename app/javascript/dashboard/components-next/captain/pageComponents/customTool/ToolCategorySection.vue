@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import Policy from 'dashboard/components/policy.vue';
+import Switch from 'dashboard/components-next/switch/Switch.vue';
 
 defineProps({
   title: { type: String, required: true },
@@ -82,18 +83,12 @@ const collapsed = ref(false);
 
         <!-- Enable/Disable toggle -->
         <Policy v-if="!hideToggle" :permissions="['administrator']">
-          <button
-            class="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200"
-            :class="item.enabled ? 'bg-n-teal-9' : 'bg-n-slate-7'"
-            role="switch"
-            :aria-checked="item.enabled"
-            @click.stop="$emit('toggle', item)"
-          >
-            <span
-              class="inline-block size-3.5 rounded-full bg-white shadow transition-transform duration-200"
-              :class="item.enabled ? 'translate-x-[18px]' : 'translate-x-[3px]'"
+          <div @click.stop>
+            <Switch
+              :model-value="item.enabled"
+              @update:model-value="$emit('toggle', item)"
             />
-          </button>
+          </div>
         </Policy>
 
         <!-- Action menu slot for custom tools -->

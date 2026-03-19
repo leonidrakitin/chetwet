@@ -52,7 +52,8 @@ module Concerns::CaptainToolsHelpers
             id: tool_config['id'],
             title: tool_config['title'],
             description: tool_config['description'],
-            icon: tool_config['icon']
+            icon: tool_config['icon'],
+            category: tool_config['category'].presence || 'core'
           }
         else
           Rails.logger.warn "Tool class not found for ID: #{tool_config['id']}"

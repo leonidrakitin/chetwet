@@ -1,86 +1,103 @@
 ######  Captain Agent Tools Configuration #######
 # id: Tool identifier used to resolve the class (Captain::Tools::{PascalCase(id)}Tool)
-# title: Human-readable tool name for frontend display
-# description: Brief description of what the tool does
+# title: Human-readable tool name for frontend display (fallback when i18n missing)
+# description: Brief description (fallback when i18n missing)
 # icon: Icon name for frontend display (frontend icon system)
+# category: UI grouping on assistant tools page (core | vk_market | yclients)
 #######################################################
 
 - id: add_contact_note
+  category: core
   title: 'Add Contact Note'
   description: 'Add a note to a contact profile'
   icon: 'note-add'
 
 - id: add_private_note
+  category: core
   title: 'Add Private Note'
   description: 'Add a private note to a conversation (internal only)'
   icon: 'eye-off'
 
 - id: update_priority
+  category: core
   title: 'Update Priority'
   description: 'Update conversation priority level'
   icon: 'exclamation-triangle'
 
 - id: add_label_to_conversation
+  category: core
   title: 'Add Label to Conversation'
   description: 'Add a label to a conversation'
   icon: 'tag'
 
 - id: faq_lookup
+  category: core
   title: 'FAQ Lookup'
   description: 'Search FAQ responses using semantic similarity'
   icon: 'search'
 
 - id: resolve_conversation
+  category: core
   title: 'Resolve Conversation'
   description: 'Resolve a conversation when the issue has been addressed'
   icon: 'checkmark'
 
 - id: handoff
+  category: core
   title: 'Handoff to Human'
   description: 'Hand off the conversation to a human agent'
   icon: 'user-switch'
 
 - id: yclients_lookup_client
+  category: yclients
   title: 'YClients: Lookup Client'
   description: 'Look up client records and appointments in YClients'
   icon: 'calendar'
 
 - id: yclients_check_availability
+  category: yclients
   title: 'YClients: Check Availability'
   description: 'Check available time slots for booking'
   icon: 'clock'
 
 - id: yclients_book_appointment
+  category: yclients
   title: 'YClients: Book Appointment'
   description: 'Book an appointment for the current contact'
   icon: 'calendar'
 
 - id: yclients_get_services
+  category: yclients
   title: 'YClients: Services & Staff'
   description: 'Get list of available services and staff'
   icon: 'list'
 
 - id: yclients_get_transactions
+  category: yclients
   title: 'YClients: Transactions'
   description: 'Get financial transaction history for a contact'
   icon: 'currency'
 
 - id: yclients_update_visit_status
+  category: yclients
   title: 'YClients: Update Visit Status'
   description: 'Update attendance status of a YClients appointment'
   icon: 'checkmark-circle'
 
 - id: vk_market_get_products
+  category: vk_market
   title: 'VK Market: Products'
   description: 'Get list of products from VK community market'
   icon: 'shopping-bag'
 
 - id: vk_market_get_product_by_id
+  category: vk_market
   title: 'VK Market: Product Details'
   description: 'Get detailed product info from VK market by ID'
   icon: 'shopping-bag'
 
 - id: vk_market_search_products
+  category: vk_market
   title: 'VK Market: Search'
   description: 'Search products in VK community market'
   icon: 'search'

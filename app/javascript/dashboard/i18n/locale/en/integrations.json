@@ -850,7 +850,87 @@
       "CUSTOM_HEADER": "Custom Tools",
       "CUSTOM_DESCRIPTION": "Your custom integrations and API tools",
       "TOGGLE_SUCCESS": "Tool setting updated successfully",
-      "TOGGLE_ERROR": "Failed to update tool setting"
+      "TOGGLE_ERROR": "Failed to update tool setting",
+      "CATEGORIES": {
+        "core": {
+          "TITLE": "General",
+          "DESCRIPTION": "Notes, labels, FAQ lookup, and conversation flow"
+        },
+        "vk_market": {
+          "TITLE": "VK Market",
+          "DESCRIPTION": "Product catalog tools for VK communities"
+        },
+        "yclients": {
+          "TITLE": "Yclients",
+          "DESCRIPTION": "Bookings, clients, and salon data in Yclients"
+        }
+      },
+      "TOOLS": {
+        "add_contact_note": {
+          "TITLE": "Add Contact Note",
+          "DESCRIPTION": "Add a note to a contact profile"
+        },
+        "add_private_note": {
+          "TITLE": "Add Private Note",
+          "DESCRIPTION": "Add a private note to a conversation (internal only)"
+        },
+        "update_priority": {
+          "TITLE": "Update Priority",
+          "DESCRIPTION": "Update conversation priority level"
+        },
+        "add_label_to_conversation": {
+          "TITLE": "Add Label to Conversation",
+          "DESCRIPTION": "Add a label to a conversation"
+        },
+        "faq_lookup": {
+          "TITLE": "FAQ Lookup",
+          "DESCRIPTION": "Search FAQ responses using semantic similarity"
+        },
+        "resolve_conversation": {
+          "TITLE": "Resolve Conversation",
+          "DESCRIPTION": "Resolve a conversation when the issue has been addressed"
+        },
+        "handoff": {
+          "TITLE": "Handoff to Human",
+          "DESCRIPTION": "Hand off the conversation to a human agent"
+        },
+        "yclients_lookup_client": {
+          "TITLE": "Yclients: Lookup Client",
+          "DESCRIPTION": "Look up client records and appointments in Yclients"
+        },
+        "yclients_check_availability": {
+          "TITLE": "Yclients: Check Availability",
+          "DESCRIPTION": "Check available time slots for booking"
+        },
+        "yclients_book_appointment": {
+          "TITLE": "Yclients: Book Appointment",
+          "DESCRIPTION": "Book an appointment for the current contact"
+        },
+        "yclients_get_services": {
+          "TITLE": "Yclients: Services & Staff",
+          "DESCRIPTION": "Get list of available services and staff"
+        },
+        "yclients_get_transactions": {
+          "TITLE": "Yclients: Transactions",
+          "DESCRIPTION": "Get financial transaction history for a contact"
+        },
+        "yclients_update_visit_status": {
+          "TITLE": "Yclients: Update Visit Status",
+          "DESCRIPTION": "Update attendance status of a Yclients appointment"
+        },
+        "vk_market_get_products": {
+          "TITLE": "VK Market: Products",
+          "DESCRIPTION": "Get list of products from VK community market"
+        },
+        "vk_market_get_product_by_id": {
+          "TITLE": "VK Market: Product Details",
+          "DESCRIPTION": "Get detailed product info from VK market by ID"
+        },
+        "vk_market_search_products": {
+          "TITLE": "VK Market: Search",
+          "DESCRIPTION": "Search products in VK community market"
+        }
+      }
     },
     "TOOLS_CATEGORY": {
       "EMPTY": "No tools available"

@@ -747,6 +747,97 @@
         }
       }
     },
+    "BUILT_IN_TOOLS": {
+      "HEADER": "Встроенные инструменты",
+      "DESCRIPTION": "Готовые инструменты для ассистента",
+      "CUSTOM_HEADER": "Пользовательские инструменты",
+      "CUSTOM_DESCRIPTION": "Ваши интеграции и API-инструменты",
+      "TOGGLE_SUCCESS": "Настройка инструмента обновлена",
+      "TOGGLE_ERROR": "Не удалось обновить настройку инструмента",
+      "CATEGORIES": {
+        "core": {
+          "TITLE": "Основные",
+          "DESCRIPTION": "Заметки, метки, поиск по FAQ и сценарий диалога"
+        },
+        "vk_market": {
+          "TITLE": "VK Маркет",
+          "DESCRIPTION": "Каталог товаров сообществ ВКонтакте"
+        },
+        "yclients": {
+          "TITLE": "Yclients",
+          "DESCRIPTION": "Записи, клиенты и данные салона в Yclients"
+        }
+      },
+      "TOOLS": {
+        "add_contact_note": {
+          "TITLE": "Добавить заметку к контакту",
+          "DESCRIPTION": "Добавить заметку в карточку контакта"
+        },
+        "add_private_note": {
+          "TITLE": "Добавить приватную заметку",
+          "DESCRIPTION": "Добавить внутреннюю заметку к диалогу (только для команды)"
+        },
+        "update_priority": {
+          "TITLE": "Изменить приоритет",
+          "DESCRIPTION": "Изменить уровень приоритета диалога"
+        },
+        "add_label_to_conversation": {
+          "TITLE": "Добавить метку к диалогу",
+          "DESCRIPTION": "Добавить метку к диалогу"
+        },
+        "faq_lookup": {
+          "TITLE": "Поиск по FAQ",
+          "DESCRIPTION": "Искать ответы в базе FAQ по смысловому сходству"
+        },
+        "resolve_conversation": {
+          "TITLE": "Закрыть диалог",
+          "DESCRIPTION": "Закрыть диалог, когда вопрос решён"
+        },
+        "handoff": {
+          "TITLE": "Передать оператору",
+          "DESCRIPTION": "Передать диалог живому агенту"
+        },
+        "yclients_lookup_client": {
+          "TITLE": "Yclients: данные клиента",
+          "DESCRIPTION": "Найти клиента и записи в Yclients"
+        },
+        "yclients_check_availability": {
+          "TITLE": "Yclients: свободное время",
+          "DESCRIPTION": "Проверить доступные слоты для записи"
+        },
+        "yclients_book_appointment": {
+          "TITLE": "Yclients: записать на приём",
+          "DESCRIPTION": "Создать запись для текущего контакта"
+        },
+        "yclients_get_services": {
+          "TITLE": "Yclients: услуги и сотрудники",
+          "DESCRIPTION": "Список услуг и сотрудников"
+        },
+        "yclients_get_transactions": {
+          "TITLE": "Yclients: транзакции",
+          "DESCRIPTION": "История платежей и операций по контакту"
+        },
+        "yclients_update_visit_status": {
+          "TITLE": "Yclients: статус визита",
+          "DESCRIPTION": "Обновить статус посещения (приём/неявка и т.д.)"
+        },
+        "vk_market_get_products": {
+          "TITLE": "VK Маркет: товары",
+          "DESCRIPTION": "Список товаров из маркета сообщества ВКонтакте"
+        },
+        "vk_market_get_product_by_id": {
+          "TITLE": "VK Маркет: карточка товара",
+          "DESCRIPTION": "Подробная информация о товаре по ID"
+        },
+        "vk_market_search_products": {
+          "TITLE": "VK Маркет: поиск",
+          "DESCRIPTION": "Поиск товаров в маркете сообщества"
+        }
+      }
+    },
+    "TOOLS_CATEGORY": {
+      "EMPTY": "Нет доступных инструментов"
+    },
     "CUSTOM_TOOLS": {
       "HEADER": "Инструменты",
       "ADD_NEW": "Создать новый инструмент",
