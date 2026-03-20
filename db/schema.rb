@@ -1329,7 +1329,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_20_120000) do
   create_table "suggestions", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
-    t.text "description_plain"
     t.string "status", default: "pending", null: false
     t.bigint "account_id", null: false
     t.bigint "user_id", null: false
@@ -1338,6 +1337,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_20_120000) do
     t.string "tags", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description_plain"
     t.index ["account_id"], name: "index_suggestions_on_account_id"
     t.index ["status"], name: "index_suggestions_on_status"
     t.index ["tags"], name: "index_suggestions_on_tags", using: :gin

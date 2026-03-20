@@ -13,6 +13,11 @@ class ConversationImporterService
   # @param dialog [Hash] унифицированный диалог из парсера
   # @return [Hash] { success: true/false, conversation_id:, faqs_generated: 0, error: nil }
   def import!(dialog)
+    existing = @inbox.conversations.find_by(
+      "additional_attributes->>'migration_external_id' = ?", dialog[:external_id]
+    )
+    return { success: true, conversation_id: existing.id, faqs_generated: 0, skipped: true } if existing
+
     conversation = nil
     contact = nil
 

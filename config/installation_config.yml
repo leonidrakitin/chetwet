@@ -525,6 +525,14 @@
   type: secret
 # ------- End of Telegram Personal Channel Related Config ------- #
 
+# ------- Migration Related Config ------- #
+- name: TELEGRAM_MIGRATION_MAX_CONCURRENCY
+  display_title: 'Max Concurrent Telegram Migrations'
+  value: 5
+  description: 'Maximum number of simultaneous Telegram Personal live migrations'
+  locked: false
+# ------- End of Migration Related Config ------- #
+
 # ------- OG Image Related Config ------- #
 - name: OG_IMAGE_CDN_URL
   display_title: 'OG Image CDN URL'

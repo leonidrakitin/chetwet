@@ -105,6 +105,14 @@ line:
   enabled: true
   icon: 'icon-line-line'
 
+# ------- Migrations ------- #
+migrations:
+  name: 'Migrations'
+  description: 'Configure migration settings and concurrency limits'
+  enabled: true
+  icon: 'icon-database-line'
+  config_key: 'migrations'
+
 # ------- OAuth & Authentication ------- #
 google:
   name: 'Google'

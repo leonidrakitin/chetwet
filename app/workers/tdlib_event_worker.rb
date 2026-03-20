@@ -26,6 +26,7 @@ class TdlibEventWorker < ApplicationJob
       @telegram_session.reload
       break unless @telegram_session.active?
 
+      process_rpc_requests!
       refresh_lock!
       sleep 1
     end
@@ -60,6 +61,16 @@ class TdlibEventWorker < ApplicationJob
       @telegram_session.persist_session_snapshot!
     end
 
+    @client.on('updateNewChat') do |update|
+      chat = update['chat']
+      next unless chat
+
+      $alfred.with do |c|
+        c.sadd(rpc_chats_key, chat['id'].to_s)
+        c.expire(rpc_chats_key, 1.hour.to_i)
+      end
+    end
+
     UPDATE_TYPES.each do |update_type|
       next if update_type == 'updateAuthorizationState'
 
@@ -89,6 +100,30 @@ class TdlibEventWorker < ApplicationJob
     return unless Rails.cache.read(lock_key) == @lock_token
 
     Rails.cache.delete(lock_key)
+  end
+
+  def process_rpc_requests!
+    rpc_key = "telegram_rpc:requests:#{@telegram_session.id}"
+
+    while (raw = $alfred.with { |c| c.lpop(rpc_key) })
+      req = JSON.parse(raw)
+      response = begin
+        result = @client.public_send(req['method'].underscore, **req['params'].symbolize_keys)
+        { data: result }
+      rescue StandardError => e
+        { error: e.message }
+      end
+
+      response_key = "telegram_rpc:response:#{req['id']}"
+      $alfred.with do |c|
+        c.rpush(response_key, response.to_json)
+        c.expire(response_key, 60)
+      end
+    end
+  end
+
+  def rpc_chats_key
+    "telegram_rpc:chats:#{@telegram_session.id}"
   end
 
   def lock_key

@@ -4,6 +4,7 @@ class BulkMigration < ApplicationRecord
   belongs_to :account
   belongs_to :captain_assistant, class_name: 'Captain::Assistant'
   belongs_to :inbox
+  belongs_to :telegram_session, optional: true
 
   has_one_attached :file
 
@@ -14,9 +15,10 @@ class BulkMigration < ApplicationRecord
     failed: 'failed'
   }, _prefix: true, _default: 'pending'
 
-  validates :source, presence: true, inclusion: { in: %w[telegram whatsapp vk] }
+  validates :source, presence: true, inclusion: { in: %w[telegram whatsapp vk telegram_personal] }
   validates :total_dialogs, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
-  validate :file_attached_and_json
+  validate :file_attached_and_json, unless: -> { source == 'telegram_personal' }
+  validate :telegram_session_required, if: -> { source == 'telegram_personal' }
 
   scope :recent, -> { order(created_at: :desc) }
 
@@ -39,6 +41,22 @@ class BulkMigration < ApplicationRecord
     "#{processed}/#{total_dialogs} диалогов обработано"
   end
 
+  def session_gap_minutes
+    config&.dig('session_gap_minutes')&.to_i
+  end
+
+  def faq_dedup_threshold
+    config&.dig('faq_dedup_threshold')&.to_f
+  end
+
+  def dialog_dedup_threshold
+    config&.dig('dialog_dedup_threshold')&.to_f
+  end
+
+  def date_limit_months
+    config&.dig('date_limit_months')&.to_i
+  end
+
   after_create_commit :enqueue_job, if: :status_pending?
 
   private
@@ -52,6 +70,11 @@ class BulkMigration < ApplicationRecord
     return if file.blob.content_type.in?(['application/json', 'text/plain'])
 
     errors.add(:file, 'must be JSON')
+  end
+
+  def telegram_session_required
+    errors.add(:telegram_session, :blank) if telegram_session_id.blank?
+    errors.add(:telegram_session, 'must be active') if telegram_session_id.present? && !telegram_session&.active?
   end
 
   def enqueue_job

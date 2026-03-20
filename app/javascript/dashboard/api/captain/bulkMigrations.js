@@ -21,6 +21,10 @@ class CaptainBulkMigrations extends ApiClient {
       },
     });
   }
+
+  createLive(data) {
+    return axios.post(this.url, { bulk_migration: data });
+  }
 }
 
 export default new CaptainBulkMigrations();

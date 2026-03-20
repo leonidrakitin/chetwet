@@ -7,6 +7,10 @@ class TelegramSessions extends ApiClient {
     super('telegram_sessions', { accountScoped: true });
   }
 
+  getAll() {
+    return axios.get(this.url);
+  }
+
   submitCode(id, code) {
     return axios.post(`${this.url}/${id}/submit_code`, { code });
   }

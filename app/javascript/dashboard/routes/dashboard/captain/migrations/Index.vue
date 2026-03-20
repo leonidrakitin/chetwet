@@ -8,6 +8,7 @@ import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
 import BulkMigrationsAPI from 'dashboard/api/captain/bulkMigrations';
 import CaptainInboxes from 'dashboard/api/captain/inboxes';
+import TelegramSessionsAPI from 'dashboard/api/telegramSessions';
 
 const route = useRoute();
 const { t } = useI18n();
@@ -22,9 +23,14 @@ const form = ref({
   agentExternalId: '',
   includeGroups: false,
   maxMessagesPerDialog: '',
+  telegramSessionId: '',
+  dateLimitMonths: '',
+  sessionGapMinutes: '',
+  maxChats: '',
 });
 const isSubmitting = ref(false);
 const createError = ref('');
+const showAdvanced = ref(false);
 
 const migrations = ref([]);
 const isFetchingMigrations = ref(false);
@@ -32,12 +38,29 @@ const isFetchingMigrations = ref(false);
 const inboxes = ref([]);
 const isFetchingInboxes = ref(false);
 
+const telegramSessions = ref([]);
+const isFetchingSessions = ref(false);
+
 const cableSubscriptions = ref({});
+
+const isLiveSource = computed(() => form.value.source === 'telegram_personal');
 
 const SOURCES = [
   { value: 'telegram', labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_TELEGRAM' },
+  {
+    value: 'telegram_personal',
+    labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_TELEGRAM_PERSONAL',
+  },
   { value: 'whatsapp', labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_WHATSAPP' },
   { value: 'vk', labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_VK' },
+];
+
+const DATE_LIMIT_OPTIONS = [
+  { value: '', labelKey: 'CAPTAIN.MIGRATIONS.DATE_LIMIT_ALL' },
+  { value: 1, labelKey: 'CAPTAIN.MIGRATIONS.DATE_LIMIT_1' },
+  { value: 2, labelKey: 'CAPTAIN.MIGRATIONS.DATE_LIMIT_2' },
+  { value: 6, labelKey: 'CAPTAIN.MIGRATIONS.DATE_LIMIT_6' },
+  { value: 12, labelKey: 'CAPTAIN.MIGRATIONS.DATE_LIMIT_12' },
 ];
 
 const STATUS_BADGE_CLASSES = {
@@ -85,6 +108,20 @@ function fetchInboxes() {
     })
     .finally(() => {
       isFetchingInboxes.value = false;
+    });
+}
+
+function fetchTelegramSessions() {
+  isFetchingSessions.value = true;
+  TelegramSessionsAPI.getAll()
+    .then(({ data }) => {
+      telegramSessions.value = Array.isArray(data) ? data : [];
+    })
+    .catch(() => {
+      telegramSessions.value = [];
+    })
+    .finally(() => {
+      isFetchingSessions.value = false;
     });
 }
 
@@ -156,18 +193,7 @@ function onDragOver(e) {
   e.preventDefault();
 }
 
-function submitMigration() {
-  createError.value = '';
-  if (!form.value.file) {
-    createError.value = 'CAPTAIN.MIGRATIONS.ERROR_FILE_REQUIRED';
-    return;
-  }
-  if (!form.value.inboxId) {
-    createError.value = 'CAPTAIN.MIGRATIONS.ERROR_INBOX_REQUIRED';
-    return;
-  }
-
-  isSubmitting.value = true;
+function submitFileMigration() {
   const fd = new FormData();
   fd.append('bulk_migration[source]', form.value.source);
   fd.append('bulk_migration[captain_assistant_id]', assistantId.value);
@@ -187,8 +213,53 @@ function submitMigration() {
       form.value.maxMessagesPerDialog
     );
   }
+  return BulkMigrationsAPI.create(fd);
+}
 
-  BulkMigrationsAPI.create(fd)
+function submitLiveMigration() {
+  const config = {};
+  if (form.value.dateLimitMonths)
+    config.date_limit_months = Number(form.value.dateLimitMonths);
+  if (form.value.sessionGapMinutes)
+    config.session_gap_minutes = Number(form.value.sessionGapMinutes);
+  if (form.value.maxChats) config.max_chats = Number(form.value.maxChats);
+
+  return BulkMigrationsAPI.createLive({
+    source: 'telegram_personal',
+    captain_assistant_id: assistantId.value,
+    inbox_id: form.value.inboxId,
+    telegram_session_id: form.value.telegramSessionId,
+    dry_run: form.value.dryRun,
+    include_groups: form.value.includeGroups,
+    config,
+  });
+}
+
+function submitMigration() {
+  createError.value = '';
+
+  if (isLiveSource.value) {
+    if (!form.value.telegramSessionId) {
+      createError.value = 'CAPTAIN.MIGRATIONS.ERROR_SESSION_REQUIRED';
+      return;
+    }
+  } else if (!form.value.file) {
+    createError.value = 'CAPTAIN.MIGRATIONS.ERROR_FILE_REQUIRED';
+    return;
+  }
+
+  if (!form.value.inboxId) {
+    createError.value = 'CAPTAIN.MIGRATIONS.ERROR_INBOX_REQUIRED';
+    return;
+  }
+
+  isSubmitting.value = true;
+
+  const apiCall = isLiveSource.value
+    ? submitLiveMigration()
+    : submitFileMigration();
+
+  apiCall
     .then(({ data }) => {
       migrations.value = [data, ...migrations.value];
       if (data.status === 'processing') {
@@ -221,6 +292,7 @@ watch(assistantId, () => {
 onMounted(() => {
   fetchMigrations();
   fetchInboxes();
+  fetchTelegramSessions();
 });
 
 onUnmounted(() => {
@@ -284,7 +356,31 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div>
+          <!-- Telegram session select (live source) -->
+          <div v-if="isLiveSource">
+            <label class="mb-1 block text-sm font-medium text-n-slate-12">
+              {{ $t('CAPTAIN.MIGRATIONS.TELEGRAM_SESSION') }}
+            </label>
+            <select
+              v-model="form.telegramSessionId"
+              class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+              :disabled="isFetchingSessions || !telegramSessions.length"
+            >
+              <option value="">
+                {{ $t('CAPTAIN.MIGRATIONS.TELEGRAM_SESSION_PLACEHOLDER') }}
+              </option>
+              <option
+                v-for="session in telegramSessions"
+                :key="session.id"
+                :value="String(session.id)"
+              >
+                {{ session.phone_number || session.id }}
+              </option>
+            </select>
+          </div>
+
+          <!-- File upload (file-based sources) -->
+          <div v-if="!isLiveSource">
             <label class="mb-1 block text-sm font-medium text-n-slate-12">
               {{ $t('CAPTAIN.MIGRATIONS.FILE') }}
             </label>
@@ -311,6 +407,25 @@ onUnmounted(() => {
             </div>
           </div>
 
+          <!-- Date limit (live source) -->
+          <div v-if="isLiveSource">
+            <label class="mb-1 block text-sm font-medium text-n-slate-12">
+              {{ $t('CAPTAIN.MIGRATIONS.DATE_LIMIT') }}
+            </label>
+            <select
+              v-model="form.dateLimitMonths"
+              class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+            >
+              <option
+                v-for="opt in DATE_LIMIT_OPTIONS"
+                :key="opt.value"
+                :value="opt.value"
+              >
+                {{ $t(opt.labelKey) }}
+              </option>
+            </select>
+          </div>
+
           <div class="flex flex-wrap items-center gap-4">
             <label class="flex items-center gap-2">
               <input
@@ -334,7 +449,11 @@ onUnmounted(() => {
             </label>
           </div>
 
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <!-- File-based source options -->
+          <div
+            v-if="!isLiveSource"
+            class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+          >
             <div>
               <label class="mb-1 block text-sm font-medium text-n-slate-12">
                 {{ $t('CAPTAIN.MIGRATIONS.AGENT_EXTERNAL_ID') }}
@@ -358,6 +477,45 @@ onUnmounted(() => {
                 min="1"
                 class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
               />
+            </div>
+          </div>
+
+          <!-- Advanced options (live source) -->
+          <div v-if="isLiveSource">
+            <button
+              type="button"
+              class="text-sm text-n-slate-11 hover:text-n-slate-12"
+              @click="showAdvanced = !showAdvanced"
+            >
+              {{ $t('CAPTAIN.MIGRATIONS.ADVANCED_OPTIONS') }}
+              {{ showAdvanced ? '▲' : '▼' }}
+            </button>
+            <div
+              v-if="showAdvanced"
+              class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2"
+            >
+              <div>
+                <label class="mb-1 block text-sm font-medium text-n-slate-12">
+                  {{ $t('CAPTAIN.MIGRATIONS.SESSION_GAP_MINUTES') }}
+                </label>
+                <input
+                  v-model="form.sessionGapMinutes"
+                  type="number"
+                  min="1"
+                  class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                />
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-n-slate-12">
+                  {{ $t('CAPTAIN.MIGRATIONS.MAX_CHATS') }}
+                </label>
+                <input
+                  v-model="form.maxChats"
+                  type="number"
+                  min="1"
+                  class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                />
+              </div>
             </div>
           </div>
 
@@ -468,7 +626,20 @@ onUnmounted(() => {
                   >
                     {{ $t('CAPTAIN.MIGRATIONS.STEP_DIALOGS_FOUND') }}:
                     <span class="font-medium">
-                      {{ m.report?.parser_stats?.total_chats ?? 0 }}
+                      {{
+                        m.report?.source_stats?.total_chats ??
+                        m.report?.source_stats?.processed_chats ??
+                        0
+                      }}
+                    </span>
+                  </span>
+                  <span
+                    v-if="m.report?.preprocess_stats?.sessions_created"
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                  >
+                    {{ $t('CAPTAIN.MIGRATIONS.STEP_SESSIONS') }}:
+                    <span class="font-medium">
+                      {{ m.report.preprocess_stats.sessions_created }}
                     </span>
                   </span>
                   <span

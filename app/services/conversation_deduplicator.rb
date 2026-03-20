@@ -3,8 +3,9 @@
 class ConversationDeduplicator
   SIMILARITY_THRESHOLD = 0.22   # если cosine distance < 0.22 → считаем дубликат (очень похожие)
 
-  def initialize(account)
+  def initialize(account, threshold: SIMILARITY_THRESHOLD)
     @account = account
+    @threshold = threshold
     @embedding_service = Captain::Llm::EmbeddingService.new(account_id: account.id)
     @seen_embeddings = []   # [ [embedding_vector, dialog_index] ]
   end
@@ -51,7 +52,7 @@ class ConversationDeduplicator
 
     @seen_embeddings.any? do |seen_embedding, _|
       distance = cosine_distance(new_embedding, seen_embedding)
-      distance < SIMILARITY_THRESHOLD
+      distance < @threshold
     end
   end
 

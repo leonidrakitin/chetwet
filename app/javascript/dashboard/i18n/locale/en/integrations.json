@@ -1166,6 +1166,7 @@
       "DESCRIPTION": "Import historical conversations from Telegram, WhatsApp or VK (JSON export). Dialogs are cleaned, deduplicated and imported as conversations; FAQs are generated automatically.",
       "SOURCE": "Source",
       "SOURCE_TELEGRAM": "Telegram",
+      "SOURCE_TELEGRAM_PERSONAL": "Telegram Personal (live)",
       "SOURCE_WHATSAPP": "WhatsApp",
       "SOURCE_VK": "VK",
       "INBOX": "Inbox",
@@ -1206,7 +1207,21 @@
       "PENDING_LABEL": "In queue...",
       "FAILED_LABEL": "Error",
       "DRY_RUN_BADGE": "DRY-RUN",
-      "DIALOGS_PROGRESS": "{processed} / {total} dialogs"
+      "DIALOGS_PROGRESS": "{processed} / {total} dialogs",
+      "TELEGRAM_SESSION": "Telegram Session",
+      "TELEGRAM_SESSION_PLACEHOLDER": "Select active session...",
+      "SESSION_GAP_MINUTES": "Session gap (minutes)",
+      "MAX_CHATS": "Max chats to process",
+      "DATE_LIMIT": "Date range",
+      "DATE_LIMIT_ALL": "All time",
+      "DATE_LIMIT_1": "Last month",
+      "DATE_LIMIT_2": "Last 2 months",
+      "DATE_LIMIT_6": "Last 6 months",
+      "DATE_LIMIT_12": "Last year",
+      "ERROR_SESSION_REQUIRED": "Please select a Telegram session",
+      "STEP_SESSIONS": "Sessions",
+      "STEP_QA_PAIRS": "Q-A Pairs",
+      "ADVANCED_OPTIONS": "Advanced options"
     }
   }
 }

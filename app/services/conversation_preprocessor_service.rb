@@ -11,12 +11,15 @@ class ConversationPreprocessorService
 
   attr_reader :account, :stats
 
-  def initialize(account)
+  def initialize(account, dialog_dedup_threshold: nil, session_gap_minutes: nil)
     @account = account
+    @dialog_dedup_threshold = dialog_dedup_threshold
+    @session_gap_minutes = session_gap_minutes
     @stats = {
       total: 0,
       cleaned: 0,
       deduplicated: 0,
+      sessions_created: 0,
       kept: 0
     }
   end
@@ -33,11 +36,21 @@ class ConversationPreprocessorService
     @stats[:cleaned] = dialogs.size - cleaned.size
 
     # Шаг 2: Дедупликация
-    unique = ConversationDeduplicator.new(account).deduplicate(cleaned)
+    dedup_opts = @dialog_dedup_threshold ? { threshold: @dialog_dedup_threshold } : {}
+    unique = ConversationDeduplicator.new(account, **dedup_opts).deduplicate(cleaned)
     @stats[:deduplicated] = cleaned.size - unique.size
-    @stats[:kept] = unique.size
 
-    unique
+    # Шаг 3: Сегментация по сессиям (если задан gap)
+    result = if @session_gap_minutes
+               segmented = ConversationSessionSegmenter.new(gap_minutes: @session_gap_minutes).segment(unique)
+               @stats[:sessions_created] = segmented.size - unique.size
+               segmented
+             else
+               unique
+             end
+
+    @stats[:kept] = result.size
+    result
   end
 
   def report
@@ -45,6 +58,7 @@ class ConversationPreprocessorService
       processed: stats[:total],
       skipped_as_spam_or_short: stats[:cleaned],
       duplicates_removed: stats[:deduplicated],
+      sessions_created: stats[:sessions_created],
       ready_for_import: stats[:kept]
     }
   end

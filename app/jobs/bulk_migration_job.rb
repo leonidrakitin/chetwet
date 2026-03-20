@@ -15,6 +15,16 @@ class BulkMigrationJob < ApplicationJob
     migration = BulkMigration.find(bulk_migration_id)
     return if migration.status == 'completed'
 
+    if migration.source == 'telegram_personal'
+      max_concurrent = InstallationConfig.find_by(name: 'TELEGRAM_MIGRATION_MAX_CONCURRENCY')&.value.to_i
+      max_concurrent = 5 if max_concurrent.zero?
+      running = BulkMigration.where(source: 'telegram_personal', status: 'processing').count
+      if running >= max_concurrent
+        self.class.set(wait: 30.seconds).perform_later(bulk_migration_id, options)
+        return
+      end
+    end
+
     migration.update!(status: 'processing', started_at: Time.current)
     run_migration(migration, options)
   rescue StandardError => e
@@ -31,11 +41,17 @@ class BulkMigrationJob < ApplicationJob
     dry_run = opts[:dry_run] == true || migration.dry_run
     Rails.logger.info "[BulkMigrationJob] Запуск ##{migration.id} | dry_run=#{dry_run} | source=#{migration.source}"
 
-    parser, parsed_dialogs = parse_file(migration)
+    if migration.source == 'telegram_personal'
+      source_stats, parsed_dialogs = fetch_live_dialogs(migration)
+    else
+      parser, parsed_dialogs = parse_file(migration)
+      source_stats = parser.stats
+    end
+
     preprocessor, dialogs = preprocess_dialogs(migration, parsed_dialogs)
     import_results = import_dialogs(dialogs, migration, dry_run)
 
-    report = build_final_report(migration, parser, preprocessor, import_results, dry_run)
+    report = build_final_report(migration, source_stats, preprocessor, import_results, dry_run)
     migration.update!(status: 'completed', finished_at: Time.current, report: report)
     BulkMigrationReportService.new(migration).deliver!
     Rails.logger.info "[BulkMigrationJob] Завершена ##{migration.id}. #{report[:summary]}"
@@ -49,7 +65,11 @@ class BulkMigrationJob < ApplicationJob
   end
 
   def preprocess_dialogs(migration, parsed_dialogs)
-    preprocessor = ConversationPreprocessorService.new(migration.account)
+    preprocessor = ConversationPreprocessorService.new(
+      migration.account,
+      dialog_dedup_threshold: migration.dialog_dedup_threshold,
+      session_gap_minutes: migration.session_gap_minutes
+    )
     dialogs = preprocessor.preprocess(parsed_dialogs)
     migration.update!(total_dialogs: dialogs.size, processed: 0)
     [preprocessor, dialogs]
@@ -79,6 +99,23 @@ class BulkMigrationJob < ApplicationJob
     }.compact
   end
 
+  def fetch_live_dialogs(migration)
+    fetcher = TelegramLiveFetcherService.new(
+      migration.telegram_session,
+      max_chats: migration.config&.dig('max_chats'),
+      max_messages_per_chat: migration.config&.dig('max_messages_per_chat') || migration.max_messages_per_dialog,
+      include_groups: migration.include_groups,
+      date_limit_months: migration.date_limit_months
+    )
+    dialogs = fetcher.fetch do |current, total|
+      if (current % 10).zero?
+        migration.update!(total_dialogs: total, processed: current)
+        broadcast_progress(migration)
+      end
+    end
+    [fetcher.stats, dialogs]
+  end
+
   def process_batch_import(dialogs, inbox, migration)
     imported = 0
     faqs_generated = 0
@@ -99,10 +136,10 @@ class BulkMigrationJob < ApplicationJob
     { imported: imported, skipped: dialogs.size - imported, faqs_generated: faqs_generated }
   end
 
-  def build_final_report(migration, parser, preprocessor, import_results, dry_run)
+  def build_final_report(migration, source_stats, preprocessor, import_results, dry_run)
     {
       summary: dry_run ? "DRY-RUN: готово к импорту #{migration.processed} диалогов" : "#{import_results[:imported]} диалогов импортировано",
-      parser_stats: parser.stats,
+      source_stats: source_stats,
       preprocess_stats: preprocessor.report,
       import_stats: import_results,
       total_faqs_generated: import_results[:faqs_generated],

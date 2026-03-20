@@ -10,32 +10,41 @@ class ConversationCleaner
     dialogs.select { |dialog| keep?(dialog) }
   end
 
+  def clean_with_reasons(dialogs)
+    kept = []
+    reasons = Hash.new(0)
+    dialogs.each do |dialog|
+      reason = rejection_reason(dialog)
+      reason ? reasons[reason] += 1 : kept << dialog
+    end
+    { kept: kept, reasons: reasons }
+  end
+
   private
 
   def keep?(dialog)
+    rejection_reason(dialog).nil?
+  end
+
+  def rejection_reason(dialog)
     messages = dialog[:messages]
-    return false if messages.size < MIN_MESSAGES
+    return :too_few_messages if messages.size < MIN_MESSAGES
 
-    # Только бот или системные сообщения
     senders = messages.map { |m| m[:sender_type] }.uniq
-    return false if senders == ['system'] || senders == ['bot']
+    return :no_human if senders == ['system'] || senders == ['bot']
 
-    # Средняя длина сообщения
     avg_length = messages.sum { |m| m[:content].to_s.strip.length } / messages.size.to_f
-    return false if avg_length < MIN_AVG_MESSAGE_LENGTH
+    return :too_short if avg_length < MIN_AVG_MESSAGE_LENGTH
 
-    # Рассылки / спам (один отправитель доминирует). Не применяем, если нет ни одного agent — иначе при
-    # неверном agent_external_id все сообщения будут user и все диалоги отфильтруются (kept=0).
     sender_counts = messages.group_by { |m| m[:sender_type] == 'agent' ? 'agent' : 'user' }
     if sender_counts.key?('agent')
       max_percent = (sender_counts.values.max_by(&:size).size.to_f / messages.size * 100)
-      return false if max_percent > MAX_MESSAGES_FROM_ONE_SENDER_PERCENT
+      return :sender_dominance if max_percent > MAX_MESSAGES_FROM_ONE_SENDER_PERCENT
     end
 
-    # Быстрый minhash-like спам-фильтр (если >80% сообщений очень похожи)
-    return false if spam_like?(messages)
+    return :spam if spam_like?(messages)
 
-    true
+    nil
   end
 
   def spam_like?(messages)

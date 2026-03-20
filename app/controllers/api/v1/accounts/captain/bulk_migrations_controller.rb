@@ -30,7 +30,9 @@ class Api::V1::Accounts::Captain::BulkMigrationsController < Api::V1::Accounts::
   def migration_params
     params.require(:bulk_migration).permit(
       :source, :captain_assistant_id, :inbox_id,
-      :agent_external_id, :include_groups, :max_messages_per_dialog, :dry_run, :file
+      :agent_external_id, :include_groups, :max_messages_per_dialog, :dry_run, :file,
+      :telegram_session_id,
+      config: %i[session_gap_minutes faq_dedup_threshold dialog_dedup_threshold max_chats max_messages_per_chat date_limit_months]
     )
   end
 

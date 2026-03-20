@@ -3,11 +3,12 @@ class Captain::Llm::ConversationFaqService < Llm::BaseAiService
 
   DISTANCE_THRESHOLD = 0.3
 
-  def initialize(assistant, conversation)
+  def initialize(assistant, conversation, faq_dedup_threshold: nil)
     super()
     @assistant = assistant
     @conversation = conversation
     @content = conversation.to_llm_text
+    @faq_threshold = faq_dedup_threshold || DISTANCE_THRESHOLD
   end
 
   # Generates and deduplicates FAQs from conversation content
@@ -56,7 +57,7 @@ class Captain::Llm::ConversationFaqService < Llm::BaseAiService
                    .responses
                    .nearest_neighbors(:embedding, embedding, distance: 'cosine')
     Rails.logger.debug(similar_faqs.map { |faq| [faq.question, faq.neighbor_distance] })
-    similar_faqs.select { |record| record.neighbor_distance < DISTANCE_THRESHOLD }
+    similar_faqs.select { |record| record.neighbor_distance < @faq_threshold }
   end
 
   def save_new_faqs(faqs)
