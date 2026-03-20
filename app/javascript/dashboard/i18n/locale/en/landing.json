@@ -1,29 +1,68 @@
 {
   "LANDING": {
     "HERO": {
-      "TITLE": "Customer conversations, simplified",
-      "SUBTITLE": "Connect with your customers across every channel from one powerful platform.",
+      "TITLE": "Customer conversations,",
+      "TITLE_ACCENT": "simplified",
+      "SUBTITLE": "Connect with your customers across every channel. Automate workflows, send smart notifications, and integrate your favorite tools — all from one platform.",
       "CTA_SIGNUP": "Get started free",
       "CTA_LOGIN": "Login"
     },
+    "STATS": {
+      "CHANNELS": "10+",
+      "CHANNELS_DESC": "Channels connected",
+      "AUTOMATIONS": "Unlimited",
+      "AUTOMATIONS_DESC": "Automation rules",
+      "UPTIME": "99.9%",
+      "UPTIME_DESC": "Platform uptime"
+    },
     "FEATURES": {
-      "TITLE": "Everything you need to delight customers",
+      "TITLE": "Everything you need",
+      "SUBTITLE": "Powerful tools to manage every customer interaction",
       "OMNICHANNEL": {
-        "TITLE": "Omnichannel support",
-        "DESCRIPTION": "Manage conversations from email, live chat, social media, and messaging apps in one place."
+        "TITLE": "Omnichannel inbox",
+        "DESCRIPTION": "Email, live chat, social media, and messaging apps — all conversations in a single unified inbox."
       },
-      "COLLABORATION": {
-        "TITLE": "Team collaboration",
-        "DESCRIPTION": "Assign conversations, add private notes, and work together to resolve issues faster."
+      "TEMPLATES": {
+        "TITLE": "Notification templates",
+        "DESCRIPTION": "Visual drag-and-drop builder for notification workflows with variables, attachments, and smart buttons."
+      },
+      "TELEGRAM": {
+        "TITLE": "Telegram Personal",
+        "DESCRIPTION": "Connect personal Telegram accounts to manage client conversations directly from the platform."
+      },
+      "YCLIENTS": {
+        "TITLE": "YClients integration",
+        "DESCRIPTION": "Sync appointments, client data, and booking notifications seamlessly with YClients CRM."
       },
       "AUTOMATIONS": {
-        "TITLE": "Automations",
-        "DESCRIPTION": "Automate repetitive tasks with rules, macros, and intelligent routing."
+        "TITLE": "Smart automations",
+        "DESCRIPTION": "Automate repetitive tasks with rules, macros, and intelligent conversation routing."
       },
       "ANALYTICS": {
-        "TITLE": "Reports & Analytics",
-        "DESCRIPTION": "Track team performance, response times, and customer satisfaction in real time."
+        "TITLE": "Reports & analytics",
+        "DESCRIPTION": "Track team performance, response times, and customer satisfaction with real-time dashboards."
       }
+    },
+    "HOW_IT_WORKS": {
+      "TITLE": "Get started in minutes",
+      "SUBTITLE": "Three simple steps to transform your customer support",
+      "STEP_1": {
+        "TITLE": "Connect your channels",
+        "DESCRIPTION": "Link your email, Telegram, WhatsApp, and social accounts in just a few clicks."
+      },
+      "STEP_2": {
+        "TITLE": "Set up workflows",
+        "DESCRIPTION": "Create automation rules, notification templates, and team routing to work smarter."
+      },
+      "STEP_3": {
+        "TITLE": "Delight customers",
+        "DESCRIPTION": "Respond faster, resolve issues efficiently, and build lasting relationships."
+      }
+    },
+    "CTA": {
+      "TITLE": "Ready to transform your customer support?",
+      "SUBTITLE": "Start for free. No credit card required.",
+      "BUTTON": "Get started now"
     },
     "FOOTER": {
       "POWERED_BY": "Powered by %{installationName}"
