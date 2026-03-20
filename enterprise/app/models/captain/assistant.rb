@@ -37,7 +37,8 @@ class Captain::Assistant < ApplicationRecord
   has_many :copilot_threads, dependent: :destroy_async
   has_many :scenarios, class_name: 'Captain::Scenario', dependent: :destroy_async
 
-  store_accessor :config, :temperature, :feature_faq, :feature_memory, :feature_document_faq_generation, :product_name,
+  store_accessor :config, :temperature, :feature_faq, :feature_memory, :feature_document_faq_generation,
+                 :feature_contact_attributes, :product_name,
                  :autonomy_max_retries, :faq_auto_answer_threshold, :faq_suggest_threshold,
                  :autonomy_self_check_enabled, :autonomy_return_to_scenario,
                  :disabled_built_in_tools
@@ -123,7 +124,7 @@ class Captain::Assistant < ApplicationRecord
       scenarios: enabled.map do |scenario|
         {
           title: scenario.title,
-          key: "#{scenario.title} Agent".parameterize(separator: '_'),
+          key: scenario.handoff_key,
           description: scenario.description
         }
       end,
