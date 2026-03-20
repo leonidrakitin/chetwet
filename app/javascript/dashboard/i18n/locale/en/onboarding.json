@@ -4,6 +4,14 @@
     "BACK": "Back",
     "NEXT": "Continue",
     "SAVING": "Saving...",
+    "PROFILE_STEP": {
+      "TITLE": "Welcome! Let's set up your profile",
+      "SUBTITLE": "How should your team and customers know you?",
+      "NAME_LABEL": "Your name",
+      "NAME_PLACEHOLDER": "John Doe",
+      "SUCCESS": "Profile updated",
+      "ERROR": "Could not update profile"
+    },
     "ACCOUNT_STEP": {
       "TITLE": "Set up your workspace",
       "SUBTITLE": "Let's configure the basics for your account",
@@ -29,24 +37,66 @@
     "INBOX_STEP": {
       "TITLE": "Create your first inbox",
       "SUBTITLE": "Connect a channel to start receiving messages",
-      "CHANNEL_WEBSITE": "Website live chat",
+      "CHANNEL_WEBSITE": "Website",
       "CHANNEL_EMAIL": "Email",
+      "CHANNEL_TELEGRAM": "Telegram",
+      "CHANNEL_WHATSAPP": "WhatsApp",
+      "CHANNEL_API": "API",
+      "CHANNEL_VK": "VK",
+      "CHANNEL_AVITO": "Avito",
       "NAME_LABEL": "Inbox name",
       "NAME_PLACEHOLDER": "My Website",
       "URL_LABEL": "Website URL",
       "URL_PLACEHOLDER": "https://example.com",
       "EMAIL_LABEL": "Email address",
       "EMAIL_PLACEHOLDER": "support@example.com",
+      "BOT_TOKEN_LABEL": "Bot token",
+      "BOT_TOKEN_PLACEHOLDER": "123456:ABC-DEF1234ghIkl-zyx57W2v",
+      "PHONE_LABEL": "Phone number",
+      "PHONE_PLACEHOLDER": "+1234567890",
+      "WEBHOOK_LABEL": "Webhook URL (optional)",
+      "WEBHOOK_PLACEHOLDER": "https://example.com/webhook",
+      "GROUP_ID_LABEL": "Group ID",
+      "GROUP_ID_PLACEHOLDER": "123456789",
+      "ACCESS_TOKEN_LABEL": "Access token",
+      "ACCESS_TOKEN_PLACEHOLDER": "Your access token",
+      "CLIENT_ID_LABEL": "Client ID",
+      "CLIENT_ID_PLACEHOLDER": "Your client ID",
+      "CLIENT_SECRET_LABEL": "Client secret",
+      "CLIENT_SECRET_PLACEHOLDER": "Your client secret",
       "SUCCESS": "Inbox created successfully",
       "ERROR": "Could not create inbox"
+    },
+    "GREETING_STEP": {
+      "TITLE": "Set up a greeting",
+      "SUBTITLE": "Welcome visitors with an automatic message",
+      "ENABLED_LABEL": "Enable greeting message",
+      "MESSAGE_LABEL": "Greeting message",
+      "MESSAGE_PLACEHOLDER": "Hello! How can we help you today?",
+      "SUCCESS": "Greeting saved",
+      "ERROR": "Could not save greeting"
+    },
+    "CANNED_STEP": {
+      "TITLE": "Create quick replies",
+      "SUBTITLE": "Save time with reusable response templates",
+      "SHORT_CODE_LABEL": "Shortcut",
+      "SHORT_CODE_PLACEHOLDER": "thanks",
+      "CONTENT_LABEL": "Message",
+      "CONTENT_PLACEHOLDER": "Thank you for contacting us!",
+      "ADD_MORE": "Add another",
+      "SUCCESS": "Quick replies created",
+      "ERROR": "Could not create quick replies"
     },
     "COMPLETE_STEP": {
       "TITLE": "You're all set!",
       "SUBTITLE": "Your workspace is ready. Start engaging with your customers.",
       "GO_TO_DASHBOARD": "Go to Dashboard",
+      "SUMMARY_PROFILE": "Profile configured",
       "SUMMARY_ACCOUNT": "Account configured",
       "SUMMARY_AGENTS": "{count} agent(s) invited",
-      "SUMMARY_INBOX": "Inbox created"
+      "SUMMARY_INBOX": "Inbox created",
+      "SUMMARY_GREETING": "Greeting message set",
+      "SUMMARY_CANNED": "{count} quick reply(s) created"
     }
   }
 }
