@@ -634,6 +634,19 @@
         "SIGN_IN": "Sign in with Google",
         "EMAIL_PLACEHOLDER": "Enter email address",
         "ERROR_MESSAGE": "There was an error connecting to Google, please try again"
+      },
+      "IMAP_PROVIDER": {
+        "TITLE": "{provider} email channel",
+        "DESC": "Connect your {provider} email account using IMAP/SMTP.",
+        "PASSWORD": {
+          "LABEL": "Password",
+          "PLACEHOLDER": "Enter your app password",
+          "SUBTITLE": "Use an app password instead of your regular password. Generate one in your email provider's security settings."
+        },
+        "SUBMIT_BUTTON": "Create {provider} channel",
+        "API": {
+          "ERROR_MESSAGE": "Could not create the email channel. Please verify your credentials."
+        }
       }
     },
     "DETAILS": {
@@ -1238,6 +1251,18 @@
       "GOOGLE": {
         "TITLE": "Google",
         "DESCRIPTION": "Connect with Google"
+      },
+      "MAILRU": {
+        "TITLE": "Mail.ru",
+        "DESCRIPTION": "Connect with Mail.ru"
+      },
+      "YANDEX": {
+        "TITLE": "Yandex",
+        "DESCRIPTION": "Connect with Yandex Mail"
+      },
+      "RAMBLER": {
+        "TITLE": "Rambler",
+        "DESCRIPTION": "Connect with Rambler Mail"
       },
       "OTHER_PROVIDERS": {
         "TITLE": "Other Providers",
