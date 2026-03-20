@@ -1220,6 +1220,11 @@
       "DATE_LIMIT_6": "Last 6 months",
       "DATE_LIMIT_12": "Last year",
       "ERROR_SESSION_REQUIRED": "Please select a Telegram session",
+      "ERROR_VK_TOKEN_REQUIRED": "Please enter your VK access token",
+      "SOURCE_VK_PERSONAL": "VK Personal (live)",
+      "VK_ACCESS_TOKEN": "VK User Access Token",
+      "VK_ACCESS_TOKEN_PLACEHOLDER": "Paste your VK user token with messages permission",
+      "VK_ACCESS_TOKEN_HELP": "Create a Standalone app at vk.com/dev, get token via Implicit Flow with messages scope",
       "STEP_SESSIONS": "Sessions",
       "STEP_QA_PAIRS": "Q-A Pairs",
       "ADVANCED_OPTIONS": "Advanced options"

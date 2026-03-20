@@ -15,10 +15,11 @@ class BulkMigration < ApplicationRecord
     failed: 'failed'
   }, _prefix: true, _default: 'pending'
 
-  validates :source, presence: true, inclusion: { in: %w[telegram whatsapp vk telegram_personal] }
+  validates :source, presence: true, inclusion: { in: %w[telegram whatsapp vk telegram_personal vk_personal] }
   validates :total_dialogs, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
-  validate :file_attached_and_json, unless: -> { source == 'telegram_personal' }
+  validate :file_attached_and_json, unless: -> { source.in?(%w[telegram_personal vk_personal]) }
   validate :telegram_session_required, if: -> { source == 'telegram_personal' }
+  validate :vk_token_required, if: -> { source == 'vk_personal' }
 
   scope :recent, -> { order(created_at: :desc) }
 
@@ -75,6 +76,10 @@ class BulkMigration < ApplicationRecord
   def telegram_session_required
     errors.add(:telegram_session, :blank) if telegram_session_id.blank?
     errors.add(:telegram_session, 'must be active') if telegram_session_id.present? && !telegram_session&.active?
+  end
+
+  def vk_token_required
+    errors.add(:config, 'must include vk_access_token') if config&.dig('vk_access_token').blank?
   end
 
   def enqueue_job

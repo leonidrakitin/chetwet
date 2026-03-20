@@ -15,10 +15,10 @@ class BulkMigrationJob < ApplicationJob
     migration = BulkMigration.find(bulk_migration_id)
     return if migration.status == 'completed'
 
-    if migration.source == 'telegram_personal'
-      max_concurrent = InstallationConfig.find_by(name: 'TELEGRAM_MIGRATION_MAX_CONCURRENCY')&.value.to_i
+    if migration.source.in?(%w[telegram_personal vk_personal])
+      max_concurrent = InstallationConfig.find_by(name: 'LIVE_MIGRATION_MAX_CONCURRENCY')&.value.to_i
       max_concurrent = 5 if max_concurrent.zero?
-      running = BulkMigration.where(source: 'telegram_personal', status: 'processing').count
+      running = BulkMigration.where(source: migration.source, status: 'processing').count
       if running >= max_concurrent
         self.class.set(wait: 30.seconds).perform_later(bulk_migration_id, options)
         return
@@ -41,7 +41,7 @@ class BulkMigrationJob < ApplicationJob
     dry_run = opts[:dry_run] == true || migration.dry_run
     Rails.logger.info "[BulkMigrationJob] Запуск ##{migration.id} | dry_run=#{dry_run} | source=#{migration.source}"
 
-    if migration.source == 'telegram_personal'
+    if migration.source.in?(%w[telegram_personal vk_personal])
       source_stats, parsed_dialogs = fetch_live_dialogs(migration)
     else
       parser, parsed_dialogs = parse_file(migration)
@@ -100,8 +100,32 @@ class BulkMigrationJob < ApplicationJob
   end
 
   def fetch_live_dialogs(migration)
+    case migration.source
+    when 'telegram_personal' then fetch_telegram_live_dialogs(migration)
+    when 'vk_personal' then fetch_vk_live_dialogs(migration)
+    end
+  end
+
+  def fetch_telegram_live_dialogs(migration)
     fetcher = TelegramLiveFetcherService.new(
       migration.telegram_session,
+      max_chats: migration.config&.dig('max_chats'),
+      max_messages_per_chat: migration.config&.dig('max_messages_per_chat') || migration.max_messages_per_dialog,
+      include_groups: migration.include_groups,
+      date_limit_months: migration.date_limit_months
+    )
+    dialogs = fetcher.fetch do |current, total|
+      if (current % 10).zero?
+        migration.update!(total_dialogs: total, processed: current)
+        broadcast_progress(migration)
+      end
+    end
+    [fetcher.stats, dialogs]
+  end
+
+  def fetch_vk_live_dialogs(migration)
+    fetcher = VkLiveFetcherService.new(
+      migration.config['vk_access_token'],
       max_chats: migration.config&.dig('max_chats'),
       max_messages_per_chat: migration.config&.dig('max_messages_per_chat') || migration.max_messages_per_dialog,
       include_groups: migration.include_groups,
