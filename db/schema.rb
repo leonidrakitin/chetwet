@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_20_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_20_130000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -294,12 +294,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_20_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "dry_run", default: false, null: false
+    t.bigint "telegram_session_id"
+    t.jsonb "config", default: {}, null: false
     t.index ["account_id", "status"], name: "index_bulk_migrations_on_account_id_and_status"
     t.index ["account_id"], name: "index_bulk_migrations_on_account_id"
     t.index ["captain_assistant_id", "status"], name: "index_bulk_migrations_on_captain_assistant_id_and_status"
     t.index ["captain_assistant_id"], name: "index_bulk_migrations_on_captain_assistant_id"
     t.index ["inbox_id"], name: "index_bulk_migrations_on_inbox_id"
     t.index ["source"], name: "index_bulk_migrations_on_source"
+    t.index ["telegram_session_id"], name: "index_bulk_migrations_on_telegram_session_id"
   end
 
   create_table "campaigns", force: :cascade do |t|
@@ -1519,6 +1522,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_20_120000) do
   add_foreign_key "bulk_migrations", "accounts"
   add_foreign_key "bulk_migrations", "captain_assistants"
   add_foreign_key "bulk_migrations", "inboxes"
+  add_foreign_key "bulk_migrations", "telegram_sessions"
   add_foreign_key "channel_avito", "accounts"
   add_foreign_key "channel_telegram_personal", "accounts"
   add_foreign_key "channel_vk", "accounts"

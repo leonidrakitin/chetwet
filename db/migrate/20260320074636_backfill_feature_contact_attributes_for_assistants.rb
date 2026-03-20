@@ -4,7 +4,11 @@ class BackfillFeatureContactAttributesForAssistants < ActiveRecord::Migration[7.
   def up
     return unless ChatwootApp.enterprise?
 
-    Account.feature_captain_integration_v2.find_each do |account|
+    # Avoid FlagShihTzu SQL scopes here: `feature_flags` is stored as decimal and
+    # PostgreSQL rejects `numeric & bigint` without casts.
+    Account.find_each do |account|
+      next unless account.feature_enabled?('captain_integration_v2')
+
       account.captain_assistants.each do |assistant|
         next if assistant.feature_contact_attributes.present?
 
@@ -16,7 +20,9 @@ class BackfillFeatureContactAttributesForAssistants < ActiveRecord::Migration[7.
   def down
     return unless ChatwootApp.enterprise?
 
-    Account.feature_captain_integration_v2.find_each do |account|
+    Account.find_each do |account|
+      next unless account.feature_enabled?('captain_integration_v2')
+
       account.captain_assistants.each do |assistant|
         next if assistant.feature_contact_attributes.blank?
 
