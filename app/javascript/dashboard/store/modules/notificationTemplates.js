@@ -56,10 +56,14 @@ export const mutations = {
   REORDER_TEMPLATES(_state, templates) {
     _state.templates = templates.map((t, index) => ({ ...t, order: index }));
   },
+  SET_UI_FLAG(_state, data) {
+    _state.uiFlags = { ..._state.uiFlags, ...data };
+  },
 };
 
 export const actions = {
   async get({ commit }) {
+    commit('SET_UI_FLAG', { isFetching: true });
     commit('SET_META', {
       yclientsEnabled: false,
       yclientsIntegrations: [],
@@ -73,6 +77,8 @@ export const actions = {
       });
     } catch (error) {
       throw new Error(error);
+    } finally {
+      commit('SET_UI_FLAG', { isFetching: false });
     }
   },
   async create({ commit, state: _state }, templateData) {

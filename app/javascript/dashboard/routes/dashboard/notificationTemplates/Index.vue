@@ -10,6 +10,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
+import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TemplateCard from './components/TemplateCard.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 import FlowMap from './components/FlowMap.vue';
@@ -35,6 +36,9 @@ const onTabChanged = tab => {
   if (index !== -1) activeTabIndex.value = index;
 };
 
+const uiFlags = computed(
+  () => store.getters['notificationTemplates/getUIFlags']
+);
 const allTemplates = computed(
   () => store.getters['notificationTemplates/getTemplates']
 );
@@ -256,9 +260,17 @@ onMounted(() => {
           : 'overflow-y-auto px-4 py-3 md:px-6 md:py-4'
       "
     >
+      <!-- Loading -->
+      <div
+        v-if="uiFlags.isFetching"
+        class="flex justify-center items-center py-10 text-n-slate-11"
+      >
+        <Spinner />
+      </div>
+
       <!-- Statistics tab -->
       <div
-        v-if="isStatisticsTab"
+        v-else-if="isStatisticsTab"
         class="flex flex-col items-center justify-center h-full gap-4 py-12"
       >
         <div
