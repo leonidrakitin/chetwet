@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue';
 import ForwardToOption from './emailChannels/ForwardToOption.vue';
+import ImapProviderOption from './emailChannels/ImapProviderOption.vue';
 import Microsoft from './emailChannels/Microsoft.vue';
 import Google from './emailChannels/Google.vue';
 import ChannelSelector from 'dashboard/components/ChannelSelector.vue';
 import PageHeader from '../../SettingsSubPageHeader.vue';
+import { IMAP_PROVIDERS } from './emailChannels/imapProviderConfig';
 
 import { useStoreGetters } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
@@ -33,6 +35,13 @@ const emailProviderList = computed(() => {
       key: 'google',
       icon: 'i-woot-gmail',
     },
+    ...Object.values(IMAP_PROVIDERS).map(p => ({
+      title: t(p.titleKey),
+      description: t(p.descriptionKey),
+      isEnabled: true,
+      key: p.key,
+      icon: p.icon,
+    })),
     {
       title: t('INBOX_MGMT.EMAIL_PROVIDERS.OTHER_PROVIDERS.TITLE'),
       description: t('INBOX_MGMT.EMAIL_PROVIDERS.OTHER_PROVIDERS.DESCRIPTION'),
@@ -76,5 +85,9 @@ function onClick(emailProvider) {
   </div>
   <Microsoft v-else-if="provider === 'microsoft'" />
   <Google v-else-if="provider === 'google'" />
+  <ImapProviderOption
+    v-else-if="IMAP_PROVIDERS[provider]"
+    :provider-config="IMAP_PROVIDERS[provider]"
+  />
   <ForwardToOption v-else-if="provider === 'other_provider'" />
 </template>

@@ -27,6 +27,7 @@ const form = ref({
   dateLimitMonths: '',
   sessionGapMinutes: '',
   maxChats: '',
+  vkAccessToken: '',
 });
 const isSubmitting = ref(false);
 const createError = ref('');
@@ -43,7 +44,13 @@ const isFetchingSessions = ref(false);
 
 const cableSubscriptions = ref({});
 
-const isLiveSource = computed(() => form.value.source === 'telegram_personal');
+const isLiveSource = computed(() =>
+  ['telegram_personal', 'vk_personal'].includes(form.value.source)
+);
+const isTelegramLive = computed(
+  () => form.value.source === 'telegram_personal'
+);
+const isVkLive = computed(() => form.value.source === 'vk_personal');
 
 const SOURCES = [
   { value: 'telegram', labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_TELEGRAM' },
@@ -53,6 +60,10 @@ const SOURCES = [
   },
   { value: 'whatsapp', labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_WHATSAPP' },
   { value: 'vk', labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_VK' },
+  {
+    value: 'vk_personal',
+    labelKey: 'CAPTAIN.MIGRATIONS.SOURCE_VK_PERSONAL',
+  },
 ];
 
 const DATE_LIMIT_OPTIONS = [
@@ -224,23 +235,34 @@ function submitLiveMigration() {
     config.session_gap_minutes = Number(form.value.sessionGapMinutes);
   if (form.value.maxChats) config.max_chats = Number(form.value.maxChats);
 
-  return BulkMigrationsAPI.createLive({
-    source: 'telegram_personal',
+  const payload = {
+    source: form.value.source,
     captain_assistant_id: assistantId.value,
     inbox_id: form.value.inboxId,
-    telegram_session_id: form.value.telegramSessionId,
     dry_run: form.value.dryRun,
     include_groups: form.value.includeGroups,
     config,
-  });
+  };
+
+  if (isTelegramLive.value) {
+    payload.telegram_session_id = form.value.telegramSessionId;
+  } else if (isVkLive.value) {
+    config.vk_access_token = form.value.vkAccessToken;
+  }
+
+  return BulkMigrationsAPI.createLive(payload);
 }
 
 function submitMigration() {
   createError.value = '';
 
   if (isLiveSource.value) {
-    if (!form.value.telegramSessionId) {
+    if (isTelegramLive.value && !form.value.telegramSessionId) {
       createError.value = 'CAPTAIN.MIGRATIONS.ERROR_SESSION_REQUIRED';
+      return;
+    }
+    if (isVkLive.value && !form.value.vkAccessToken) {
+      createError.value = 'CAPTAIN.MIGRATIONS.ERROR_VK_TOKEN_REQUIRED';
       return;
     }
   } else if (!form.value.file) {
@@ -357,7 +379,7 @@ onUnmounted(() => {
           </div>
 
           <!-- Telegram session select (live source) -->
-          <div v-if="isLiveSource">
+          <div v-if="isTelegramLive">
             <label class="mb-1 block text-sm font-medium text-n-slate-12">
               {{ $t('CAPTAIN.MIGRATIONS.TELEGRAM_SESSION') }}
             </label>
@@ -377,6 +399,24 @@ onUnmounted(() => {
                 {{ session.phone_number || session.id }}
               </option>
             </select>
+          </div>
+
+          <!-- VK access token (vk_personal) -->
+          <div v-if="isVkLive">
+            <label class="mb-1 block text-sm font-medium text-n-slate-12">
+              {{ $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN') }}
+            </label>
+            <input
+              v-model="form.vkAccessToken"
+              type="password"
+              class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+              :placeholder="
+                $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN_PLACEHOLDER')
+              "
+            />
+            <p class="mt-1 text-xs text-n-slate-11">
+              {{ $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN_HELP') }}
+            </p>
           </div>
 
           <!-- File upload (file-based sources) -->

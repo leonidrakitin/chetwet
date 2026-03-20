@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAccount } from 'dashboard/composables/useAccount';
 import { useConfig } from 'dashboard/composables/useConfig';
+import timeZoneData from 'dashboard/routes/dashboard/settings/inbox/helpers/timezones.json';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -18,6 +19,7 @@ const { enabledLanguages } = useConfig();
 
 const name = ref('');
 const locale = ref('en');
+const timezone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
 
 const languageOptions = computed(() => {
   if (!enabledLanguages) return [];
@@ -26,16 +28,28 @@ const languageOptions = computed(() => {
   );
 });
 
+const timezoneOptions = computed(() =>
+  Object.entries(timeZoneData).map(([label, value]) => ({ label, value }))
+);
+
 onMounted(() => {
   if (currentAccount.value) {
     name.value = currentAccount.value.name || '';
     locale.value = currentAccount.value.locale || 'en';
+    timezone.value =
+      currentAccount.value.timezone ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone ||
+      'UTC';
   }
 });
 
 function proceed() {
   if (!name.value.trim()) return;
-  emit('next', { name: name.value.trim(), locale: locale.value });
+  emit('next', {
+    name: name.value.trim(),
+    locale: locale.value,
+    timezone: timezone.value,
+  });
 }
 </script>
 
@@ -75,6 +89,24 @@ function proceed() {
           >
             <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
             {{ `${lang.name} (${lang.iso_639_1_code})` }}
+          </option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-n-slate-11 mb-1.5 block">
+          {{ t('ONBOARDING.ACCOUNT_STEP.TIMEZONE_LABEL') }}
+        </label>
+        <select
+          v-model="timezone"
+          class="w-full rounded-lg border border-n-weak bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+        >
+          <option
+            v-for="tz in timezoneOptions"
+            :key="tz.value"
+            :value="tz.value"
+          >
+            <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+            {{ tz.label }}
           </option>
         </select>
       </div>

@@ -4,8 +4,11 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 
 defineProps({
+  profileSet: { type: Boolean, default: false },
   agentsInvited: { type: Number, default: 0 },
   inboxCreated: { type: Boolean, default: false },
+  greetingSet: { type: Boolean, default: false },
+  cannedResponsesCreated: { type: Number, default: 0 },
 });
 
 const emit = defineEmits(['finish']);
@@ -29,6 +32,13 @@ const { t } = useI18n();
     <!-- Summary -->
     <div class="flex flex-col gap-2 w-full max-w-xs mb-8">
       <div
+        v-if="profileSet"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+      >
+        <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
+        {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_PROFILE') }}
+      </div>
+      <div
         class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
@@ -51,6 +61,24 @@ const { t } = useI18n();
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
         {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_INBOX') }}
+      </div>
+      <div
+        v-if="greetingSet"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+      >
+        <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
+        {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_GREETING') }}
+      </div>
+      <div
+        v-if="cannedResponsesCreated > 0"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+      >
+        <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
+        {{
+          t('ONBOARDING.COMPLETE_STEP.SUMMARY_CANNED', {
+            count: cannedResponsesCreated,
+          })
+        }}
       </div>
     </div>
 
