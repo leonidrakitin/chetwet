@@ -1,6 +1,11 @@
 class Api::V1::Accounts::TelegramSessionsController < Api::V1::Accounts::BaseController
   before_action :fetch_telegram_session, only: %i[show submit_code submit_password reconnect]
 
+  def index
+    sessions = TelegramSession.joins(:inbox).where(inboxes: { account_id: Current.account.id }).order(:id)
+    render json: sessions.map { |s| session_payload(s, s.inbox) }
+  end
+
   def show
     render json: session_payload(@telegram_session, @telegram_session.inbox)
   end

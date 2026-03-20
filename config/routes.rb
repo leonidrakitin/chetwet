@@ -239,7 +239,7 @@ Rails.application.routes.draw do
           resources :reporting_events, only: [:index] if ChatwootApp.enterprise?
           resources :custom_attribute_definitions, only: [:index, :show, :create, :update, :destroy]
           resources :custom_filters, only: [:index, :show, :create, :update, :destroy]
-          resources :telegram_sessions, only: [:create, :show] do
+          resources :telegram_sessions, only: [:index, :create, :show] do
             member do
               post :submit_code
               post :submit_password
