@@ -21,8 +21,10 @@ const STEPS = [
 const currentStep = ref(0);
 const slideDirection = ref('forward');
 
+const currentUser = computed(() => store.getters['auth/getCurrentUser']);
+
 const wizardData = reactive({
-  displayName: '',
+  displayName: currentUser.value.display_name || currentUser.value.name || '',
   useCase: '',
   channels: [],
 });
