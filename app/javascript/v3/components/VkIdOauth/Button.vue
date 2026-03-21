@@ -1,6 +1,22 @@
 <script>
+// VK ID login (agent): browser → id.vk.com/authorize → OmniAuth /auth/vkid/callback.
+// device_id must match authorize + token exchange (see lib/omniauth/strategies/vkid.rb).
+const VK_DEVICE_STORAGE_KEY = 'vk_id_oauth_device_id';
+
 export default {
   methods: {
+    getOrCreateVkDeviceId() {
+      try {
+        let id = sessionStorage.getItem(VK_DEVICE_STORAGE_KEY);
+        if (!id) {
+          id = crypto.randomUUID();
+          sessionStorage.setItem(VK_DEVICE_STORAGE_KEY, id);
+        }
+        return id;
+      } catch {
+        return crypto.randomUUID();
+      }
+    },
     getVkAuthUrl() {
       const baseUrl = 'https://id.vk.com/authorize';
       const clientId = window.chatwootConfig.vkIdClientId;
@@ -11,6 +27,7 @@ export default {
         redirect_uri: redirectUri,
         response_type: 'code',
         scope: 'email',
+        device_id: this.getOrCreateVkDeviceId(),
       }).toString();
 
       return `${baseUrl}?${queryString}`;

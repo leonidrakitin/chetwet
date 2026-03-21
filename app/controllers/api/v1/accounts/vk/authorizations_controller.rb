@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# VK channel inbox: settings UI → PKCE authorize → GET /vk/callback (not agent login; that is OmniAuth vkid + VkIdOAuthButton).
 class Api::V1::Accounts::Vk::AuthorizationsController < Api::V1::Accounts::OauthAuthorizationController
   include VkConcern
   include Vk::IntegrationHelper

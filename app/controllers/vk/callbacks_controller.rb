@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# VK channel inbox OAuth redirect target after id.vk.com (tokens → Redis → dashboard completes inbox).
 class Vk::CallbacksController < ApplicationController
   include VkConcern
   include Vk::IntegrationHelper
