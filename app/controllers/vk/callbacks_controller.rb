@@ -33,22 +33,25 @@ class Vk::CallbacksController < ApplicationController
   end
 
   def exchange_code_for_tokens(code)
-    # Get PKCE verifier from Redis
     pkce_verifier = fetch_pkce_verifier(params[:state])
+    device_id = params[:device_id]
 
     body = {
       client_id: vk_id_client_id,
-      client_secret: vk_id_client_secret,
       redirect_uri: "#{base_url}/vk/callback",
       code: code,
-      grant_type: 'authorization_code'
+      grant_type: 'authorization_code',
+      state: params[:state]
     }
     body[:code_verifier] = pkce_verifier if pkce_verifier.present?
+    body[:device_id] = device_id if device_id.present?
 
     response = HTTParty.post(
-      'https://id.vk.com/oauth2/token',
+      'https://id.vk.com/oauth2/auth',
       body: body
     )
+
+    Rails.logger.info "[VK] Token exchange response: #{response.code} #{response.body}" unless response.success?
     return nil unless response.success?
 
     parsed = response.parsed_response
@@ -63,10 +66,7 @@ class Vk::CallbacksController < ApplicationController
   end
 
   def fetch_pkce_verifier(state)
-    raw = Redis::Alfred.get("vk_pkce:#{state}")
-    return nil if raw.blank?
-
-    JSON.parse(raw)
+    Redis::Alfred.get("vk_pkce:#{state}")
   end
 
   def handle_authorization_error

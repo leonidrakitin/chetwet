@@ -20,8 +20,9 @@ module VkConcern
   end
 
   def generate_pkce_pair
-    code_verifier = SecureRandom.urlsafe_base64(43).delete('=')
-    code_challenge = Digest::SHA256.base64digest(code_verifier).delete('=').tr('+', '-').tr('/', '_')
+    code_verifier = SecureRandom.urlsafe_base64(96)
+    digest = Digest::SHA256.digest(code_verifier)
+    code_challenge = Base64.urlsafe_encode64(digest).delete('=')
     { code_verifier: code_verifier, code_challenge: code_challenge }
   end
 

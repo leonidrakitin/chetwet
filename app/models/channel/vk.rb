@@ -162,12 +162,12 @@ class Channel::Vk < ApplicationRecord
 
   def fetch_refreshed_token
     response = HTTParty.post(
-      'https://id.vk.com/oauth2/token',
+      'https://id.vk.com/oauth2/auth',
       body: {
-        client_id: ENV.fetch('VK_CLIENT_ID', nil),
-        client_secret: ENV.fetch('VK_CLIENT_SECRET', nil),
+        client_id: ENV.fetch('VK_ID_CLIENT_ID', nil),
         refresh_token: refresh_token,
-        grant_type: 'refresh_token'
+        grant_type: 'refresh_token',
+        state: SecureRandom.uuid
       }
     )
     return nil unless response.success?
