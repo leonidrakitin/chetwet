@@ -33,7 +33,6 @@ class TdlibEventWorker < ApplicationJob
   rescue Telegram::TdlibError, StandardError => e
     @telegram_session&.update!(status: :disconnected, last_error: e.message)
     @telegram_session&.inbox&.channel&.update!(status: 'disconnected', last_error: e.message)
-    retry_job wait: 10.seconds if @telegram_session.present?
   ensure
     @client&.close
     release_lock!

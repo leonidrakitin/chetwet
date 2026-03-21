@@ -55,6 +55,28 @@ class Telegram::AuthenticationService
     handle_auth_error!(e)
   end
 
+  def reconnect!
+    with_client do |client|
+      state = client.wait_for_state(*AUTH_FLOW_STATES, timeout: 15)
+
+      if state == :wait_encryption_key
+        client.set_database_encryption_key(Telegram::TdlibConfig.tdlib_database_key(telegram_session))
+        state = client.wait_for_state(:wait_phone_number, :wait_code, :wait_password, :ready, timeout: 15)
+      end
+
+      unless state == :ready
+        telegram_session.update!(last_error: 'Session requires re-authentication')
+        return telegram_session
+      end
+
+      sync_profile!(client)
+    end
+
+    telegram_session
+  rescue Telegram::RateLimitError, Telegram::TdlibError => e
+    handle_auth_error!(e)
+  end
+
   def status_payload
     {
       id: telegram_session.id,
