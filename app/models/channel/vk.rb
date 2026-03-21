@@ -22,13 +22,32 @@ class Channel::Vk < ApplicationRecord
   include Channelable
 
   encrypts :access_token, deterministic: true if Chatwoot.encryption_configured?
+  encrypts :refresh_token if Chatwoot.encryption_configured?
 
   self.table_name = 'channel_vk'
-  EDITABLE_ATTRS = [:access_token, :group_id, :secret].freeze
+  EDITABLE_ATTRS = [:access_token, :group_id, :secret, :vk_user_id, :refresh_token, :token_expires_at].freeze
 
   before_validation :ensure_valid_credentials, on: :create
   validates :group_id, presence: true, uniqueness: true
   validates :access_token, presence: true
+
+  def access_token_valid?
+    access_token.present? && (token_expires_at.blank? || token_expires_at > Time.current)
+  end
+
+  def refresh_token_if_needed!
+    return if access_token_valid?
+    return if refresh_token.blank?
+
+    result = fetch_refreshed_token
+    return unless result
+
+    update_columns(
+      access_token: result[:access_token],
+      refresh_token: result[:refresh_token],
+      token_expires_at: result[:expires_at]
+    )
+  end
 
   def name
     'VK'
@@ -39,6 +58,7 @@ class Channel::Vk < ApplicationRecord
   end
 
   def send_message_on_vk(message)
+    refresh_token_if_needed!
     if peer_id(message).blank?
       Rails.logger.warn "[VK] Cannot send: peer_id missing for conversation #{message.conversation_id}"
       return nil
@@ -50,6 +70,7 @@ class Channel::Vk < ApplicationRecord
   end
 
   def get_vk_user_info(user_id)
+    refresh_token_if_needed!
     response = HTTParty.get(
       "#{vk_api_url}/users.get",
       query: {
@@ -138,6 +159,31 @@ class Channel::Vk < ApplicationRecord
   end
 
   private
+
+  def fetch_refreshed_token
+    response = HTTParty.post(
+      'https://id.vk.com/oauth2/token',
+      body: {
+        client_id: ENV.fetch('VK_CLIENT_ID', nil),
+        client_secret: ENV.fetch('VK_CLIENT_SECRET', nil),
+        refresh_token: refresh_token,
+        grant_type: 'refresh_token'
+      }
+    )
+    return nil unless response.success?
+
+    parsed = response.parsed_response
+    return nil if parsed['access_token'].blank?
+
+    {
+      access_token: parsed['access_token'],
+      refresh_token: parsed['refresh_token'] || refresh_token,
+      expires_at: Time.current + parsed['expires_in'].to_i.seconds
+    }
+  rescue StandardError => e
+    Rails.logger.error "[VK] refresh token error: #{e.message}"
+    nil
+  end
 
   def ensure_valid_credentials
     normalized_group_id = group_id.to_s.sub(/\A-/, '')

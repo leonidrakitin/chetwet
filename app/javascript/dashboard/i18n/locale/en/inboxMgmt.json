@@ -519,22 +519,14 @@
       "VK_CHANNEL": {
         "TITLE": "VK Channel",
         "DESC": "Integrate with VK (VKontakte) community and start supporting your customers.",
-        "GROUP_ID": {
-          "LABEL": "Group ID",
-          "SUBTITLE": "Numeric ID from your group URL (e.g. vk.com/club123456789 → 123456789). With or without minus.",
-          "PLACEHOLDER": "123456789"
-        },
-        "ACCESS_TOKEN": {
-          "LABEL": "Access Token",
-          "SUBTITLE": "Community access token from VK: Manage → API usage → Access token. Needs 'Manage community' permission.",
-          "PLACEHOLDER": "Access Token"
-        },
-        "SECRET": {
-          "LABEL": "Secret (Confirmation string)",
-          "SUBTITLE": "String from Callback API settings. Required for webhook confirmation.",
-          "PLACEHOLDER": "Optional"
-        },
-        "SUBMIT_BUTTON": "Create VK Channel",
+        "CONNECT_TITLE": "Connect your VK community",
+        "CONNECT_HELP": "Authorize with your VK account to select a community for receiving messages.",
+        "CONNECT_BUTTON": "Connect VKontakte",
+        "LOADING_GROUPS": "Loading your communities...",
+        "NO_GROUPS": "No communities found where you are an administrator.",
+        "MEMBERS": "{count} members",
+        "ACTIVATE": "Connect",
+        "RETRY": "Try again",
         "API": {
           "ERROR_MESSAGE": "We were not able to save the VK channel"
         }
