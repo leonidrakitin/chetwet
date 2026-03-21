@@ -3,7 +3,11 @@ class Inboxes::BulkAutoAssignmentJob < ApplicationJob
   include BillingHelper
 
   def perform
-    Account.feature_assignment_v2.find_each do |account|
+    # Avoid FlagShihTzu SQL scopes: feature_flags is stored as decimal and
+    # PostgreSQL rejects `numeric & bigint` without casts.
+    Account.find_each do |account|
+      next unless account.feature_enabled?('assignment_v2')
+
       if should_skip_auto_assignment?(account)
         Rails.logger.info("Skipping auto assignment for account #{account.id}")
         next
