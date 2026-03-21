@@ -15,8 +15,6 @@ class Vk::CallbacksController < ApplicationController
     handle_error(e)
   end
 
-  private
-
   def process_successful_authorization
     token_response = exchange_code_for_tokens(params[:code])
     unless token_response
@@ -35,15 +33,21 @@ class Vk::CallbacksController < ApplicationController
   end
 
   def exchange_code_for_tokens(code)
+    # Get PKCE verifier from Redis
+    pkce_verifier = fetch_pkce_verifier(params[:state])
+
+    body = {
+      client_id: vk_id_client_id,
+      client_secret: vk_id_client_secret,
+      redirect_uri: "#{base_url}/vk/callback",
+      code: code,
+      grant_type: 'authorization_code'
+    }
+    body[:code_verifier] = pkce_verifier if pkce_verifier.present?
+
     response = HTTParty.post(
       'https://id.vk.com/oauth2/token',
-      body: {
-        client_id: vk_client_id,
-        client_secret: vk_client_secret,
-        redirect_uri: "#{base_url}/vk/callback",
-        code: code,
-        grant_type: 'authorization_code'
-      }
+      body: body
     )
     return nil unless response.success?
 
@@ -56,6 +60,13 @@ class Vk::CallbacksController < ApplicationController
       expires_in: parsed['expires_in'],
       user_id: parsed['user_id']
     }
+  end
+
+  def fetch_pkce_verifier(state)
+    raw = Redis::Alfred.get("vk_pkce:#{state}")
+    return nil if raw.blank?
+
+    JSON.parse(raw)
   end
 
   def handle_authorization_error
@@ -83,5 +94,15 @@ class Vk::CallbacksController < ApplicationController
     return unless params[:state]
 
     verify_vk_token(params[:state])
+  end
+
+  private
+
+  def vk_id_client_id
+    GlobalConfigService.load('VK_ID_CLIENT_ID', ENV.fetch('VK_ID_CLIENT_ID', nil))
+  end
+
+  def vk_id_client_secret
+    GlobalConfigService.load('VK_ID_CLIENT_SECRET', ENV.fetch('VK_ID_CLIENT_SECRET', nil))
   end
 end
