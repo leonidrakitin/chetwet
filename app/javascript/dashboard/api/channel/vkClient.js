@@ -6,7 +6,7 @@ class VkChannel extends ApiClient {
     super('vk', { accountScoped: true });
   }
 
-  generateAuthorization(payload) {
+  exchangeCode(payload) {
     return axios.post(`${this.url}/authorization`, payload);
   }
 

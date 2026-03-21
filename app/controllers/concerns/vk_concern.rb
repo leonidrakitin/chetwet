@@ -19,13 +19,6 @@ module VkConcern
     )
   end
 
-  def generate_pkce_pair
-    code_verifier = SecureRandom.urlsafe_base64(96)
-    digest = Digest::SHA256.digest(code_verifier)
-    code_challenge = Base64.urlsafe_encode64(digest).delete('=')
-    { code_verifier: code_verifier, code_challenge: code_challenge }
-  end
-
   def fetch_vk_groups(access_token)
     response = HTTParty.get(
       'https://api.vk.com/method/groups.get',

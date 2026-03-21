@@ -5,25 +5,49 @@ class Api::V1::Accounts::Vk::AuthorizationsController < Api::V1::Accounts::Oauth
   include VkConcern
   include Vk::IntegrationHelper
 
+  # Exchange authorization code for tokens (PKCE verifier comes from frontend)
   def create
-    pkce_pair = generate_pkce_pair
-    state_token = generate_vk_token(Current.account.id)
+    token_response = exchange_code_for_tokens
+    unless token_response
+      render json: { error: 'Failed to exchange authorization code' }, status: :unprocessable_entity
+      return
+    end
 
-    # Store PKCE verifier for use in callback (10 min TTL)
-    Redis::Alfred.setex("vk_pkce:#{state_token}", pkce_pair[:code_verifier], 10.minutes)
+    # Store tokens in Redis (15 min TTL) keyed by a random handle
+    token_handle = SecureRandom.hex(16)
+    Redis::Alfred.setex("vk_oauth:#{token_handle}", token_response.to_json, 15.minutes)
 
-    params = {
+    render json: { success: true, token_handle: token_handle }
+  end
+
+  private
+
+  def exchange_code_for_tokens
+    body = {
       client_id: vk_id_client_id,
       redirect_uri: "#{base_url}/vk/callback",
-      response_type: 'code',
-      scope: 'groups messages',
-      state: state_token,
-      code_challenge: pkce_pair[:code_challenge],
-      code_challenge_method: 'S256'
+      code: params[:code],
+      code_verifier: params[:code_verifier],
+      device_id: params[:device_id],
+      grant_type: 'authorization_code',
+      state: params[:state]
     }
 
-    redirect_url = "https://id.vk.com/authorize?#{params.to_query}"
+    response = HTTParty.post('https://id.vk.com/oauth2/auth', body: body)
 
-    render json: { success: true, url: redirect_url }
+    unless response.success?
+      Rails.logger.error "[VK] Token exchange failed: #{response.code} #{response.body}"
+      return nil
+    end
+
+    parsed = response.parsed_response
+    return nil if parsed['access_token'].blank?
+
+    {
+      access_token: parsed['access_token'],
+      refresh_token: parsed['refresh_token'],
+      expires_in: parsed['expires_in'],
+      user_id: parsed['user_id']
+    }
   end
 end

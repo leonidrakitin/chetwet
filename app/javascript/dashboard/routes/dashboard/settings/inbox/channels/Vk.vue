@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useVuelidate } from '@vuelidate/core';
+import { useAccount } from 'dashboard/composables/useAccount';
 import vkClient from 'dashboard/api/channel/vkClient';
 import Button from 'dashboard/components-next/button/Button.vue';
 import PageHeader from '../../SettingsSubPageHeader.vue';
@@ -13,6 +14,7 @@ const { t } = useI18n();
 const router = useRouter();
 const store = useStore();
 const v$ = useVuelidate();
+const { accountId } = useAccount();
 
 const step = ref('connect');
 const hasError = ref(false);
@@ -31,6 +33,27 @@ const groupId = ref('');
 const accessToken = ref('');
 const secret = ref('');
 
+// --- PKCE helpers (Web Crypto API) ---
+const generateCodeVerifier = () => {
+  const array = new Uint8Array(64);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
+const generateCodeChallenge = async verifier => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
+// --- Load groups from backend ---
 const loadGroups = async tokenHandle => {
   isLoadingGroups.value = true;
   try {
@@ -49,15 +72,44 @@ const loadGroups = async tokenHandle => {
   }
 };
 
+// --- Exchange code for tokens via backend ---
+const exchangeCodeForTokens = async (code, deviceId, stateParam) => {
+  const codeVerifier = localStorage.getItem('vk_pkce_verifier');
+  if (!codeVerifier) {
+    hasError.value = true;
+    errorMessage.value = 'PKCE verifier not found. Please try again.';
+    return;
+  }
+  localStorage.removeItem('vk_pkce_verifier');
+
+  isLoadingGroups.value = true;
+  step.value = 'groups';
+  try {
+    const exchangeResponse = await vkClient.exchangeCode({
+      code,
+      device_id: deviceId,
+      code_verifier: codeVerifier,
+      state: stateParam,
+    });
+    const { token_handle: tokenHandle } = exchangeResponse.data;
+    await loadGroups(tokenHandle);
+  } catch {
+    hasError.value = true;
+    errorMessage.value = t('INBOX_MGMT.ADD.VK_CHANNEL.API.ERROR_MESSAGE');
+    isLoadingGroups.value = false;
+  }
+};
+
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const error = urlParams.get('error_message');
-  const tokenHandle = urlParams.get('token_handle');
+  const code = urlParams.get('code');
+  const deviceId = urlParams.get('device_id');
+  const stateParam = urlParams.get('state');
 
   window.history.replaceState({}, document.title, window.location.pathname);
 
-  // Check if OAuth is enabled via window config
-  oauthEnabled.value = window.chatwootConfig?.vkIdClientId;
+  oauthEnabled.value = !!window.chatwootConfig?.vkIdClientId;
 
   if (error) {
     hasError.value = true;
@@ -65,20 +117,42 @@ onMounted(async () => {
     return;
   }
 
-  if (tokenHandle && oauthEnabled.value) {
-    step.value = 'groups';
-    await loadGroups(tokenHandle);
+  if (code && oauthEnabled.value) {
+    await exchangeCodeForTokens(code, deviceId, stateParam);
   }
 });
 
+// --- OAuth: generate PKCE + redirect to VK ID ---
 const requestAuthorization = async () => {
   isRequestingAuthorization.value = true;
   try {
-    const response = await vkClient.generateAuthorization();
-    const {
-      data: { url },
-    } = response;
-    window.location.href = url;
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+    localStorage.setItem('vk_pkce_verifier', codeVerifier);
+
+    const clientId = window.chatwootConfig.vkIdClientId;
+    const redirectUri = `${window.location.origin}/vk/callback`;
+
+    // State format: "accountId:randomHex" — callback parses accountId for redirect
+    const stateArray = new Uint8Array(16);
+    crypto.getRandomValues(stateArray);
+    const randomHex = Array.from(stateArray, b =>
+      b.toString(16).padStart(2, '0')
+    ).join('');
+    const stateToken = `${accountId.value}:${randomHex}`;
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'groups messages',
+      state: stateToken,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256',
+    });
+
+    window.location.href = `https://id.vk.com/authorize?${params.toString()}`;
   } catch {
     useAlert(t('INBOX_MGMT.ADD.VK_CHANNEL.API.ERROR_MESSAGE'));
     isRequestingAuthorization.value = false;
