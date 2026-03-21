@@ -16,6 +16,8 @@ const store = useStore();
 const v$ = useVuelidate();
 const { accountId } = useAccount();
 
+const VK_OAUTH_DEVICE_ID_KEY = 'vk_oauth_device_id';
+
 const step = ref('connect');
 const hasError = ref(false);
 const errorMessage = ref('');
@@ -82,12 +84,16 @@ const exchangeCodeForTokens = async (code, deviceId, stateParam) => {
   }
   localStorage.removeItem('vk_pkce_verifier');
 
+  const storedDeviceId = sessionStorage.getItem(VK_OAUTH_DEVICE_ID_KEY);
+  sessionStorage.removeItem(VK_OAUTH_DEVICE_ID_KEY);
+  const effectiveDeviceId = deviceId || storedDeviceId;
+
   isLoadingGroups.value = true;
   step.value = 'groups';
   try {
     const exchangeResponse = await vkClient.exchangeCode({
       code,
-      device_id: deviceId,
+      device_id: effectiveDeviceId,
       code_verifier: codeVerifier,
       state: stateParam,
     });
@@ -131,6 +137,9 @@ const requestAuthorization = async () => {
 
     localStorage.setItem('vk_pkce_verifier', codeVerifier);
 
+    const deviceId = crypto.randomUUID();
+    sessionStorage.setItem(VK_OAUTH_DEVICE_ID_KEY, deviceId);
+
     const clientId = window.chatwootConfig.vkIdClientId;
     const redirectUri = `${window.location.origin}/vk/callback`;
 
@@ -150,6 +159,7 @@ const requestAuthorization = async () => {
       state: stateToken,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
+      device_id: deviceId,
     });
 
     window.location.href = `https://id.vk.com/authorize?${params.toString()}`;
