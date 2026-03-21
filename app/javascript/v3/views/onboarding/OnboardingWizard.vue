@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, computed, markRaw } from 'vue';
+import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import WelcomeStep from './steps/WelcomeStep.vue';
@@ -7,6 +8,7 @@ import UseCaseStep from './steps/UseCaseStep.vue';
 import ChannelsStep from './steps/ChannelsStep.vue';
 import CompleteStep from './steps/CompleteStep.vue';
 
+const store = useStore();
 const { t } = useI18n();
 
 const STEPS = [
@@ -57,7 +59,12 @@ function skip() {
   window.location = '/app';
 }
 
-function finish() {
+async function finish() {
+  if (wizardData.displayName) {
+    await store.dispatch('auth/updateProfile', {
+      displayName: wizardData.displayName,
+    });
+  }
   window.location = '/app';
 }
 
