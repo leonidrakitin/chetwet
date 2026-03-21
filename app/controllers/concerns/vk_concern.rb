@@ -7,8 +7,8 @@ module VkConcern
 
   def vk_oauth_client
     ::OAuth2::Client.new(
-      vk_client_id,
-      vk_client_secret,
+      vk_id_client_id,
+      vk_id_client_secret,
       {
         site: 'https://id.vk.com',
         authorize_url: 'https://id.vk.com/authorize',
@@ -51,14 +51,18 @@ module VkConcern
     )
   end
 
-  private
-
-  def vk_client_id
-    GlobalConfigService.load('VK_CLIENT_ID', ENV.fetch('VK_CLIENT_ID', nil))
+  def oauth_enabled?
+    vk_id_client_id.present? && vk_id_client_secret.present?
   end
 
-  def vk_client_secret
-    GlobalConfigService.load('VK_CLIENT_SECRET', ENV.fetch('VK_CLIENT_SECRET', nil))
+  private
+
+  def vk_id_client_id
+    GlobalConfigService.load('VK_ID_CLIENT_ID', ENV.fetch('VK_ID_CLIENT_ID', nil))
+  end
+
+  def vk_id_client_secret
+    GlobalConfigService.load('VK_ID_CLIENT_SECRET', ENV.fetch('VK_ID_CLIENT_SECRET', nil))
   end
 
   def base_url

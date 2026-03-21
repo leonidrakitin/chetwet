@@ -527,6 +527,22 @@
         "MEMBERS": "{count} members",
         "ACTIVATE": "Connect",
         "RETRY": "Try again",
+        "GROUP_ID": {
+          "LABEL": "Group ID",
+          "SUBTITLE": "Numeric ID from your group URL (e.g. vk.com/club123456789 → 123456789). With or without minus.",
+          "PLACEHOLDER": "123456789"
+        },
+        "ACCESS_TOKEN": {
+          "LABEL": "Access Token",
+          "SUBTITLE": "Community access token from VK: Manage → API usage → Access token. Needs 'Manage community' permission.",
+          "PLACEHOLDER": "Access Token"
+        },
+        "SECRET": {
+          "LABEL": "Secret (Confirmation string)",
+          "SUBTITLE": "String from Callback API settings. Required for webhook confirmation.",
+          "PLACEHOLDER": "Optional"
+        },
+        "SUBMIT_BUTTON": "Create VK Channel",
         "API": {
           "ERROR_MESSAGE": "We were not able to save the VK channel"
         }

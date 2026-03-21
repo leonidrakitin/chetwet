@@ -14,7 +14,7 @@ module OmniAuth
       }
 
       option :authorize_params, {
-        scope: 'email'
+        scope: 'email groups messages offline' #phone
       }
 
       uid { raw_info['user_id'].to_s }
