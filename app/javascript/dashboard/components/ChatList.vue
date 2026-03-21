@@ -1029,6 +1029,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       >
         <div
           v-if="item._sectionHeader"
+          :key="item.id"
           class="flex items-center justify-between px-3 py-2 cursor-pointer select-none"
           @click="toggleSection(item.sectionId)"
         >
@@ -1051,6 +1052,7 @@ watch(conversationFilters, (newVal, oldVal) => {
         </div>
         <ConversationItem
           v-else
+          :key="item._scrollerId || item.id"
           :source="item"
           :label="label"
           :team-id="teamId"
