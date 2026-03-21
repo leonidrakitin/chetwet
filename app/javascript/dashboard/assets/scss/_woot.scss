@@ -165,21 +165,21 @@ body {
 @keyframes toast-in {
   0% {
     opacity: 0;
-    transform: translateX(2rem) scale(0.96);
+    transform: translateY(-1rem) scale(0.96);
   }
   100% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes toast-out {
   0% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateY(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(2rem) scale(0.96);
+    transform: translateY(-1rem) scale(0.96);
   }
 }

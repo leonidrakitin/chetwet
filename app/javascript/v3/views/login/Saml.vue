@@ -4,7 +4,7 @@ import { useStore } from 'vuex';
 import { required, email } from '@vuelidate/validators';
 import { useVuelidate } from '@vuelidate/core';
 import { useI18n } from 'vue-i18n';
-import { useAlert } from 'dashboard/composables';
+import { useToast } from 'dashboard/composables';
 
 // components
 import FormInput from '../../components/Form/Input.vue';
@@ -39,7 +39,7 @@ const handleAuthError = () => {
   }
 
   const translatedMessage = t('LOGIN.SAML.API.ERROR_MESSAGE');
-  useAlert(translatedMessage);
+  useToast.error(translatedMessage);
   loginApi.value.hasErrored = true;
 };
 

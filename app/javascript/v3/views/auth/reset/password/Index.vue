@@ -1,6 +1,6 @@
 <script>
 import { useVuelidate } from '@vuelidate/core';
-import { useAlert } from 'dashboard/composables';
+import { useToast } from 'dashboard/composables';
 import { required, minLength, email } from '@vuelidate/validators';
 import { useBranding } from 'shared/composables/useBranding';
 import FormInput from '../../../../components/Form/Input.vue';
@@ -35,27 +35,24 @@ export default {
     };
   },
   methods: {
-    showAlertMessage(message) {
-      // Reset loading, current selected agent
-      this.resetPassword.showLoading = false;
-      useAlert(message);
-    },
     submit() {
       this.resetPassword.showLoading = true;
       resetPassword(this.credentials)
         .then(res => {
+          this.resetPassword.showLoading = false;
           let successMessage = this.$t('RESET_PASSWORD.API.SUCCESS_MESSAGE');
           if (res.data && res.data.message) {
             successMessage = res.data.message;
           }
-          this.showAlertMessage(successMessage);
+          useToast.success(successMessage);
         })
         .catch(error => {
+          this.resetPassword.showLoading = false;
           let errorMessage = this.$t('RESET_PASSWORD.API.ERROR_MESSAGE');
           if (error?.response?.data?.message) {
             errorMessage = error.response.data.message;
           }
-          this.showAlertMessage(errorMessage);
+          useToast.error(errorMessage);
         });
     },
   },

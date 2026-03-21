@@ -2,7 +2,7 @@
 // utils and composables
 import { login } from '../../api/auth';
 import { mapGetters } from 'vuex';
-import { useAlert } from 'dashboard/composables';
+import { useToast } from 'dashboard/composables';
 import { required, email } from '@vuelidate/validators';
 import { useVuelidate } from '@vuelidate/core';
 import { SESSION_STORAGE_KEYS } from 'dashboard/constants/sessionStorage';
@@ -130,7 +130,7 @@ export default {
     if (this.authError) {
       const messageKey = ERROR_MESSAGES[this.authError] ?? 'LOGIN.API.UNAUTH';
       const translatedMessage = this.getTranslatedMessage(messageKey);
-      useAlert(translatedMessage);
+      useToast.error(translatedMessage);
       this.requestIdleCallbackPolyfill(() => {
         const { query } = this.$route;
         this.$router.replace({ query: { ...query, error: undefined } });
@@ -156,10 +156,10 @@ export default {
         setTimeout(callback, 0);
       }
     },
-    showAlertMessage(message) {
+    showAlertMessage(message, variant = 'error') {
       this.loginApi.showLoading = false;
       this.loginApi.message = message;
-      useAlert(this.loginApi.message);
+      useToast[variant](this.loginApi.message);
     },
     handleImpersonation() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -196,7 +196,10 @@ export default {
             window.location = this.redirect;
             return;
           }
-          this.showAlertMessage(this.$t('LOGIN.API.SUCCESS_MESSAGE'));
+          this.showAlertMessage(
+            this.$t('LOGIN.API.SUCCESS_MESSAGE'),
+            'success'
+          );
         })
         .catch(response => {
           if (this.email) {

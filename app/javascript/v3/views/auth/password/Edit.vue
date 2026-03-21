@@ -1,7 +1,7 @@
 <script>
 import { useVuelidate } from '@vuelidate/core';
 import { required, minLength } from '@vuelidate/validators';
-import { useAlert } from 'dashboard/composables';
+import { useToast } from 'dashboard/composables';
 import FormInput from '../../../components/Form/Input.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import { DEFAULT_REDIRECT_URL } from 'dashboard/constants/globals';
@@ -60,9 +60,8 @@ export default {
   },
   methods: {
     showAlertMessage(message) {
-      // Reset loading, current selected agent
       this.newPasswordAPI.showLoading = false;
-      useAlert(message);
+      useToast.error(message);
     },
     submitForm() {
       this.newPasswordAPI.showLoading = true;

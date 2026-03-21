@@ -4,7 +4,7 @@ import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { useVuelidate } from '@vuelidate/core';
 import { required, minLength } from '@vuelidate/validators';
-import { useAlert } from 'dashboard/composables';
+import { useToast } from 'dashboard/composables';
 import { isValidPassword } from 'shared/helpers/Validators';
 import { completeOauthSignup } from '../../../api/auth';
 import FormInput from '../../../components/Form/Input.vue';
@@ -65,7 +65,7 @@ const submit = async () => {
 
   if (!isConsentValid.value) {
     showConsentError.value = true;
-    useAlert(t('REGISTER.CONSENT.REQUIRED'));
+    useToast.warning(t('REGISTER.CONSENT.REQUIRED'));
     return;
   }
   showConsentError.value = false;
@@ -83,7 +83,7 @@ const submit = async () => {
       window.location = '/app/onboarding/wizard';
     }
   } catch {
-    useAlert(t('REGISTER.COMPLETE_SIGNUP.ERROR'));
+    useToast.error(t('REGISTER.COMPLETE_SIGNUP.ERROR'));
   } finally {
     isSubmitting.value = false;
   }

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { handleOtpPaste } from 'shared/helpers/clipboard';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { useAccount } from 'dashboard/composables/useAccount';
+import { useToast } from 'dashboard/composables';
 
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import FormInput from 'v3/components/Form/Input.vue';
@@ -91,6 +92,7 @@ const handleVerification = async () => {
   } catch (error) {
     errorMessage.value =
       parseAPIErrorResponse(error) || t('MFA_VERIFICATION.VERIFICATION_FAILED');
+    useToast.error(errorMessage.value);
 
     // Clear inputs on error
     if (verificationMethod.value === OTP) {

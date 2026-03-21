@@ -4,7 +4,7 @@ import { useVuelidate } from '@vuelidate/core';
 import { required, minLength, email } from '@vuelidate/validators';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import { useAlert } from 'dashboard/composables';
+import { useToast } from 'dashboard/composables';
 import VueHcaptcha from '@hcaptcha/vue3-hcaptcha';
 import FormInput from '../../../../../components/Form/Input.vue';
 import FormCheckBox from '../../../../../components/Form/CheckBox.vue';
@@ -106,7 +106,7 @@ const performRegistration = async () => {
       hCaptcha.value.reset();
       credentials.hCaptchaClientResponse = '';
     }
-    useAlert(errorMessage);
+    useToast.error(errorMessage);
   } finally {
     isSignupInProgress.value = false;
   }
@@ -117,7 +117,7 @@ const submit = () => {
 
   if (!isConsentValid.value) {
     showConsentError.value = true;
-    useAlert(t('REGISTER.CONSENT.REQUIRED'));
+    useToast.warning(t('REGISTER.CONSENT.REQUIRED'));
     return;
   }
   showConsentError.value = false;

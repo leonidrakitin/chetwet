@@ -64,7 +64,7 @@ onUnmounted(() => {
   <div
     ref="snackbarContainer"
     popover="manual"
-    class="fixed right-6 top-6 z-[9999] m-0 flex w-[22rem] flex-col gap-2 border-0 bg-transparent p-0 outline-none"
+    class="fixed left-1/2 top-6 z-[9999] m-0 flex w-[22rem] -translate-x-1/2 flex-col items-center gap-2 border-0 bg-transparent p-0 outline-none"
   >
     <transition-group name="toast" tag="div" class="flex flex-col gap-2">
       <WootSnackbar
