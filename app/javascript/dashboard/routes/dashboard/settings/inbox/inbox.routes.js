@@ -94,7 +94,8 @@ export default {
           ],
         },
         {
-          path: ':inboxId/:tab?',
+          // Numeric id only — avoids /inboxes/new/vk matching as inboxId "new" + tab "vk" (OAuth return).
+          path: ':inboxId(\\d+)/:tab?',
           name: 'settings_inbox_show',
           component: Settings,
           meta: {
