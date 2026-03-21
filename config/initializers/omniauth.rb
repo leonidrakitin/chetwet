@@ -11,7 +11,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   }
 
   provider :vkid, ENV.fetch('VK_ID_CLIENT_ID', nil), ENV.fetch('VK_ID_CLIENT_SECRET', nil), {
-    provider_ignores_state: true
+    # VK ID (OAuth 2.1): PKCE + state are required; omniauth-oauth2 adds code_challenge / validates state.
+    pkce: true
   }
 
   provider :yandex_id, ENV.fetch('YANDEX_OAUTH_CLIENT_ID', nil), ENV.fetch('YANDEX_OAUTH_CLIENT_SECRET', nil), {

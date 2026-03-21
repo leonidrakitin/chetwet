@@ -35,7 +35,8 @@ module OmniAuth
       end
 
       # VK ID requires device_id in both authorize and token requests.
-      # Generate a stable device_id per session and include it in the authorize URL.
+      # PKCE (code_challenge / code_verifier) and state are added by omniauth-oauth2 when pkce: true
+      # and default authorize_params (see config/initializers/omniauth.rb).
       def authorize_params
         super.tap do |params|
           params[:device_id] = session['vkid.device_id'] ||= SecureRandom.uuid
@@ -43,16 +44,15 @@ module OmniAuth
       end
 
       # Override token exchange to include device_id required by VK ID API.
+      # token_params includes code_verifier from session (PKCE) when pkce is enabled.
       def build_access_token
         verifier = request.params['code']
         device_id = request.params['device_id'] || session.delete('vkid.device_id') || SecureRandom.uuid
 
         client.auth_code.get_token(
           verifier,
-          {
-            redirect_uri: callback_url,
-            device_id: device_id
-          }.merge(token_params.to_hash(symbolize_keys: true)),
+          { redirect_uri: callback_url, device_id: device_id }
+            .merge(token_params.to_hash(symbolize_keys: true)),
           deep_symbolize(options.auth_token_params)
         )
       end
