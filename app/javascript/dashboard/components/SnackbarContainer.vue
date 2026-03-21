@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 const props = defineProps({
   duration: {
     type: Number,
-    default: 2500,
+    default: 3000,
   },
 });
 
@@ -28,20 +28,26 @@ const showPopover = () => {
   }
 };
 
+const dismissMessage = key => {
+  snackMessages.value = snackMessages.value.filter(m => m.key !== key);
+};
+
 const onNewToastMessage = ({ message: originalMessage, action }) => {
   const message = action?.usei18n ? t(originalMessage) : originalMessage;
   const duration = action?.duration || props.duration;
+  const key = Date.now() + Math.random();
 
   snackMessages.value.push({
-    key: Date.now(),
+    key,
     message,
     action,
+    duration,
   });
 
   nextTick(showPopover);
 
   setTimeout(() => {
-    snackMessages.value.shift();
+    dismissMessage(key);
   }, duration);
 };
 
@@ -58,14 +64,16 @@ onUnmounted(() => {
   <div
     ref="snackbarContainer"
     popover="manual"
-    class="fixed top-4 left-1/2 -translate-x-1/2 max-w-[25rem] w-[calc(100%-2rem)] text-center bg-transparent border-0 p-0 m-0 outline-none overflow-visible"
+    class="fixed right-6 top-6 z-[9999] m-0 flex w-[22rem] flex-col gap-2 border-0 bg-transparent p-0 outline-none"
   >
-    <transition-group name="toast-fade" tag="div">
+    <transition-group name="toast" tag="div" class="flex flex-col gap-2">
       <WootSnackbar
         v-for="snackMessage in snackMessages"
         :key="snackMessage.key"
         :message="snackMessage.message"
         :action="snackMessage.action"
+        :duration="snackMessage.duration"
+        @dismiss="dismissMessage(snackMessage.key)"
       />
     </transition-group>
   </div>

@@ -1,39 +1,115 @@
-<script>
-export default {
-  props: {
-    message: { type: String, default: '' },
-    action: {
-      type: Object,
-      default: () => {},
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+
+const props = defineProps({
+  message: { type: String, default: '' },
+  action: {
+    type: Object,
+    default: () => ({}),
+  },
+  duration: { type: Number, default: 3000 },
+});
+
+const emit = defineEmits(['dismiss']);
+
+const progressWidth = ref(100);
+let animationFrame = null;
+let startTime = null;
+
+const variant = computed(() => props.action?.variant || 'info');
+
+const variantConfig = computed(() => {
+  const configs = {
+    success: {
+      icon: 'i-lucide-circle-check',
+      iconBg: 'bg-n-teal-3',
+      iconColor: 'text-n-teal-11',
+      progressColor: 'bg-n-teal-9',
     },
-  },
-  data() {
-    return {
-      toggleAfterTimeout: false,
-    };
-  },
-  mounted() {},
-  methods: {},
+    error: {
+      icon: 'i-lucide-circle-x',
+      iconBg: 'bg-n-ruby-3',
+      iconColor: 'text-n-ruby-11',
+      progressColor: 'bg-n-ruby-9',
+    },
+    warning: {
+      icon: 'i-lucide-triangle-alert',
+      iconBg: 'bg-n-amber-3',
+      iconColor: 'text-n-amber-11',
+      progressColor: 'bg-n-amber-9',
+    },
+    info: {
+      icon: 'i-lucide-info',
+      iconBg: 'bg-n-blue-3',
+      iconColor: 'text-n-blue-11',
+      progressColor: 'bg-n-blue-9',
+    },
+  };
+  return configs[variant.value] || configs.info;
+});
+
+const animateProgress = timestamp => {
+  if (!startTime) startTime = timestamp;
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, 100 - (elapsed / props.duration) * 100);
+  progressWidth.value = remaining;
+
+  if (remaining > 0) {
+    animationFrame = requestAnimationFrame(animateProgress);
+  }
 };
+
+onMounted(() => {
+  animationFrame = requestAnimationFrame(animateProgress);
+});
+
+onBeforeUnmount(() => {
+  if (animationFrame) cancelAnimationFrame(animationFrame);
+});
 </script>
 
 <template>
-  <div>
+  <div
+    class="group relative flex items-center gap-3 rounded-2xl border border-weak/50 bg-n-surface-1/95 px-4 py-3 shadow-lg shadow-black/[0.08] backdrop-blur-2xl dark:border-n-slate-6/20 dark:bg-n-slate-3/95 dark:shadow-black/25"
+    role="alert"
+    @click="emit('dismiss')"
+  >
+    <!-- Icon -->
     <div
-      class="shadow-sm bg-n-slate-12 dark:bg-n-slate-7 rounded-lg items-center gap-3 inline-flex mb-2 max-w-[25rem] min-h-[1.875rem] min-w-[15rem] px-6 py-3 text-left"
+      class="flex size-8 shrink-0 items-center justify-center rounded-full"
+      :class="[variantConfig.iconBg]"
     >
-      <div class="text-sm font-medium text-white dark:text-white">
+      <span
+        class="size-[18px]"
+        :class="[variantConfig.icon, variantConfig.iconColor]"
+      />
+    </div>
+
+    <!-- Content -->
+    <div class="flex min-w-0 flex-1 items-center gap-3">
+      <p
+        class="min-w-0 flex-1 text-sm font-medium leading-snug text-n-slate-12"
+      >
         {{ message }}
-      </div>
-      <div v-if="action">
-        <router-link
-          v-if="action.type == 'link'"
-          :to="action.to"
-          class="font-medium cursor-pointer select-none text-n-blue-10 hover:text-n-brand"
-        >
-          {{ action.message }}
-        </router-link>
-      </div>
+      </p>
+      <router-link
+        v-if="action?.type === 'link'"
+        :to="action.to"
+        class="shrink-0 text-sm font-semibold text-n-blue-11 transition-colors hover:text-n-blue-12"
+      >
+        {{ action.message }}
+      </router-link>
+    </div>
+
+    <!-- Progress bar -->
+    <div
+      class="absolute inset-x-4 bottom-0 h-[2px] overflow-hidden rounded-full bg-n-slate-4/50"
+    >
+      <div
+        class="h-full rounded-full transition-none"
+        :class="[variantConfig.progressColor]"
+        :style="{ width: `${progressWidth}%` }"
+      />
     </div>
   </div>
 </template>

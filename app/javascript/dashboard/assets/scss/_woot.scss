@@ -146,3 +146,40 @@ body {
     letter-spacing: -0.24px;
   }
 }
+
+/* Toast transition-group animations */
+.toast-enter-active {
+  animation: toast-in 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+.toast-leave-active {
+  animation: toast-out 0.25s cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+  position: absolute;
+  width: 100%;
+}
+
+.toast-move {
+  transition: transform 0.3s cubic-bezier(0.21, 1.02, 0.73, 1);
+}
+
+@keyframes toast-in {
+  0% {
+    opacity: 0;
+    transform: translateX(2rem) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(2rem) scale(0.96);
+  }
+}
