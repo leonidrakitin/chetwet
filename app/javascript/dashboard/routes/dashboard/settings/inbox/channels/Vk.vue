@@ -1,20 +1,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useVuelidate } from '@vuelidate/core';
-import { useAccount } from 'dashboard/composables/useAccount';
 import vkClient from 'dashboard/api/channel/vkClient';
 import Button from 'dashboard/components-next/button/Button.vue';
 import PageHeader from '../../SettingsSubPageHeader.vue';
 import { useStore } from 'dashboard/composables/store';
 
 const { t } = useI18n();
+const route = useRoute();
 const router = useRouter();
 const store = useStore();
 const v$ = useVuelidate();
-const { accountId } = useAccount();
+
+// Use raw route param (string) — not Number() — to support non-numeric account IDs.
+const accountId = route.params.accountId;
 
 const VK_OAUTH_DEVICE_ID_KEY = 'vk_oauth_device_id';
 
@@ -149,7 +151,7 @@ const requestAuthorization = async () => {
     const randomHex = Array.from(stateArray, b =>
       b.toString(16).padStart(2, '0')
     ).join('');
-    const stateToken = `${accountId.value}:${randomHex}`;
+    const stateToken = `${accountId}:${randomHex}`;
 
     const params = new URLSearchParams({
       client_id: clientId,
