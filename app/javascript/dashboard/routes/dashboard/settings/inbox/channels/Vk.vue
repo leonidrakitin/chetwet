@@ -154,7 +154,7 @@ const requestAuthorization = async () => {
     ).join('');
     const stateToken = `${accountId}:${randomHex}`;
     const securePart = window.location.protocol === 'https:' ? '; secure' : '';
-    document.cookie = `${VK_OAUTH_STATE_NONCE_COOKIE}=${randomHex}; path=/; max-age=600; samesite=lax${securePart}`;
+    document.cookie = `${VK_OAUTH_STATE_NONCE_COOKIE}=${accountId}:${randomHex}; path=/; max-age=600; samesite=lax${securePart}`;
 
     const params = new URLSearchParams({
       client_id: clientId,
