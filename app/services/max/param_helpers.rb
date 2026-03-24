@@ -66,13 +66,9 @@ module Max::ParamHelpers
   end
 
   def max_params_chat_id
-    if bot_started?
-      params[:chat_id]
-    elsif message_callback?
-      params.dig(:message, :recipient, :chat_id) || max_params_from_id
-    else
-      params.dig(:message, :recipient, :chat_id) || max_params_from_id
-    end
+    return params[:chat_id] if bot_started?
+
+    params.dig(:message, :recipient, :chat_id) || max_params_from_id
   end
 
   def max_params_attachments
