@@ -19,6 +19,7 @@ const v$ = useVuelidate();
 const accountId = route.params.accountId;
 
 const VK_OAUTH_DEVICE_ID_KEY = 'vk_oauth_device_id';
+const VK_OAUTH_STATE_NONCE_COOKIE = 'vk_oauth_state_nonce';
 
 const step = ref('connect');
 const hasError = ref(false);
@@ -152,6 +153,8 @@ const requestAuthorization = async () => {
       b.toString(16).padStart(2, '0')
     ).join('');
     const stateToken = `${accountId}:${randomHex}`;
+    const securePart = window.location.protocol === 'https:' ? '; secure' : '';
+    document.cookie = `${VK_OAUTH_STATE_NONCE_COOKIE}=${randomHex}; path=/; max-age=600; samesite=lax${securePart}`;
 
     const params = new URLSearchParams({
       client_id: clientId,
