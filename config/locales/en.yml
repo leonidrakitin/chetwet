@@ -48,6 +48,30 @@ en:
     inbox_deletetion_response: Your inbox deletion request will be processed in some time.
 
   errors:
+    record_not_unique:
+      default: This channel is already connected to another inbox in this installation.
+      telegram_session_phone: This phone number is already registered for a Telegram Personal inbox.
+      telegram_personal_user: This Telegram account is already connected to another inbox.
+      channel_email: This email address is already connected to another inbox.
+      channel_forward_to_email: This forwarding address is already in use by another inbox.
+      channel_sms_phone: This phone number is already in use for an SMS inbox.
+      channel_whatsapp_phone: This phone number is already registered for a WhatsApp inbox.
+      channel_telegram_bot_token: This Telegram bot token is already used by another inbox.
+      channel_line: This LINE channel is already connected to another inbox.
+      channel_vk_group: This VK community is already connected to another inbox.
+      channel_avito: This Avito client is already connected to another inbox.
+      channel_tiktok: This TikTok business account is already connected to another inbox.
+      channel_instagram: This Instagram account is already connected to another inbox.
+      channel_twilio_phone: This Twilio phone number is already in use for another inbox.
+      channel_twilio_messaging_service: This Twilio messaging service is already in use for another inbox.
+      channel_twilio_account_phone: This Twilio phone number is already registered for this account.
+      channel_api_hmac: This API channel identifier is already in use.
+      channel_api_identifier: This API channel identifier is already in use.
+      channel_web_widget_token: This website token is already in use.
+      channel_web_widget_hmac: This web widget token is already in use.
+      channel_facebook_page: This Facebook page is already connected to another inbox in this account.
+      channel_twitter_profile: This Twitter profile is already connected to another inbox in this account.
+      channel_voice_phone: This phone number is already in use for a voice inbox.
     account:
       reporting_timezone:
         invalid: is not a valid timezone

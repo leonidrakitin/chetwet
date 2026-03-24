@@ -6,6 +6,8 @@ class Api::V1::Accounts::Channels::TwilioChannelsController < Api::V1::Accounts:
 
   def create
     process_create
+  rescue ActiveRecord::RecordNotUnique => e
+    render_record_not_unique(e)
   rescue StandardError => e
     render_could_not_create_error(e.message)
   end

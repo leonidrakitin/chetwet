@@ -28,6 +28,8 @@ class TelegramSession < ApplicationRecord
   validates :api_hash, presence: true
   validates :inbox_id, uniqueness: true
 
+  before_validation :normalize_phone_number
+
   encrypts :api_id, :api_hash if Chatwoot.encryption_configured?
 
   store_accessor :metadata, :telegram_user_id, :telegram_username, :last_synced_at
@@ -71,6 +73,16 @@ class TelegramSession < ApplicationRecord
   end
 
   private
+
+  def normalize_phone_number
+    return if phone_number.blank?
+
+    stripped = phone_number.to_s.gsub(/[\s\-\(\)]+/, '')
+    parsed = TelephoneNumber.parse(stripped)
+    self.phone_number = parsed.valid? ? parsed.e164_number : stripped
+  rescue StandardError
+    # Keep as-is if parsing fails
+  end
 
   def ensure_event_worker
     return unless inbox.channel_type == 'Channel::TelegramPersonal'

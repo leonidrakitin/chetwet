@@ -461,7 +461,7 @@
         },
         "PHONE_NUMBER": {
           "LABEL": "Phone Number",
-          "PLACEHOLDER": "+1234567890"
+          "PLACEHOLDER": "Enter your number"
         },
         "API_ID": {
           "LABEL": "API ID",
@@ -483,10 +483,20 @@
         "SUBMIT_CODE_BUTTON": "Verify code",
         "SUBMIT_PASSWORD_BUTTON": "Verify password",
         "RECONNECT_BUTTON": "Reconnect",
-        "READY_MESSAGE": "The Telegram personal inbox is authenticated and ready. Continue to assign agents.",
-        "CONTINUE_BUTTON": "Continue",
+        "READY_MESSAGE": "Your Telegram account is connected and ready to receive messages. Continue to assign agents to this inbox.",
+        "CONTINUE_BUTTON": "Continue to agents",
+        "STEPS": {
+          "PHONE_TITLE": "Connect Telegram",
+          "PHONE_SUBTITLE": "Enter your phone number to link your personal Telegram account.",
+          "CODE_TITLE": "Verify your identity",
+          "CODE_SUBTITLE": "We sent a verification code to your Telegram app. Enter it below.",
+          "PASSWORD_TITLE": "Two-factor authentication",
+          "PASSWORD_SUBTITLE": "Your account has 2FA enabled. Enter your cloud password to continue.",
+          "READY_TITLE": "You're all set!",
+          "READY_SUBTITLE": "Your Telegram personal inbox is connected and ready."
+        },
         "STATUS": {
-          "AUTHENTICATING": "Waiting for Telegram authentication",
+          "AUTHENTICATING": "Authenticating...",
           "ACTIVE": "Connected",
           "DISCONNECTED": "Disconnected"
         },

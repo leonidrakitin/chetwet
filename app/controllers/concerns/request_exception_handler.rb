@@ -3,6 +3,7 @@ module RequestExceptionHandler
 
   included do
     rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
+    rescue_from ActiveRecord::RecordNotUnique, with: :render_record_not_unique
   end
 
   private
@@ -49,6 +50,12 @@ module RequestExceptionHandler
       message: exception.record.errors.full_messages.join(', '),
       attributes: exception.record.errors.attribute_names
     }, status: :unprocessable_entity
+  end
+
+  def render_record_not_unique(exception)
+    log_handled_error(exception)
+    message = RecordNotUniqueMessage.for(exception)
+    render json: { message: message }, status: :unprocessable_entity
   end
 
   def render_error_response(exception)

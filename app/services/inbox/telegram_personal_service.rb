@@ -32,7 +32,7 @@ class Inbox::TelegramPersonalService
 
   def build_session(inbox)
     TelegramSession.create!(
-      phone_number: params[:phone_number],
+      phone_number: normalize_phone_number(params[:phone_number]),
       api_id: GlobalConfig.get_value('TELEGRAM_PERSONAL_API_ID'),
       api_hash: GlobalConfig.get_value('TELEGRAM_PERSONAL_API_HASH'),
       user: user,
@@ -40,5 +40,15 @@ class Inbox::TelegramPersonalService
       status: :authenticating,
       auth_state: 'wait_phone_number'
     )
+  end
+
+  def normalize_phone_number(raw)
+    stripped = raw.to_s.strip
+    return stripped if stripped.blank?
+
+    parsed = TelephoneNumber.parse(stripped)
+    parsed.valid? ? parsed.international_number : stripped
+  rescue StandardError
+    stripped
   end
 end

@@ -449,7 +449,7 @@
         },
         "PHONE_NUMBER": {
           "LABEL": "Номер телефона",
-          "PLACEHOLDER": "+79001234567"
+          "PLACEHOLDER": "Введите номер телефона"
         },
         "API_ID": {
           "LABEL": "API ID",

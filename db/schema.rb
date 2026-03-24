@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_20_130000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_24_140000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -594,6 +594,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_20_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_channel_telegram_personal_on_account_id"
+    t.index ["telegram_user_id"], name: "index_channel_telegram_personal_on_telegram_user_id_unique", unique: true, where: "((telegram_user_id IS NOT NULL) AND ((telegram_user_id)::text <> ''::text))"
   end
 
   create_table "channel_tiktok", force: :cascade do |t|
@@ -644,6 +645,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_20_130000) do
     t.string "group_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "vk_user_id"
+    t.string "refresh_token"
+    t.datetime "token_expires_at"
     t.index ["account_id"], name: "index_channel_vk_on_account_id"
     t.index ["group_id"], name: "index_channel_vk_on_group_id", unique: true
   end
@@ -1424,7 +1428,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_20_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["inbox_id"], name: "index_telegram_sessions_on_inbox_id", unique: true
-    t.index ["phone_number"], name: "index_telegram_sessions_on_phone_number"
+    t.index ["phone_number"], name: "index_telegram_sessions_on_phone_number", unique: true
     t.index ["user_id"], name: "index_telegram_sessions_on_user_id"
   end
 
