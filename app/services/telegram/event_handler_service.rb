@@ -17,9 +17,11 @@ class Telegram::EventHandlerService
       process_chat_update
     end
   rescue StandardError => e
-    telegram_session.update!(last_error: e.message, status: :disconnected)
-    telegram_session.inbox.channel.update!(last_error: e.message, status: 'disconnected')
-    raise e
+    # Log the error but do NOT mark session as disconnected or re-raise.
+    # A single failed event (e.g. malformed message) must not kill the
+    # TdlibEventWorker loop — that would take the entire inbox offline.
+    Rails.logger.error("[TelegramEvent] session=#{telegram_session.id} type=#{update_type} error=#{e.class}: #{e.message}")
+    telegram_session.update!(last_error: "#{update_type}: #{e.message}")
   end
 
   private
@@ -83,11 +85,15 @@ class Telegram::EventHandlerService
   end
 
   def process_connection_update
+    # TDLib cycles through connectionStateConnecting, connectionStateUpdating,
+    # connectionStateWaitingForNetwork, etc. before connectionStateReady. Treating
+    # any non-ready state as disconnected stops TdlibEventWorker (it checks active?)
+    # and leaves inboxes stuck offline until a cron reconnect runs.
     state = update.dig('state', '@type').to_s
-    status = state.match?(/ready/i) ? :active : :disconnected
+    return unless state == 'connectionStateReady'
 
-    telegram_session.update!(status: status, last_error: nil)
-    inbox.channel.update!(status: status.to_s, last_error: nil)
+    telegram_session.update!(status: :active, last_error: nil)
+    inbox.channel.update!(status: 'active', last_error: nil)
   end
 
   def process_chat_update
