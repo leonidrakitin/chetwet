@@ -11,6 +11,7 @@ import Line from './channels/Line.vue';
 import Telegram from './channels/Telegram.vue';
 import Vk from './channels/Vk.vue';
 import Avito from './channels/Avito.vue';
+import Max from './channels/Max.vue';
 import Instagram from './channels/Instagram.vue';
 import Tiktok from './channels/Tiktok.vue';
 import Voice from './channels/Voice.vue';
@@ -29,6 +30,7 @@ const channelViewList = {
   telegram_personal: TelegramAuthWizard,
   vk: Vk,
   avito: Avito,
+  max: Max,
   instagram: Instagram,
   tiktok: Tiktok,
   voice: Voice,

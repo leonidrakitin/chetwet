@@ -634,6 +634,7 @@ Rails.application.routes.draw do
   post 'webhooks/shopify', to: 'webhooks/shopify#events'
   post 'webhooks/vk', to: 'webhooks/vk#process_payload'
   post 'webhooks/avito/:avito_user_id', to: 'webhooks/avito#process_payload'
+  post 'webhooks/max/:account_id/:inbox_id', to: 'webhooks/max#process_payload'
   post 'webhooks/yclients', to: 'webhooks/yclients#process_payload'
   post 'webhooks/yclients/marketplace', to: 'webhooks/yclients_marketplace#receive'
 

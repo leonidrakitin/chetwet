@@ -86,6 +86,12 @@ const channelList = computed(() => {
       icon: 'i-woot-avito',
     },
     {
+      key: 'max',
+      title: t('INBOX_MGMT.ADD.AUTH.CHANNEL.MAX.TITLE'),
+      description: t('INBOX_MGMT.ADD.AUTH.CHANNEL.MAX.DESCRIPTION'),
+      icon: 'i-woot-max',
+    },
+    {
       key: 'line',
       title: t('INBOX_MGMT.ADD.AUTH.CHANNEL.LINE.TITLE'),
       description: t('INBOX_MGMT.ADD.AUTH.CHANNEL.LINE.DESCRIPTION'),

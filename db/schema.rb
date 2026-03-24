@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_24_140000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_25_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -563,6 +563,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_24_140000) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["line_channel_id"], name: "index_channel_line_on_line_channel_id", unique: true
+  end
+
+  create_table "channel_max", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "bot_token", null: false
+    t.string "bot_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_channel_max_on_account_id"
+    t.index ["bot_token"], name: "index_channel_max_on_bot_token", unique: true
   end
 
   create_table "channel_sms", force: :cascade do |t|
@@ -1528,6 +1538,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_24_140000) do
   add_foreign_key "bulk_migrations", "inboxes"
   add_foreign_key "bulk_migrations", "telegram_sessions"
   add_foreign_key "channel_avito", "accounts"
+  add_foreign_key "channel_max", "accounts"
   add_foreign_key "channel_telegram_personal", "accounts"
   add_foreign_key "channel_vk", "accounts"
   add_foreign_key "inboxes", "portals"

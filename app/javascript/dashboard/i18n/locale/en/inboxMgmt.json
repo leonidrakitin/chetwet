@@ -526,6 +526,19 @@
           "ERROR_MESSAGE": "We were not able to save the Avito channel"
         }
       },
+      "MAX_CHANNEL": {
+        "TITLE": "MAX Channel",
+        "DESC": "Integrate with MAX messenger bot and start supporting your customers.",
+        "BOT_TOKEN": {
+          "LABEL": "Bot Token",
+          "SUBTITLE": "Configure the bot token you have obtained from MAX BotFather (@MasterBot).",
+          "PLACEHOLDER": "Bot Token"
+        },
+        "SUBMIT_BUTTON": "Create MAX Channel",
+        "API": {
+          "ERROR_MESSAGE": "We were not able to save the MAX channel"
+        }
+      },
       "VK_CHANNEL": {
         "TITLE": "VK Channel",
         "DESC": "Integrate with VK (VKontakte) community and start supporting your customers.",
@@ -598,6 +611,10 @@
           "VK": {
             "TITLE": "VK",
             "DESCRIPTION": "Integrate VK community for customer support"
+          },
+          "MAX": {
+            "TITLE": "MAX",
+            "DESCRIPTION": "Connect MAX messenger bot for customer support"
           },
           "AVITO": {
             "TITLE": "Avito",

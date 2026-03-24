@@ -163,6 +163,10 @@ class Inbox < ApplicationRecord
     channel_type == 'Channel::Avito'
   end
 
+  def max?
+    channel_type == 'Channel::Max'
+  end
+
   def whatsapp?
     channel_type == 'Channel::Whatsapp'
   end

@@ -11,6 +11,7 @@ export function useChannelIcon(inbox) {
     'Channel::TelegramPersonal': 'i-woot-telegram',
     'Channel::Vk': 'i-woot-vk',
     'Channel::Avito': 'i-woot-avito',
+    'Channel::Max': 'i-woot-max',
     'Channel::TwilioSms': 'i-woot-sms',
     'Channel::TwitterProfile': 'i-woot-x',
     'Channel::WebWidget': 'i-woot-website',

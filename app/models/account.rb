@@ -142,6 +142,7 @@ class Account < ApplicationRecord
   has_many :telegram_personal_channels, dependent: :destroy_async, class_name: '::Channel::TelegramPersonal'
   has_many :vk_channels, dependent: :destroy_async, class_name: '::Channel::Vk'
   has_many :avito_channels, dependent: :destroy_async, class_name: '::Channel::Avito'
+  has_many :max_channels, dependent: :destroy_async, class_name: '::Channel::Max'
   has_many :twilio_sms, dependent: :destroy_async, class_name: '::Channel::TwilioSms'
   has_many :twitter_profiles, dependent: :destroy_async, class_name: '::Channel::TwitterProfile'
   has_many :users, through: :account_users

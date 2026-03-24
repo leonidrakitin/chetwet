@@ -9,6 +9,7 @@ class SendReplyJob < ApplicationJob
     'Channel::TelegramPersonal' => ::Telegram::MessageService,
     'Channel::Vk' => ::Vk::SendOnVkService,
     'Channel::Avito' => ::Avito::SendOnAvitoService,
+    'Channel::Max' => ::Max::SendOnMaxService,
     'Channel::Whatsapp' => ::Whatsapp::SendOnWhatsappService,
     'Channel::Sms' => ::Sms::SendOnSmsService,
     'Channel::Instagram' => ::Instagram::SendOnInstagramService,

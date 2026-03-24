@@ -123,6 +123,9 @@ json.provider resource.channel.try(:provider)
 ## Telegram Attributes
 json.bot_name resource.channel.try(:bot_name) if resource.telegram?
 
+## MAX Attributes
+json.bot_name resource.channel.try(:bot_name) if resource.max?
+
 if resource.telegram_personal?
   json.phone_number resource.channel.try(:phone_number)
   json.connection_status resource.channel.try(:connection_status)
