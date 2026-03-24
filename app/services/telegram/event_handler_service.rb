@@ -28,16 +28,20 @@ class Telegram::EventHandlerService
     message_payload = update['message'] || {}
     return if Chatwoot::Api.find_message(inbox: inbox, source_id: message_payload['id']).present?
 
+    peer = peer_profile(message_payload)
+
     contact_inbox = Chatwoot::Api.find_or_create_contact_inbox(
       inbox: inbox,
-      source_id: peer_source_id(message_payload),
-      contact_attributes: contact_attributes(message_payload)
+      source_id: peer['id'].to_s,
+      contact_attributes: contact_attributes(peer)
     )
+
+    enqueue_avatar_download(contact_inbox.contact, peer)
 
     conversation = Chatwoot::Api.find_or_create_conversation(
       inbox: inbox,
       contact_inbox: contact_inbox,
-      additional_attributes: conversation_attributes(message_payload)
+      additional_attributes: { chat_id: message_payload['chat_id'], peer_user_id: peer['id'].to_s }
     )
 
     message = Chatwoot::Api.create_message(
@@ -121,17 +125,9 @@ class Telegram::EventHandlerService
     attrs
   end
 
-  def conversation_attributes(message_payload)
+  def contact_attributes(peer)
     {
-      chat_id: message_payload['chat_id'],
-      peer_user_id: peer_source_id(message_payload)
-    }
-  end
-
-  def contact_attributes(message_payload)
-    peer = peer_profile(message_payload)
-    {
-      name: [peer['first_name'], peer['last_name']].compact.join(' ').strip.presence || peer['title'] || telegram_session.phone_number,
+      name: contact_name(peer),
       additional_attributes: {
         username: peer['username'],
         phone_number: peer['phone_number'],
@@ -141,22 +137,36 @@ class Telegram::EventHandlerService
     }
   end
 
+  def contact_name(peer)
+    full_name = [peer['first_name'], peer['last_name']].compact.join(' ').strip
+    full_name.presence || peer['username'].presence || peer['title'].presence || telegram_session.phone_number
+  end
+
   def peer_profile(message_payload)
     chat = tdlib_client.get_chat(message_payload['chat_id'])
     type = chat.dig('type', '@type')
 
     if type == 'chatTypePrivate'
       user = tdlib_client.get_user(chat.dig('type', 'user_id'))
-      return user.merge('title' => chat['title'])
+      return user.merge('title' => chat['title'], 'avatar_file_id' => profile_photo_file_id(user))
     end
 
     { 'id' => message_payload['chat_id'], 'title' => chat['title'] }
   rescue Telegram::TdlibError
-    { 'id' => message_payload['chat_id'], 'title' => message_payload.dig('sender_id', 'user_id').to_s }
+    { 'id' => message_payload['chat_id'] }
   end
 
-  def peer_source_id(message_payload)
-    peer_profile(message_payload)['id'].to_s
+  def profile_photo_file_id(user)
+    user.dig('profile_photo', 'small', 'id')
+  end
+
+  def enqueue_avatar_download(contact, peer)
+    return if contact.avatar.attached?
+
+    file_id = peer['avatar_file_id']
+    return if file_id.blank?
+
+    TelegramAvatarDownloadWorker.perform_later(telegram_session.id, contact.id, file_id)
   end
 
   def extract_content(content_payload)
