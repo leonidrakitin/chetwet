@@ -439,6 +439,49 @@
           "ERROR_MESSAGE": "Не удалось добавить канал Телеграм"
         }
       },
+      "TELEGRAM_PERSONAL": {
+        "TITLE": "Личный входящий Telegram",
+        "DESC": "Подключите личный аккаунт Telegram и используйте его как входящий в Chatwoot.",
+        "CONNECTION_STATUS": "Статус подключения",
+        "INBOX_NAME": {
+          "LABEL": "Название входящего",
+          "PLACEHOLDER": "Личный аккаунт Telegram"
+        },
+        "PHONE_NUMBER": {
+          "LABEL": "Номер телефона",
+          "PLACEHOLDER": "+79001234567"
+        },
+        "API_ID": {
+          "LABEL": "API ID",
+          "PLACEHOLDER": "API ID с my.telegram.org"
+        },
+        "API_HASH": {
+          "LABEL": "API Hash",
+          "PLACEHOLDER": "API Hash с my.telegram.org"
+        },
+        "AUTH_CODE": {
+          "LABEL": "Код подтверждения",
+          "PLACEHOLDER": "Код из Telegram"
+        },
+        "PASSWORD": {
+          "LABEL": "Пароль 2FA",
+          "PLACEHOLDER": "Пароль двухфакторной аутентификации Telegram"
+        },
+        "SUBMIT_PHONE_BUTTON": "Отправить код",
+        "SUBMIT_CODE_BUTTON": "Подтвердить код",
+        "SUBMIT_PASSWORD_BUTTON": "Подтвердить пароль",
+        "RECONNECT_BUTTON": "Переподключить",
+        "READY_MESSAGE": "Личный входящий Telegram авторизован и готов. Перейдите к назначению операторов.",
+        "CONTINUE_BUTTON": "Продолжить",
+        "STATUS": {
+          "AUTHENTICATING": "Ожидание авторизации в Telegram",
+          "ACTIVE": "Подключено",
+          "DISCONNECTED": "Отключено"
+        },
+        "API": {
+          "ERROR_MESSAGE": "Не удалось подключить личный аккаунт Telegram"
+        }
+      },
       "AUTH": {
         "TITLE": "Выберите источник",
         "DESC": "я есть бот поддерживает виджет чата, страницу Facebook, профиль Twitter, Whatsapp, Email и т. д., как канал связи с пользователями. Если вы хотите настроить пользовательский канал, вы можете создать его с помощью канала API. Выберите один канал из списка ниже, чтобы продолжить.",
@@ -472,6 +515,10 @@
           "TELEGRAM": {
             "TITLE": "Telegram",
             "DESCRIPTION": "Настроить канал Telegram с помощью Bot token"
+          },
+          "TELEGRAM_PERSONAL": {
+            "TITLE": "Номерной Telegram",
+            "DESCRIPTION": "Подключение личного аккаунта Telegram через TDLib"
           },
           "LINE": {
             "TITLE": "Line",
@@ -1129,6 +1176,7 @@
       "SMS": "SMS",
       "EMAIL": "Email",
       "TELEGRAM": "Telegram",
+      "TELEGRAM_PERSONAL": "Номерной Telegram",
       "LINE": "Line",
       "API": "Источник API",
       "INSTAGRAM": "Instagram",
