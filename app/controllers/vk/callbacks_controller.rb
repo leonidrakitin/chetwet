@@ -7,27 +7,11 @@ class Vk::CallbacksController < ApplicationController
   def show
     return redirect_with_error(params[:error_description] || 'Authorization was denied') if params[:error].present?
 
-    # Read account_id and nonce from cookie — VK ID may not return `state` in the callback
     account_id, cookie_nonce = parse_cookie_value(cookies[:vk_oauth_state_nonce])
     return redirect_with_error('Invalid state parameter') if account_id.nil?
+    return redirect_with_error('Invalid authorization state') unless valid_state_nonce?(cookie_nonce)
 
-    # When VK does return state, verify the nonce matches
-    if params[:state].present?
-      _, state_nonce = parse_state(params[:state])
-      unless state_nonce.present? && ActiveSupport::SecurityUtils.secure_compare(state_nonce, cookie_nonce)
-        clear_state_nonce_cookie
-        return redirect_with_error('Invalid authorization state')
-      end
-    end
-
-    clear_state_nonce_cookie
-
-    redirect_to app_new_vk_inbox_url(
-      account_id: account_id,
-      code: params[:code],
-      device_id: params[:device_id],
-      state: params[:state]
-    )
+    complete_oauth(account_id)
   rescue StandardError => e
     Rails.logger.error("VK Callback Error: #{e.message}")
     redirect_with_error(e.message)
@@ -35,24 +19,36 @@ class Vk::CallbacksController < ApplicationController
 
   private
 
+  def complete_oauth(account_id)
+    clear_state_nonce_cookie
+    redirect_to app_new_vk_inbox_url(account_id: account_id, code: params[:code],
+                                     device_id: params[:device_id], state: params[:state])
+  end
+
+  # When VK returns state, verify its nonce matches the cookie nonce.
+  # If state is absent (VK ID sometimes omits it), skip the check.
+  def valid_state_nonce?(cookie_nonce)
+    return true if params[:state].blank?
+
+    _, state_nonce = parse_state(params[:state])
+    state_nonce.present? && ActiveSupport::SecurityUtils.secure_compare(state_nonce, cookie_nonce)
+  end
+
   # Cookie format: "accountId:randomHex" (32 hex chars)
   def parse_cookie_value(cookie)
-    return [nil, nil] if cookie.blank?
-
-    parts = cookie.split(':', 2)
-    return [nil, nil] unless parts[1].present?
-    return [nil, nil] unless parts[0].match?(/\A\d+\z/)
-    return [nil, nil] unless parts[1].match?(/\A\h{32}\z/)
-
-    [parts[0].to_i, parts[1]]
+    parse_nonce_string(cookie)
   end
 
   # State format: "accountId:randomHex" — same structure, used for optional cross-check
   def parse_state(state)
-    return [nil, nil] if state.blank?
+    parse_nonce_string(state)
+  end
 
-    parts = state.split(':', 2)
-    return [nil, nil] unless parts[1].present?
+  def parse_nonce_string(value)
+    return [nil, nil] if value.blank?
+
+    parts = value.split(':', 2)
+    return [nil, nil] if parts[1].blank?
     return [nil, nil] unless parts[0].match?(/\A\d+\z/)
     return [nil, nil] unless parts[1].match?(/\A\h{32}\z/)
 
@@ -66,9 +62,6 @@ class Vk::CallbacksController < ApplicationController
   def redirect_with_error(message)
     account_id, = parse_cookie_value(cookies[:vk_oauth_state_nonce])
     clear_state_nonce_cookie
-    redirect_to app_new_vk_inbox_url(
-      account_id: account_id || 0,
-      error_message: message
-    )
+    redirect_to app_new_vk_inbox_url(account_id: account_id || 0, error_message: message)
   end
 end
