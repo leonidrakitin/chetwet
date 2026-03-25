@@ -32,31 +32,58 @@ class Api::V1::Accounts::TelegramSessionsController < Api::V1::Accounts::BaseCon
 
     render json: session_payload(result[:telegram_session], result[:inbox]), status: :created
   rescue Telegram::TdlibError, ActiveRecord::RecordInvalid => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: humanize_telegram_error(e.message) }, status: :unprocessable_entity
+  rescue StandardError
+    render json: { error: 'Could not connect to Telegram. Please check your phone number and try again.' }, status: :unprocessable_entity
   end
 
   def submit_code
     Telegram::AuthenticationService.new(telegram_session: @telegram_session).submit_code!(params[:code])
     render json: session_payload(@telegram_session.reload, @telegram_session.inbox)
   rescue Telegram::TdlibError => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: humanize_telegram_error(e.message) }, status: :unprocessable_entity
+  rescue StandardError
+    render json: { error: 'Could not verify the code. Please try again.' }, status: :unprocessable_entity
   end
 
   def submit_password
     Telegram::AuthenticationService.new(telegram_session: @telegram_session).submit_password!(params[:password])
     render json: session_payload(@telegram_session.reload, @telegram_session.inbox)
   rescue Telegram::TdlibError => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: humanize_telegram_error(e.message) }, status: :unprocessable_entity
+  rescue StandardError
+    render json: { error: 'Could not verify the password. Please try again.' }, status: :unprocessable_entity
   end
 
   def reconnect
     Telegram::AuthenticationService.new(telegram_session: @telegram_session).start_authentication!
     render json: session_payload(@telegram_session.reload, @telegram_session.inbox)
   rescue Telegram::TdlibError => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: humanize_telegram_error(e.message) }, status: :unprocessable_entity
+  rescue StandardError
+    render json: { error: 'Could not reconnect to Telegram. Please try again.' }, status: :unprocessable_entity
   end
 
   private
+
+  TDLIB_ERROR_MESSAGES = {
+    'PHONE_NUMBER_OCCUPIED' => 'This phone number is already linked to another Telegram account. Use a different number or remove the existing inbox.',
+    'PHONE_NUMBER_INVALID' => 'The phone number is invalid. Please check the format (include country code) and try again.',
+    'PHONE_NUMBER_BANNED' => 'This phone number has been banned by Telegram.',
+    'PHONE_CODE_INVALID' => 'The verification code is incorrect. Please check the code and try again.',
+    'PHONE_CODE_EXPIRED' => 'The verification code has expired. Click Reconnect to request a new one.',
+    'PASSWORD_HASH_INVALID' => 'Incorrect 2FA password. Please check your cloud password and try again.',
+    'FLOOD_WAIT' => 'Too many attempts. Please wait a few minutes before trying again.',
+    'TDLib state timeout' => 'Connection to Telegram timed out. Please try again.',
+    'RPC timeout' => 'Telegram is taking too long to respond. Please try again in a moment.'
+  }.freeze
+
+  def humanize_telegram_error(message)
+    TDLIB_ERROR_MESSAGES.each do |code, friendly|
+      return friendly if message.include?(code)
+    end
+    message
+  end
 
   def fetch_telegram_session
     @telegram_session = TelegramSession.joins(:inbox).where(id: params[:id], inboxes: { account_id: Current.account.id }).first!
