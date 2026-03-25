@@ -30,6 +30,24 @@
   description: 'Add a label to a conversation'
   icon: 'tag'
 
+- id: search_conversations
+  category: core
+  title: 'Search Conversations'
+  description: 'Search conversations by text, status, or labels'
+  icon: 'search'
+
+- id: get_contact
+  category: core
+  title: 'Get Contact Profile'
+  description: 'Get full contact profile with history and attributes'
+  icon: 'people'
+
+- id: web_search
+  category: core
+  title: 'Web Search'
+  description: 'Search the web for current information (requires Z.AI)'
+  icon: 'globe'
+
 - id: faq_lookup
   category: core
   title: 'FAQ Lookup'
