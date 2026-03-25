@@ -25,13 +25,13 @@ RSpec.describe Captain::FeatureFlagsHelper do
       end
     end
 
-    context 'when Z.AI enabled' do
+    context 'when Z.AI enabled and account in rollout' do
       before do
         InstallationConfig.create(name: 'CAPTAIN_ZAI_PROVIDER_ENABLED', value: 'true')
+        InstallationConfig.create(name: 'CAPTAIN_ZAI_ROLLOUT_PERCENTAGE', value: '100')
       end
 
-      it 'checks account feature' do
-        allow(account).to receive(:feature_enabled?).and_return(true)
+      it 'returns true' do
         expect(described_class.use_zai_for_account?(account)).to be(true)
       end
     end
@@ -57,7 +57,6 @@ RSpec.describe Captain::FeatureFlagsHelper do
     it 'uses consistent bucketing' do
       InstallationConfig.create(name: 'CAPTAIN_ZAI_ROLLOUT_PERCENTAGE', value: '50')
 
-      # Same account should always get same result
       result1 = described_class.account_in_rollout?(1)
       result2 = described_class.account_in_rollout?(1)
 

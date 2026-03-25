@@ -40,8 +40,7 @@ class Captain::AutoClassificationService
     text_parts << "Customer message: #{@conversation.messages.last&.content.to_s[0..500]}"
     text_parts << "Conversation status: #{@conversation.status}"
     text_parts << "Conversation labels: #{@conversation.label_list.join(', ')}" if @conversation.label_list.any?
-    text_parts << "Customer name: #{@conversation.contact.name}" if @conversation.contact
-    text_parts << "Customer email: #{@conversation.contact.email}" if @conversation.contact&.email
+    text_parts << "Customer name: #{@conversation.contact.name}" if @conversation.contact&.name
 
     text_parts << "\nPlease classify this conversation with the following structure:"
     text_parts << '- department: one of [sales, support, billing, technical, general]'
@@ -56,18 +55,33 @@ class Captain::AutoClassificationService
   end
 
   def call_llm(message_text)
-    config = Captain::Llm::Config.new(@assistant.account_id)
-    model = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value || LlmConstants::DEFAULT_MODEL
+    api_key = classification_api_key
+    return nil if api_key.blank?
 
-    Llm::Config.with_api_key(config.api_key) do
-      chat = RubyLLM::Chat.with_model(model)
-      chat = chat.with_schema(Captain::ClassificationSchema)
-      chat = chat.with_instructions(CLASSIFICATION_SYSTEM_PROMPT)
-      chat.prompt(message_text)
+    api_base = classification_api_base
+    model = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || Llm::Config::DEFAULT_MODEL
+
+    Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
+      chat = context.chat(model: model).with_temperature(0.3)
+      chat.with_instructions(CLASSIFICATION_SYSTEM_PROMPT).ask(message_text)
     end
   rescue StandardError => e
     Rails.logger.error "[Captain Classification LLM] Error: #{e.message}"
     nil
+  end
+
+  def classification_api_key
+    account = @conversation.account
+    hook = account.hooks.find_by(app_id: 'openai', status: 'enabled')
+    hook&.settings&.dig('api_key') || InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  end
+
+  def classification_api_base
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
+    return nil if endpoint.blank?
+
+    base = endpoint.to_s.strip.chomp('/')
+    %r{/v\d+/?$}.match?(base) ? base : "#{base}/v1"
   end
 
   def parse_classification_response(response)

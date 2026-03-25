@@ -18,14 +18,11 @@ module Captain::FeatureFlagsHelper
       false
     end
 
-    # Check if specific account uses Z.AI
+    # Check if specific account uses Z.AI (based on global flag + rollout percentage)
     def use_zai_for_account?(account)
-      return false unless account && zai_provider_enabled?(account.id)
+      return false unless account
 
-      # Can be overridden per account if needed
-      account.feature_enabled?('captain_zai_provider')
-    rescue StandardError
-      false
+      zai_provider_enabled?(account.id) && account_in_rollout?(account.id)
     end
 
     # Get configured Z.AI model or fallback

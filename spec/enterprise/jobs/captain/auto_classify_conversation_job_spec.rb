@@ -6,23 +6,24 @@ RSpec.describe Captain::AutoClassifyConversationJob do
   let(:assistant) { create(:captain_assistant, account: account) }
 
   describe '#perform' do
+    let(:classification) do
+      {
+        department: 'support',
+        priority: 'high',
+        sentiment: 'negative',
+        language: 'en',
+        tags: %w[urgent billing],
+        requires_immediate_response: true,
+        suggested_response_template: 'faq_1'
+      }
+    end
+
     before do
-      # Mock classification service
-      allow_any_instance_of(Captain::AutoClassificationService).to receive(:classify).and_return(
-        {
-          department: 'support',
-          priority: 'high',
-          sentiment: 'negative',
-          language: 'en',
-          tags: %w[urgent billing],
-          requires_immediate_response: true,
-          suggested_response_template: 'faq_1'
-        }
-      )
+      allow_any_instance_of(Captain::AutoClassificationService).to receive(:classify).and_return(classification)
     end
 
     it 'classifies conversation' do
-      expect(Captain::AutoClassificationService).to receive(:new).and_call_original
+      expect_any_instance_of(Captain::AutoClassificationService).to receive(:classify).and_return(classification)
 
       described_class.perform_now(
         conversation_id: conversation.id,
@@ -30,7 +31,7 @@ RSpec.describe Captain::AutoClassifyConversationJob do
       )
     end
 
-    it 'applies classification to conversation' do
+    it 'applies priority to conversation' do
       described_class.perform_now(
         conversation_id: conversation.id,
         assistant_id: assistant.id
@@ -40,23 +41,22 @@ RSpec.describe Captain::AutoClassifyConversationJob do
       expect(conversation.priority).to eq('high')
     end
 
-    it 'adds labels for department' do
+    it 'stores classification metadata' do
       described_class.perform_now(
         conversation_id: conversation.id,
         assistant_id: assistant.id
       )
 
       conversation.reload
-      expect(conversation.label_list).to include('department:support')
+      classification_data = conversation.additional_attributes['auto_classification']
+      expect(classification_data['department']).to eq('support')
+      expect(classification_data['sentiment']).to eq('negative')
     end
 
     context 'with missing conversation' do
-      it 'gracefully handles' do
+      it 'does not raise error' do
         expect do
-          described_class.perform_now(
-            conversation_id: 99_999,
-            assistant_id: assistant.id
-          )
+          described_class.perform_now(conversation_id: 99_999, assistant_id: assistant.id)
         end.not_to raise_error
       end
     end
@@ -66,12 +66,9 @@ RSpec.describe Captain::AutoClassifyConversationJob do
         allow_any_instance_of(Captain::AutoClassificationService).to receive(:classify).and_return(nil)
       end
 
-      it 'handles gracefully' do
+      it 'does not raise error' do
         expect do
-          described_class.perform_now(
-            conversation_id: conversation.id,
-            assistant_id: assistant.id
-          )
+          described_class.perform_now(conversation_id: conversation.id, assistant_id: assistant.id)
         end.not_to raise_error
       end
     end

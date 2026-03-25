@@ -16,59 +16,51 @@ class Captain::AutoClassifyConversationJob < ApplicationJob
     return unless classification
 
     apply_classification(conversation, classification)
-
     log_classification(conversation, classification)
   rescue StandardError => e
     Rails.logger.error "[Captain AutoClassify] Job error for conversation #{conversation_id}: #{e.message}"
-    Sentry.capture_exception(e, extra: { conversation_id: conversation_id })
+    ChatwootExceptionTracker.new(e, account: conversation&.account).capture_exception
   end
 
   private
 
   def apply_classification(conversation, classification)
-    # Apply department as label if present
-    if classification[:department].present?
-      label = Label.find_or_create_by(
-        account_id: conversation.account_id,
-        name: "department:#{classification[:department]}"
-      )
-      conversation.add_labels([label.id]) if label
-    end
-
-    # Apply priority
-    conversation.update(priority: map_priority_to_level(classification[:priority])) if classification[:priority].present?
-
-    # Apply sentiment as metadata
-    if classification[:sentiment].present?
-      conversation.additional_attributes ||= {}
-      conversation.additional_attributes['classified_sentiment'] = classification[:sentiment]
-      conversation.save(validate: false)
-    end
-
-    # Apply tags as labels
-    tags_to_label(conversation, classification[:tags]) if classification[:tags].is_a?(Array)
-
-    # Store full classification for audit
+    apply_department_label(conversation, classification[:department])
+    apply_priority(conversation, classification[:priority])
+    apply_tag_labels(conversation, classification[:tags])
     store_classification_metadata(conversation, classification)
   end
 
-  def map_priority_to_level(priority_string)
-    priority_map = {
-      'low' => 'none',
-      'medium' => 'medium',
-      'high' => 'high',
-      'urgent' => 'urgent'
-    }
-    priority_map[priority_string] || 'medium'
+  def apply_department_label(conversation, department)
+    return if department.blank?
+
+    label_title = "department-#{department}"
+    Label.find_or_create_by(account_id: conversation.account_id, title: label_title)
+    conversation.add_labels([label_title])
+  rescue StandardError => e
+    Rails.logger.warn "[Captain AutoClassify] Error applying department label: #{e.message}"
   end
 
-  def tags_to_label(conversation, tags)
+  def apply_priority(conversation, priority)
+    return if priority.blank?
+
+    mapped = map_priority(priority)
+    conversation.update(priority: mapped) if mapped
+  end
+
+  def map_priority(priority_string)
+    # Conversation enum: { low: 0, medium: 1, high: 2, urgent: 3 }
+    valid = { 'low' => 'low', 'medium' => 'medium', 'high' => 'high', 'urgent' => 'urgent' }
+    valid[priority_string]
+  end
+
+  def apply_tag_labels(conversation, tags)
+    return unless tags.is_a?(Array)
+
     tags.each do |tag|
-      label = Label.find_or_create_by(
-        account_id: conversation.account_id,
-        name: "tag:#{tag.parameterize}"
-      )
-      conversation.add_labels([label.id]) if label
+      label_title = "tag-#{tag.parameterize}"
+      Label.find_or_create_by(account_id: conversation.account_id, title: label_title)
+      conversation.add_labels([label_title])
     end
   rescue StandardError => e
     Rails.logger.warn "[Captain AutoClassify] Error applying tags: #{e.message}"

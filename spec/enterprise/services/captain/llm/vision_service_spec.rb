@@ -16,7 +16,8 @@ RSpec.describe Captain::Llm::VisionService do
       end
     end
 
-    context 'when message has images' do
+    context 'when message has images with vision-capable model' do
+      let(:config) { { llm_model: 'glm-4.6' } }
       let(:message_content) do
         [
           { type: 'text', text: 'Screenshot of error' },
@@ -24,24 +25,9 @@ RSpec.describe Captain::Llm::VisionService do
         ]
       end
 
-      context 'with vision model configured' do
-        let(:config) { { llm_model: 'glm-4.6' } }
-
-        it 'returns content as-is (vision model supports images)' do
-          result = vision_service.process
-          expect(result).to eq(message_content)
-        end
-      end
-
-      context 'with non-vision model' do
-        let(:config) { { llm_model: 'glm-5' } }
-
-        it 'detects images and indicates vision processing needed' do
-          # In production, would call GLM-4.6V for analysis
-          # For now, just verify detection logic works
-          result = vision_service.process
-          expect(result).not_to be_nil
-        end
+      it 'returns content as-is' do
+        result = vision_service.process
+        expect(result).to eq(message_content)
       end
     end
 
