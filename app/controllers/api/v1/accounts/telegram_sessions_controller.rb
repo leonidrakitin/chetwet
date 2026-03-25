@@ -11,18 +11,7 @@ class Api::V1::Accounts::TelegramSessionsController < Api::V1::Accounts::BaseCon
   end
 
   def create
-    unless GlobalConfig.get_value('ENABLE_TELEGRAM_PERSONAL_CHANNEL')
-      render json: { error: 'Telegram Personal is disabled' }, status: :forbidden
-      return
-    end
-
-    api_id = GlobalConfig.get_value('TELEGRAM_PERSONAL_API_ID')
-    api_hash = GlobalConfig.get_value('TELEGRAM_PERSONAL_API_HASH')
-
-    if api_id.blank? || api_hash.blank?
-      render json: { error: 'Telegram Personal API credentials are not configured' }, status: :unprocessable_entity
-      return
-    end
+    return if render_telegram_personal_guards
 
     result = Inbox::TelegramPersonalService.new(
       account: Current.account,
@@ -66,8 +55,25 @@ class Api::V1::Accounts::TelegramSessionsController < Api::V1::Accounts::BaseCon
 
   private
 
+  def render_telegram_personal_guards
+    unless GlobalConfig.get_value('ENABLE_TELEGRAM_PERSONAL_CHANNEL')
+      render json: { error: 'Telegram Personal is disabled' }, status: :forbidden
+      return true
+    end
+
+    api_id = GlobalConfig.get_value('TELEGRAM_PERSONAL_API_ID')
+    api_hash = GlobalConfig.get_value('TELEGRAM_PERSONAL_API_HASH')
+
+    if api_id.blank? || api_hash.blank?
+      render json: { error: 'Telegram Personal API credentials are not configured' }, status: :unprocessable_entity
+      return true
+    end
+
+    false
+  end
+
   TDLIB_ERROR_MESSAGES = {
-    'PHONE_NUMBER_OCCUPIED' => 'This phone number is already linked to another Telegram account. Use a different number or remove the existing inbox.',
+    'PHONE_NUMBER_OCCUPIED' => 'This phone number is linked to another Telegram account. Use a different number or remove the existing inbox.',
     'PHONE_NUMBER_INVALID' => 'The phone number is invalid. Please check the format (include country code) and try again.',
     'PHONE_NUMBER_BANNED' => 'This phone number has been banned by Telegram.',
     'PHONE_CODE_INVALID' => 'The verification code is incorrect. Please check the code and try again.',
