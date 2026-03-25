@@ -20,20 +20,13 @@ module VkConcern
   end
 
   def fetch_vk_groups(access_token)
-    response = HTTParty.get(
-      'https://api.vk.com/method/groups.get',
-      query: {
-        access_token: access_token,
-        filter: 'admin',
-        extended: 1,
-        fields: 'photo_50,members_count',
-        v: VK_API_VERSION
-      }
-    )
-    return [] unless response.success?
+    response = HTTParty.get('https://api.vk.com/method/groups.get',
+                            query: { access_token: access_token, filter: 'admin',
+                                     extended: 1, fields: 'photo_50,members_count', v: VK_API_VERSION })
+    return log_and_empty("[VK] groups.get HTTP error: #{response.code} #{response.body}") unless response.success?
 
     parsed = response.parsed_response
-    return [] if parsed['error'].present?
+    return log_and_empty("[VK] groups.get API error: #{parsed['error'].inspect}") if parsed['error'].present?
 
     parsed.dig('response', 'items') || []
   end
@@ -56,6 +49,11 @@ module VkConcern
   end
 
   private
+
+  def log_and_empty(message)
+    Rails.logger.error(message)
+    []
+  end
 
   def vk_id_client_id
     GlobalConfigService.load('VK_ID_CLIENT_ID', ENV.fetch('VK_ID_CLIENT_ID', nil))
