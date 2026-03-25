@@ -37,7 +37,7 @@ module Llm::Config
         if openai_endpoint.present?
           base = openai_endpoint.is_a?(Hash) ? (openai_endpoint[:value] || openai_endpoint['value']).to_s : openai_endpoint.to_s
           base = base.strip.chomp('/')
-          config.openai_api_base = base.end_with?('/v1') ? base : "#{base}/v1" if base.present?
+          config.openai_api_base = %r{/v\d+/?$}.match?(base) ? base : "#{base}/v1" if base.present?
         end
         config.openai_use_system_role = true
         config.logger = Rails.logger

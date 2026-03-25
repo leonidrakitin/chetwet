@@ -26,6 +26,7 @@ const PROVIDER_ICONS = {
   deepseek: 'i-ri-deepseek-fill',
   qwen: 'i-lucide-sparkles',
   ollama: 'i-lucide-cpu',
+  zai: 'i-lucide-zap',
 };
 
 const iconForModel = model => {

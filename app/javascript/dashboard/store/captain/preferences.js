@@ -24,9 +24,10 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
       const providerOrder = {
         openai: 0,
         anthropic: 1,
-        deepseek: 2,
-        qwen: 3,
-        gemini: 4,
+        zai: 2,
+        deepseek: 3,
+        qwen: 4,
+        gemini: 5,
       };
 
       return [...models].sort((a, b) => {
