@@ -12,7 +12,7 @@ class Api::V1::Accounts::Vk::GroupsController < Api::V1::Accounts::BaseControlle
       return
     end
 
-    groups = fetch_vk_groups(token_data['access_token'])
+    groups = fetch_vk_groups(token_data['access_token'], user_id: token_data['user_id'])
     render json: { groups: groups, token_data: token_data }
   end
 

@@ -19,10 +19,11 @@ module VkConcern
     )
   end
 
-  def fetch_vk_groups(access_token)
-    response = HTTParty.get('https://api.vk.com/method/groups.get',
-                            query: { access_token: access_token, filter: 'admin',
-                                     extended: 1, fields: 'photo_50,members_count', v: VK_API_VERSION })
+  def fetch_vk_groups(access_token, user_id: nil)
+    query = { access_token: access_token, filter: 'admin',
+              extended: 1, fields: 'photo_50,members_count', v: VK_API_VERSION }
+    query[:user_id] = user_id if user_id.present?
+    response = HTTParty.get('https://api.vk.com/method/groups.get', query: query)
     return log_and_empty("[VK] groups.get HTTP error: #{response.code} #{response.body}") unless response.success?
 
     parsed = response.parsed_response
