@@ -100,6 +100,24 @@ class Captain::Assistant < ApplicationRecord
 
   private
 
+  def has_image_content?(content)
+    return false if content.blank?
+
+    if content.is_a?(Array)
+      content.any? { |part| part.is_a?(Hash) && (part[:type] == 'image_url' || part['type'] == 'image_url') }
+    elsif content.is_a?(String)
+      # Check if it's a multimodal JSON encoded content
+      begin
+        parsed = JSON.parse(content)
+        parsed.is_a?(Array) && parsed.any? { |part| part.is_a?(Hash) && part['type'] == 'image_url' }
+      rescue StandardError
+        false
+      end
+    else
+      false
+    end
+  end
+
   def agent_name
     name.parameterize(separator: '_')
   end

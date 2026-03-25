@@ -1,5 +1,5 @@
 class Captain::OpenAiMessageBuilderService
-  pattr_initialize [:message!]
+  pattr_initialize [:message!, { assistant_config: {} }]
 
   # Extracts text and image URLs from multimodal content array (reverse of generate_content)
   def self.extract_text_and_attachments(content)
@@ -7,10 +7,11 @@ class Captain::OpenAiMessageBuilderService
 
     text_parts = content.select { |part| part.is_a?(Hash) && (part[:type] == 'text' || part['type'] == 'text') }
                         .filter_map { |part| part[:text] || part['text'] }.compact
-    image_urls = content. select { |part| part.is_a?(Hash) && (part[:type] == 'image_url' || part['type'] == 'image_url') }
+    image_urls = content.select { |part| part.is_a?(Hash) && (part[:type] == 'image_url' || part['type'] == 'image_url') }
                         .filter_map do |part|
       url = part[:image_url] || part['image_url']
       next if url.nil?
+
       url.is_a?(Hash) ? (url[:url] || url['url']) : url
     end
     [text_parts.join(' ').presence, image_urls]
@@ -68,8 +69,17 @@ class Captain::OpenAiMessageBuilderService
     return '' if audio_attachments.blank?
 
     audio_attachments.map do |attachment|
-      result = Messages::AudioTranscriptionService.new(attachment).perform
-      result[:success] ? result[:transcriptions] : ''
+      # Try Z.AI GLM-ASR first if configured, fallback to legacy service
+      result = Captain::Llm::AudioTranscriptionService.new(attachment).perform
+      result[:success] ? result[:transcriptions] : transcribe_fallback(attachment)
     end.join
+  end
+
+  def transcribe_fallback(attachment)
+    # Fallback to legacy transcription service if Z.AI is not configured
+    result = Messages::AudioTranscriptionService.new(attachment).perform
+    result[:success] ? result[:transcriptions] : ''
+  rescue StandardError
+    ''
   end
 end
