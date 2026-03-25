@@ -238,3 +238,6 @@
 - name: channel_telegram_personal
   display_name: Telegram Personal Channel
   enabled: true
+- name: max
+  display_name: Max
+  enabled: true

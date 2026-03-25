@@ -47,6 +47,11 @@ captain:
   enabled: true
   icon: 'icon-captain'
   config_key: 'captain'
+max:
+  name: 'Max'
+  description: 'Enable Max feature for enhanced capabilities.'
+  enabled: true
+  icon: 'icon-captain'
 
 # ------- Communication Channels ------- #
 live_chat:
