@@ -461,6 +461,7 @@
       "USE": "Use this",
       "RESET": "Reset",
       "SHOW_STEPS": "Show steps",
+      "REASONING": "Show reasoning",
       "SELECT_ASSISTANT": "Select Assistant",
       "PROMPTS": {
         "SUMMARIZE": {

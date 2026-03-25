@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { emitter } from 'shared/helpers/mitt';
 import { useTrack } from 'dashboard/composables';
 
@@ -9,6 +9,7 @@ import { COPILOT_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
 import MessageFormatter from 'shared/helpers/MessageFormatter.js';
 
 import Button from 'dashboard/components-next/button/Button.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const props = defineProps({
   isLastMessage: {
@@ -45,6 +46,9 @@ const insertIntoRichEditor = computed(() => {
   );
 });
 
+const hasReasoning = computed(() => !!props.message?.reasoning);
+const isReasoningExpanded = ref(false);
+
 const useCopilotResponse = () => {
   if (insertIntoRichEditor.value) {
     emitter.emit(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, props.message?.content);
@@ -66,6 +70,28 @@ const useCopilotResponse = () => {
       v-dompurify-html="messageContent"
       class="prose-sm break-words"
     />
+    <div v-if="hasReasoning" class="mt-1">
+      <button
+        class="flex items-center gap-1 text-xs text-n-slate-9 hover:text-n-slate-11 transition-colors"
+        @click="isReasoningExpanded = !isReasoningExpanded"
+      >
+        <Icon
+          :icon="
+            isReasoningExpanded
+              ? 'i-lucide-chevron-down'
+              : 'i-lucide-chevron-right'
+          "
+          class="w-3 h-3"
+        />
+        {{ $t('CAPTAIN.COPILOT.REASONING') }}
+      </button>
+      <div
+        v-show="isReasoningExpanded"
+        class="mt-1 p-2 text-xs text-n-slate-10 whitespace-pre-wrap leading-relaxed rounded bg-n-background/50 border border-n-weak"
+      >
+        {{ message.reasoning }}
+      </div>
+    </div>
     <div class="flex flex-row mt-1">
       <Button
         v-if="showUseButton"
