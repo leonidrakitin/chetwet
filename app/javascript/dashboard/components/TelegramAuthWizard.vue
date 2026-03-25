@@ -103,6 +103,7 @@ const withRequest = async callback => {
   } catch (error) {
     const message =
       error?.response?.data?.error ||
+      error?.response?.data?.message ||
       error?.message ||
       t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.API.ERROR_MESSAGE');
 
