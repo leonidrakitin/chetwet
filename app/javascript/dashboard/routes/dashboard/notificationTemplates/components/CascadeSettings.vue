@@ -63,9 +63,8 @@ const availableForService = computed(() => {
 const showMarketingPicker = ref(false);
 const showServicePicker = ref(false);
 
-const addToChain = (chain, inbox, pickerRef, storageKey) => {
+const addToChain = (chain, inbox, storageKey) => {
   chain.push(inbox);
-  pickerRef.value = false;
   saveOrder(
     storageKey,
     chain.map(i => i.id)
@@ -268,12 +267,8 @@ const inboxIcon = inbox =>
               :key="inbox.id"
               class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-slate-12 text-left"
               @click="
-                addToChain(
-                  marketingChain,
-                  inbox,
-                  showMarketingPicker,
-                  STORAGE_KEY_MARKETING
-                )
+                addToChain(marketingChain, inbox, STORAGE_KEY_MARKETING);
+                showMarketingPicker = false;
               "
             >
               <span
@@ -392,12 +387,8 @@ const inboxIcon = inbox =>
               :key="inbox.id"
               class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-slate-12 text-left"
               @click="
-                addToChain(
-                  serviceChain,
-                  inbox,
-                  showServicePicker,
-                  STORAGE_KEY_SERVICE
-                )
+                addToChain(serviceChain, inbox, STORAGE_KEY_SERVICE);
+                showServicePicker = false;
               "
             >
               <span
