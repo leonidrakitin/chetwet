@@ -28,25 +28,6 @@ class ChatwootHub
     identifier
   end
 
-  def self.billing_url
-    "#{billing_base_url}?installation_identifier=#{installation_identifier}"
-  end
-
-  def self.pricing_plan
-    return 'community' unless ChatwootApp.enterprise?
-
-    plan = InstallationConfig.find_by(name: 'INSTALLATION_PRICING_PLAN')&.value
-    return 'enterprise' if plan.blank? || plan == 'community'
-
-    plan
-  end
-
-  def self.pricing_plan_quantity
-    return 0 unless ChatwootApp.enterprise?
-
-    InstallationConfig.find_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY')&.value || 0
-  end
-
   def self.support_config
     {
       support_website_token: InstallationConfig.find_by(name: 'CHATWOOT_SUPPORT_WEBSITE_TOKEN')&.value,
