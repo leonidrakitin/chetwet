@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_25_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_26_152810) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -73,6 +73,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_120000) do
     t.integer "status", default: 0
     t.jsonb "internal_attributes", default: {}, null: false
     t.jsonb "settings", default: {}
+    t.bigint "plan_id"
+    t.index ["plan_id"], name: "index_accounts_on_plan_id"
     t.index ["status"], name: "index_accounts_on_status"
   end
 
@@ -1226,6 +1228,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_120000) do
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
+  create_table "plans", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "display_name"
+    t.decimal "price", precision: 10, scale: 2, default: "0.0"
+    t.decimal "annual_price", precision: 10, scale: 2, default: "0.0"
+    t.integer "trial_days", default: 0
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.jsonb "feature_list", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_plans_on_name", unique: true
+  end
+
   create_table "platform_app_permissibles", force: :cascade do |t|
     t.bigint "platform_app_id", null: false
     t.string "permissible_type", null: false
@@ -1529,6 +1545,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_120000) do
     t.index ["salon_id"], name: "index_yclients_integrations_on_salon_id"
   end
 
+  add_foreign_key "accounts", "plans", on_delete: :nullify
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_activity_logs", "accounts"

@@ -35,7 +35,7 @@ class AccountDashboard < Administrate::BaseDashboard
     status: Field::Select.with_options(collection: [%w[Active active], %w[Suspended suspended]]),
     account_users: Field::HasMany,
     custom_attributes: Field::String,
-    plan_name: Field::String,
+    plan: Field::BelongsTo,
     plan_expires_at: Field::String,
     plan_price: Field::String
   }.merge(enterprise_attribute_types).freeze
@@ -73,7 +73,7 @@ class AccountDashboard < Administrate::BaseDashboard
     status
     conversations
     account_users
-    plan_name
+    plan
     plan_expires_at
     plan_price
   ] + enterprise_show_page_attributes).freeze
@@ -93,7 +93,7 @@ class AccountDashboard < Administrate::BaseDashboard
     name
     locale
     status
-    plan_name
+    plan
     plan_expires_at
     plan_price
   ] + enterprise_form_attributes).freeze

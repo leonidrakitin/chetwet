@@ -5,7 +5,7 @@ module Enterprise::Account::PlanUsageAndLimits # rubocop:disable Metrics/ModuleL
   CAPTAIN_DOCUMENTS_USAGE = 'captain_documents_usage'.freeze
 
   def plan_name
-    custom_attributes['plan_name']
+    plan&.name || custom_attributes['plan_name']
   end
 
   def plan_name=(value)

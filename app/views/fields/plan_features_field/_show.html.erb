@@ -1,0 +1,18 @@
+<%
+  display_names = SuperAdmin::AccountFeaturesHelper.feature_display_names
+  features = Array(field.data).reject(&:blank?)
+%>
+<% if features.empty? %>
+  <span class="text-slate-400 text-sm">No features selected</span>
+<% else %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 mt-2">
+    <% features.each do |feature_name| %>
+      <div class="flex items-center p-2 bg-white rounded-md outline outline-1 outline-n-container shadow-sm">
+        <span class="bg-green-400 text-white rounded-full p-1 inline-flex mr-2">
+          <svg width="10" height="10"><use xlink:href="#icon-tick-line" /></svg>
+        </span>
+        <span class="text-sm text-n-slate-12"><%= display_names[feature_name] || feature_name %></span>
+      </div>
+    <% end %>
+  </div>
+<% end %>

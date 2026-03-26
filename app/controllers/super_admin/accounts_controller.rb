@@ -33,6 +33,16 @@ class SuperAdmin::AccountsController < SuperAdmin::ApplicationController
   # empty values into nil values. It uses other APIs such as `resource_class`
   # and `dashboard`:
   #
+  def update
+    prev_plan_id = requested_resource.plan_id
+    super
+    new_plan = requested_resource.reload.plan
+    return unless new_plan.present? && requested_resource.plan_id != prev_plan_id
+
+    Accounts::ApplyPlanService.new(account: requested_resource,
+                                   plan: new_plan).perform
+  end
+
   def resource_params
     permitted_params = super
     permitted_params[:limits] = permitted_params[:limits].to_h.compact
