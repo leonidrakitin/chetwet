@@ -239,7 +239,7 @@ ru:
       status:
         resolved: '%{user_name} завершил диалог'
         contact_resolved: 'Разговор был закрыт %{contact_name}'
-        open: '%{user_name} открыл заново диалог'
+        open: '%{user_name} взял диалог в работу'
         pending: 'Разговор был помечен как ожидающий %{user_name}'
         snoozed: 'Разговор был помечен как отложенный %{user_name}'
         auto_resolved_days: 'Разговор был помечен системой решённым из-за неактивности в течение %{count} дней'

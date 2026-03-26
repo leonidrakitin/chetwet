@@ -86,7 +86,7 @@
     },
     "HEADER": {
       "RESOLVE_ACTION": "Завершить",
-      "REOPEN_ACTION": "Открыть заново",
+      "REOPEN_ACTION": "Взять в работу",
       "OPEN_ACTION": "Открыть",
       "MORE_ACTIONS": "Ещё действия",
       "OPEN": "Открыть",
