@@ -4,8 +4,8 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import CaptainAssistantAPI from 'dashboard/api/captain/assistant';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
 import CaptainPaywall from 'dashboard/components-next/captain/pageComponents/Paywall.vue';
@@ -70,6 +70,53 @@ const isFetchingBuiltIn = ref(false);
 
 const assistantId = computed(() => route.params.assistantId);
 
+const assistant = computed(() =>
+  store.getters['captainAssistants/getRecord'](Number(assistantId.value))
+);
+
+const capabilities = computed(() => {
+  const config = assistant.value?.config || {};
+  return [
+    {
+      id: 'feature_faq',
+      title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CONVERSATION_FAQS'),
+      icon: 'i-lucide-help-circle',
+      enabled: config.feature_faq || false,
+    },
+    {
+      id: 'feature_memory',
+      title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_MEMORIES'),
+      icon: 'i-lucide-brain',
+      enabled: config.feature_memory || false,
+    },
+    {
+      id: 'feature_citation',
+      title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CITATIONS'),
+      icon: 'i-lucide-quote',
+      enabled: config.feature_citation || false,
+    },
+    {
+      id: 'feature_contact_attributes',
+      title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CONTACT_ATTRIBUTES'),
+      icon: 'i-lucide-user',
+      enabled: config.feature_contact_attributes || false,
+    },
+  ];
+});
+
+const handleCapabilityToggle = async item => {
+  const config = { ...assistant.value.config, [item.id]: !item.enabled };
+  try {
+    await store.dispatch('captainAssistants/update', {
+      id: Number(assistantId.value),
+      config,
+    });
+    useAlert(t('CAPTAIN.ASSISTANTS.EDIT.SUCCESS_MESSAGE'));
+  } catch {
+    useAlert(t('CAPTAIN.ASSISTANTS.EDIT.ERROR_MESSAGE'));
+  }
+};
+
 const localizeBuiltInTool = tool => {
   const titleKey = `CAPTAIN.BUILT_IN_TOOLS.TOOLS.${tool.id}.TITLE`;
   const descKey = `CAPTAIN.BUILT_IN_TOOLS.TOOLS.${tool.id}.DESCRIPTION`;
@@ -119,7 +166,10 @@ const builtInCategorySections = computed(() => {
 });
 
 const isEmpty = computed(
-  () => !customTools.value.length && !builtInTools.value.length
+  () =>
+    !customTools.value.length &&
+    !builtInTools.value.length &&
+    !capabilities.value.length
 );
 
 const customToolItems = computed(() =>
@@ -245,6 +295,15 @@ onMounted(() => {
 
     <template #body>
       <div class="flex flex-col gap-4 max-w-2xl">
+        <ToolCategorySection
+          :title="$t('CAPTAIN.ASSISTANTS.FORM.FEATURES.TITLE')"
+          icon="i-lucide-sparkles"
+          icon-color="text-n-amber-11"
+          bg-color="bg-n-amber-3"
+          :items="capabilities"
+          @toggle="handleCapabilityToggle"
+        />
+
         <ToolCategorySection
           v-for="section in builtInCategorySections"
           :key="section.key"

@@ -23,12 +23,6 @@ const initialState = {
   name: '',
   description: '',
   productName: '',
-  features: {
-    conversationFaqs: false,
-    memories: false,
-    citations: false,
-    contactAttributes: false,
-  },
 };
 
 const state = reactive({ ...initialState });
@@ -56,12 +50,6 @@ const updateStateFromAssistant = assistant => {
   state.name = assistant.name;
   state.description = assistant.description;
   state.productName = config.product_name;
-  state.features = {
-    conversationFaqs: config.feature_faq || false,
-    memories: config.feature_memory || false,
-    citations: config.feature_citation || false,
-    contactAttributes: config.feature_contact_attributes || false,
-  };
 };
 
 const handleBasicInfoUpdate = async () => {
@@ -78,10 +66,6 @@ const handleBasicInfoUpdate = async () => {
     config: {
       ...props.assistant.config,
       product_name: state.productName,
-      feature_faq: state.features.conversationFaqs,
-      feature_memory: state.features.memories,
-      feature_citation: state.features.citations,
-      feature_contact_attributes: state.features.contactAttributes,
     },
   };
 
@@ -123,30 +107,6 @@ watch(
       :message-type="formErrors.description ? 'error' : 'info'"
       class="z-0"
     />
-
-    <div class="flex flex-col gap-2">
-      <label class="text-sm font-medium text-n-slate-12">
-        {{ t('CAPTAIN.ASSISTANTS.FORM.FEATURES.TITLE') }}
-      </label>
-      <div class="flex flex-col gap-2">
-        <label class="flex items-center gap-2">
-          <input v-model="state.features.conversationFaqs" type="checkbox" />
-          {{ t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CONVERSATION_FAQS') }}
-        </label>
-        <label class="flex items-center gap-2">
-          <input v-model="state.features.memories" type="checkbox" />
-          {{ t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_MEMORIES') }}
-        </label>
-        <label class="flex items-center gap-2">
-          <input v-model="state.features.citations" type="checkbox" />
-          {{ t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CITATIONS') }}
-        </label>
-        <label class="flex items-center gap-2">
-          <input v-model="state.features.contactAttributes" type="checkbox" />
-          {{ t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CONTACT_ATTRIBUTES') }}
-        </label>
-      </div>
-    </div>
 
     <div>
       <Button
