@@ -8,6 +8,7 @@
       "EVENT": "On Event",
       "TIME": "By Time",
       "INTERVAL": "Interval",
+      "CASCADE": "Delivery",
       "STATISTICS": "Statistics"
     },
     "EVENTS": {
@@ -224,6 +225,27 @@
       "URL": "URL",
       "TEMPLATE": "Select template...",
       "MAX_REACHED": "Maximum 3 buttons"
+    },
+    "CASCADE": {
+      "TITLE": "Delivery cascade",
+      "DESCRIPTION": "Set the order in which channels are tried when sending a notification. If delivery via the first channel fails, the next one in the chain is used.",
+      "ADD_CHANNEL": "Add channel",
+      "EMPTY_CHAIN": "No channels added yet. Add at least one channel to build the cascade.",
+      "HOW_IT_WORKS": "The system will attempt to send the message through each channel in order. If the client is not reachable on the first channel, the next one is tried automatically.",
+      "SAVE": "Save settings",
+      "SAVE_SUCCESS": "Cascade settings saved.",
+      "MARKETING": {
+        "TITLE": "Marketing notifications",
+        "BADGE": "Marketing",
+        "DESCRIPTION": "Promotions, special offers, re-engagement campaigns",
+        "LEGAL_NOTICE": "According to Federal Law No. 38-FZ \"On Advertising\", sending marketing messages requires explicit consent from the recipient. Make sure your contact base has confirmed opt-in before using this cascade.",
+        "LEARN_MORE": "Learn more about consent requirements"
+      },
+      "SERVICE": {
+        "TITLE": "Service notifications",
+        "BADGE": "Service",
+        "DESCRIPTION": "Booking reminders, status updates, transactional messages"
+      }
     },
     "COMMON": {
       "CANCEL": "Cancel"

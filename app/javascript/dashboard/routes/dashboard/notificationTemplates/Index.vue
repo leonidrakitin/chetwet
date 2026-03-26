@@ -14,6 +14,7 @@ import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TemplateCard from './components/TemplateCard.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 import FlowMap from './components/FlowMap.vue';
+import CascadeSettings from './components/CascadeSettings.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -25,6 +26,7 @@ const tabs = computed(() => [
   { label: t('NOTIFICATION_TEMPLATES.TABS.EVENT'), key: 'event' },
   { label: t('NOTIFICATION_TEMPLATES.TABS.TIME'), key: 'time' },
   { label: t('NOTIFICATION_TEMPLATES.TABS.INTERVAL'), key: 'interval' },
+  { label: t('NOTIFICATION_TEMPLATES.TABS.CASCADE'), key: 'cascade' },
   { label: t('NOTIFICATION_TEMPLATES.TABS.STATISTICS'), key: 'statistics' },
 ]);
 
@@ -80,6 +82,7 @@ const filteredTemplates = computed(() => {
 });
 
 const isStatisticsTab = computed(() => activeTab.value.key === 'statistics');
+const isCascadeTab = computed(() => activeTab.value.key === 'cascade');
 
 const deleteDialogRef = ref(null);
 const previewDialogRef = ref(null);
@@ -205,6 +208,7 @@ onMounted(() => {
 
         <!-- New template: desktop with label -->
         <Button
+          v-if="!isCascadeTab"
           class="hidden md:inline-flex"
           icon="i-lucide-plus"
           :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
@@ -212,6 +216,7 @@ onMounted(() => {
         />
         <!-- New template: mobile icon only -->
         <Button
+          v-if="!isCascadeTab"
           class="inline-flex md:hidden"
           icon="i-lucide-plus"
           @click="openNewTemplate"
@@ -232,6 +237,7 @@ onMounted(() => {
         />
       </div>
       <div
+        v-if="!isCascadeTab"
         class="flex items-center gap-1 rounded-lg bg-n-alpha-1 p-1 flex-shrink-0"
       >
         <button
@@ -255,14 +261,17 @@ onMounted(() => {
     <div
       class="flex-1 min-h-0"
       :class="
-        viewMode === 'flow'
+        viewMode === 'flow' && !isCascadeTab
           ? 'overflow-hidden min-w-0'
           : 'overflow-y-auto px-4 py-3 md:px-6 md:py-4'
       "
     >
+      <!-- Cascade tab -->
+      <CascadeSettings v-if="isCascadeTab" />
+
       <!-- Loading -->
       <div
-        v-if="uiFlags.isFetching"
+        v-else-if="uiFlags.isFetching"
         class="flex justify-center items-center py-10 text-n-slate-11"
       >
         <Spinner />
