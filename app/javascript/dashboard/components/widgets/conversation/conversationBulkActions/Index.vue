@@ -53,6 +53,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    showAssigneeAction: {
+      type: Boolean,
+      default: true,
+    },
+    showTeamAction: {
+      type: Boolean,
+      default: true,
+    },
+    showLabelsAction: {
+      type: Boolean,
+      default: true,
+    },
   },
   emits: [
     'selectAllConversations',
@@ -180,6 +192,7 @@ export default {
       </label>
       <div class="flex items-center gap-1 bulk-action__actions">
         <NextButton
+          v-if="showLabelsAction"
           v-tooltip="$t('BULK_ACTION.LABELS.ASSIGN_LABELS')"
           icon="i-lucide-tags"
           slate
@@ -197,6 +210,7 @@ export default {
             @click="toggleUpdateActions"
           />
           <NextButton
+            v-if="showAssigneeAction"
             v-tooltip="$t('BULK_ACTION.ASSIGN_AGENT_TOOLTIP')"
             icon="i-lucide-user-round-plus"
             slate
@@ -205,6 +219,7 @@ export default {
             @click="toggleAgentList"
           />
           <NextButton
+            v-if="showTeamAction"
             v-tooltip="$t('BULK_ACTION.ASSIGN_TEAM_TOOLTIP')"
             icon="i-lucide-users-round"
             slate

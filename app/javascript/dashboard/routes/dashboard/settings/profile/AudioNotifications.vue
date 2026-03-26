@@ -11,9 +11,16 @@ import { useI18n } from 'vue-i18n';
 import camelcaseKeys from 'camelcase-keys';
 import { initializeAudioAlerts } from 'dashboard/helper/scriptHelpers';
 import { useStoreGetters } from 'dashboard/composables/store';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 const getters = useStoreGetters();
 const currentUser = computed(() => getters.getCurrentUser.value);
+const isConversationAssigneeEnabled = computed(() =>
+  store.getters['accounts/isFeatureEnabledonAccount'](
+    getters.getCurrentAccountId.value,
+    FEATURE_FLAGS.CONVERSATION_ASSIGNEE
+  )
+);
 
 const { uiSettings, updateUISettings } = useUISettings();
 
@@ -98,6 +105,7 @@ const handleAudioToneChange = value => {
     />
 
     <AudioAlertEvent
+      v-if="isConversationAssigneeEnabled"
       :label="$t(`${i18nKeyPrefix}.ALERT_TYPE.TITLE`)"
       :value="audioAlert"
       @update="handAudioAlertChange"

@@ -45,6 +45,10 @@ export const FEATURE_FLAGS = {
   ADVANCED_SEARCH: 'advanced_search',
   CONVERSATION_REQUIRED_ATTRIBUTES: 'conversation_required_attributes',
   NOTIFY_ALL_AGENTS_NEW_MESSAGE: 'notify_all_agents_new_message',
+  CONVERSATION_ASSIGNEE: 'conversation_assignee',
+  CONVERSATION_TEAM: 'conversation_team',
+  CONVERSATION_PRIORITY: 'conversation_priority',
+  CONVERSATION_LABELS: 'conversation_labels',
 };
 
 // Empty = no paywall, all features available (for self-hosted dev)

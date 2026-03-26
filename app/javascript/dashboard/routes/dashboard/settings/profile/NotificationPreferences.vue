@@ -42,16 +42,35 @@ export default {
     isSLAEnabled() {
       return this.isFeatureEnabledonAccount(this.accountId, FEATURE_FLAGS.SLA);
     },
-    filteredNotificationTypes() {
-      return this.notificationTypes.filter(notification =>
-        this.isSLAEnabled
-          ? true
-          : ![
-              'sla_missed_first_response',
-              'sla_missed_next_response',
-              'sla_missed_resolution',
-            ].includes(notification.value)
+    isConversationAssigneeEnabled() {
+      return this.isFeatureEnabledonAccount(
+        this.accountId,
+        FEATURE_FLAGS.CONVERSATION_ASSIGNEE
       );
+    },
+    filteredNotificationTypes() {
+      return this.notificationTypes.filter(notification => {
+        if (
+          !this.isSLAEnabled &&
+          [
+            'sla_missed_first_response',
+            'sla_missed_next_response',
+            'sla_missed_resolution',
+          ].includes(notification.value)
+        ) {
+          return false;
+        }
+        if (
+          !this.isConversationAssigneeEnabled &&
+          [
+            'conversation_assignment',
+            'assigned_conversation_new_message',
+          ].includes(notification.value)
+        ) {
+          return false;
+        }
+        return true;
+      });
     },
   },
   watch: {

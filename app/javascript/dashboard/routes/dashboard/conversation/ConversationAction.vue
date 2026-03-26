@@ -8,6 +8,7 @@ import MultiselectDropdown from 'shared/components/ui/MultiselectDropdown.vue';
 import ConversationLabels from './labels/LabelBox.vue';
 import { CONVERSATION_PRIORITY } from '../../../../shared/constants/messages';
 import { CONVERSATION_EVENTS } from '../../../helper/AnalyticsHelper/events';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useTrack } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 
@@ -66,6 +67,7 @@ export default {
       currentChat: 'getSelectedChat',
       currentUser: 'getCurrentUser',
       teams: 'teams/getTeams',
+      isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
     }),
     hasAnAssignedTeam() {
       return !!this.currentChat?.meta?.team;
@@ -157,6 +159,30 @@ export default {
       }
       return false;
     },
+    showConversationAssignee() {
+      return this.isFeatureEnabledonAccount(
+        this.currentUser.account_id,
+        FEATURE_FLAGS.CONVERSATION_ASSIGNEE
+      );
+    },
+    showConversationTeam() {
+      return this.isFeatureEnabledonAccount(
+        this.currentUser.account_id,
+        FEATURE_FLAGS.CONVERSATION_TEAM
+      );
+    },
+    showConversationPriority() {
+      return this.isFeatureEnabledonAccount(
+        this.currentUser.account_id,
+        FEATURE_FLAGS.CONVERSATION_PRIORITY
+      );
+    },
+    showConversationLabels() {
+      return this.isFeatureEnabledonAccount(
+        this.currentUser.account_id,
+        FEATURE_FLAGS.CONVERSATION_LABELS
+      );
+    },
   },
   methods: {
     onSelfAssign() {
@@ -211,7 +237,7 @@ export default {
 
 <template>
   <div>
-    <div>
+    <div v-if="showConversationAssignee">
       <ContactDetailsItem
         compact
         :title="$t('CONVERSATION_SIDEBAR.ASSIGNEE_LABEL')"
@@ -242,7 +268,7 @@ export default {
         @select="onClickAssignAgent"
       />
     </div>
-    <div>
+    <div v-if="showConversationTeam">
       <ContactDetailsItem
         compact
         :title="$t('CONVERSATION_SIDEBAR.TEAM_LABEL')"
@@ -261,7 +287,7 @@ export default {
         @select="onClickAssignTeam"
       />
     </div>
-    <div>
+    <div v-if="showConversationPriority">
       <ContactDetailsItem compact :title="$t('CONVERSATION.PRIORITY.TITLE')" />
       <MultiselectDropdown
         :options="priorityOptions"
@@ -279,10 +305,12 @@ export default {
         @select="onClickAssignPriority"
       />
     </div>
-    <ContactDetailsItem
-      compact
-      :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONVERSATION_LABELS')"
-    />
-    <ConversationLabels :conversation-id="conversationId" />
+    <template v-if="showConversationLabels">
+      <ContactDetailsItem
+        compact
+        :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONVERSATION_LABELS')"
+      />
+      <ConversationLabels :conversation-id="conversationId" />
+    </template>
   </div>
 </template>

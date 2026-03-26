@@ -190,8 +190,37 @@ const userPermissions = computed(() => {
   return getUserPermissions(currentUser.value, currentAccountId.value);
 });
 
+const isConversationAssigneeEnabled = computed(() =>
+  store.getters['accounts/isFeatureEnabledonAccount'](
+    currentAccountId.value,
+    FEATURE_FLAGS.CONVERSATION_ASSIGNEE
+  )
+);
+const isConversationTeamEnabled = computed(() =>
+  store.getters['accounts/isFeatureEnabledonAccount'](
+    currentAccountId.value,
+    FEATURE_FLAGS.CONVERSATION_TEAM
+  )
+);
+const isConversationPriorityEnabled = computed(() =>
+  store.getters['accounts/isFeatureEnabledonAccount'](
+    currentAccountId.value,
+    FEATURE_FLAGS.CONVERSATION_PRIORITY
+  )
+);
+const isConversationLabelsEnabled = computed(() =>
+  store.getters['accounts/isFeatureEnabledonAccount'](
+    currentAccountId.value,
+    FEATURE_FLAGS.CONVERSATION_LABELS
+  )
+);
+
+const showAssigneeInConversationCard = computed(
+  () => isConversationAssigneeEnabled.value
+);
+
 const assigneeTabItems = computed(() => {
-  return filterItemsByPermission(
+  const items = filterItemsByPermission(
     ASSIGNEE_TYPE_TAB_PERMISSIONS,
     userPermissions.value,
     item => item.permissions
@@ -200,9 +229,36 @@ const assigneeTabItems = computed(() => {
     name: t(`CHAT_LIST.ASSIGNEE_TYPE_TABS.${key}`),
     count: conversationStats.value[countKey] || 0,
   }));
+  if (!isConversationAssigneeEnabled.value) {
+    return items.filter(item => item.key === 'all');
+  }
+  return items;
 });
 
-const showAssigneeInConversationCard = computed(() => true);
+const contextMenuAllowedOptions = computed(() => {
+  if (
+    isConversationAssigneeEnabled.value &&
+    isConversationTeamEnabled.value &&
+    isConversationPriorityEnabled.value &&
+    isConversationLabelsEnabled.value
+  ) {
+    return [];
+  }
+  const opts = [
+    'mark-as-read',
+    'mark-as-unread',
+    'status',
+    'snooze',
+    'open-new-tab',
+    'copy-link',
+    'delete',
+  ];
+  if (isConversationAssigneeEnabled.value) opts.push('agent');
+  if (isConversationTeamEnabled.value) opts.push('team');
+  if (isConversationPriorityEnabled.value) opts.push('priority');
+  if (isConversationLabelsEnabled.value) opts.push('label');
+  return opts;
+});
 
 const hideResolveAssignUi = computed(() =>
   store.getters['accounts/isFeatureEnabledonAccount'](
@@ -237,10 +293,10 @@ const conversationCustomAttributes = useFunctionGetter(
 );
 
 const activeAssigneeTabCount = computed(() => {
-  const count = assigneeTabItems.value.find(
+  const found = assigneeTabItems.value.find(
     item => item.key === activeAssigneeTab.value
-  ).count;
-  return count;
+  );
+  return found?.count ?? 0;
 });
 
 const conversationListPagination = computed(() => {
@@ -949,6 +1005,12 @@ watch(conversationFilters, (newVal, oldVal) => {
     store.dispatch('updateChatListFilters', newVal);
   }
 });
+
+watch(isConversationAssigneeEnabled, enabled => {
+  if (!enabled && activeAssigneeTab.value !== wootConstants.ASSIGNEE_TYPE.ALL) {
+    activeAssigneeTab.value = wootConstants.ASSIGNEE_TYPE.ALL;
+  }
+});
 </script>
 
 <template>
@@ -1011,6 +1073,9 @@ watch(conversationFilters, (newVal, oldVal) => {
       :show-resolved-action="allSelectedConversationsStatus('resolved')"
       :show-snoozed-action="allSelectedConversationsStatus('snoozed')"
       :hide-status-and-assign="hideResolveAssignUi"
+      :show-assignee-action="isConversationAssigneeEnabled"
+      :show-team-action="isConversationTeamEnabled"
+      :show-labels-action="isConversationLabelsEnabled"
       @select-all-conversations="toggleSelectAll"
       @assign-agent="onAssignAgent"
       @update-conversations="onUpdateConversations"
@@ -1060,6 +1125,9 @@ watch(conversationFilters, (newVal, oldVal) => {
           :conversation-type="conversationType"
           :show-assignee="showAssigneeInConversationCard"
           :hide-resolve-assign-ui="hideResolveAssignUi"
+          :allowed-context-menu-options="contextMenuAllowedOptions"
+          :show-priority="isConversationPriorityEnabled"
+          :show-labels="isConversationLabelsEnabled"
           :data-index="index"
           @select-conversation="selectConversation"
           @de-select-conversation="deSelectConversation"

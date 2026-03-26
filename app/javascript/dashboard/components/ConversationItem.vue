@@ -48,6 +48,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    allowedContextMenuOptions: {
+      type: Array,
+      default: () => [],
+    },
+    showPriority: {
+      type: Boolean,
+      default: true,
+    },
+    showLabels: {
+      type: Boolean,
+      default: true,
+    },
   },
 };
 </script>
@@ -62,6 +74,9 @@ export default {
     :selected="isConversationSelected(source.id)"
     :show-assignee="showAssignee"
     :hide-resolve-assign-ui="hideResolveAssignUi"
+    :allowed-context-menu-options="allowedContextMenuOptions"
+    :show-priority="showPriority"
+    :show-labels="showLabels"
     enable-context-menu
     @select-conversation="selectConversation"
     @de-select-conversation="deSelectConversation"

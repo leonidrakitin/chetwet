@@ -241,3 +241,15 @@
 - name: max
   display_name: Max
   enabled: true
+- name: conversation_assignee
+  display_name: Conversation - Assigned Agent
+  enabled: true
+- name: conversation_team
+  display_name: Conversation - Assigned Team
+  enabled: true
+- name: conversation_priority
+  display_name: Conversation - Priority
+  enabled: true
+- name: conversation_labels
+  display_name: Conversation - Labels
+  enabled: true

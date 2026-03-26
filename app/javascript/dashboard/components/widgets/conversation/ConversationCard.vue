@@ -29,6 +29,8 @@ const props = defineProps({
   enableContextMenu: { type: Boolean, default: false },
   allowedContextMenuOptions: { type: Array, default: () => [] },
   hideResolveAssignUi: { type: Boolean, default: false },
+  showPriority: { type: Boolean, default: true },
+  showLabels: { type: Boolean, default: true },
 });
 
 const emit = defineEmits([
@@ -119,14 +121,16 @@ const showMetaSection = computed(() => {
   return (
     showInboxName.value ||
     (props.showAssignee && assignee.value.name) ||
-    props.chat.priority
+    (props.showPriority && props.chat.priority)
   );
 });
 
 const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
 
 const showLabelsSection = computed(() => {
-  return props.chat.labels?.length > 0 || hasSlaPolicyId.value;
+  return (
+    (props.chat.labels?.length > 0 && props.showLabels) || hasSlaPolicyId.value
+  );
 });
 
 const messagePreviewClass = computed(() => {
@@ -317,7 +321,11 @@ const deleteConversation = () => {
             <fluent-icon icon="person" size="12" class="text-n-slate-11" />
             {{ assignee.name }}
           </span>
-          <PriorityMark :priority="chat.priority" class="flex-shrink-0" />
+          <PriorityMark
+            v-if="showPriority"
+            :priority="chat.priority"
+            class="flex-shrink-0"
+          />
         </div>
       </div>
       <h4
