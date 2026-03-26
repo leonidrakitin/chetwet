@@ -1,36 +1,41 @@
 # frozen_string_literal: true
 
 module Avito::ParamHelpers
-  # Webhook payload from Avito v3 can come in two forms:
-  #
-  # Form 1 (wrapped):
-  # { payload: { user_id: ..., chat_id: ..., message: { ... } }, event_type: "message" }
-  #
-  # Form 2 (flat):
-  # { user_id: ..., chat_id: ..., message: { ... } }
+  # Avito v3 webhook delivers a WebhookMessage as params (flat structure):
+  # {
+  #   id:           "message_id",
+  #   chat_id:      "chat_id",
+  #   author_id:    123,        # sender
+  #   user_id:      456,        # recipient (channel owner)
+  #   type:         "text",     # message type
+  #   content:      { text: "...", image: {...}, voice: {...}, link: {...}, ... },
+  #   created:      1571654040,
+  #   published_at: "...",
+  #   chat_type:    "u2i"
+  # }
 
   def avito_chat_id
-    params[:chat_id] || params.dig(:payload, :chat_id)
+    params[:chat_id]
   end
 
   def avito_message
-    params[:message] || params.dig(:payload, :message) || {}
+    params
   end
 
   def avito_message_id
-    avito_message[:id]
+    params[:id]
   end
 
   def avito_author_id
-    avito_message[:author_id] || params[:author_id]
+    params[:author_id]
   end
 
   def avito_message_type
-    avito_message[:type] || 'text'
+    params[:type] || 'text'
   end
 
   def avito_message_content
-    avito_message[:content] || {}
+    params[:content] || {}
   end
 
   def avito_message_text
@@ -38,23 +43,23 @@ module Avito::ParamHelpers
   end
 
   def avito_message_created_at
-    avito_message[:created]
+    params[:created]
   end
 
   def avito_message_direction
-    avito_message[:direction]
+    params[:direction]
   end
 
   def avito_image_content
-    avito_message_content[:image] || avito_message_content[:images]&.first
+    avito_message_content[:image]
   end
 
   def avito_voice_id
-    avito_message_content[:voice_id]
+    avito_message_content.dig(:voice, :voice_id)
   end
 
   def avito_link_url
-    avito_message_content[:url] || avito_message_content[:link]
+    avito_message_content.dig(:link, :url)
   end
 
   def incoming_message?
@@ -64,7 +69,7 @@ module Avito::ParamHelpers
   end
 
   def message_params?
-    avito_message.present? && avito_chat_id.present? && avito_author_id.present?
+    avito_chat_id.present? && avito_message_id.present? && avito_author_id.present?
   end
 
   def duplicate_message?

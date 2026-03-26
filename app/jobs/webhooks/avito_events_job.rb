@@ -33,22 +33,21 @@ class Webhooks::AvitoEventsJob < ApplicationJob
   end
 
   def process_event(channel, params)
-    # Avito v3 webhook payload may be wrapped in "payload" key
+    # Avito v3 webhook structure: { id, payload: { type: "message", value: WebhookMessage }, timestamp, version }
     payload = params[:payload] || params
-    event_type = params[:event_type] || 'message'
+    event_type = payload[:type] || params[:event_type] || 'message'
 
     return unless event_type == 'message'
 
-    message_data = payload[:message] || payload
+    message_data = payload[:value] || payload
     return if message_data.blank?
 
-    # Only process incoming messages (from buyers), skip echo of our own messages
-    direction = message_data[:direction]
-    return if direction == 'out'
+    # Skip echo: skip messages sent by the channel owner
+    return if message_data[:author_id].to_i == channel.avito_user_id.to_i
 
     Avito::IncomingMessageService.new(
       inbox: channel.inbox,
-      params: payload.with_indifferent_access
+      params: message_data.with_indifferent_access
     ).perform
   end
 end

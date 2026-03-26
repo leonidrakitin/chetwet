@@ -56,9 +56,9 @@ class Avito::SendAttachmentsService
       "#{channel.avito_api_url}/messenger/v1/accounts/#{channel.avito_user_id}/chats/#{channel.chat_id(message)}/messages",
       headers: channel.auth_headers.merge('Content-Type' => 'application/json'),
       body: {
+        type: 'text',
         message: {
-          text: text_content,
-          type: 'text'
+          text: text_content
         }
       }.to_json
     )

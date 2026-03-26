@@ -60,7 +60,8 @@ class Avito::IncomingMessageService
   def update_contact_avatar(user_info)
     return if @contact.avatar.attached?
 
-    avatar_url = user_info['avatar'] || user_info['photo'] || user_info[:avatar]
+    avatar_url = user_info.dig('public_user_profile', 'avatar', 'default') ||
+                 user_info.dig('public_user_profile', 'avatar', 'images', '128x128')
     return unless avatar_url.present?
 
     ::Avatar::AvatarFromUrlJob.perform_later(@contact, avatar_url)
@@ -145,10 +146,10 @@ class Avito::IncomingMessageService
     image = avito_image_content
     return unless image
 
-    # Avito image content contains URLs in different sizes
-    url = image['url'] || image[:url] ||
-          image['1280x960'] || image['640x480'] || image['460x345'] ||
-          image.values.find { |v| v.is_a?(String) && v.start_with?('http') }
+    # Avito image content: { sizes: { "1280x960" => "url", "640x480" => "url", ... } }
+    sizes = image['sizes'] || image[:sizes] || {}
+    url = sizes['1280x960'] || sizes['640x480'] || sizes['460x345'] ||
+          sizes.values.find { |v| v.is_a?(String) && v.start_with?('http') }
 
     return unless url
 

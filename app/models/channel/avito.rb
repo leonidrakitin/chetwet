@@ -259,9 +259,9 @@ class Channel::Avito < ApplicationRecord
       "#{AVITO_API_BASE}/messenger/v1/accounts/#{avito_user_id}/chats/#{chat_id(message)}/messages",
       headers: auth_headers.merge('Content-Type' => 'application/json'),
       body: {
+        type: 'text',
         message: {
-          text: message.outgoing_content,
-          type: 'text'
+          text: message.outgoing_content
         }
       }.to_json
     )
