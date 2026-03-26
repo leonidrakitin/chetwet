@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import Policy from 'dashboard/components/policy.vue';
 import Switch from 'dashboard/components-next/switch/Switch.vue';
 
-defineProps({
+const props = defineProps({
   title: { type: String, required: true },
   description: { type: String, default: '' },
   icon: { type: String, default: 'i-lucide-wrench' },
@@ -11,11 +11,13 @@ defineProps({
   bgColor: { type: String, default: 'bg-n-blue-3' },
   items: { type: Array, default: () => [] },
   hideToggle: { type: Boolean, default: false },
+  collapsedByDefault: { type: Boolean, default: true },
+  disabledToggleIds: { type: Array, default: () => [] },
 });
 
 defineEmits(['toggle', 'edit']);
 
-const collapsed = ref(false);
+const collapsed = ref(props.collapsedByDefault);
 </script>
 
 <template>
@@ -86,6 +88,7 @@ const collapsed = ref(false);
           <div @click.stop>
             <Switch
               :model-value="item.enabled"
+              :disabled="disabledToggleIds.includes(item.id)"
               @update:model-value="$emit('toggle', item)"
             />
           </div>

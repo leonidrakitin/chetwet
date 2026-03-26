@@ -73,6 +73,8 @@ const createDialogRef = ref(null);
 const deleteDialogRef = ref(null);
 const selectedTool = ref(null);
 const dialogType = ref('');
+const toolStateOverrides = ref({});
+const savingToggleIds = ref([]);
 
 const builtInTools = ref([]);
 const isFetchingBuiltIn = ref(false);
@@ -90,25 +92,35 @@ const capabilities = computed(() => {
       id: 'feature_faq',
       title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CONVERSATION_FAQS'),
       icon: 'i-lucide-help-circle',
-      enabled: config.feature_faq || false,
+      enabled:
+        toolStateOverrides.value.feature_faq ?? config.feature_faq ?? false,
     },
     {
       id: 'feature_memory',
       title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_MEMORIES'),
       icon: 'i-lucide-brain',
-      enabled: config.feature_memory || false,
+      enabled:
+        toolStateOverrides.value.feature_memory ??
+        config.feature_memory ??
+        false,
     },
     {
       id: 'feature_citation',
       title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CITATIONS'),
       icon: 'i-lucide-quote',
-      enabled: config.feature_citation || false,
+      enabled:
+        toolStateOverrides.value.feature_citation ??
+        config.feature_citation ??
+        false,
     },
     {
       id: 'feature_contact_attributes',
       title: t('CAPTAIN.ASSISTANTS.FORM.FEATURES.ALLOW_CONTACT_ATTRIBUTES'),
       icon: 'i-lucide-user',
-      enabled: config.feature_contact_attributes || false,
+      enabled:
+        toolStateOverrides.value.feature_contact_attributes ??
+        config.feature_contact_attributes ??
+        false,
     },
   ];
 });
@@ -129,32 +141,66 @@ const captainFeatureCapabilities = computed(() => {
         `CAPTAIN_SETTINGS.FEATURES.${key.toUpperCase()}.DESCRIPTION`
       ),
       icon: CAPTAIN_FEATURE_ICON_MAP[key] || 'i-lucide-bot',
-      enabled: !!captainFeatures.value[key]?.enabled,
+      enabled:
+        toolStateOverrides.value[key] ?? !!captainFeatures.value[key]?.enabled,
     }));
 });
 
 const handleCapabilityToggle = async item => {
+  if (savingToggleIds.value.includes(item.id)) return;
   const config = { ...assistant.value.config, [item.id]: !item.enabled };
+  toolStateOverrides.value = {
+    ...toolStateOverrides.value,
+    [item.id]: !item.enabled,
+  };
+  savingToggleIds.value = [...savingToggleIds.value, item.id];
   try {
     await store.dispatch('captainAssistants/update', {
       id: Number(assistantId.value),
       config,
     });
+    toolStateOverrides.value = {
+      ...toolStateOverrides.value,
+      [item.id]: config[item.id],
+    };
     useAlert(t('CAPTAIN.ASSISTANTS.EDIT.SUCCESS_MESSAGE'));
   } catch {
+    toolStateOverrides.value = {
+      ...toolStateOverrides.value,
+      [item.id]: item.enabled,
+    };
     useAlert(t('CAPTAIN.ASSISTANTS.EDIT.ERROR_MESSAGE'));
+  } finally {
+    savingToggleIds.value = savingToggleIds.value.filter(id => id !== item.id);
   }
 };
 
 const handleCaptainFeatureCapabilityToggle = async item => {
+  if (savingToggleIds.value.includes(item.id)) return;
+  const enabled = !item.enabled;
+  toolStateOverrides.value = {
+    ...toolStateOverrides.value,
+    [item.id]: enabled,
+  };
+  savingToggleIds.value = [...savingToggleIds.value, item.id];
   try {
     await captainConfigStore.updatePreferences({
-      captain_features: { [item.id]: !item.enabled },
+      captain_features: { [item.id]: enabled },
     });
+    toolStateOverrides.value = {
+      ...toolStateOverrides.value,
+      [item.id]: enabled,
+    };
     useAlert(t('CAPTAIN_SETTINGS.API.SUCCESS'));
   } catch {
+    toolStateOverrides.value = {
+      ...toolStateOverrides.value,
+      [item.id]: item.enabled,
+    };
     useAlert(t('CAPTAIN_SETTINGS.API.ERROR'));
     captainConfigStore.fetch();
+  } finally {
+    savingToggleIds.value = savingToggleIds.value.filter(id => id !== item.id);
   }
 };
 
@@ -241,12 +287,14 @@ const fetchBuiltInTools = async () => {
 };
 
 const handleBuiltInToolToggle = async item => {
+  if (savingToggleIds.value.includes(item.id)) return;
   const id = item.id;
   const prevTool = builtInTools.value.find(bt => bt.id === id);
   if (!prevTool) return;
 
   const previousEnabled = prevTool.enabled;
   const enabled = !previousEnabled;
+  savingToggleIds.value = [...savingToggleIds.value, item.id];
   builtInTools.value = builtInTools.value.map(bt =>
     bt.id === id ? { ...bt, enabled } : bt
   );
@@ -266,6 +314,10 @@ const handleBuiltInToolToggle = async item => {
       bt.id === id ? { ...bt, enabled: previousEnabled } : bt
     );
     useAlert(t('CAPTAIN.BUILT_IN_TOOLS.TOGGLE_ERROR'));
+  } finally {
+    savingToggleIds.value = savingToggleIds.value.filter(
+      toggleId => toggleId !== id
+    );
   }
 };
 
@@ -343,6 +395,7 @@ onMounted(() => {
           icon-color="text-n-amber-11"
           bg-color="bg-n-amber-3"
           :items="capabilities"
+          :disabled-toggle-ids="savingToggleIds"
           @toggle="handleCapabilityToggle"
         />
 
@@ -354,6 +407,7 @@ onMounted(() => {
           icon-color="text-n-sky-11"
           bg-color="bg-n-sky-3"
           :items="captainFeatureCapabilities"
+          :disabled-toggle-ids="savingToggleIds"
           @toggle="handleCaptainFeatureCapabilityToggle"
         />
 
@@ -366,6 +420,7 @@ onMounted(() => {
           :icon-color="section.iconColor"
           :bg-color="section.bgColor"
           :items="section.items"
+          :disabled-toggle-ids="savingToggleIds"
           @toggle="handleBuiltInToolToggle"
         />
 
