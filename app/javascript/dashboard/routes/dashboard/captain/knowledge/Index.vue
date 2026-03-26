@@ -1,11 +1,15 @@
 <script setup>
-import { computed, onMounted, ref, nextTick } from 'vue';
+import { computed, onMounted, ref, nextTick, h } from 'vue';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { debounce } from '@chatwoot/utils';
 import { useAccount } from 'dashboard/composables/useAccount';
+import { useAlert } from 'dashboard/composables';
+import { picoSearch } from '@scmmishra/pico-search';
+import { useUISettings } from 'dashboard/composables/useUISettings';
+import { useMessageFormatter } from 'shared/composables/useMessageFormatter';
 
 import Banner from 'dashboard/components-next/banner/Banner.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
@@ -25,22 +29,31 @@ import DocumentPageEmptyState from 'dashboard/components-next/captain/pageCompon
 import FeatureSpotlightPopover from 'dashboard/components-next/feature-spotlight/FeatureSpotlightPopover.vue';
 import FaqLimitBanner from 'dashboard/components-next/captain/pageComponents/response/LimitBanner.vue';
 import DocLimitBanner from 'dashboard/components-next/captain/pageComponents/document/LimitBanner.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
+import SuggestedScenarios from 'dashboard/components-next/captain/assistant/SuggestedRules.vue';
+import ScenariosCard from 'dashboard/components-next/captain/assistant/ScenariosCard.vue';
+import AddNewScenariosDialog from 'dashboard/components-next/captain/assistant/AddNewScenariosDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 const { isOnChatwootCloud } = useAccount();
 const { t } = useI18n();
+const { uiSettings, updateUISettings } = useUISettings();
+const { formatMessage } = useMessageFormatter();
 
 // ─── Tab state ────────────────────────────────────────────────────────────────
 
 const tabs = computed(() => [
   { label: t('CAPTAIN.RESPONSES.HEADER') },
   { label: t('CAPTAIN.DOCUMENTS.HEADER') },
+  { label: t('CAPTAIN.ASSISTANTS.SCENARIOS.TITLE') },
 ]);
 
 const activeTabIndex = ref(0);
 const isFaqTab = computed(() => activeTabIndex.value === 0);
+const isDocTab = computed(() => activeTabIndex.value === 1);
+const isScenariosTab = computed(() => activeTabIndex.value === 2);
 
 // ─── Common ───────────────────────────────────────────────────────────────────
 
@@ -64,6 +77,11 @@ const createResponseDialog = ref(null);
 const bulkSelectedIds = ref(new Set());
 const hoveredCard = ref(null);
 
+// Scenarios store (declared early — referenced in shared computed below)
+const uiFlagsScenarios = useMapGetter('captainScenarios/getUIFlags');
+const isFetchingScenarios = computed(() => uiFlagsScenarios.value.fetchingList);
+const scenarios = useMapGetter('captainScenarios/getRecords');
+
 const onTabChanged = tab => {
   const index = tabs.value.findIndex(item => item.label === tab.label);
   if (index !== -1) activeTabIndex.value = index;
@@ -71,6 +89,13 @@ const onTabChanged = tab => {
 };
 
 const buildSelectedCountLabel = computed(() => {
+  if (isScenariosTab.value) {
+    const count = scenarios.value.length || 0;
+    const isAllSelected = bulkSelectedIds.value.size === count && count > 0;
+    return isAllSelected
+      ? t('CAPTAIN.ASSISTANTS.SCENARIOS.BULK_ACTION.UNSELECT_ALL', { count })
+      : t('CAPTAIN.ASSISTANTS.SCENARIOS.BULK_ACTION.SELECT_ALL', { count });
+  }
   const count = responses.value?.length || 0;
   const isAllSelected = bulkSelectedIds.value.size === count && count > 0;
   return isAllSelected
@@ -79,7 +104,11 @@ const buildSelectedCountLabel = computed(() => {
 });
 
 const selectedCountLabel = computed(() =>
-  t('CAPTAIN.RESPONSES.SELECTED', { count: bulkSelectedIds.value.size })
+  isScenariosTab.value
+    ? t('CAPTAIN.ASSISTANTS.SCENARIOS.BULK_ACTION.SELECTED', {
+        count: bulkSelectedIds.value.size,
+      })
+    : t('CAPTAIN.RESPONSES.SELECTED', { count: bulkSelectedIds.value.size })
 );
 
 const updateURLWithFilters = (page, search) => {
@@ -209,15 +238,171 @@ const handleCreateDocumentClose = () => {
   showCreateDocumentDialog.value = false;
 };
 
+// ─── Scenarios state ──────────────────────────────────────────────────────────
+
+const scenarioSearchQuery = ref('');
+
+const LINK_INSTRUCTION_CLASS =
+  '[&_a[href^="tool://"]]:text-n-iris-11 [&_a:not([href^="tool://"])]:text-n-slate-12 [&_a]:pointer-events-none [&_a]:cursor-default';
+
+const renderInstruction = instruction => () =>
+  h('span', {
+    class: `text-sm text-n-slate-12 py-4 prose prose-sm min-w-0 break-words ${LINK_INSTRUCTION_CLASS}`,
+    innerHTML: instruction,
+  });
+
+const scenariosExample = [
+  {
+    id: 1,
+    title: 'Prospective Buyer',
+    description:
+      'Handle customers who are showing interest in purchasing a license',
+    instruction:
+      'If someone is interested in purchasing a license, ask them for following:\n\n1. How many licenses are they willing to purchase?\n2. Are they migrating from another platform?\n. Once these details are collected, do the following steps\n1. add a private note to with the information you collected using [Add Private Note](tool://add_private_note)\n2. Add label "sales" to the contact using [Add Label to Conversation](tool://add_label_to_conversation)\n3. Reply saying "one of us will reach out soon" and provide an estimated timeline for the response and [Handoff to Human](tool://handoff)',
+    tools: ['add_private_note', 'add_label_to_conversation', 'handoff'],
+  },
+];
+
+const filteredScenarios = computed(() => {
+  const query = scenarioSearchQuery.value.trim();
+  if (!query) return scenarios.value;
+  return picoSearch(scenarios.value, query, [
+    'title',
+    'description',
+    'instruction',
+  ]);
+});
+
+const shouldShowSuggestedRules = computed(
+  () => uiSettings.value?.show_scenarios_suggestions !== false
+);
+
+const closeSuggestedRules = () => {
+  updateUISettings({ show_scenarios_suggestions: false });
+};
+
+const scenarioBulkSelectedIds = ref(new Set());
+const hoveredScenarioCard = ref(null);
+
+const handleScenarioSelect = id => {
+  const selected = new Set(scenarioBulkSelectedIds.value);
+  selected[selected.has(id) ? 'delete' : 'add'](id);
+  scenarioBulkSelectedIds.value = selected;
+};
+
+const scenarioBuildSelectedCountLabel = computed(() => {
+  const count = scenarios.value.length || 0;
+  const isAllSelected =
+    scenarioBulkSelectedIds.value.size === count && count > 0;
+  return isAllSelected
+    ? t('CAPTAIN.ASSISTANTS.SCENARIOS.BULK_ACTION.UNSELECT_ALL', { count })
+    : t('CAPTAIN.ASSISTANTS.SCENARIOS.BULK_ACTION.SELECT_ALL', { count });
+});
+
+const scenarioSelectedCountLabel = computed(() =>
+  t('CAPTAIN.ASSISTANTS.SCENARIOS.BULK_ACTION.SELECTED', {
+    count: scenarioBulkSelectedIds.value.size,
+  })
+);
+
+const handleScenarioHover = (isHovered, id) => {
+  hoveredScenarioCard.value = isHovered ? id : null;
+};
+
+const getToolsFromInstruction = instruction => [
+  ...new Set(
+    [...(instruction?.matchAll(/\(tool:\/\/([^)]+)\)/g) ?? [])].map(m => m[1])
+  ),
+];
+
+const updateScenario = async scenario => {
+  try {
+    await store.dispatch('captainScenarios/update', {
+      id: scenario.id,
+      assistantId: selectedAssistantId.value,
+      ...scenario,
+      tools: getToolsFromInstruction(scenario.instruction),
+    });
+    useAlert(t('CAPTAIN.ASSISTANTS.SCENARIOS.API.UPDATE.SUCCESS'));
+  } catch (error) {
+    useAlert(
+      error?.response?.message ||
+        t('CAPTAIN.ASSISTANTS.SCENARIOS.API.UPDATE.ERROR')
+    );
+  }
+};
+
+const deleteScenario = async id => {
+  try {
+    await store.dispatch('captainScenarios/delete', {
+      id,
+      assistantId: selectedAssistantId.value,
+    });
+    useAlert(t('CAPTAIN.ASSISTANTS.SCENARIOS.API.DELETE.SUCCESS'));
+  } catch (error) {
+    useAlert(
+      error?.response?.message ||
+        t('CAPTAIN.ASSISTANTS.SCENARIOS.API.DELETE.ERROR')
+    );
+  }
+};
+
+const bulkDeleteScenarios = async ids => {
+  const idsArray = ids || Array.from(scenarioBulkSelectedIds.value);
+  await Promise.all(
+    idsArray.map(id =>
+      store.dispatch('captainScenarios/delete', {
+        id,
+        assistantId: selectedAssistantId.value,
+      })
+    )
+  );
+  scenarioBulkSelectedIds.value = new Set();
+  useAlert(t('CAPTAIN.ASSISTANTS.SCENARIOS.API.DELETE.SUCCESS'));
+};
+
+const addScenario = async scenario => {
+  try {
+    await store.dispatch('captainScenarios/create', {
+      assistantId: selectedAssistantId.value,
+      ...scenario,
+      tools: getToolsFromInstruction(scenario.instruction),
+    });
+    useAlert(t('CAPTAIN.ASSISTANTS.SCENARIOS.API.ADD.SUCCESS'));
+  } catch (error) {
+    useAlert(
+      error?.response?.message ||
+        t('CAPTAIN.ASSISTANTS.SCENARIOS.API.ADD.ERROR')
+    );
+  }
+};
+
+const addAllExampleScenarios = async () => {
+  try {
+    scenariosExample.forEach(async scenario => {
+      await store.dispatch('captainScenarios/create', {
+        assistantId: selectedAssistantId.value,
+        ...scenario,
+      });
+    });
+    useAlert(t('CAPTAIN.ASSISTANTS.SCENARIOS.API.ADD.SUCCESS'));
+  } catch (error) {
+    useAlert(
+      error?.response?.message ||
+        t('CAPTAIN.ASSISTANTS.SCENARIOS.API.ADD.ERROR')
+    );
+  }
+};
+
 // ─── PageLayout computed props ────────────────────────────────────────────────
 
 const headerTitle = computed(() => t('CAPTAIN.KNOWLEDGE.HEADER'));
 
-const buttonLabel = computed(() =>
-  isFaqTab.value
-    ? t('CAPTAIN.RESPONSES.ADD_NEW')
-    : t('CAPTAIN.DOCUMENTS.ADD_NEW')
-);
+const buttonLabel = computed(() => {
+  if (isFaqTab.value) return t('CAPTAIN.RESPONSES.ADD_NEW');
+  if (isDocTab.value) return t('CAPTAIN.DOCUMENTS.ADD_NEW');
+  return '';
+});
 
 const totalCount = computed(() =>
   isFaqTab.value
@@ -229,23 +414,29 @@ const currentPage = computed(() =>
   isFaqTab.value ? responseMeta.value.page : documentsMeta.value.page
 );
 
-const isFetching = computed(() =>
-  isFaqTab.value ? isFetchingResponses.value : isFetchingDocuments.value
-);
+const isFetching = computed(() => {
+  if (isFaqTab.value) return isFetchingResponses.value;
+  if (isDocTab.value) return isFetchingDocuments.value;
+  return isFetchingScenarios.value;
+});
 
-const isEmpty = computed(() =>
-  isFaqTab.value ? !responses.value.length : !documents.value.length
-);
+const isEmpty = computed(() => {
+  if (isFaqTab.value) return !responses.value.length;
+  if (isDocTab.value) return !documents.value.length;
+  return false;
+});
 
-const showPaginationFooter = computed(() =>
-  isFaqTab.value
-    ? !isFetchingResponses.value && !!responses.value.length
-    : !isFetchingDocuments.value && !!documents.value.length
-);
+const showPaginationFooter = computed(() => {
+  if (isFaqTab.value)
+    return !isFetchingResponses.value && !!responses.value.length;
+  if (isDocTab.value)
+    return !isFetchingDocuments.value && !!documents.value.length;
+  return false;
+});
 
 const handleCreate = () => {
   if (isFaqTab.value) handleCreateFaq();
-  else handleCreateDocument();
+  else if (isDocTab.value) handleCreateDocument();
 };
 
 const onPageChange = page => {
@@ -269,6 +460,10 @@ onMounted(() => {
     'captainResponses/fetchPendingCount',
     selectedAssistantId.value
   );
+  store.dispatch('captainScenarios/get', {
+    assistantId: selectedAssistantId.value,
+  });
+  store.dispatch('captainTools/getTools');
 });
 </script>
 
@@ -298,7 +493,7 @@ onMounted(() => {
         learn-more-url="https://chwt.app/captain-faq"
       />
       <FeatureSpotlightPopover
-        v-else
+        v-else-if="isDocTab"
         :button-label="$t('CAPTAIN.HEADER_KNOW_MORE')"
         :title="$t('CAPTAIN.DOCUMENTS.EMPTY_STATE.FEATURE_SPOTLIGHT.TITLE')"
         :note="$t('CAPTAIN.DOCUMENTS.EMPTY_STATE.FEATURE_SPOTLIGHT.NOTE')"
@@ -322,6 +517,24 @@ onMounted(() => {
           type="search"
           autofocus
           @input="debouncedSearch"
+        />
+      </div>
+      <div
+        v-else-if="
+          isScenariosTab &&
+          scenarios.length &&
+          scenarioBulkSelectedIds.size === 0
+        "
+        class="flex gap-3 justify-between w-full items-center"
+      >
+        <Input
+          v-model="scenarioSearchQuery"
+          :placeholder="
+            t('CAPTAIN.ASSISTANTS.SCENARIOS.LIST.SEARCH_PLACEHOLDER')
+          "
+          class="w-64"
+          size="sm"
+          type="search"
         />
       </div>
     </template>
@@ -349,7 +562,10 @@ onMounted(() => {
 
     <template #emptyState>
       <ResponsePageEmptyState v-if="isFaqTab" @click="handleCreateFaq" />
-      <DocumentPageEmptyState v-else @click="handleCreateDocument" />
+      <DocumentPageEmptyState
+        v-else-if="isDocTab"
+        @click="handleCreateDocument"
+      />
     </template>
 
     <template #paywall>
@@ -396,7 +612,7 @@ onMounted(() => {
       </template>
 
       <!-- Documents tab -->
-      <template v-else>
+      <template v-else-if="isDocTab">
         <DocLimitBanner class="mb-5" />
         <div class="flex flex-col gap-4">
           <DocumentCard
@@ -409,6 +625,100 @@ onMounted(() => {
             :created-at="doc.created_at"
             @action="handleDocumentAction"
           />
+        </div>
+      </template>
+
+      <!-- Scenarios tab -->
+      <template v-else-if="isScenariosTab">
+        <div v-if="shouldShowSuggestedRules" class="flex mb-7 flex-col gap-4">
+          <SuggestedScenarios
+            :title="$t('CAPTAIN.ASSISTANTS.SCENARIOS.ADD.SUGGESTED.TITLE')"
+            :items="scenariosExample"
+            @close="closeSuggestedRules"
+            @add="addAllExampleScenarios"
+          >
+            <template #default="{ item }">
+              <div class="flex items-center gap-3 justify-between">
+                <span class="text-sm text-n-slate-12">{{ item.title }}</span>
+                <Button
+                  :label="
+                    $t('CAPTAIN.ASSISTANTS.SCENARIOS.ADD.SUGGESTED.ADD_SINGLE')
+                  "
+                  ghost
+                  xs
+                  slate
+                  class="!text-sm !text-n-slate-11 flex-shrink-0"
+                  @click="addScenario(item)"
+                />
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm text-n-slate-11 mt-2">{{
+                  item.description
+                }}</span>
+                <component
+                  :is="
+                    renderInstruction(formatMessage(item.instruction, false))
+                  "
+                />
+                <span class="text-sm text-n-slate-11 font-medium mb-1">
+                  {{
+                    t('CAPTAIN.ASSISTANTS.SCENARIOS.ADD.SUGGESTED.TOOLS_USED')
+                  }}
+                  {{ item.tools?.map(tool => `@${tool}`).join(', ') }}
+                </span>
+              </div>
+            </template>
+          </SuggestedScenarios>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-center">
+            <BulkSelectBar
+              v-model="scenarioBulkSelectedIds"
+              :all-items="scenarios"
+              :select-all-label="scenarioBuildSelectedCountLabel"
+              :selected-count-label="scenarioSelectedCountLabel"
+              :delete-label="
+                $t(
+                  'CAPTAIN.ASSISTANTS.SCENARIOS.BULK_ACTION.BULK_DELETE_BUTTON'
+                )
+              "
+              @bulk-delete="bulkDeleteScenarios"
+            >
+              <template #default-actions>
+                <AddNewScenariosDialog @add="addScenario" />
+              </template>
+            </BulkSelectBar>
+          </div>
+          <div v-if="scenarios.length === 0" class="mt-1 mb-2">
+            <span class="text-n-slate-11 text-sm">
+              {{ t('CAPTAIN.ASSISTANTS.SCENARIOS.EMPTY_MESSAGE') }}
+            </span>
+          </div>
+          <div v-else-if="filteredScenarios.length === 0" class="mt-1 mb-2">
+            <span class="text-n-slate-11 text-sm">
+              {{ t('CAPTAIN.ASSISTANTS.SCENARIOS.SEARCH_EMPTY_MESSAGE') }}
+            </span>
+          </div>
+          <div v-else class="flex flex-col gap-2">
+            <ScenariosCard
+              v-for="scenario in filteredScenarios"
+              :id="scenario.id"
+              :key="scenario.id"
+              :title="scenario.title"
+              :description="scenario.description"
+              :instruction="scenario.instruction"
+              :tools="scenario.tools"
+              :is-selected="scenarioBulkSelectedIds.has(scenario.id)"
+              :selectable="
+                hoveredScenarioCard === scenario.id ||
+                scenarioBulkSelectedIds.size > 0
+              "
+              @select="handleScenarioSelect"
+              @delete="deleteScenario(scenario.id)"
+              @update="updateScenario"
+              @hover="isHovered => handleScenarioHover(isHovered, scenario.id)"
+            />
+          </div>
         </div>
       </template>
     </template>
