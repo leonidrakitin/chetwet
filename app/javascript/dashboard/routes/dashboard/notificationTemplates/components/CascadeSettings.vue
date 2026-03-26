@@ -128,10 +128,10 @@ const inboxIcon = inbox =>
     </div>
 
     <!-- Marketing notifications card -->
-    <div class="rounded-xl border border-n-weak bg-n-surface-1 overflow-hidden">
+    <div class="rounded-xl border border-n-weak bg-n-surface-1">
       <!-- Card header -->
       <div
-        class="px-5 py-4 border-b border-n-weak bg-gradient-to-r from-violet-50/60 to-transparent dark:from-violet-950/20"
+        class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-violet-50/60 to-transparent dark:from-violet-950/20"
       >
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-2.5">
@@ -288,10 +288,10 @@ const inboxIcon = inbox =>
     </div>
 
     <!-- Service notifications card -->
-    <div class="rounded-xl border border-n-weak bg-n-surface-1 overflow-hidden">
+    <div class="rounded-xl border border-n-weak bg-n-surface-1">
       <!-- Card header -->
       <div
-        class="px-5 py-4 border-b border-n-weak bg-gradient-to-r from-blue-50/60 to-transparent dark:from-blue-950/20"
+        class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-blue-50/60 to-transparent dark:from-blue-950/20"
       >
         <div class="flex items-center gap-2.5">
           <div
