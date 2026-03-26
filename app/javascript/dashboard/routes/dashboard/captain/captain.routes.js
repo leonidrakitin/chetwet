@@ -7,16 +7,13 @@ import AssistantsIndexPage from './pages/AssistantsIndexPage.vue';
 import AssistantEmptyStateIndex from './assistants/Index.vue';
 
 import AssistantSettingsIndex from './assistants/settings/Settings.vue';
-import AssistantInboxesIndex from './assistants/inboxes/Index.vue';
 import AssistantPlaygroundIndex from './assistants/playground/Index.vue';
 import AssistantGuardrailsIndex from './assistants/guardrails/Index.vue';
 import AssistantGuidelinesIndex from './assistants/guidelines/Index.vue';
-import AssistantScenariosIndex from './assistants/scenarios/Index.vue';
 import DocumentsIndex from './documents/Index.vue';
 import ResponsesIndex from './responses/Index.vue';
 import KnowledgeIndex from './knowledge/Index.vue';
 import ResponsesPendingIndex from './responses/Pending.vue';
-import CustomToolsIndex from './tools/Index.vue';
 import MigrationsIndex from './migrations/Index.vue';
 
 const meta = {
@@ -60,13 +57,19 @@ const assistantRoutes = [
   },
   {
     path: frontendURL('accounts/:accountId/captain/:assistantId/tools'),
-    component: CustomToolsIndex,
+    redirect: to => ({
+      name: 'captain_assistants_settings_index',
+      params: to.params,
+    }),
     name: 'captain_tools_index',
     meta: metaV2,
   },
   {
     path: frontendURL('accounts/:accountId/captain/:assistantId/scenarios'),
-    component: AssistantScenariosIndex,
+    redirect: to => ({
+      name: 'captain_assistants_knowledge_index',
+      params: to.params,
+    }),
     name: 'captain_assistants_scenarios_index',
     meta: metaV2,
   },
@@ -78,7 +81,10 @@ const assistantRoutes = [
   },
   {
     path: frontendURL('accounts/:accountId/captain/:assistantId/inboxes'),
-    component: AssistantInboxesIndex,
+    redirect: to => ({
+      name: 'captain_assistants_settings_index',
+      params: to.params,
+    }),
     name: 'captain_assistants_inboxes_index',
     meta,
   },

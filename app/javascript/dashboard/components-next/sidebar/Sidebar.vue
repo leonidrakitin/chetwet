@@ -318,17 +318,10 @@ const menuItems = computed(() => {
             'captain_assistants_responses_index',
             'captain_assistants_responses_pending',
             'captain_assistants_documents_index',
+            'captain_assistants_scenarios_index',
           ],
           to: accountScopedRoute('captain_assistants_index', {
             navigationPath: 'captain_assistants_knowledge_index',
-          }),
-        },
-        {
-          name: 'Scenarios',
-          label: t('SIDEBAR.CAPTAIN_SCENARIOS'),
-          activeOn: ['captain_assistants_scenarios_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_scenarios_index',
           }),
         },
         {
@@ -340,14 +333,6 @@ const menuItems = computed(() => {
           }),
         },
         {
-          name: 'Inboxes',
-          label: t('SIDEBAR.CAPTAIN_INBOXES'),
-          activeOn: ['captain_assistants_inboxes_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_inboxes_index',
-          }),
-        },
-        {
           name: 'Migrations',
           label: t('SIDEBAR.CAPTAIN_MIGRATIONS'),
           activeOn: ['captain_assistants_migrations_index'],
@@ -356,18 +341,12 @@ const menuItems = computed(() => {
           }),
         },
         {
-          name: 'Tools',
-          label: t('SIDEBAR.CAPTAIN_TOOLS'),
-          activeOn: ['captain_tools_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_tools_index',
-          }),
-        },
-        {
           name: 'Settings',
           label: t('SIDEBAR.CAPTAIN_SETTINGS'),
           activeOn: [
             'captain_assistants_settings_index',
+            'captain_tools_index',
+            'captain_assistants_inboxes_index',
             'captain_assistants_guidelines_index',
             'captain_assistants_guardrails_index',
           ],
