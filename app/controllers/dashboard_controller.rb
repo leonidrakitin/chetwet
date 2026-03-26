@@ -91,7 +91,7 @@ class DashboardController < ActionController::Base
     methods << 'google_oauth' if GlobalConfigService.load('ENABLE_GOOGLE_OAUTH_LOGIN', 'true').to_s != 'false'
     methods << 'vk_id_oauth' if GlobalConfigService.load('ENABLE_VK_ID_OAUTH_LOGIN', 'false').to_s != 'false'
     methods << 'yandex_oauth' if GlobalConfigService.load('ENABLE_YANDEX_OAUTH_LOGIN', 'false').to_s != 'false'
-    methods << 'saml' if ChatwootHub.pricing_plan != 'community' && GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s != 'false'
+    methods << 'saml' if GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s != 'false'
     methods
   end
 
