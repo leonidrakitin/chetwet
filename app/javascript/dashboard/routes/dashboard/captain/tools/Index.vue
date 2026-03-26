@@ -2,10 +2,12 @@
 import { computed, onMounted, ref, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { storeToRefs } from 'pinia';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import CaptainAssistantAPI from 'dashboard/api/captain/assistant';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
+import { useCaptainConfigStore } from 'dashboard/store/captain/preferences';
 
 import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
 import CaptainPaywall from 'dashboard/components-next/captain/pageComponents/Paywall.vue';
@@ -32,6 +34,11 @@ const ICON_MAP = {
 };
 
 const BUILT_IN_CATEGORY_ORDER = ['core', 'vk_market', 'yclients'];
+const CAPTAIN_FEATURE_ICON_MAP = {
+  label_suggestion: 'i-lucide-tag',
+  help_center_search: 'i-lucide-search',
+  audio_transcription: 'i-lucide-audio-lines',
+};
 
 const BUILT_IN_CATEGORY_SECTION_META = {
   core: {
@@ -54,6 +61,8 @@ const BUILT_IN_CATEGORY_SECTION_META = {
 const store = useStore();
 const route = useRoute();
 const { t, te } = useI18n();
+const captainConfigStore = useCaptainConfigStore();
+const { features: captainFeatures } = storeToRefs(captainConfigStore);
 
 const uiFlags = useMapGetter('captainCustomTools/getUIFlags');
 const customTools = useMapGetter('captainCustomTools/getRecords');
@@ -104,6 +113,26 @@ const capabilities = computed(() => {
   ];
 });
 
+const captainFeatureCapabilities = computed(() => {
+  const featureKeys = [
+    'label_suggestion',
+    'help_center_search',
+    'audio_transcription',
+  ];
+
+  return featureKeys
+    .filter(key => captainFeatures.value?.[key] !== undefined)
+    .map(key => ({
+      id: key,
+      title: t(`CAPTAIN_SETTINGS.FEATURES.${key.toUpperCase()}.TITLE`),
+      description: t(
+        `CAPTAIN_SETTINGS.FEATURES.${key.toUpperCase()}.DESCRIPTION`
+      ),
+      icon: CAPTAIN_FEATURE_ICON_MAP[key] || 'i-lucide-bot',
+      enabled: !!captainFeatures.value[key]?.enabled,
+    }));
+});
+
 const handleCapabilityToggle = async item => {
   const config = { ...assistant.value.config, [item.id]: !item.enabled };
   try {
@@ -114,6 +143,18 @@ const handleCapabilityToggle = async item => {
     useAlert(t('CAPTAIN.ASSISTANTS.EDIT.SUCCESS_MESSAGE'));
   } catch {
     useAlert(t('CAPTAIN.ASSISTANTS.EDIT.ERROR_MESSAGE'));
+  }
+};
+
+const handleCaptainFeatureCapabilityToggle = async item => {
+  try {
+    await captainConfigStore.updatePreferences({
+      captain_features: { [item.id]: !item.enabled },
+    });
+    useAlert(t('CAPTAIN_SETTINGS.API.SUCCESS'));
+  } catch {
+    useAlert(t('CAPTAIN_SETTINGS.API.ERROR'));
+    captainConfigStore.fetch();
   }
 };
 
@@ -267,6 +308,7 @@ const onDeleteSuccess = () => {
 onMounted(() => {
   fetchCustomTools();
   fetchBuiltInTools();
+  captainConfigStore.fetch();
 });
 </script>
 
@@ -302,6 +344,17 @@ onMounted(() => {
           bg-color="bg-n-amber-3"
           :items="capabilities"
           @toggle="handleCapabilityToggle"
+        />
+
+        <ToolCategorySection
+          v-if="captainFeatureCapabilities.length"
+          :title="$t('CAPTAIN_SETTINGS.FEATURES.TITLE')"
+          :description="$t('CAPTAIN_SETTINGS.FEATURES.DESCRIPTION')"
+          icon="i-lucide-bot"
+          icon-color="text-n-sky-11"
+          bg-color="bg-n-sky-3"
+          :items="captainFeatureCapabilities"
+          @toggle="handleCaptainFeatureCapabilityToggle"
         />
 
         <ToolCategorySection

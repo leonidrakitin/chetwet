@@ -12,7 +12,6 @@ import SettingsLayout from '../SettingsLayout.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SectionLayout from '../account/components/SectionLayout.vue';
 import ModelSelector from './components/ModelSelector.vue';
-import FeatureToggle from './components/FeatureToggle.vue';
 import CaptainPaywall from 'next/captain/pageComponents/Paywall.vue';
 
 const { t } = useI18n();
@@ -53,20 +52,6 @@ const modelFeatures = computed(() => [
   },
 ]);
 
-const featureToggles = computed(() => [
-  {
-    key: 'label_suggestion',
-  },
-  {
-    key: 'help_center_search',
-    enterprise: true,
-  },
-  {
-    key: 'audio_transcription',
-    enterprise: true,
-  },
-]);
-
 const shouldShowFeature = feature => {
   // Cloud will always see these features as long as captain is enabled
   if (isOnChatwootCloud.value && captainEnabled) {
@@ -89,18 +74,6 @@ const isFeatureAccessible = feature => {
 
   return true;
 };
-
-async function handleFeatureToggle({ feature, enabled }) {
-  try {
-    await captainConfigStore.updatePreferences({
-      captain_features: { [feature]: enabled },
-    });
-    useAlert(t('CAPTAIN_SETTINGS.API.SUCCESS'));
-  } catch (error) {
-    useAlert(t('CAPTAIN_SETTINGS.API.ERROR'));
-    captainConfigStore.fetch();
-  }
-}
 
 async function handleModelChange({ feature, model }) {
   try {
@@ -198,25 +171,6 @@ onMounted(() => {
                 }}
               </span>
             </div>
-          </div>
-        </SectionLayout>
-
-        <!-- Features Section -->
-        <SectionLayout
-          :title="t('CAPTAIN_SETTINGS.FEATURES.TITLE')"
-          :description="t('CAPTAIN_SETTINGS.FEATURES.DESCRIPTION')"
-          with-border
-        >
-          <div class="grid gap-4">
-            <FeatureToggle
-              v-for="feature in featureToggles"
-              v-show="shouldShowFeature(feature)"
-              :key="feature.key"
-              :is-allowed="isFeatureAccessible(feature)"
-              :feature-key="feature.key"
-              @change="handleFeatureToggle"
-              @model-change="handleModelChange"
-            />
           </div>
         </SectionLayout>
       </div>
