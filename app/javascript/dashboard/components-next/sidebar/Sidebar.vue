@@ -311,22 +311,16 @@ const menuItems = computed(() => {
       activeOn: ['captain_assistants_create_index'],
       children: [
         {
-          name: 'FAQs',
-          label: t('SIDEBAR.CAPTAIN_RESPONSES'),
+          name: 'Knowledge',
+          label: t('SIDEBAR.CAPTAIN_KNOWLEDGE'),
           activeOn: [
+            'captain_assistants_knowledge_index',
             'captain_assistants_responses_index',
             'captain_assistants_responses_pending',
+            'captain_assistants_documents_index',
           ],
           to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_responses_index',
-          }),
-        },
-        {
-          name: 'Documents',
-          label: t('SIDEBAR.CAPTAIN_DOCUMENTS'),
-          activeOn: ['captain_assistants_documents_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_documents_index',
+            navigationPath: 'captain_assistants_knowledge_index',
           }),
         },
         {

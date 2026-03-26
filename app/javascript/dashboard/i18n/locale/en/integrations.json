@@ -443,6 +443,9 @@
   "CAPTAIN": {
     "NAME": "Captain",
     "HEADER_KNOW_MORE": "Know more",
+    "KNOWLEDGE": {
+      "HEADER": "Knowledge"
+    },
     "ASSISTANT_SWITCHER": {
       "ASSISTANTS": "Assistants",
       "SWITCH_ASSISTANT": "Switch between assistants",

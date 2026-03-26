@@ -53,8 +53,9 @@ const routeToLastActiveAssistant = () => {
 
   const { navigationPath } = route.params;
   const isAValidRoute = [
-    'captain_assistants_responses_index', // Faq page
-    'captain_assistants_documents_index', // Document page
+    'captain_assistants_knowledge_index', // Knowledge page (FAQ + Documents)
+    'captain_assistants_responses_index', // Faq page (legacy)
+    'captain_assistants_documents_index', // Document page (legacy)
     'captain_assistants_scenarios_index', // Scenario page
     'captain_assistants_playground_index', // Playground page
     'captain_assistants_inboxes_index', // Inboxes page
@@ -65,7 +66,7 @@ const routeToLastActiveAssistant = () => {
 
   const navigateTo = isAValidRoute
     ? navigationPath
-    : 'captain_assistants_responses_index';
+    : 'captain_assistants_knowledge_index';
 
   return routeToView(navigateTo, {
     accountId: route.params.accountId,

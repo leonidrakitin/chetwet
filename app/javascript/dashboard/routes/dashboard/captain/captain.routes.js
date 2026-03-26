@@ -14,6 +14,7 @@ import AssistantGuidelinesIndex from './assistants/guidelines/Index.vue';
 import AssistantScenariosIndex from './assistants/scenarios/Index.vue';
 import DocumentsIndex from './documents/Index.vue';
 import ResponsesIndex from './responses/Index.vue';
+import KnowledgeIndex from './knowledge/Index.vue';
 import ResponsesPendingIndex from './responses/Pending.vue';
 import CustomToolsIndex from './tools/Index.vue';
 import MigrationsIndex from './migrations/Index.vue';
@@ -39,6 +40,12 @@ const metaV2 = {
 };
 
 const assistantRoutes = [
+  {
+    path: frontendURL('accounts/:accountId/captain/:assistantId/knowledge'),
+    component: KnowledgeIndex,
+    name: 'captain_assistants_knowledge_index',
+    meta,
+  },
   {
     path: frontendURL('accounts/:accountId/captain/:assistantId/faqs'),
     component: ResponsesIndex,
