@@ -1,5 +1,4 @@
 <script>
-import { mapGetters } from 'vuex';
 import wootConstants from 'dashboard/constants/globals';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 
@@ -46,19 +45,7 @@ export default {
       ],
     };
   },
-  computed: {
-    ...mapGetters({
-      accountId: 'getCurrentAccountId',
-      isOnChatwootCloud: 'globalConfig/isOnChatwootCloud', // Pending change text
-    }),
-  },
   methods: {
-    openBillingPage() {
-      this.$router.push({
-        name: 'billing_settings_index',
-        params: { accountId: this.accountId },
-      });
-    },
     openHelpCenterDocs() {
       window.open(this.helpCenterDocsURL, '_blank');
     },
@@ -88,17 +75,12 @@ export default {
         </p>
       </div>
       <div
-        v-if="isOnChatwootCloud"
         class="flex flex-row gap-3 justify-start items-center sm:justify-center"
       >
         <NextButton
           outline
           :label="$t('HELP_CENTER.UPGRADE_PAGE.BUTTON.LEARN_MORE')"
           @click="openHelpCenterDocs"
-        />
-        <NextButton
-          :label="$t('HELP_CENTER.UPGRADE_PAGE.BUTTON.UPGRADE')"
-          @click="openBillingPage"
         />
       </div>
     </div>

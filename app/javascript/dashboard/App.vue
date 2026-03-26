@@ -4,6 +4,7 @@ import LoadingState from './components/widgets/LoadingState.vue';
 import NetworkNotification from './components/NetworkNotification.vue';
 import UpdateBanner from './components/app/UpdateBanner.vue';
 import PaymentPendingBanner from './components/app/PaymentPendingBanner.vue';
+import PlanExpiredBanner from './components/app/PlanExpiredBanner.vue';
 import PendingEmailVerificationBanner from './components/app/PendingEmailVerificationBanner.vue';
 import vueActionCable from './helper/actionCable';
 import { useRouter } from 'vue-router';
@@ -28,6 +29,7 @@ export default {
     NetworkNotification,
     UpdateBanner,
     PaymentPendingBanner,
+    PlanExpiredBanner,
     WootSnackbarBox,
     PendingEmailVerificationBanner,
   },
@@ -138,6 +140,7 @@ export default {
     <template v-if="currentAccountId">
       <PendingEmailVerificationBanner v-if="hideOnOnboardingView" />
       <PaymentPendingBanner v-if="hideOnOnboardingView" />
+      <PlanExpiredBanner v-if="hideOnOnboardingView" />
     </template>
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">

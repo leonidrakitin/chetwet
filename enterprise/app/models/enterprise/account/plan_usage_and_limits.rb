@@ -4,6 +4,38 @@ module Enterprise::Account::PlanUsageAndLimits # rubocop:disable Metrics/ModuleL
   CAPTAIN_RESPONSES_USAGE = 'captain_responses_usage'.freeze
   CAPTAIN_DOCUMENTS_USAGE = 'captain_documents_usage'.freeze
 
+  def plan_name
+    custom_attributes['plan_name']
+  end
+
+  def plan_name=(value)
+    self.custom_attributes = (custom_attributes || {}).merge('plan_name' => value.presence)
+  end
+
+  def plan_expires_at
+    custom_attributes['plan_expires_at']
+  end
+
+  def plan_expires_at=(value)
+    self.custom_attributes = (custom_attributes || {}).merge('plan_expires_at' => value.presence)
+  end
+
+  def plan_price
+    custom_attributes['plan_price']
+  end
+
+  def plan_price=(value)
+    self.custom_attributes = (custom_attributes || {}).merge('plan_price' => value.presence)
+  end
+
+  def plan_expired?
+    return false if plan_expires_at.blank?
+
+    Time.zone.parse(plan_expires_at.to_s) < Time.current
+  rescue StandardError
+    false
+  end
+
   def usage_limits
     {
       agents: agent_limits.to_i,
@@ -110,10 +142,6 @@ module Enterprise::Account::PlanUsageAndLimits # rubocop:disable Metrics/ModuleL
       # this is to ensure that we don't block the user from using the product
       max_limits
     end
-  end
-
-  def plan_name
-    custom_attributes['plan_name']
   end
 
   def agent_limits

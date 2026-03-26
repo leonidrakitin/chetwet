@@ -3,6 +3,8 @@ json.created_at resource.created_at
 if resource.custom_attributes.present?
   json.custom_attributes do
     json.plan_name resource.custom_attributes['plan_name']
+    json.plan_expires_at resource.custom_attributes['plan_expires_at'] if resource.custom_attributes['plan_expires_at'].present?
+    json.plan_price resource.custom_attributes['plan_price'] if resource.custom_attributes['plan_price'].present?
     json.subscribed_quantity resource.custom_attributes['subscribed_quantity']
     json.subscription_status resource.custom_attributes['subscription_status']
     json.subscription_ends_on resource.custom_attributes['subscription_ends_on']
