@@ -66,6 +66,9 @@ const { isCloudFeatureEnabled } = useAccount();
 const isCaptainV2Enabled = computed(() =>
   isCloudFeatureEnabled(FEATURE_FLAGS.CAPTAIN_V2)
 );
+const isHelpCenterEnabled = computed(() =>
+  isCloudFeatureEnabled(FEATURE_FLAGS.HELP_CENTER)
+);
 
 const route = useRoute();
 const router = useRouter();
@@ -166,7 +169,7 @@ const capabilities = computed(() => {
 const captainFeatureCapabilities = computed(() => {
   const featureKeys = [
     'label_suggestion',
-    'help_center_search',
+    ...(isHelpCenterEnabled.value ? ['help_center_search'] : []),
     'audio_transcription',
   ];
   return featureKeys

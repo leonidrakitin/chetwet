@@ -7,6 +7,7 @@ import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import CaptainAssistantAPI from 'dashboard/api/captain/assistant';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
+import { useAccount } from 'dashboard/composables/useAccount';
 import { useCaptainConfigStore } from 'dashboard/store/captain/preferences';
 
 import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
@@ -61,6 +62,10 @@ const BUILT_IN_CATEGORY_SECTION_META = {
 const store = useStore();
 const route = useRoute();
 const { t, te } = useI18n();
+const { isCloudFeatureEnabled } = useAccount();
+const isHelpCenterEnabled = computed(() =>
+  isCloudFeatureEnabled(FEATURE_FLAGS.HELP_CENTER)
+);
 const captainConfigStore = useCaptainConfigStore();
 const { features: captainFeatures } = storeToRefs(captainConfigStore);
 
@@ -128,7 +133,7 @@ const capabilities = computed(() => {
 const captainFeatureCapabilities = computed(() => {
   const featureKeys = [
     'label_suggestion',
-    'help_center_search',
+    ...(isHelpCenterEnabled.value ? ['help_center_search'] : []),
     'audio_transcription',
   ];
 
