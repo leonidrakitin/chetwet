@@ -77,6 +77,8 @@ const { shouldShowPaywall } = usePolicy();
 
 const showAssistantSwitcherDropdown = ref(false);
 const createAssistantDialogRef = ref(null);
+const switcherTriggerRef = ref(null);
+const dropdownStyle = ref({});
 
 const assistants = useMapGetter('captainAssistants/getRecords');
 const uiFlags = useMapGetter('captainAssistants/getUIFlags');
@@ -105,6 +107,14 @@ const handlePageChange = event => {
 };
 
 const toggleAssistantSwitcher = () => {
+  if (!showAssistantSwitcherDropdown.value && switcherTriggerRef.value) {
+    const rect = switcherTriggerRef.value.getBoundingClientRect();
+    dropdownStyle.value = {
+      top: `${rect.bottom + 8}px`,
+      left: `${rect.left}px`,
+      minWidth: `${Math.max(rect.width, 320)}px`,
+    };
+  }
   showAssistantSwitcherDropdown.value = !showAssistantSwitcherDropdown.value;
 };
 
@@ -123,10 +133,11 @@ const handleCreateAssistant = () => {
         >
           <div class="flex gap-3 items-center">
             <BackButton v-if="backUrl" :back-url="backUrl" />
-            <!-- Mobile only: assistant name + dropdown trigger -->
+            <!-- Assistant name + dropdown trigger -->
             <div
               v-if="showAssistantSwitcher && !showPaywall"
-              class="flex items-center gap-2 lg:hidden"
+              ref="switcherTriggerRef"
+              class="flex items-center gap-2"
             >
               <span
                 v-if="!isFetchingAssistants"
@@ -148,7 +159,7 @@ const handleCreateAssistant = () => {
             <div class="flex items-center gap-4">
               <div
                 v-if="showAssistantSwitcher && !showPaywall && headerTitle"
-                class="w-0.5 h-4 rounded-2xl bg-n-weak lg:hidden"
+                class="w-0.5 h-4 rounded-2xl bg-n-weak"
               />
               <span
                 v-if="headerTitle"
@@ -221,13 +232,14 @@ const handleCreateAssistant = () => {
       />
     </footer>
 
-    <!-- Mobile assistant switcher dropdown — fixed overlay aligned to screen edges -->
+    <!-- Assistant switcher dropdown — fixed, anchored to trigger button -->
     <Teleport to="body">
       <div
         v-if="
           showAssistantSwitcherDropdown && showAssistantSwitcher && !showPaywall
         "
-        class="fixed inset-x-4 top-20 z-[9999] lg:hidden"
+        class="fixed z-[9999]"
+        :style="dropdownStyle"
       >
         <OnClickOutside @trigger="showAssistantSwitcherDropdown = false">
           <AssistantSwitcher

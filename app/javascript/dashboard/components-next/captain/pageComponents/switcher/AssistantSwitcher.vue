@@ -114,30 +114,38 @@ const openCreateAssistantDialog = () => {
         @click="openCreateAssistantDialog"
       />
     </div>
-    <div v-if="assistants.length > 0" class="flex flex-col gap-2 px-4">
-      <Button
+    <div v-if="assistants.length > 0" class="flex flex-col gap-1 px-3 pb-1">
+      <button
         v-for="assistant in assistants"
         :key="assistant.id"
-        :label="assistant.name"
-        variant="ghost"
-        color="slate"
-        trailing-icon
-        :icon="isAssistantActive(assistant) ? 'i-lucide-check' : ''"
-        class="!justify-end !px-2 !py-2 hover:!bg-n-alpha-2 [&>.i-lucide-check]:text-n-teal-10 h-9"
-        size="sm"
+        type="button"
+        class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left transition-colors"
+        :class="
+          isAssistantActive(assistant)
+            ? 'bg-n-teal-2 outline outline-1 outline-n-teal-6'
+            : 'hover:bg-n-alpha-2'
+        "
         @click="handleAssistantChange(assistant)"
       >
-        <span class="text-sm font-medium truncate text-n-slate-12">
-          {{ assistant.name || '' }}
-        </span>
         <Avatar
-          v-if="assistant"
           :name="assistant.name"
-          :size="20"
+          :size="28"
           icon-name="i-lucide-bot"
           rounded-full
         />
-      </Button>
+        <span
+          class="flex-1 text-sm font-medium truncate"
+          :class="
+            isAssistantActive(assistant) ? 'text-n-teal-12' : 'text-n-slate-12'
+          "
+        >
+          {{ assistant.name || '' }}
+        </span>
+        <span
+          v-if="isAssistantActive(assistant)"
+          class="i-lucide-check size-4 shrink-0 text-n-teal-10"
+        />
+      </button>
     </div>
     <div v-else class="flex flex-col items-center gap-2 px-4 py-3">
       <p class="text-sm text-n-slate-11">
