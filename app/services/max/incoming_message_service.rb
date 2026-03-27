@@ -102,25 +102,20 @@ class Max::IncomingMessageService
     case type
     when 'image'
       attach_image(attachment)
-    when 'file'
-      attach_file(attachment)
     when 'video'
       attach_video(attachment)
     when 'audio'
       attach_audio(attachment)
+    when 'file'
+      attach_file(attachment)
     when 'sticker'
       attach_sticker(attachment)
     end
   end
 
   def attach_image(attachment)
-    url = attachment.dig('payload', 'photo_url') || attachment.dig('payload', 'url')
-    attach_from_url(url, :image) if url
-  end
-
-  def attach_file(attachment)
     url = attachment.dig('payload', 'url')
-    attach_from_url(url, :file) if url
+    attach_from_url(url, :image) if url
   end
 
   def attach_video(attachment)
@@ -133,8 +128,13 @@ class Max::IncomingMessageService
     attach_from_url(url, :audio) if url
   end
 
+  def attach_file(attachment)
+    url = attachment.dig('payload', 'url')
+    attach_from_url(url, :file) if url
+  end
+
   def attach_sticker(attachment)
-    url = attachment.dig('payload', 'file_url') || attachment.dig('payload', 'url')
+    url = attachment.dig('payload', 'url')
     attach_from_url(url, :image) if url
   end
 

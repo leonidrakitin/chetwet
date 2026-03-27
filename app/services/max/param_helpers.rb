@@ -28,13 +28,14 @@ module Max::ParamHelpers
   end
 
   def max_params_sender_name
-    if message_callback?
-      params.dig(:callback, :user, :name)
-    elsif bot_started?
-      params.dig(:user, :name)
-    else
-      params.dig(:message, :sender, :name)
-    end
+    first_name, last_name = if message_callback?
+                              [params.dig(:callback, :user, :first_name), params.dig(:callback, :user, :last_name)]
+                            elsif bot_started?
+                              [params.dig(:user, :first_name), params.dig(:user, :last_name)]
+                            else
+                              [params.dig(:message, :sender, :first_name), params.dig(:message, :sender, :last_name)]
+                            end
+    [first_name, last_name].compact.join(' ').presence
   end
 
   def max_params_sender_username

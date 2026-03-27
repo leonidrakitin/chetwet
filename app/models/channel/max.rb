@@ -28,7 +28,7 @@ class Channel::Max < ApplicationRecord
 
   before_validation :ensure_valid_bot_token, on: :create
   validates :bot_token, presence: true, uniqueness: true
-  after_create :subscribe_to_webhooks
+  after_commit :subscribe_to_webhooks, on: :create
 
   def name
     'MAX'
