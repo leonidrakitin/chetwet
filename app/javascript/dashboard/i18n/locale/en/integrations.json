@@ -585,11 +585,18 @@
             "FORMAL": "Formal",
             "NEUTRAL": "Neutral",
             "FRIENDLY": "Friendly"
+          },
+          "EXAMPLES": {
+            "FORMAL": "We have received your request. Our team will review the matter and respond within 24 hours.",
+            "NEUTRAL": "Got it! I'll look into this and get back to you within 24 hours.",
+            "FRIENDLY": "Hey, no worries at all! I'm on it right now — you'll hear from me within 24 hours 😊"
           }
         },
         "EMOJIFY": {
           "LABEL": "Use Emojis",
-          "DESCRIPTION": "Add emojis to responses to make them feel warmer and more engaging."
+          "DESCRIPTION": "Add emojis to responses to make them feel warmer and more engaging.",
+          "EXAMPLE_OFF": "Your order has been shipped and will arrive in 2–3 business days.",
+          "EXAMPLE_ON": "Your order has been shipped 📦 and will arrive in 2–3 business days 🎉"
         },
         "FEATURES": {
           "TITLE": "Features",

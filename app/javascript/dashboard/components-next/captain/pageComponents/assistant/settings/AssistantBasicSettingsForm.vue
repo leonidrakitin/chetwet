@@ -116,7 +116,7 @@ watch(
       class="z-0"
     />
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-3">
       <label class="text-sm font-medium text-n-slate-12">
         {{ t('CAPTAIN.ASSISTANTS.FORM.TONE.LABEL') }}
       </label>
@@ -138,9 +138,23 @@ watch(
           }}
         </button>
       </div>
+      <div
+        class="flex items-start gap-2.5 rounded-xl bg-n-alpha-1 border border-n-weak px-4 py-3"
+      >
+        <span
+          class="i-lucide-message-circle shrink-0 mt-0.5 size-4 text-n-slate-9"
+        />
+        <p class="text-sm text-n-slate-11 italic leading-relaxed">
+          {{
+            t(
+              `CAPTAIN.ASSISTANTS.FORM.TONE.EXAMPLES.${state.tone.toUpperCase()}`
+            )
+          }}
+        </p>
+      </div>
     </div>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-3">
       <label class="flex items-center gap-3 cursor-pointer select-none">
         <input
           v-model="state.emojify"
@@ -154,6 +168,30 @@ watch(
       <p class="text-sm text-n-slate-11 italic pl-7">
         {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.DESCRIPTION') }}
       </p>
+      <div class="flex flex-col gap-1.5 pl-7">
+        <div
+          class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+          :class="
+            !state.emojify
+              ? 'bg-n-alpha-1 border border-n-weak text-n-slate-12 font-medium'
+              : 'text-n-slate-9'
+          "
+        >
+          <span class="i-lucide-x shrink-0 size-3.5 text-n-slate-9" />
+          {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.EXAMPLE_OFF') }}
+        </div>
+        <div
+          class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+          :class="
+            state.emojify
+              ? 'bg-n-alpha-1 border border-n-weak text-n-slate-12 font-medium'
+              : 'text-n-slate-9'
+          "
+        >
+          <span class="i-lucide-check shrink-0 size-3.5 text-n-teal-10" />
+          {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.EXAMPLE_ON') }}
+        </div>
+      </div>
     </div>
 
     <div>
