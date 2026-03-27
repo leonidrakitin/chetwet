@@ -1163,7 +1163,8 @@
       },
       "EMPTY_STATE": {
         "TITLE": "No Connected Inboxes",
-        "SUBTITLE": "Connecting an inbox allows the assistant to handle initial questions from your customers before transferring them to you."
+        "SUBTITLE": "Connecting an inbox allows the assistant to handle initial questions from your customers before transferring them to you.",
+        "DESCRIPTION": "Connect an inbox to let this assistant automatically handle incoming conversations."
       }
     },
     "MIGRATIONS": {
