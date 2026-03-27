@@ -120,7 +120,7 @@ watch(
       <label class="text-sm font-medium text-n-slate-12">
         {{ t('CAPTAIN.ASSISTANTS.FORM.TONE.LABEL') }}
       </label>
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2">
         <button
           v-for="option in TONE_OPTIONS"
           :key="option"
