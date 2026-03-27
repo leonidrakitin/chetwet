@@ -8,8 +8,11 @@ const CHANNEL_PRIORITY = {
   'Channel::Whatsapp': 2,
   'Channel::Sms': 3,
   'Channel::TwilioSms': 4,
-  'Channel::WebWidget': 5,
-  'Channel::Api': 6,
+  'Channel::Telegram': 5,
+  'Channel::TelegramPersonal': 6,
+  'Channel::Vk': 7,
+  'Channel::WebWidget': 8,
+  'Channel::Api': 9,
 };
 
 export const generateLabelForContactableInboxesList = ({

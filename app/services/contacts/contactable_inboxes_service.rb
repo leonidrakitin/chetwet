@@ -22,6 +22,12 @@ class Contacts::ContactableInboxesService
       api_contactable_inbox(inbox)
     when 'Channel::WebWidget'
       website_contactable_inbox(inbox)
+    when 'Channel::Telegram'
+      telegram_contactable_inbox(inbox)
+    when 'Channel::TelegramPersonal'
+      telegram_personal_contactable_inbox(inbox)
+    when 'Channel::Vk'
+      vk_contactable_inbox(inbox)
     end
   end
 
@@ -58,6 +64,27 @@ class Contacts::ContactableInboxesService
     return if @contact.phone_number.blank?
 
     { source_id: @contact.phone_number, inbox: inbox }
+  end
+
+  def telegram_contactable_inbox(inbox)
+    latest_contact_inbox = inbox.contact_inboxes.where(contact: @contact).last
+    return unless latest_contact_inbox
+
+    { source_id: latest_contact_inbox.source_id, inbox: inbox }
+  end
+
+  def telegram_personal_contactable_inbox(inbox)
+    latest_contact_inbox = inbox.contact_inboxes.where(contact: @contact).last
+    source_id = latest_contact_inbox&.source_id || @contact.phone_number || SecureRandom.uuid
+
+    { source_id: source_id, inbox: inbox }
+  end
+
+  def vk_contactable_inbox(inbox)
+    latest_contact_inbox = inbox.contact_inboxes.where(contact: @contact).last
+    return unless latest_contact_inbox
+
+    { source_id: latest_contact_inbox.source_id, inbox: inbox }
   end
 
   def twilio_contactable_inbox(inbox)

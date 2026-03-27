@@ -30,11 +30,29 @@ class ConversationBuilder
       inbox_id: @contact_inbox.inbox_id,
       contact_id: @contact_inbox.contact_id,
       contact_inbox_id: @contact_inbox.id,
-      additional_attributes: additional_attributes,
+      additional_attributes: enrich_channel_attributes(additional_attributes),
       custom_attributes: custom_attributes,
       snoozed_until: params[:snoozed_until],
       assignee_id: params[:assignee_id],
       team_id: params[:team_id]
     }.merge(status)
+  end
+
+  def enrich_channel_attributes(attrs)
+    source_id = @contact_inbox.source_id
+    return attrs if source_id.blank?
+
+    case @contact_inbox.inbox.channel_type
+    when 'Channel::Telegram'
+      return attrs if attrs['chat_id'].present?
+
+      attrs.merge('chat_id' => source_id.to_i)
+    when 'Channel::Vk'
+      return attrs if attrs['peer_id'].present?
+
+      attrs.merge('peer_id' => source_id.to_s)
+    else
+      attrs
+    end
   end
 end

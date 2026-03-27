@@ -17,6 +17,10 @@ describe Contacts::ContactableInboxesService do
   let!(:api_inbox) { create(:inbox, channel: api_channel, account: account) }
   let!(:website_inbox) { create(:inbox, channel: create(:channel_widget, account: account), account: account) }
   let!(:sms_inbox) { create(:inbox, channel: create(:channel_sms, account: account), account: account) }
+  let!(:telegram_channel) { create(:channel_telegram, account: account) }
+  let!(:telegram_inbox) { telegram_channel.inbox }
+  let!(:vk_channel) { create(:channel_vk, account: account) }
+  let!(:vk_inbox) { vk_channel.inbox }
 
   describe '#get' do
     it 'returns the contactable inboxes for the contact' do
@@ -64,6 +68,34 @@ describe Contacts::ContactableInboxesService do
 
         contactable_inboxes = described_class.new(contact: contact).get
         expect(contactable_inboxes.pluck(:inbox)).not_to include(website_inbox)
+      end
+    end
+
+    context 'when telegram inbox is available' do
+      it 'does not return telegram inbox when no contact_inbox exists' do
+        contactable_inboxes = described_class.new(contact: contact).get
+        expect(contactable_inboxes.pluck(:inbox)).not_to include(telegram_inbox)
+      end
+
+      it 'returns telegram inbox with source_id when contact_inbox exists' do
+        contact_inbox = create(:contact_inbox, inbox: telegram_inbox, contact: contact)
+
+        contactable_inboxes = described_class.new(contact: contact).get
+        expect(contactable_inboxes).to include({ source_id: contact_inbox.source_id, inbox: telegram_inbox })
+      end
+    end
+
+    context 'when vk inbox is available' do
+      it 'does not return vk inbox when no contact_inbox exists' do
+        contactable_inboxes = described_class.new(contact: contact).get
+        expect(contactable_inboxes.pluck(:inbox)).not_to include(vk_inbox)
+      end
+
+      it 'returns vk inbox with source_id when contact_inbox exists' do
+        contact_inbox = create(:contact_inbox, inbox: vk_inbox, contact: contact)
+
+        contactable_inboxes = described_class.new(contact: contact).get
+        expect(contactable_inboxes).to include({ source_id: contact_inbox.source_id, inbox: vk_inbox })
       end
     end
   end
