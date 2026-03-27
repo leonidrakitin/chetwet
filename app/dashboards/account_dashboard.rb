@@ -36,7 +36,7 @@ class AccountDashboard < Administrate::BaseDashboard
     account_users: Field::HasMany,
     custom_attributes: Field::String,
     plan: Field::BelongsTo,
-    plan_expires_at: Field::String,
+    plan_expires_at: DatePickerField,
     plan_price: Field::String
   }.merge(enterprise_attribute_types).freeze
 

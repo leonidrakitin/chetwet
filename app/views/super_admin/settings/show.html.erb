@@ -59,13 +59,15 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-3">
       <% SuperAdmin::FeaturesHelper.available_features.each do |feature, attrs| %>
         <div class="group outline outline-1 outline-n-container p-4 rounded-lg relative shadow-sm">
+          <% unless attrs[:toggleable] %>
           <span class="<%= attrs[:enabled] ? 'bg-green-400 text-white': 'bg-slate-300 text-slate-800' %> absolute rounded-full p-1 inline-flex right-4 top-5">
             <svg width="14" height="14"><use xlink:href="<%= attrs[:enabled] ? '#icon-tick-line': '#icon-lock-line' %>" /></svg>
           </span>
-          <div class="visible <% if !attrs[:enabled] %> group-hover:invisible <% end %> flex items-center justify-center w-10 h-10 mb-2 border border-slate-100 border-solid text-slate-800 rounded-full">
+          <% end %>
+          <div class="visible <% if !attrs[:enabled] && !attrs[:toggleable] %> group-hover:invisible <% end %> flex items-center justify-center w-10 h-10 mb-2 border border-slate-100 border-solid text-slate-800 rounded-full">
             <svg width="20" height="20"><use xlink:href="#<%= attrs[:icon] %>" /></svg>
           </div>
-          <% if !attrs[:enabled] %>
+          <% if !attrs[:enabled] && !attrs[:toggleable] %>
           <div class="flex h-9 absolute top-5 items-center invisible group-hover:visible">
             <% if ChatwootApp.enterprise? %>
               <%= render 'upgrade_button_enterprise' %>
@@ -86,6 +88,14 @@
                 </a>
               <% end %>
             </div>
+            <% if attrs[:toggleable] %>
+              <%= form_with url: toggle_feature_super_admin_settings_path, method: :post, local: true do |f| %>
+                <%= f.hidden_field :feature_key, value: feature %>
+                <button type="submit" class="relative inline-flex items-center h-5 w-9 rounded-full transition-colors focus:outline-none flex-shrink-0 <%= attrs[:enabled] ? 'bg-green-500' : 'bg-slate-300' %>" title="<%= attrs[:enabled] ? 'Disable' : 'Enable' %>">
+                  <span class="inline-block w-3 h-3 transform bg-white rounded-full transition-transform shadow <%= attrs[:enabled] ? 'translate-x-5' : 'translate-x-1' %>"></span>
+                </button>
+              <% end %>
+            <% end %>
           </div>
           <p class="text-n-slate-11 mb-0"><%= attrs[:description] %></p>
         </div>
