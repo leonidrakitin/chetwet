@@ -16,6 +16,20 @@ class NotificationTemplatesAPI extends ApiClient {
       notification_templates: notificationTemplates,
     });
   }
+
+  cascadeSettings() {
+    return axios.get(`${this.url}/cascade_settings`);
+  }
+
+  updateCascadeSettings(data) {
+    return axios.put(`${this.url}/cascade_settings`, {
+      cascade_settings: data,
+    });
+  }
+
+  statistics() {
+    return axios.get(`${this.url}/statistics`);
+  }
 }
 
 export default new NotificationTemplatesAPI();

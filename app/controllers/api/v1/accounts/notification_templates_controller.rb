@@ -47,6 +47,30 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
     render :index
   end
 
+  def cascade_settings
+    render json: { payload: (Current.account.cascade_settings || { 'marketing' => [], 'service' => [] }) }
+  end
+
+  def update_cascade_settings
+    Current.account.update!(cascade_settings: cascade_settings_params.to_h)
+    render json: { payload: Current.account.cascade_settings }
+  end
+
+  def statistics
+    raw = Current.account.notification_template_deliveries
+                 .group(:notification_template_id, :status)
+                 .count
+
+    stats = {}
+    raw.each do |(template_id, status), count|
+      stats[template_id] ||= { sent: 0, failed: 0, skipped: 0, replied: 0, total: 0 }
+      stats[template_id][status.to_sym] = count
+      stats[template_id][:total] += count
+    end
+
+    render json: { payload: stats }
+  end
+
   private
 
   def fetch_template
@@ -70,5 +94,9 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
     params.require(:notification_templates).map do |item|
       item.permit(:id, :position)
     end
+  end
+
+  def cascade_settings_params
+    params.require(:cascade_settings).permit(marketing: [], service: [])
   end
 end

@@ -15,6 +15,7 @@ import TemplateCard from './components/TemplateCard.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 import FlowMap from './components/FlowMap.vue';
 import CascadeSettings from './components/CascadeSettings.vue';
+import StatisticsTab from './components/StatisticsTab.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -36,6 +37,9 @@ const activeTab = computed(() => tabs.value[activeTabIndex.value]);
 const onTabChanged = tab => {
   const index = tabs.value.findIndex(item => item.key === tab.key);
   if (index !== -1) activeTabIndex.value = index;
+  if (tab.key === 'statistics') {
+    store.dispatch('notificationTemplates/fetchStatistics');
+  }
 };
 
 const uiFlags = computed(
@@ -278,19 +282,7 @@ onMounted(() => {
       </div>
 
       <!-- Statistics tab -->
-      <div
-        v-else-if="isStatisticsTab"
-        class="flex flex-col items-center justify-center h-full gap-4 py-12"
-      >
-        <div
-          class="flex items-center justify-center size-16 rounded-2xl bg-n-alpha-1"
-        >
-          <span class="i-lucide-bar-chart-3 size-8 text-n-slate-9" />
-        </div>
-        <p class="text-sm text-n-slate-10 text-center">
-          {{ t('NOTIFICATION_TEMPLATES.STATISTICS.COMING_SOON') }}
-        </p>
-      </div>
+      <StatisticsTab v-else-if="isStatisticsTab" />
 
       <!-- Empty state -->
       <div

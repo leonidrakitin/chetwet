@@ -2,6 +2,12 @@ class NotificationTemplates::AudienceScope
   pattr_initialize [:template!]
 
   def call
+    use_cascade? ? cascade_scope : standard_scope
+  end
+
+  private
+
+  def standard_scope
     scoped = template.account.conversations.includes(:contact, :inbox, :contact_inbox, :messages)
     scoped = scoped.where(inbox_id: template.effective_inbox_id) if template.effective_inbox_id.present?
     scoped = filter_by_yclients(scoped)
@@ -10,7 +16,26 @@ class NotificationTemplates::AudienceScope
           .uniq { |conversation| [conversation.contact_id, conversation.inbox_id] }
   end
 
-  private
+  def use_cascade?
+    template.effective_inbox_id.blank? && cascade_chain.any?
+  end
+
+  def cascade_chain
+    chain_key = template.audience['require_mailing_consent'] ? 'marketing' : 'service'
+    Array.wrap(template.account.cascade_settings&.dig(chain_key)).map(&:to_i).reject(&:zero?)
+  end
+
+  def cascade_scope
+    all_matching = template.account.conversations
+                           .includes(:contact, :inbox, :contact_inbox, :messages)
+                           .where(inbox_id: cascade_chain)
+                           .select { |c| audience_match?(c) }
+    cascade_order = cascade_chain.each_with_index.to_h
+    all_matching
+      .group_by(&:contact_id)
+      .values
+      .map { |convos| convos.min_by { |c| cascade_order[c.inbox_id] || 999 } }
+  end
 
   def filter_by_yclients(scope)
     return scope if template.yclients_integration.blank?

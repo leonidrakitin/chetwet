@@ -6,11 +6,16 @@ export const state = {
     yclientsEnabled: false,
     yclientsIntegrations: [],
   },
+  cascadeSettings: { marketing: [], service: [] },
+  statistics: {},
   uiFlags: {
     isFetching: false,
     isCreating: false,
     isUpdating: false,
     isDeleting: false,
+    isFetchingCascade: false,
+    isSavingCascade: false,
+    isFetchingStatistics: false,
   },
 };
 
@@ -28,6 +33,12 @@ export const getters = {
   },
   getTemplatesByType: _state => type => {
     return _state.templates.filter(t => t.type === type);
+  },
+  getCascadeSettings(_state) {
+    return _state.cascadeSettings;
+  },
+  getStatistics(_state) {
+    return _state.statistics;
   },
 };
 
@@ -55,6 +66,12 @@ export const mutations = {
   },
   REORDER_TEMPLATES(_state, templates) {
     _state.templates = templates.map((t, index) => ({ ...t, order: index }));
+  },
+  SET_CASCADE_SETTINGS(_state, settings) {
+    _state.cascadeSettings = settings || { marketing: [], service: [] };
+  },
+  SET_STATISTICS(_state, statistics) {
+    _state.statistics = statistics || {};
   },
   SET_UI_FLAG(_state, data) {
     _state.uiFlags = { ..._state.uiFlags, ...data };
@@ -118,6 +135,34 @@ export const actions = {
       yclientsEnabled: response.data.meta?.yclients_enabled || false,
       yclientsIntegrations: response.data.meta?.yclients_integrations || [],
     });
+  },
+  async fetchCascadeSettings({ commit }) {
+    commit('SET_UI_FLAG', { isFetchingCascade: true });
+    try {
+      const response = await NotificationTemplatesAPI.cascadeSettings();
+      commit('SET_CASCADE_SETTINGS', response.data.payload);
+    } finally {
+      commit('SET_UI_FLAG', { isFetchingCascade: false });
+    }
+  },
+  async saveCascadeSettings({ commit }, settings) {
+    commit('SET_UI_FLAG', { isSavingCascade: true });
+    try {
+      const response =
+        await NotificationTemplatesAPI.updateCascadeSettings(settings);
+      commit('SET_CASCADE_SETTINGS', response.data.payload);
+    } finally {
+      commit('SET_UI_FLAG', { isSavingCascade: false });
+    }
+  },
+  async fetchStatistics({ commit }) {
+    commit('SET_UI_FLAG', { isFetchingStatistics: true });
+    try {
+      const response = await NotificationTemplatesAPI.statistics();
+      commit('SET_STATISTICS', response.data.payload);
+    } finally {
+      commit('SET_UI_FLAG', { isFetchingStatistics: false });
+    }
   },
 };
 

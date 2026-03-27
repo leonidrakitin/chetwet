@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -10,42 +10,28 @@ import { getInboxIconByType } from 'dashboard/helper/inbox';
 const { t } = useI18n();
 const store = useStore();
 
-const STORAGE_KEY_MARKETING = 'cascade_order_marketing';
-const STORAGE_KEY_SERVICE = 'cascade_order_service';
-
 const allInboxes = computed(() => store.getters['inboxes/getInboxes']);
-
-const loadOrder = key => {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveOrder = (key, ids) => {
-  localStorage.setItem(key, JSON.stringify(ids));
-};
-
-const buildChain = (storedIds, inboxes) => {
-  const byId = Object.fromEntries(inboxes.map(i => [i.id, i]));
-  const ordered = storedIds.filter(id => byId[id]).map(id => byId[id]);
-  return ordered;
-};
+const uiFlags = computed(
+  () => store.getters['notificationTemplates/getUIFlags']
+);
+const savedSettings = computed(
+  () => store.getters['notificationTemplates/getCascadeSettings']
+);
 
 const marketingChain = ref([]);
 const serviceChain = ref([]);
 
+const buildChain = (ids, inboxes) => {
+  const byId = Object.fromEntries(inboxes.map(i => [i.id, i]));
+  return ids.filter(id => byId[id]).map(id => byId[id]);
+};
+
 watch(
-  allInboxes,
-  inboxes => {
+  [savedSettings, allInboxes],
+  ([settings, inboxes]) => {
     if (!inboxes.length) return;
-    marketingChain.value = buildChain(
-      loadOrder(STORAGE_KEY_MARKETING),
-      inboxes
-    );
-    serviceChain.value = buildChain(loadOrder(STORAGE_KEY_SERVICE), inboxes);
+    marketingChain.value = buildChain(settings.marketing || [], inboxes);
+    serviceChain.value = buildChain(settings.service || [], inboxes);
   },
   { immediate: true }
 );
@@ -63,55 +49,32 @@ const availableForService = computed(() => {
 const showMarketingPicker = ref(false);
 const showServicePicker = ref(false);
 
-const addToChain = (chain, inbox, storageKey) => {
+const addToChain = (chain, inbox) => {
   chain.push(inbox);
-  saveOrder(
-    storageKey,
-    chain.map(i => i.id)
-  );
 };
 
-const removeFromChain = (chain, index, storageKey) => {
+const removeFromChain = (chain, index) => {
   chain.splice(index, 1);
-  saveOrder(
-    storageKey,
-    chain.map(i => i.id)
-  );
 };
 
-const onMarketingReorder = () => {
-  saveOrder(
-    STORAGE_KEY_MARKETING,
-    marketingChain.value.map(i => i.id)
-  );
-};
-
-const onServiceReorder = () => {
-  saveOrder(
-    STORAGE_KEY_SERVICE,
-    serviceChain.value.map(i => i.id)
-  );
-};
-
-const saved = ref(false);
-const handleSave = () => {
-  saveOrder(
-    STORAGE_KEY_MARKETING,
-    marketingChain.value.map(i => i.id)
-  );
-  saveOrder(
-    STORAGE_KEY_SERVICE,
-    serviceChain.value.map(i => i.id)
-  );
-  useAlert(t('NOTIFICATION_TEMPLATES.CASCADE.SAVE_SUCCESS'));
-  saved.value = true;
-  setTimeout(() => {
-    saved.value = false;
-  }, 2000);
+const handleSave = async () => {
+  try {
+    await store.dispatch('notificationTemplates/saveCascadeSettings', {
+      marketing: marketingChain.value.map(i => i.id),
+      service: serviceChain.value.map(i => i.id),
+    });
+    useAlert(t('NOTIFICATION_TEMPLATES.CASCADE.SAVE_SUCCESS'));
+  } catch {
+    useAlert(t('NOTIFICATION_TEMPLATES.CASCADE.SAVE_ERROR'));
+  }
 };
 
 const inboxIcon = inbox =>
   getInboxIconByType(inbox.channel_type, inbox.medium, 'outline');
+
+onMounted(() => {
+  store.dispatch('notificationTemplates/fetchCascadeSettings');
+});
 </script>
 
 <template>
@@ -201,7 +164,6 @@ const inboxIcon = inbox =>
             ghost-class="opacity-40"
             animation="150"
             class="flex flex-col gap-2"
-            @end="onMarketingReorder"
           >
             <template #item="{ element, index }">
               <div
@@ -241,13 +203,7 @@ const inboxIcon = inbox =>
                 <!-- Remove -->
                 <button
                   class="ml-auto flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-n-alpha-2 text-n-slate-9 hover:text-ruby-10"
-                  @click="
-                    removeFromChain(
-                      marketingChain,
-                      index,
-                      STORAGE_KEY_MARKETING
-                    )
-                  "
+                  @click="removeFromChain(marketingChain, index)"
                 >
                   <span class="i-lucide-x size-3.5" />
                 </button>
@@ -274,7 +230,7 @@ const inboxIcon = inbox =>
                 :key="inbox.id"
                 class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-slate-12 text-left"
                 @click="
-                  addToChain(marketingChain, inbox, STORAGE_KEY_MARKETING);
+                  addToChain(marketingChain, inbox);
                   showMarketingPicker = false;
                 "
               >
@@ -337,7 +293,6 @@ const inboxIcon = inbox =>
             ghost-class="opacity-40"
             animation="150"
             class="flex flex-col gap-2"
-            @end="onServiceReorder"
           >
             <template #item="{ element, index }">
               <div
@@ -366,9 +321,7 @@ const inboxIcon = inbox =>
                 />
                 <button
                   class="ml-auto flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-n-alpha-2 text-n-slate-9 hover:text-ruby-10"
-                  @click="
-                    removeFromChain(serviceChain, index, STORAGE_KEY_SERVICE)
-                  "
+                  @click="removeFromChain(serviceChain, index)"
                 >
                   <span class="i-lucide-x size-3.5" />
                 </button>
@@ -394,7 +347,7 @@ const inboxIcon = inbox =>
                 :key="inbox.id"
                 class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-slate-12 text-left"
                 @click="
-                  addToChain(serviceChain, inbox, STORAGE_KEY_SERVICE);
+                  addToChain(serviceChain, inbox);
                   showServicePicker = false;
                 "
               >
@@ -424,6 +377,7 @@ const inboxIcon = inbox =>
     <div class="flex justify-end">
       <Button
         icon="i-lucide-check"
+        :is-loading="uiFlags.isSavingCascade"
         :label="t('NOTIFICATION_TEMPLATES.CASCADE.SAVE')"
         @click="handleSave"
       />

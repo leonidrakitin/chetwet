@@ -137,7 +137,18 @@
       "ERROR": "Could not save template."
     },
     "STATISTICS": {
-      "COMING_SOON": "Statistics will be available in a future update."
+      "COMING_SOON": "Statistics will be available in a future update.",
+      "TITLE": "Delivery statistics",
+      "LOADING": "Loading statistics...",
+      "EMPTY": "No delivery data yet. Enable templates and wait for the first sends.",
+      "COLUMNS": {
+        "TEMPLATE": "Template",
+        "SENT": "Sent",
+        "FAILED": "Failed",
+        "SKIPPED": "Skipped",
+        "REPLIED": "Replied",
+        "REPLY_RATE": "Reply rate"
+      }
     },
     "PREVIEW": {
       "TITLE": "Preview",
@@ -234,6 +245,7 @@
       "HOW_IT_WORKS": "The system will attempt to send the message through each channel in order. If the client is not reachable on the first channel, the next one is tried automatically.",
       "SAVE": "Save settings",
       "SAVE_SUCCESS": "Cascade settings saved.",
+      "SAVE_ERROR": "Could not save cascade settings.",
       "MARKETING": {
         "TITLE": "Marketing notifications",
         "BADGE": "Marketing",

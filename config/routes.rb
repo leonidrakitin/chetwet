@@ -140,6 +140,9 @@ Rails.application.routes.draw do
             end
             collection do
               post :reorder
+              get  :cascade_settings
+              put  :cascade_settings, action: :update_cascade_settings
+              get  :statistics
             end
           end
           resources :dashboard_apps, only: [:index, :show, :create, :update, :destroy]
