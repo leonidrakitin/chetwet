@@ -192,13 +192,16 @@ const renderInstruction = instruction => () =>
           />
         </div>
       </div>
-      <span
-        v-if="tools?.length"
-        class="text-sm text-n-slate-11 font-medium mb-1"
-      >
-        {{ t('CAPTAIN.ASSISTANTS.SCENARIOS.ADD.SUGGESTED.TOOLS_USED') }}
-        {{ tools?.map(tool => `@${tool}`).join(', ') }}
-      </span>
+      <div v-if="tools?.length" class="flex flex-wrap gap-1.5 pt-1">
+        <span
+          v-for="tool in tools"
+          :key="tool"
+          class="inline-flex items-center gap-1 text-xs font-medium text-n-iris-11 bg-n-iris-3 rounded-full px-2 py-0.5"
+        >
+          <i class="i-ph-wrench size-2.5" />
+          {{ tool }}
+        </span>
+      </div>
     </div>
     <div v-else class="overflow-hidden flex flex-col gap-4 w-full">
       <Input

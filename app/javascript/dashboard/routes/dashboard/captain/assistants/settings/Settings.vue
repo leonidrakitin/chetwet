@@ -440,11 +440,9 @@ onMounted(() => {
     <template #body>
       <div class="flex flex-col gap-4 pb-8">
         <!-- ── Basic Settings ─────────────────────────────────── -->
-        <div
-          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
-        >
+        <div class="rounded-xl border border-n-weak bg-n-solid-1">
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-amber-3 flex-shrink-0"
@@ -462,7 +460,7 @@ onMounted(() => {
               </p>
             </div>
           </div>
-          <div class="p-5 max-w-2xl">
+          <div class="p-5">
             <AssistantBasicSettingsForm
               :assistant="assistant"
               @submit="handleSubmit"
@@ -471,11 +469,9 @@ onMounted(() => {
         </div>
 
         <!-- ── System Settings ────────────────────────────────── -->
-        <div
-          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
-        >
+        <div class="rounded-xl border border-n-weak bg-n-solid-1">
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-blue-3 flex-shrink-0"
@@ -493,7 +489,7 @@ onMounted(() => {
               </p>
             </div>
           </div>
-          <div class="p-5 max-w-2xl">
+          <div class="p-5">
             <AssistantSystemSettingsForm
               :assistant="assistant"
               @submit="handleSubmit"
@@ -502,11 +498,9 @@ onMounted(() => {
         </div>
 
         <!-- ── Connected Inboxes ──────────────────────────────── -->
-        <div
-          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
-        >
+        <div class="rounded-xl border border-n-weak bg-n-solid-1">
           <div
-            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
@@ -565,10 +559,10 @@ onMounted(() => {
         <!-- ── Tools & Sources ────────────────────────────────── -->
         <div
           v-if="isCaptainV2Enabled"
-          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
+          class="rounded-xl border border-n-weak bg-n-solid-1"
         >
           <div
-            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
@@ -669,10 +663,10 @@ onMounted(() => {
         <!-- ── Controls (Guardrails & Guidelines) ─────────────── -->
         <div
           v-if="isCaptainV2Enabled"
-          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
+          class="rounded-xl border border-n-weak bg-n-solid-1"
         >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-green-3 flex-shrink-0"
@@ -698,11 +692,9 @@ onMounted(() => {
         </div>
 
         <!-- ── Danger Zone ─────────────────────────────────────── -->
-        <div
-          class="rounded-xl border border-n-ruby-6 bg-n-ruby-2 overflow-hidden"
-        >
+        <div class="rounded-xl border border-n-ruby-6 bg-n-ruby-2">
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-ruby-6"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-ruby-6 rounded-t-xl"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-ruby-3 flex-shrink-0"

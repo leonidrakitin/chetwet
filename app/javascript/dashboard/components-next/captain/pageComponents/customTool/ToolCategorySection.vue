@@ -21,10 +21,10 @@ const collapsed = ref(props.collapsedByDefault);
 </script>
 
 <template>
-  <div class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden">
+  <div class="rounded-xl border border-n-weak bg-n-solid-1">
     <!-- Category header -->
     <button
-      class="flex items-center gap-3 w-full px-4 py-3 hover:bg-n-alpha-1 transition-colors"
+      class="flex items-center gap-3 w-full px-4 py-3 hover:bg-n-alpha-1 transition-colors rounded-t-xl"
       @click="collapsed = !collapsed"
     >
       <div

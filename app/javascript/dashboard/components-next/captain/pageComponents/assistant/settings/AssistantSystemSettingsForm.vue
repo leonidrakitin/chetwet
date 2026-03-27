@@ -102,23 +102,27 @@ watch(
 
 <template>
   <div class="flex flex-col gap-6">
-    <Editor
-      v-model="state.handoffMessage"
-      :label="t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_MESSAGE.LABEL')"
-      :placeholder="t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_MESSAGE.PLACEHOLDER')"
-      :message="formErrors.handoffMessage"
-      :message-type="formErrors.handoffMessage ? 'error' : 'info'"
-      class="z-0"
-    />
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Editor
+        v-model="state.handoffMessage"
+        :label="t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_MESSAGE.LABEL')"
+        :placeholder="t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_MESSAGE.PLACEHOLDER')"
+        :message="formErrors.handoffMessage"
+        :message-type="formErrors.handoffMessage ? 'error' : 'info'"
+        class="z-0"
+      />
 
-    <Editor
-      v-model="state.resolutionMessage"
-      :label="t('CAPTAIN.ASSISTANTS.FORM.RESOLUTION_MESSAGE.LABEL')"
-      :placeholder="t('CAPTAIN.ASSISTANTS.FORM.RESOLUTION_MESSAGE.PLACEHOLDER')"
-      :message="formErrors.resolutionMessage"
-      :message-type="formErrors.resolutionMessage ? 'error' : 'info'"
-      class="z-0"
-    />
+      <Editor
+        v-model="state.resolutionMessage"
+        :label="t('CAPTAIN.ASSISTANTS.FORM.RESOLUTION_MESSAGE.LABEL')"
+        :placeholder="
+          t('CAPTAIN.ASSISTANTS.FORM.RESOLUTION_MESSAGE.PLACEHOLDER')
+        "
+        :message="formErrors.resolutionMessage"
+        :message-type="formErrors.resolutionMessage ? 'error' : 'info'"
+        class="z-0"
+      />
+    </div>
 
     <Editor
       v-if="!isCaptainV2Enabled"
