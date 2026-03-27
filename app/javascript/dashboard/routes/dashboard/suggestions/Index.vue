@@ -47,13 +47,6 @@ const filteredSuggestions = computed(() => {
 
   if (sortBy.value === 'latest') {
     list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  } else {
-    list.sort(
-      (a, b) =>
-        b.upvotes_count -
-        b.downvotes_count -
-        (a.upvotes_count - a.downvotes_count)
-    );
   }
 
   return list;
