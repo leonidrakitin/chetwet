@@ -579,6 +579,18 @@
           "LABEL": "Instructions",
           "PLACEHOLDER": "Enter instructions for the assistant"
         },
+        "TONE": {
+          "LABEL": "Response Tone",
+          "OPTIONS": {
+            "FORMAL": "Formal",
+            "NEUTRAL": "Neutral",
+            "FRIENDLY": "Friendly"
+          }
+        },
+        "EMOJIFY": {
+          "LABEL": "Use Emojis",
+          "DESCRIPTION": "Add emojis to responses to make them feel warmer and more engaging."
+        },
         "FEATURES": {
           "TITLE": "Features",
           "ALLOW_CONVERSATION_FAQS": "Generate FAQs from resolved conversations",

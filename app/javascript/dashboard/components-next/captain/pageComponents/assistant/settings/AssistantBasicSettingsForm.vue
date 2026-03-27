@@ -19,10 +19,14 @@ const emit = defineEmits(['submit']);
 
 const { t } = useI18n();
 
+const TONE_OPTIONS = ['formal', 'neutral', 'friendly'];
+
 const initialState = {
   name: '',
   description: '',
   productName: '',
+  tone: 'neutral',
+  emojify: false,
 };
 
 const state = reactive({ ...initialState });
@@ -50,6 +54,8 @@ const updateStateFromAssistant = assistant => {
   state.name = assistant.name;
   state.description = assistant.description;
   state.productName = config.product_name;
+  state.tone = config.tone || 'neutral';
+  state.emojify = config.emojify || false;
 };
 
 const handleBasicInfoUpdate = async () => {
@@ -66,6 +72,8 @@ const handleBasicInfoUpdate = async () => {
     config: {
       ...props.assistant.config,
       product_name: state.productName,
+      tone: state.tone,
+      emojify: state.emojify,
     },
   };
 
@@ -107,6 +115,46 @@ watch(
       :message-type="formErrors.description ? 'error' : 'info'"
       class="z-0"
     />
+
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-medium text-n-slate-12">
+        {{ t('CAPTAIN.ASSISTANTS.FORM.TONE.LABEL') }}
+      </label>
+      <div class="flex gap-2">
+        <button
+          v-for="option in TONE_OPTIONS"
+          :key="option"
+          type="button"
+          class="px-4 py-1.5 rounded-lg text-sm font-medium border transition-colors"
+          :class="
+            state.tone === option
+              ? 'bg-n-brand border-n-brand text-white'
+              : 'bg-transparent border-n-weak text-n-slate-11 hover:border-n-slate-8'
+          "
+          @click="state.tone = option"
+        >
+          {{
+            t(`CAPTAIN.ASSISTANTS.FORM.TONE.OPTIONS.${option.toUpperCase()}`)
+          }}
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="flex items-center gap-3 cursor-pointer select-none">
+        <input
+          v-model="state.emojify"
+          type="checkbox"
+          class="w-4 h-4 rounded accent-n-brand cursor-pointer"
+        />
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.LABEL') }}
+        </span>
+      </label>
+      <p class="text-sm text-n-slate-11 italic pl-7">
+        {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.DESCRIPTION') }}
+      </p>
+    </div>
 
     <div>
       <Button
