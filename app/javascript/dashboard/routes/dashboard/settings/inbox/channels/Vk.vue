@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useVuelidate } from '@vuelidate/core';
+import { required } from '@vuelidate/validators';
 import vkClient from 'dashboard/api/channel/vkClient';
 import Button from 'dashboard/components-next/button/Button.vue';
 import PageHeader from '../../SettingsSubPageHeader.vue';
@@ -13,7 +14,6 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
-const v$ = useVuelidate();
 
 // Use raw route param (string) — not Number() — to support non-numeric account IDs.
 const accountId = route.params.accountId;
@@ -37,6 +37,22 @@ const oauthEnabled = ref(false);
 const groupId = ref('');
 const accessToken = ref('');
 const secret = ref('');
+
+const manualRules = {
+  groupId: { required },
+  accessToken: { required },
+};
+const v$ = useVuelidate(manualRules, { groupId, accessToken });
+
+const manualSetupSteps = computed(() => [
+  t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_1'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_2'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_3'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_4'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_5'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_6'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_7'),
+]);
 
 // --- PKCE helpers (Web Crypto API) ---
 const generateCodeVerifier = () => {
@@ -330,6 +346,37 @@ const resetAndRetry = () => {
 
     <!-- Manual Mode: Form -->
     <div v-else-if="!oauthEnabled" class="mx-0 flex-col">
+      <div
+        class="rounded-2xl outline outline-1 outline-n-weak p-5 mb-6 bg-n-alpha-1"
+      >
+        <p class="text-sm font-semibold text-n-slate-12 mb-1">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.TITLE') }}
+        </p>
+        <p class="text-sm text-n-slate-11 mb-4">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.INTRO') }}
+        </p>
+        <ol class="space-y-3">
+          <li
+            v-for="(setupStep, index) in manualSetupSteps"
+            :key="index"
+            class="flex items-start gap-3"
+          >
+            <span
+              class="flex-shrink-0 w-5 h-5 rounded-full bg-n-brand text-white text-xs font-semibold flex items-center justify-center mt-0.5"
+            >
+              {{ index + 1 }}
+            </span>
+            <span
+              v-dompurify-html="setupStep"
+              class="text-sm text-n-slate-11 leading-5"
+            />
+          </li>
+        </ol>
+        <p
+          v-dompurify-html="$t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.LINKS')"
+          class="text-sm text-n-slate-11 mt-4 pl-8"
+        />
+      </div>
       <form
         class="flex flex-wrap flex-col"
         @submit.prevent="createChannelManually"
@@ -388,6 +435,7 @@ const resetAndRetry = () => {
             type="submit"
             solid
             blue
+            icon="i-woot-vk"
             :label="$t('INBOX_MGMT.ADD.VK_CHANNEL.SUBMIT_BUTTON')"
           />
         </div>

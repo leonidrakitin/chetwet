@@ -441,10 +441,19 @@
       "TELEGRAM_CHANNEL": {
         "TITLE": "Telegram Channel",
         "DESC": "Integrate with Telegram channel and start supporting your customers.",
+        "STEPS": {
+          "TITLE": "How to get your Telegram bot token",
+          "STEP_1": "Open Telegram on any device.",
+          "STEP_2": "Search for <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">@BotFather</a> and start a conversation (tap <strong>Start</strong>).",
+          "STEP_3": "Send the command <strong>/newbot</strong>.",
+          "STEP_4": "Follow the prompts: choose a bot name and username (the username must end with <code>bot</code>).",
+          "STEP_5": "Copy the token that @BotFather sends you and paste it below."
+        },
+        "DIRECT_LINK": "Direct link: <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">t.me/BotFather</a>",
         "BOT_TOKEN": {
           "LABEL": "Bot Token",
-          "SUBTITLE": "Configure the bot token you have obtained from Telegram BotFather.",
-          "PLACEHOLDER": "Bot Token"
+          "SUBTITLE": "Paste the token you received from @BotFather after creating the bot.",
+          "PLACEHOLDER": "Paste your bot token here"
         },
         "SUBMIT_BUTTON": "Create Telegram Channel",
         "API": {
@@ -549,6 +558,18 @@
       "VK_CHANNEL": {
         "TITLE": "VK Channel",
         "DESC": "Integrate with VK (VKontakte) community and start supporting your customers.",
+        "MANUAL_SETUP": {
+          "TITLE": "How to get your VK community access token",
+          "INTRO": "VK bots work on behalf of a community.",
+          "STEP_1": "Go to vk.com and create a community (group) if you don’t have one yet.",
+          "STEP_2": "Open your community → tap <strong>Management</strong> in the right menu.",
+          "STEP_3": "Under <strong>Messages</strong>, enable incoming messages.",
+          "STEP_4": "In management, open <strong>API work</strong> (it may be under <strong>Additional</strong>).",
+          "STEP_5": "Go to the <strong>Access keys</strong> tab → click <strong>Create key</strong>.",
+          "STEP_6": "Select the permissions you need (at minimum <strong>Messages</strong> and <strong>Manage community</strong>).",
+          "STEP_7": "Copy the access token and paste it below.",
+          "LINKS": "<a href=\"https://dev.vk.com/ru/bots_docs\" target=\"_blank\" rel=\"noopener noreferrer\">VK bots documentation</a> · <a href=\"https://dev.vk.com/api/bots/getting-started\" target=\"_blank\" rel=\"noopener noreferrer\">Bots quick start</a>"
+        },
         "CONNECT_TITLE": "Connect your VK community",
         "CONNECT_HELP": "Authorize with your VK account to select a community for receiving messages.",
         "CONNECT_BUTTON": "Connect VKontakte",
