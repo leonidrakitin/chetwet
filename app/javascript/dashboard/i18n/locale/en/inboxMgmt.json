@@ -441,13 +441,26 @@
       "TELEGRAM_CHANNEL": {
         "TITLE": "Telegram Channel",
         "DESC": "Integrate with Telegram channel and start supporting your customers.",
+        "HAS_BOT": {
+          "QUESTION_TITLE": "Do you already have a Telegram bot?",
+          "YES": "I already have a bot",
+          "YES_DESC": "Show me where to find my bot token",
+          "NO": "I don't have a bot yet",
+          "NO_DESC": "Show me how to create a new bot"
+        },
         "STEPS": {
-          "TITLE": "How to get your Telegram bot token",
+          "TITLE": "How to create a Telegram bot and get a token",
           "STEP_1": "Open Telegram on any device.",
           "STEP_2": "Search for <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">@BotFather</a> and start a conversation (tap <strong>Start</strong>).",
           "STEP_3": "Send the command <strong>/newbot</strong>.",
           "STEP_4": "Follow the prompts: choose a bot name and username (the username must end with <code>bot</code>).",
           "STEP_5": "Copy the token that @BotFather sends you and paste it below."
+        },
+        "STEPS_HAS_BOT": {
+          "TITLE": "How to find your existing bot token",
+          "STEP_1": "Open Telegram and start a conversation with <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">@BotFather</a>.",
+          "STEP_2": "Send <strong>/mybots</strong> and choose your bot from the list.",
+          "STEP_3": "Tap <strong>API Token</strong> — copy it and paste below."
         },
         "DIRECT_LINK": "Direct link: <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">t.me/BotFather</a>",
         "BOT_TOKEN": {
@@ -538,12 +551,25 @@
       "MAX_CHANNEL": {
         "TITLE": "MAX Messenger",
         "DESC": "Connect your MAX Messenger bot to receive and reply to messages directly from Chatwoot.",
+        "HAS_BOT": {
+          "QUESTION_TITLE": "Do you already have a MAX bot?",
+          "YES": "I already have a bot",
+          "YES_DESC": "Show me where to find my bot token",
+          "NO": "I don't have a bot yet",
+          "NO_DESC": "Show me how to create a new bot"
+        },
         "STEPS": {
-          "TITLE": "How to get your bot token",
+          "TITLE": "How to create a MAX bot and get a token",
           "STEP_1": "Open <a href=\"https://max.ru\" target=\"_blank\" rel=\"noopener noreferrer\">MAX Messenger</a> on any device.",
           "STEP_2": "Find <strong>@MasterBot</strong> and start a conversation with it.",
           "STEP_3": "Send <strong>/newbot</strong>, follow the prompts to set a name and username for your bot.",
           "STEP_4": "Copy the token that @MasterBot sends you and paste it below."
+        },
+        "STEPS_HAS_BOT": {
+          "TITLE": "How to find your existing bot token",
+          "STEP_1": "Open MAX Messenger and start a conversation with <strong>@MasterBot</strong>.",
+          "STEP_2": "Send <strong>/mybots</strong> and choose your bot from the list.",
+          "STEP_3": "Copy the token shown and paste it below."
         },
         "BOT_TOKEN": {
           "LABEL": "Bot Token",
@@ -558,6 +584,20 @@
       "VK_CHANNEL": {
         "TITLE": "VK Channel",
         "DESC": "Integrate with VK (VKontakte) community and start supporting your customers.",
+        "HAS_GROUP": {
+          "QUESTION_TITLE": "Do you already have a VK community (group)?",
+          "YES": "I already have a group",
+          "YES_DESC": "Show me how to get the token for my existing group",
+          "NO": "I don’t have a group yet",
+          "NO_DESC": "Show me how to create a VK community first"
+        },
+        "CREATE_GROUP": {
+          "TITLE": "How to create a VK community",
+          "STEP_1": "Go to <a href=\"https://vk.com/groups?act=create\" target=\"_blank\" rel=\"noopener noreferrer\">vk.com/groups?act=create</a>.",
+          "STEP_2": "Choose community type: <strong>Business</strong> or <strong>Community</strong>.",
+          "STEP_3": "Fill in the name, then click <strong>Create community</strong>.",
+          "STEP_4": "Once the group is ready, connect it using the button below."
+        },
         "MANUAL_SETUP": {
           "TITLE": "How to get your VK community access token",
           "INTRO": "VK bots work on behalf of a community.",

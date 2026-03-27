@@ -32,6 +32,7 @@ const groups = ref([]);
 const tokenData = ref(null);
 const selectedGroupId = ref(null);
 const oauthEnabled = ref(false);
+const hasGroup = ref(null);
 
 // Manual mode fields
 const groupId = ref('');
@@ -44,7 +45,7 @@ const manualRules = {
 };
 const v$ = useVuelidate(manualRules, { groupId, accessToken });
 
-const manualSetupSteps = computed(() => [
+const allManualSetupSteps = computed(() => [
   t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_1'),
   t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_2'),
   t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_3'),
@@ -52,6 +53,20 @@ const manualSetupSteps = computed(() => [
   t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_5'),
   t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_6'),
   t('INBOX_MGMT.ADD.VK_CHANNEL.MANUAL_SETUP.STEP_7'),
+]);
+
+// When user already has a group — skip the "create community" step (step 1)
+const manualSetupSteps = computed(() =>
+  hasGroup.value
+    ? allManualSetupSteps.value.slice(1)
+    : allManualSetupSteps.value
+);
+
+const createGroupSteps = computed(() => [
+  t('INBOX_MGMT.ADD.VK_CHANNEL.CREATE_GROUP.STEP_1'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.CREATE_GROUP.STEP_2'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.CREATE_GROUP.STEP_3'),
+  t('INBOX_MGMT.ADD.VK_CHANNEL.CREATE_GROUP.STEP_4'),
 ]);
 
 // --- PKCE helpers (Web Crypto API) ---
@@ -274,26 +289,83 @@ const resetAndRetry = () => {
       />
     </div>
 
-    <!-- OAuth Mode: Step 1 - Connect VK -->
+    <!-- Step 0: group status selection (only for fresh connect flow) -->
     <div
-      v-else-if="oauthEnabled && step === 'connect'"
-      class="flex flex-col items-center justify-center px-8 py-10 text-center rounded-2xl outline outline-1 outline-n-weak mt-4"
+      v-else-if="hasGroup === null && step === 'connect'"
+      class="grid grid-cols-2 gap-4 mt-4"
     >
-      <h6 class="text-2xl font-medium">
-        {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.CONNECT_TITLE') }}
-      </h6>
-      <p class="py-6 text-sm text-n-slate-11">
-        {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.CONNECT_HELP') }}
-      </p>
-      <Button
-        class="text-white !rounded-full !px-6 bg-[#0077ff]"
-        lg
-        icon="i-woot-vk"
-        :disabled="isRequestingAuthorization"
-        :is-loading="isRequestingAuthorization"
-        :label="$t('INBOX_MGMT.ADD.VK_CHANNEL.CONNECT_BUTTON')"
-        @click="requestAuthorization"
-      />
+      <button
+        class="text-left flex flex-col p-5 rounded-2xl outline outline-1 outline-n-weak hover:outline-n-brand transition-all cursor-pointer"
+        @click="hasGroup = true"
+      >
+        <span class="font-semibold text-sm text-n-slate-12">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.HAS_GROUP.YES') }}
+        </span>
+        <span class="text-xs text-n-slate-11 mt-1">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.HAS_GROUP.YES_DESC') }}
+        </span>
+      </button>
+      <button
+        class="text-left flex flex-col p-5 rounded-2xl outline outline-1 outline-n-weak hover:outline-n-brand transition-all cursor-pointer"
+        @click="hasGroup = false"
+      >
+        <span class="font-semibold text-sm text-n-slate-12">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.HAS_GROUP.NO') }}
+        </span>
+        <span class="text-xs text-n-slate-11 mt-1">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.HAS_GROUP.NO_DESC') }}
+        </span>
+      </button>
+    </div>
+
+    <!-- OAuth Mode: Step 1 - Connect VK -->
+    <div v-else-if="oauthEnabled && step === 'connect'" class="mt-4">
+      <!-- No group yet: show create-group instructions first -->
+      <div
+        v-if="!hasGroup"
+        class="rounded-2xl outline outline-1 outline-n-weak p-5 mb-6 bg-n-alpha-1"
+      >
+        <p class="text-sm font-semibold text-n-slate-12 mb-4">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.CREATE_GROUP.TITLE') }}
+        </p>
+        <ol class="space-y-3">
+          <li
+            v-for="(createStep, index) in createGroupSteps"
+            :key="index"
+            class="flex items-start gap-3"
+          >
+            <span
+              class="flex-shrink-0 w-5 h-5 rounded-full bg-n-brand text-white text-xs font-semibold flex items-center justify-center mt-0.5"
+            >
+              {{ index + 1 }}
+            </span>
+            <span
+              v-dompurify-html="createStep"
+              class="text-sm text-n-slate-11 leading-5"
+            />
+          </li>
+        </ol>
+      </div>
+
+      <div
+        class="flex flex-col items-center justify-center px-8 py-10 text-center rounded-2xl outline outline-1 outline-n-weak"
+      >
+        <h6 class="text-2xl font-medium">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.CONNECT_TITLE') }}
+        </h6>
+        <p class="py-6 text-sm text-n-slate-11">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.CONNECT_HELP') }}
+        </p>
+        <Button
+          class="text-white !rounded-full !px-6 bg-[#0077ff]"
+          lg
+          icon="i-woot-vk"
+          :disabled="isRequestingAuthorization"
+          :is-loading="isRequestingAuthorization"
+          :label="$t('INBOX_MGMT.ADD.VK_CHANNEL.CONNECT_BUTTON')"
+          @click="requestAuthorization"
+        />
+      </div>
     </div>
 
     <!-- OAuth Mode: Step 2 - Group selection -->
@@ -346,6 +418,33 @@ const resetAndRetry = () => {
 
     <!-- Manual Mode: Form -->
     <div v-else-if="!oauthEnabled" class="mx-0 flex-col">
+      <!-- No group yet: show create-group instructions -->
+      <div
+        v-if="!hasGroup"
+        class="rounded-2xl outline outline-1 outline-n-weak p-5 mb-6 bg-n-alpha-1"
+      >
+        <p class="text-sm font-semibold text-n-slate-12 mb-4">
+          {{ $t('INBOX_MGMT.ADD.VK_CHANNEL.CREATE_GROUP.TITLE') }}
+        </p>
+        <ol class="space-y-3">
+          <li
+            v-for="(createStep, index) in createGroupSteps"
+            :key="index"
+            class="flex items-start gap-3"
+          >
+            <span
+              class="flex-shrink-0 w-5 h-5 rounded-full bg-n-brand text-white text-xs font-semibold flex items-center justify-center mt-0.5"
+            >
+              {{ index + 1 }}
+            </span>
+            <span
+              v-dompurify-html="createStep"
+              class="text-sm text-n-slate-11 leading-5"
+            />
+          </li>
+        </ol>
+      </div>
+
       <div
         class="rounded-2xl outline outline-1 outline-n-weak p-5 mb-6 bg-n-alpha-1"
       >
