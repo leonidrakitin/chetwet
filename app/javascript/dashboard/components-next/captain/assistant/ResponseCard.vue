@@ -135,35 +135,55 @@ const handleDocumentableClick = () => {
     <div v-show="selectable" class="absolute top-7 ltr:left-3 rtl:right-3">
       <Checkbox v-model="modelValue" />
     </div>
-    <div class="flex relative justify-between w-full gap-1">
-      <span class="text-base text-n-slate-12 line-clamp-1">
-        {{ question }}
-      </span>
-      <div v-if="!compact && showMenu" class="flex items-center gap-2">
-        <Policy
-          v-on-clickaway="() => toggleDropdown(false)"
-          :permissions="['administrator']"
-          class="relative flex items-center group"
+    <div class="flex flex-col gap-3 w-full">
+      <div class="flex relative justify-between w-full gap-2">
+        <div class="flex items-start gap-2 min-w-0 flex-1">
+          <span
+            class="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-n-iris-11 bg-n-iris-3 rounded px-1.5 py-0.5 mt-0.5 leading-4"
+          >
+            {{ $t('CAPTAIN.RESPONSES.QUESTION_BADGE') }}
+          </span>
+          <span class="text-sm font-medium text-n-slate-12 line-clamp-2">
+            {{ question }}
+          </span>
+        </div>
+        <div
+          v-if="!compact && showMenu"
+          class="shrink-0 flex items-center gap-2"
         >
-          <Button
-            icon="i-lucide-ellipsis-vertical"
-            color="slate"
-            size="xs"
-            class="rounded-md group-hover:bg-n-alpha-2"
-            @click="toggleDropdown()"
-          />
-          <DropdownMenu
-            v-if="showActionsDropdown"
-            :menu-items="menuItems"
-            class="mt-1 ltr:right-0 rtl:right-0 top-full"
-            @action="handleAssistantAction($event)"
-          />
-        </Policy>
+          <Policy
+            v-on-clickaway="() => toggleDropdown(false)"
+            :permissions="['administrator']"
+            class="relative flex items-center group"
+          >
+            <Button
+              icon="i-lucide-ellipsis-vertical"
+              color="slate"
+              size="xs"
+              class="rounded-md group-hover:bg-n-alpha-2"
+              @click="toggleDropdown()"
+            />
+            <DropdownMenu
+              v-if="showActionsDropdown"
+              :menu-items="menuItems"
+              class="mt-1 ltr:right-0 rtl:right-0 top-full"
+              @action="handleAssistantAction($event)"
+            />
+          </Policy>
+        </div>
+      </div>
+      <div class="h-px bg-n-container mx-0" />
+      <div class="flex items-start gap-2">
+        <span
+          class="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-n-slate-9 bg-n-slate-3 rounded px-1.5 py-0.5 mt-0.5 leading-4"
+        >
+          {{ $t('CAPTAIN.RESPONSES.ANSWER_BADGE') }}
+        </span>
+        <span class="text-n-slate-11 text-sm line-clamp-4 flex-1">
+          {{ answer }}
+        </span>
       </div>
     </div>
-    <span class="text-n-slate-11 text-sm line-clamp-5">
-      {{ answer }}
-    </span>
     <div
       v-if="!compact"
       class="flex items-start justify-between flex-col-reverse md:flex-row gap-3"

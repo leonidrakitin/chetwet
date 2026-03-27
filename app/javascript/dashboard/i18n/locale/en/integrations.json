@@ -1053,6 +1053,8 @@
       "HEADER": "FAQs",
       "PENDING_FAQS": "Pending FAQs",
       "ADD_NEW": "Create new FAQ",
+      "QUESTION_BADGE": "Q",
+      "ANSWER_BADGE": "A",
       "DOCUMENTABLE": {
         "CONVERSATION": "Conversation #{id}"
       },

@@ -80,46 +80,58 @@ const handleAction = ({ action, value }) => {
 
 <template>
   <CardLayout>
-    <div class="flex gap-1 justify-between w-full">
-      <span class="text-base text-n-slate-12 line-clamp-1">
-        {{ name }}
-      </span>
-      <div class="flex gap-2 items-center">
-        <div
-          v-on-clickaway="() => toggleDropdown(false)"
-          class="flex relative items-center group"
-        >
-          <Button
-            icon="i-lucide-ellipsis-vertical"
-            color="slate"
-            size="xs"
-            class="rounded-md group-hover:bg-n-alpha-2"
-            @click="toggleDropdown()"
-          />
-          <DropdownMenu
-            v-if="showActionsDropdown"
-            :menu-items="menuItems"
-            class="top-full mt-1 ltr:right-0 rtl:left-0 xl:ltr:right-0 xl:rtl:left-0"
-            @action="handleAction($event)"
-          />
-        </div>
+    <div class="flex gap-4 w-full items-start">
+      <div
+        class="shrink-0 size-10 rounded-lg flex items-center justify-center"
+        :class="
+          isPdfDocument(externalLink)
+            ? 'bg-n-ruby-3 text-n-ruby-11'
+            : 'bg-n-iris-3 text-n-iris-11'
+        "
+      >
+        <i :class="linkIcon" class="size-5" />
       </div>
-    </div>
-    <div class="flex gap-4 justify-between items-center w-full">
-      <span
-        class="flex gap-1 items-center text-sm truncate shrink-0 text-n-slate-11"
-      >
-        <i class="i-woot-captain" />
-        {{ assistant?.name || '' }}
-      </span>
-      <span
-        class="flex flex-1 gap-1 justify-start items-center text-sm truncate text-n-slate-11"
-      >
-        <i :class="linkIcon" class="shrink-0" />
-        <span class="truncate">{{ displayLink }}</span>
-      </span>
-      <div class="text-sm shrink-0 text-n-slate-11 line-clamp-1">
-        {{ createdAt }}
+      <div class="flex flex-col min-w-0 flex-1 gap-1">
+        <div class="flex gap-1 justify-between w-full items-start">
+          <span
+            class="text-sm font-medium text-n-slate-12 line-clamp-2 leading-snug"
+          >
+            {{ name }}
+          </span>
+          <div class="shrink-0 flex gap-2 items-center">
+            <div
+              v-on-clickaway="() => toggleDropdown(false)"
+              class="flex relative items-center group"
+            >
+              <Button
+                icon="i-lucide-ellipsis-vertical"
+                color="slate"
+                size="xs"
+                class="rounded-md group-hover:bg-n-alpha-2"
+                @click="toggleDropdown()"
+              />
+              <DropdownMenu
+                v-if="showActionsDropdown"
+                :menu-items="menuItems"
+                class="top-full mt-1 ltr:right-0 rtl:left-0 xl:ltr:right-0 xl:rtl:left-0"
+                @action="handleAction($event)"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-3 items-center flex-wrap">
+          <span class="flex gap-1 items-center text-xs text-n-slate-10">
+            <i class="i-woot-captain size-3" />
+            {{ assistant?.name || '' }}
+          </span>
+          <span class="flex gap-1 items-center text-xs text-n-slate-10 min-w-0">
+            <i :class="linkIcon" class="shrink-0 size-3" />
+            <span class="truncate">{{ displayLink }}</span>
+          </span>
+          <span class="text-xs text-n-slate-9 ml-auto">
+            {{ createdAt }}
+          </span>
+        </div>
       </div>
     </div>
   </CardLayout>
