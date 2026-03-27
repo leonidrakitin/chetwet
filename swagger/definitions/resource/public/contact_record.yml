@@ -81,11 +81,6 @@ properties:
   account_id:
     type: integer
     description: Account id of the contact
-  company_id:
-    type:
-      - integer
-      - 'null'
-    description: Company id of the contact
   label_list:
     type: array
     description: Labels applied to the contact

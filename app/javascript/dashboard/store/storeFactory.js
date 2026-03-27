@@ -210,10 +210,10 @@ export const createPiniaStore = options => {
  *
  * @example
  * Create Pinia store
- * export const useCompaniesStore = createStore({
- *   name: 'Company',
+ * export const useItemsStore = createStore({
+ *   name: 'items',
  *   type: 'pinia',
- *   API: CompanyAPI,
+ *   API: ItemsAPI,
  * });
  */
 export const createStore = options => {

@@ -107,11 +107,6 @@ en:
         invalid: Invalid email
       phone_number:
         invalid: should be in e164 format
-    companies:
-      domain:
-        invalid: must be a valid domain name
-      search:
-        query_missing: Specify search string with parameter q
     messages:
       search:
         time_range_limit_exceeded: 'Search is limited to the last %{days} days'

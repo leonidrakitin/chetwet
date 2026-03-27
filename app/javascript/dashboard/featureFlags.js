@@ -41,7 +41,6 @@ export const FEATURE_FLAGS = {
   CAPTAIN_TASKS: 'captain_tasks',
   SAML: 'saml',
   QUOTED_EMAIL_REPLY: 'quoted_email_reply',
-  COMPANIES: 'companies',
   ADVANCED_SEARCH: 'advanced_search',
   CONVERSATION_REQUIRED_ATTRIBUTES: 'conversation_required_attributes',
   NOTIFY_ALL_AGENTS_NEW_MESSAGE: 'notify_all_agents_new_message',

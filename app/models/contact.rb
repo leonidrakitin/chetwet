@@ -21,7 +21,6 @@
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #  account_id            :integer          not null
-#  company_id            :bigint
 #
 # Indexes
 #
@@ -29,7 +28,6 @@
 #  index_contacts_on_account_id_and_contact_type         (account_id,contact_type)
 #  index_contacts_on_account_id_and_last_activity_at     (account_id,last_activity_at DESC NULLS LAST)
 #  index_contacts_on_blocked                             (blocked)
-#  index_contacts_on_company_id                          (company_id)
 #  index_contacts_on_lower_email_account_id              (lower((email)::text), account_id)
 #  index_contacts_on_name_email_phone_number_identifier  (name,email,phone_number,identifier) USING gin
 #  index_contacts_on_nonempty_fields                     (account_id,email,phone_number,identifier) WHERE (((email)::text <> ''::text) OR ((phone_number)::text <> ''::text) OR ((identifier)::text <> ''::text))
@@ -180,7 +178,7 @@ class Contact < ApplicationRecord
 
   def self.resolved_contacts(use_crm_v2: false)
     identified = "contacts.email <> '' OR contacts.phone_number <> '' OR contacts.identifier <> ''"
-    from_channel = "EXISTS (SELECT 1 FROM contact_inboxes WHERE contact_inboxes.contact_id = contacts.id)"
+    from_channel = 'EXISTS (SELECT 1 FROM contact_inboxes WHERE contact_inboxes.contact_id = contacts.id)'
 
     if use_crm_v2
       where(contact_type: 'lead').or(where(from_channel))
@@ -255,4 +253,3 @@ class Contact < ApplicationRecord
     )
   end
 end
-Contact.include_mod_with('Concerns::Contact')

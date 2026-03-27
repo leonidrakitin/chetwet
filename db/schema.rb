@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_26_212732) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_27_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -709,19 +709,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_212732) do
     t.index ["phone_number"], name: "index_channel_whatsapp_on_phone_number", unique: true
   end
 
-  create_table "companies", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "domain"
-    t.text "description"
-    t.bigint "account_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "contacts_count", default: 0, null: false
-    t.index ["account_id", "domain"], name: "index_companies_on_account_and_domain", unique: true, where: "(domain IS NOT NULL)"
-    t.index ["account_id"], name: "index_companies_on_account_id"
-    t.index ["name", "account_id"], name: "index_companies_on_name_and_account_id"
-  end
-
   create_table "contact_inboxes", force: :cascade do |t|
     t.bigint "contact_id"
     t.bigint "inbox_id"
@@ -754,7 +741,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_212732) do
     t.string "location", default: ""
     t.string "country_code", default: ""
     t.boolean "blocked", default: false, null: false
-    t.bigint "company_id"
     t.index "lower((email)::text), account_id", name: "index_contacts_on_lower_email_account_id"
     t.index ["account_id", "contact_type"], name: "index_contacts_on_account_id_and_contact_type"
     t.index ["account_id", "email", "phone_number", "identifier"], name: "index_contacts_on_nonempty_fields", where: "(((email)::text <> ''::text) OR ((phone_number)::text <> ''::text) OR ((identifier)::text <> ''::text))"
@@ -762,7 +748,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_212732) do
     t.index ["account_id"], name: "index_contacts_on_account_id"
     t.index ["account_id"], name: "index_resolved_contact_account_id", where: "(((email)::text <> ''::text) OR ((phone_number)::text <> ''::text) OR ((identifier)::text <> ''::text))"
     t.index ["blocked"], name: "index_contacts_on_blocked"
-    t.index ["company_id"], name: "index_contacts_on_company_id"
     t.index ["email", "account_id"], name: "uniq_email_per_account_contact", unique: true
     t.index ["identifier", "account_id"], name: "uniq_identifier_per_account_contact", unique: true
     t.index ["name", "email", "phone_number", "identifier"], name: "index_contacts_on_name_email_phone_number_identifier", opclass: :gin_trgm_ops, using: :gin
@@ -1334,35 +1319,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_212732) do
     t.index ["account_id", "metric", "date"], name: "index_rollup_timeseries"
   end
 
-  create_table "sla_events", force: :cascade do |t|
-    t.bigint "applied_sla_id", null: false
-    t.bigint "conversation_id", null: false
-    t.bigint "account_id", null: false
-    t.bigint "sla_policy_id", null: false
-    t.bigint "inbox_id", null: false
-    t.integer "event_type"
-    t.jsonb "meta", default: {}
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_sla_events_on_account_id"
-    t.index ["applied_sla_id"], name: "index_sla_events_on_applied_sla_id"
-    t.index ["conversation_id"], name: "index_sla_events_on_conversation_id"
-    t.index ["inbox_id"], name: "index_sla_events_on_inbox_id"
-    t.index ["sla_policy_id"], name: "index_sla_events_on_sla_policy_id"
-  end
+# Could not dump table "sla_events" because of following ActiveRecord::ConnectionFailed
+#   PQconsumeInput() could not receive data from server: Operation timed out
 
-  create_table "sla_policies", force: :cascade do |t|
-    t.string "name", null: false
-    t.float "first_response_time_threshold"
-    t.float "next_response_time_threshold"
-    t.boolean "only_during_business_hours", default: false
-    t.bigint "account_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "description"
-    t.float "resolution_time_threshold"
-    t.index ["account_id"], name: "index_sla_policies_on_account_id"
-  end
+# Could not dump table "sla_policies" because of following ActiveRecord::ConnectionFailed
+#   PQconsumeInput() server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
 
   create_table "suggestion_votes", force: :cascade do |t|
     t.bigint "suggestion_id", null: false
