@@ -527,16 +527,23 @@
         }
       },
       "MAX_CHANNEL": {
-        "TITLE": "MAX Channel",
-        "DESC": "Integrate with MAX messenger bot and start supporting your customers.",
+        "TITLE": "MAX Messenger",
+        "DESC": "Connect your MAX Messenger bot to receive and reply to messages directly from Chatwoot.",
+        "STEPS": {
+          "TITLE": "How to get your bot token",
+          "STEP_1": "Open <a href=\"https://max.ru\" target=\"_blank\" rel=\"noopener noreferrer\">MAX Messenger</a> on any device.",
+          "STEP_2": "Find <strong>@MasterBot</strong> and start a conversation with it.",
+          "STEP_3": "Send <strong>/newbot</strong>, follow the prompts to set a name and username for your bot.",
+          "STEP_4": "Copy the token that @MasterBot sends you and paste it below."
+        },
         "BOT_TOKEN": {
           "LABEL": "Bot Token",
-          "SUBTITLE": "Configure the bot token you have obtained from MAX BotFather (@MasterBot).",
-          "PLACEHOLDER": "Bot Token"
+          "SUBTITLE": "The token is provided by @MasterBot after creating a new bot.",
+          "PLACEHOLDER": "Paste your bot token here"
         },
-        "SUBMIT_BUTTON": "Create MAX Channel",
+        "SUBMIT_BUTTON": "Connect MAX Bot",
         "API": {
-          "ERROR_MESSAGE": "We were not able to save the MAX channel"
+          "ERROR_MESSAGE": "Could not connect to MAX. Please check the bot token and try again."
         }
       },
       "VK_CHANNEL": {

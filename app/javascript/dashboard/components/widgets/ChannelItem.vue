@@ -87,6 +87,7 @@ const isActive = computed(() => {
     'telegram_personal',
     'vk',
     'avito',
+    'max',
     'line',
     'instagram',
     'tiktok',

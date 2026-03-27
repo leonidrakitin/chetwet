@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
@@ -18,6 +18,13 @@ const isSubmitting = ref(false);
 
 const rules = { botToken: { required } };
 const v$ = useVuelidate(rules, { botToken });
+
+const steps = computed(() => [
+  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_1'),
+  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_2'),
+  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_3'),
+  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_4'),
+]);
 
 const createChannel = async () => {
   await v$.value.$validate();
@@ -50,6 +57,32 @@ const createChannel = async () => {
       :header-title="$t('INBOX_MGMT.ADD.MAX_CHANNEL.TITLE')"
       :header-content="$t('INBOX_MGMT.ADD.MAX_CHANNEL.DESC')"
     />
+
+    <div
+      class="rounded-2xl outline outline-1 outline-n-weak p-5 mb-6 bg-n-alpha-1"
+    >
+      <p class="text-sm font-semibold text-n-slate-12 mb-4">
+        {{ $t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.TITLE') }}
+      </p>
+      <ol class="space-y-3">
+        <li
+          v-for="(step, index) in steps"
+          :key="index"
+          class="flex items-start gap-3"
+        >
+          <span
+            class="flex-shrink-0 w-5 h-5 rounded-full bg-n-brand text-white text-xs font-semibold flex items-center justify-center mt-0.5"
+          >
+            {{ index + 1 }}
+          </span>
+          <span
+            v-dompurify-html="step"
+            class="text-sm text-n-slate-11 leading-5"
+          />
+        </li>
+      </ol>
+    </div>
+
     <form class="flex flex-wrap flex-col mx-0" @submit.prevent="createChannel">
       <div class="flex-shrink-0 flex-grow-0">
         <label :class="{ error: v$.botToken.$error }">
@@ -74,6 +107,7 @@ const createChannel = async () => {
           type="submit"
           solid
           blue
+          icon="i-woot-max"
           :label="$t('INBOX_MGMT.ADD.MAX_CHANNEL.SUBMIT_BUTTON')"
         />
       </div>
