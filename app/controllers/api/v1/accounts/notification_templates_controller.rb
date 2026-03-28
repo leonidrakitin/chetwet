@@ -83,7 +83,7 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
       :last_sent_at, :next_send_at,
       schedule: {},
       conditions: {},
-      audience: { segment_ids: [], tags: [], exclude_tags: [] },
+      audience: { tags: [], exclude_tags: [] },
       limits: {},
       metadata: {},
       messages: [:text, { attachments: [:id, :type, :name, :url], buttons: [:id, :label, :type, :url, :templateId] }]

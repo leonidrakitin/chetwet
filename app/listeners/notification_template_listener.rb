@@ -23,7 +23,7 @@ class NotificationTemplateListener < BaseListener
 
     conversation.account.notification_templates
                 .active
-                .where(template_type: 'event', event_type: event_type, yclients_integration_id: nil)
+                .where(template_type: 'event', event_type: event_type)
                 .find_each do |template|
       NotificationTemplates::DispatchJob.perform_later(template.id, conversation.id, "event:#{event_type}")
     end

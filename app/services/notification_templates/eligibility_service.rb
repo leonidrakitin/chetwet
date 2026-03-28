@@ -78,10 +78,7 @@ class NotificationTemplates::EligibilityService
   end
 
   def effective_min_interval_hours
-    [
-      template.limits['min_interval_hours'].to_i,
-      24
-    ].max
+    template.limits['min_interval_hours'].to_i
   end
 
   def stop_if_replied?
