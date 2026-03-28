@@ -121,10 +121,6 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def send_out_of_office_message_if_applicable
-    # Campaign conversations should never receive OOO templates — the campaign itself
-    # serves as the initial outreach, and OOO would be confusing in that context.
-    return if @conversation.campaign.present?
-
     ::MessageTemplates::Template::OutOfOffice.perform_if_applicable(@conversation)
   end
 

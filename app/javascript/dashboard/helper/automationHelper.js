@@ -118,7 +118,6 @@ export const getActionOptions = ({
 export const getConditionOptions = ({
   agents,
   booleanFilterOptions,
-  campaigns,
   contacts,
   countries,
   customAttributes,
@@ -145,7 +144,6 @@ export const getConditionOptions = ({
     contact: contacts,
     inbox_id: inboxes,
     team_id: teams,
-    campaigns: generateConditionOptions(campaigns),
     browser_language: languages,
     conversation_language: languages,
     country_code: countries,

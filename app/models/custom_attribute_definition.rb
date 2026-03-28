@@ -23,7 +23,7 @@
 #
 class CustomAttributeDefinition < ApplicationRecord
   STANDARD_ATTRIBUTES = {
-    :conversation => %w[status priority assignee_id inbox_id team_id display_id campaign_id labels browser_language country_code referer created_at
+    :conversation => %w[status priority assignee_id inbox_id team_id display_id labels browser_language country_code referer created_at
                         last_activity_at],
     :contact => %w[name email phone_number identifier country_code city created_at last_activity_at referer blocked]
   }.freeze

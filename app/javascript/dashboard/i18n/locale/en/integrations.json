@@ -450,7 +450,8 @@
       "ASSISTANTS": "Assistants",
       "SWITCH_ASSISTANT": "Switch between assistants",
       "NEW_ASSISTANT": "Create Assistant",
-      "EMPTY_LIST": "No assistants found, please create one to get started"
+      "EMPTY_LIST": "No assistants found, please create one to get started",
+      "SHOW_ALL": "Show all assistants"
     },
     "COPILOT": {
       "TITLE": "Copilot",

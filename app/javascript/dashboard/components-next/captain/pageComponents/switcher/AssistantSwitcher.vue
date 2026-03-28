@@ -91,20 +91,8 @@ const openCreateAssistantDialog = () => {
     class="pt-5 pb-3 bg-n-alpha-3 backdrop-blur-[100px] outline outline-n-container outline-1 z-50 w-full rounded-xl shadow-md flex flex-col gap-4"
   >
     <div
-      class="flex items-center justify-between gap-4 px-6 pb-3 border-b border-n-alpha-2"
+      class="flex items-center justify-end gap-4 px-6 pb-3 border-b border-n-alpha-2"
     >
-      <div class="flex flex-col gap-1">
-        <div class="flex items-center gap-2">
-          <h2
-            class="text-base font-medium cursor-pointer text-n-slate-12 w-fit hover:underline"
-          >
-            {{ t('CAPTAIN.ASSISTANT_SWITCHER.ASSISTANTS') }}
-          </h2>
-        </div>
-        <p class="text-sm text-n-slate-11">
-          {{ t('CAPTAIN.ASSISTANT_SWITCHER.SWITCH_ASSISTANT') }}
-        </p>
-      </div>
       <Button
         :label="t('CAPTAIN.ASSISTANT_SWITCHER.NEW_ASSISTANT')"
         color="slate"

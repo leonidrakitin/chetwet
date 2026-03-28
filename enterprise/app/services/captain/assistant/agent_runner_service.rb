@@ -19,7 +19,6 @@ class Captain::Assistant::AgentRunnerService
 
   CONTACT_INBOX_STATE_ATTRIBUTES = %i[id hmac_verified].freeze
 
-  CAMPAIGN_STATE_ATTRIBUTES = %i[id title message campaign_type description].freeze
   def initialize(assistant:, conversation: nil, callbacks: {}, source: nil)
     @assistant = assistant
     @conversation = conversation
@@ -125,7 +124,6 @@ class Captain::Assistant::AgentRunnerService
     state[:conversation] = slice_attrs(@conversation, CONVERSATION_STATE_ATTRIBUTES)
     state[:channel_type] = @conversation.inbox&.channel_type
     state[:contact] = slice_attrs(@conversation.contact, CONTACT_STATE_ATTRIBUTES) if @conversation.contact
-    state[:campaign] = slice_attrs(@conversation.campaign, CAMPAIGN_STATE_ATTRIBUTES) if @conversation.campaign
     state[:contact_inbox] = slice_attrs(@conversation.contact_inbox, CONTACT_INBOX_STATE_ATTRIBUTES) if @conversation.contact_inbox
   end
 

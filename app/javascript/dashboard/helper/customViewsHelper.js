@@ -75,16 +75,8 @@ const getValuesForPriority = (values, priority) => {
 
 export const getValuesForFilter = (filter, params) => {
   const { attribute_key, values } = filter;
-  const {
-    languages,
-    countries,
-    agents,
-    inboxes,
-    teams,
-    campaigns,
-    labels,
-    priority,
-  } = params;
+  const { languages, countries, agents, inboxes, teams, labels, priority } =
+    params;
   switch (attribute_key) {
     case 'status':
       return getValuesForStatus(values);
@@ -94,8 +86,6 @@ export const getValuesForFilter = (filter, params) => {
       return getValuesName(values, inboxes, 'id', 'name');
     case 'team_id':
       return getValuesName(values, teams, 'id', 'name');
-    case 'campaign_id':
-      return getValuesName(values, campaigns, 'id', 'title');
     case 'labels':
       return getValuesForLabels(values, labels);
     case 'priority':

@@ -146,6 +146,7 @@ const handleCreateAssistant = () => {
                 {{ activeAssistantName }}
               </span>
               <Button
+                v-tooltip.bottom="t('CAPTAIN.ASSISTANT_SWITCHER.SHOW_ALL')"
                 icon="i-lucide-chevron-down"
                 :variant="showAssistantSwitcherDropdown ? 'faded' : 'ghost'"
                 color="slate"

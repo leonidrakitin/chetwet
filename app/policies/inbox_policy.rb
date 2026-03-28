@@ -34,10 +34,6 @@ class InboxPolicy < ApplicationPolicy
     true
   end
 
-  def campaigns?
-    @account_user.administrator?
-  end
-
   def create?
     @account_user.administrator?
   end

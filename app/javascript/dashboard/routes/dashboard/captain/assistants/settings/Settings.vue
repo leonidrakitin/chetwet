@@ -473,7 +473,6 @@ onMounted(() => {
               <div class="flex flex-col gap-3">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <span class="i-lucide-inbox size-4 text-n-teal-11" />
                     <h4 class="text-sm font-semibold text-n-slate-12">
                       {{ t('CAPTAIN.INBOXES.HEADER') }}
                     </h4>
