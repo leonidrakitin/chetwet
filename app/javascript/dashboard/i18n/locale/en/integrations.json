@@ -467,6 +467,9 @@
       "SHOW_STEPS": "Show steps",
       "REASONING": "Show reasoning",
       "SELECT_ASSISTANT": "Select Assistant",
+      "NEW_ASSISTANT": "New assistant",
+      "EDIT_ASSISTANT": "Edit assistant",
+      "DELETE_ASSISTANT": "Delete assistant",
       "PROMPTS": {
         "SUMMARIZE": {
           "LABEL": "Summarize this conversation",

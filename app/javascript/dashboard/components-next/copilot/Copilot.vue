@@ -13,6 +13,7 @@ import ToggleCopilotAssistant from './ToggleCopilotAssistant.vue';
 import CopilotEmptyState from './CopilotEmptyState.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import { useI18n } from 'vue-i18n';
+import { useAdmin } from 'dashboard/composables/useAdmin';
 
 const props = defineProps({
   messages: {
@@ -87,6 +88,7 @@ const isLastMessageFromAssistant = computed(() => {
 });
 
 const { updateUISettings } = useUISettings();
+const { isAdmin } = useAdmin();
 
 const closeCopilotPanel = () => {
   updateUISettings({
@@ -167,7 +169,7 @@ watch(
     <div class="mx-3 mt-px mb-2">
       <div class="flex items-center gap-2 justify-between w-full mb-1">
         <ToggleCopilotAssistant
-          v-if="assistants.length > 1"
+          v-if="assistants.length > 1 || isAdmin"
           :assistants="assistants"
           :active-assistant="activeAssistant"
           @set-assistant="$event => emit('setAssistant', $event)"
