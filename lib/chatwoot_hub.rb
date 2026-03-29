@@ -1,3 +1,7 @@
+# Outbound Chatwoot Hub integration (ping / register / push relay / events) is disabled.
+# Previous implementation kept below for reference.
+# rubocop:disable Style/BlockComments
+=begin
 # TODO: lets use HTTParty instead of RestClient
 class ChatwootHub
   DEFAULT_BASE_URL = 'https://hub.2.chatwoot.com'.freeze
@@ -103,6 +107,64 @@ class ChatwootHub
     Rails.logger.error "Exception: #{e.message}"
   rescue StandardError => e
     ChatwootExceptionTracker.new(e).capture_exception
+  end
+end
+
+ChatwootHub.singleton_class.prepend_mod_with('ChatwootHub')
+=end
+# rubocop:enable Style/BlockComments
+
+class ChatwootHub
+  DEFAULT_BASE_URL = 'https://v2.estbot.ru'.freeze
+
+  def self.base_url
+    DEFAULT_BASE_URL
+  end
+
+  def self.ping_url
+    "#{base_url}/ping"
+  end
+
+  def self.registration_url
+    "#{base_url}/instances"
+  end
+
+  def self.push_notification_url
+    "#{base_url}/send_push"
+  end
+
+  def self.events_url
+    "#{base_url}/events"
+  end
+
+  def self.installation_identifier
+    identifier = InstallationConfig.find_by(name: 'INSTALLATION_IDENTIFIER')&.value
+    identifier ||= InstallationConfig.create!(name: 'INSTALLATION_IDENTIFIER', value: SecureRandom.uuid).value
+    identifier
+  end
+
+  def self.support_config
+    {
+      support_website_token: InstallationConfig.find_by(name: 'CHATWOOT_SUPPORT_WEBSITE_TOKEN')&.value,
+      support_script_url: InstallationConfig.find_by(name: 'CHATWOOT_SUPPORT_SCRIPT_URL')&.value,
+      support_identifier_hash: InstallationConfig.find_by(name: 'CHATWOOT_SUPPORT_IDENTIFIER_HASH')&.value
+    }
+  end
+
+  def self.sync_with_hub
+    nil
+  end
+
+  def self.register_instance(*)
+    nil
+  end
+
+  def self.send_push(*)
+    nil
+  end
+
+  def self.emit_event(*)
+    nil
   end
 end
 
