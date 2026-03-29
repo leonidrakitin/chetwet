@@ -443,9 +443,11 @@ onMounted(() => {
     <template #body>
       <div class="flex flex-col gap-4 pb-8">
         <!-- ── Basic Settings ─────────────────────────────────── -->
-        <div class="rounded-xl border border-n-weak bg-n-solid-1">
+        <div
+          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
+        >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-amber-3 flex-shrink-0"
@@ -463,66 +465,20 @@ onMounted(() => {
               </p>
             </div>
           </div>
-          <div class="p-5">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <AssistantBasicSettingsForm
-                :assistant="assistant"
-                @submit="handleSubmit"
-              />
-              <!-- Connected Inboxes (right column) -->
-              <div class="flex flex-col gap-3">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <h4 class="text-sm font-semibold text-n-slate-12">
-                      {{ t('CAPTAIN.INBOXES.HEADER') }}
-                    </h4>
-                  </div>
-                  <Policy :permissions="['administrator']">
-                    <Button
-                      :label="t('CAPTAIN.INBOXES.ADD_NEW')"
-                      icon="i-lucide-plus"
-                      size="xs"
-                      color="slate"
-                      @click="handleInboxCreate"
-                    />
-                  </Policy>
-                </div>
-                <div v-if="captainInboxes.length" class="flex flex-col gap-2">
-                  <InboxCard
-                    v-for="inbox in captainInboxes"
-                    :id="inbox.id"
-                    :key="inbox.id"
-                    :inbox="inbox"
-                    @action="handleInboxAction"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="flex flex-col items-center justify-center py-8 gap-3 text-center rounded-xl border border-dashed border-n-weak"
-                >
-                  <span class="i-lucide-inbox size-6 text-n-slate-7" />
-                  <p class="text-sm text-n-slate-9">
-                    {{ t('CAPTAIN.INBOXES.EMPTY_STATE.DESCRIPTION') }}
-                  </p>
-                  <Policy :permissions="['administrator']">
-                    <Button
-                      :label="t('CAPTAIN.INBOXES.ADD_NEW')"
-                      icon="i-lucide-plus"
-                      size="sm"
-                      color="slate"
-                      @click="handleInboxCreate"
-                    />
-                  </Policy>
-                </div>
-              </div>
-            </div>
+          <div class="p-5 max-w-2xl">
+            <AssistantBasicSettingsForm
+              :assistant="assistant"
+              @submit="handleSubmit"
+            />
           </div>
         </div>
 
         <!-- ── System Settings ────────────────────────────────── -->
-        <div class="rounded-xl border border-n-weak bg-n-solid-1">
+        <div
+          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
+        >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-blue-3 flex-shrink-0"
@@ -540,7 +496,7 @@ onMounted(() => {
               </p>
             </div>
           </div>
-          <div class="p-5">
+          <div class="p-5 max-w-2xl">
             <AssistantSystemSettingsForm
               :assistant="assistant"
               @submit="handleSubmit"
@@ -548,13 +504,74 @@ onMounted(() => {
           </div>
         </div>
 
+        <!-- ── Connected Inboxes ──────────────────────────────── -->
+        <div
+          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
+        >
+          <div
+            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <div
+                class="flex items-center justify-center size-9 rounded-lg bg-n-teal-3 flex-shrink-0"
+              >
+                <span class="i-lucide-inbox size-5 text-n-teal-11" />
+              </div>
+              <div class="min-w-0">
+                <h3 class="text-sm font-semibold text-n-slate-12">
+                  {{ t('CAPTAIN.INBOXES.HEADER') }}
+                </h3>
+              </div>
+            </div>
+            <Policy :permissions="['administrator']">
+              <Button
+                :label="t('CAPTAIN.INBOXES.ADD_NEW')"
+                icon="i-lucide-plus"
+                size="sm"
+                color="black"
+                class="flex-shrink-0"
+                @click="handleInboxCreate"
+              />
+            </Policy>
+          </div>
+          <div class="p-4">
+            <div v-if="captainInboxes.length" class="flex flex-col gap-2">
+              <InboxCard
+                v-for="inbox in captainInboxes"
+                :id="inbox.id"
+                :key="inbox.id"
+                :inbox="inbox"
+                @action="handleInboxAction"
+              />
+            </div>
+            <div
+              v-else
+              class="flex flex-col items-center justify-center py-8 gap-3 text-center"
+            >
+              <span class="i-lucide-inbox size-8 text-n-slate-7" />
+              <p class="text-sm text-n-slate-9">
+                {{ t('CAPTAIN.INBOXES.EMPTY_STATE.DESCRIPTION') }}
+              </p>
+              <Policy :permissions="['administrator']">
+                <Button
+                  :label="t('CAPTAIN.INBOXES.ADD_NEW')"
+                  icon="i-lucide-plus"
+                  size="sm"
+                  color="slate"
+                  @click="handleInboxCreate"
+                />
+              </Policy>
+            </div>
+          </div>
+        </div>
+
         <!-- ── Tools & Sources ────────────────────────────────── -->
         <div
           v-if="isCaptainV2Enabled"
-          class="rounded-xl border border-n-weak bg-n-solid-1"
+          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
         >
           <div
-            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
+            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
@@ -655,10 +672,10 @@ onMounted(() => {
         <!-- ── Controls (Guardrails & Guidelines) ─────────────── -->
         <div
           v-if="isCaptainV2Enabled"
-          class="rounded-xl border border-n-weak bg-n-solid-1"
+          class="rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden"
         >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2 rounded-t-xl"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-green-3 flex-shrink-0"
@@ -684,9 +701,11 @@ onMounted(() => {
         </div>
 
         <!-- ── Danger Zone ─────────────────────────────────────── -->
-        <div class="rounded-xl border border-n-ruby-6 bg-n-ruby-2">
+        <div
+          class="rounded-xl border border-n-ruby-6 bg-n-ruby-2 overflow-hidden"
+        >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-ruby-6 rounded-t-xl"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-ruby-6"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-ruby-3 flex-shrink-0"

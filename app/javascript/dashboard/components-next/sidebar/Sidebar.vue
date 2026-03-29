@@ -38,8 +38,7 @@ const emit = defineEmits([
   'closeMobileSidebar',
 ]);
 
-const { accountScopedRoute, isOnChatwootCloud, route } = useAccount();
-const captainAssistants = useMapGetter('captainAssistants/getRecords');
+const { accountScopedRoute, isOnChatwootCloud } = useAccount();
 const store = useStore();
 const searchShortcut = useKbd([`$mod`, 'k']);
 const { t } = useI18n();
@@ -231,26 +230,6 @@ const newReportRoutes = () => [
 
 const reportRoutes = computed(() => newReportRoutes());
 
-const CAPTAIN_SECTION_ROUTE_MAP = {
-  captain_assistants_knowledge_index: 'captain_assistants_knowledge_index',
-  captain_assistants_responses_index: 'captain_assistants_knowledge_index',
-  captain_assistants_documents_index: 'captain_assistants_knowledge_index',
-  captain_assistants_scenarios_index: 'captain_assistants_knowledge_index',
-  captain_assistants_playground_index: 'captain_assistants_playground_index',
-  captain_assistants_migrations_index: 'captain_assistants_migrations_index',
-  captain_assistants_settings_index: 'captain_assistants_settings_index',
-  captain_tools_index: 'captain_assistants_settings_index',
-  captain_assistants_inboxes_index: 'captain_assistants_settings_index',
-  captain_assistants_guardrails_index: 'captain_assistants_settings_index',
-  captain_assistants_guidelines_index: 'captain_assistants_settings_index',
-};
-
-const captainSectionRouteName = computed(
-  () =>
-    CAPTAIN_SECTION_ROUTE_MAP[route.name] ||
-    'captain_assistants_knowledge_index'
-);
-
 const menuItems = computed(() => {
   return [
     {
@@ -335,19 +314,6 @@ const menuItems = computed(() => {
       label: t('SIDEBAR.CAPTAIN'),
       activeOn: ['captain_assistants_create_index'],
       children: [
-        {
-          name: 'Assistants',
-          label: t('SIDEBAR.CAPTAIN_ASSISTANTS'),
-          icon: 'i-lucide-bot',
-          children: captainAssistants.value.map(assistant => ({
-            name: `captain_assistant_${assistant.id}`,
-            label: assistant.name,
-            icon: 'i-lucide-bot',
-            to: accountScopedRoute(captainSectionRouteName.value, {
-              assistantId: assistant.id,
-            }),
-          })),
-        },
         {
           name: 'Knowledge',
           label: t('SIDEBAR.CAPTAIN_KNOWLEDGE'),

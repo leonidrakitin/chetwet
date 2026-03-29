@@ -77,8 +77,6 @@ const { shouldShowPaywall } = usePolicy();
 
 const showAssistantSwitcherDropdown = ref(false);
 const createAssistantDialogRef = ref(null);
-const switcherTriggerRef = ref(null);
-const dropdownStyle = ref({});
 
 const assistants = useMapGetter('captainAssistants/getRecords');
 const uiFlags = useMapGetter('captainAssistants/getUIFlags');
@@ -107,14 +105,6 @@ const handlePageChange = event => {
 };
 
 const toggleAssistantSwitcher = () => {
-  if (!showAssistantSwitcherDropdown.value && switcherTriggerRef.value) {
-    const rect = switcherTriggerRef.value.getBoundingClientRect();
-    dropdownStyle.value = {
-      top: `${rect.bottom + 8}px`,
-      left: `${rect.left}px`,
-      minWidth: `${Math.max(rect.width, 320)}px`,
-    };
-  }
   showAssistantSwitcherDropdown.value = !showAssistantSwitcherDropdown.value;
 };
 
@@ -133,29 +123,43 @@ const handleCreateAssistant = () => {
         >
           <div class="flex gap-3 items-center">
             <BackButton v-if="backUrl" :back-url="backUrl" />
-            <!-- Assistant name + dropdown trigger -->
             <div
               v-if="showAssistantSwitcher && !showPaywall"
-              ref="switcherTriggerRef"
               class="flex items-center gap-2"
             >
-              <span
-                v-if="!isFetchingAssistants"
-                class="text-xl font-medium truncate text-n-slate-12"
-              >
-                {{ activeAssistantName }}
-              </span>
-              <Button
-                v-tooltip.bottom="t('CAPTAIN.ASSISTANT_SWITCHER.SHOW_ALL')"
-                icon="i-lucide-chevron-down"
-                :variant="showAssistantSwitcherDropdown ? 'faded' : 'ghost'"
-                color="slate"
-                size="xs"
-                :disabled="isFetchingAssistants"
-                :is-loading="isFetchingAssistants"
-                class="rounded-md hover:bg-n-slate-3 [&>span]:size-4"
-                @click="toggleAssistantSwitcher"
-              />
+              <div class="flex items-center gap-2">
+                <span
+                  v-if="!isFetchingAssistants"
+                  class="text-xl font-medium truncate text-n-slate-12"
+                >
+                  {{ activeAssistantName }}
+                </span>
+                <div class="relative group">
+                  <OnClickOutside
+                    @trigger="showAssistantSwitcherDropdown = false"
+                  >
+                    <Button
+                      icon="i-lucide-chevron-down"
+                      :variant="
+                        showAssistantSwitcherDropdown ? 'faded' : 'ghost'
+                      "
+                      color="slate"
+                      size="xs"
+                      :disabled="isFetchingAssistants"
+                      :is-loading="isFetchingAssistants"
+                      class="rounded-md group-hover:bg-n-slate-3 hover:bg-n-slate-3 [&>span]:size-4"
+                      @click="toggleAssistantSwitcher"
+                    />
+
+                    <AssistantSwitcher
+                      v-if="showAssistantSwitcherDropdown"
+                      class="absolute ltr:left-0 rtl:right-0 top-9"
+                      @close="showAssistantSwitcherDropdown = false"
+                      @create-assistant="handleCreateAssistant"
+                    />
+                  </OnClickOutside>
+                </div>
+              </div>
             </div>
             <div class="flex items-center gap-4">
               <div
@@ -202,7 +206,6 @@ const handleCreateAssistant = () => {
         <slot name="subHeader" />
       </div>
     </header>
-
     <main class="flex-1 px-6 overflow-y-auto">
       <div class="w-full max-w-5xl h-full mx-auto py-4">
         <slot v-if="!showPaywall" name="controls" />
@@ -222,7 +225,6 @@ const handleCreateAssistant = () => {
         <slot />
       </div>
     </main>
-
     <footer v-if="showPaginationFooter" class="sticky bottom-0 z-10">
       <PaginationFooter
         :current-page="currentPage"
@@ -232,25 +234,6 @@ const handleCreateAssistant = () => {
         @update:current-page="handlePageChange"
       />
     </footer>
-
-    <!-- Assistant switcher dropdown — fixed, anchored to trigger button -->
-    <Teleport to="body">
-      <div
-        v-if="
-          showAssistantSwitcherDropdown && showAssistantSwitcher && !showPaywall
-        "
-        class="fixed z-[9999]"
-        :style="dropdownStyle"
-      >
-        <OnClickOutside @trigger="showAssistantSwitcherDropdown = false">
-          <AssistantSwitcher
-            @close="showAssistantSwitcherDropdown = false"
-            @create-assistant="handleCreateAssistant"
-          />
-        </OnClickOutside>
-      </div>
-    </Teleport>
-
     <CreateAssistantDialog ref="createAssistantDialogRef" type="create" />
   </section>
 </template>
