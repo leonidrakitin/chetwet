@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_27_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_27_120001) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1319,13 +1319,35 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_120000) do
     t.index ["account_id", "metric", "date"], name: "index_rollup_timeseries"
   end
 
-# Could not dump table "sla_events" because of following ActiveRecord::ConnectionFailed
-#   PQconsumeInput() could not receive data from server: Operation timed out
+  create_table "sla_events", force: :cascade do |t|
+    t.bigint "applied_sla_id", null: false
+    t.bigint "conversation_id", null: false
+    t.bigint "account_id", null: false
+    t.bigint "sla_policy_id", null: false
+    t.bigint "inbox_id", null: false
+    t.integer "event_type"
+    t.jsonb "meta", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_sla_events_on_account_id"
+    t.index ["applied_sla_id"], name: "index_sla_events_on_applied_sla_id"
+    t.index ["conversation_id"], name: "index_sla_events_on_conversation_id"
+    t.index ["inbox_id"], name: "index_sla_events_on_inbox_id"
+    t.index ["sla_policy_id"], name: "index_sla_events_on_sla_policy_id"
+  end
 
-# Could not dump table "sla_policies" because of following ActiveRecord::ConnectionFailed
-#   PQconsumeInput() server closed the connection unexpectedly
-	This probably means the server terminated abnormally
-	before or while processing the request.
+  create_table "sla_policies", force: :cascade do |t|
+    t.string "name", null: false
+    t.float "first_response_time_threshold"
+    t.float "next_response_time_threshold"
+    t.boolean "only_during_business_hours", default: false
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "description"
+    t.float "resolution_time_threshold"
+    t.index ["account_id"], name: "index_sla_policies_on_account_id"
+  end
 
   create_table "suggestion_votes", force: :cascade do |t|
     t.bigint "suggestion_id", null: false
