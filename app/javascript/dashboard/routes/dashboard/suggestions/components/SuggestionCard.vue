@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import MessageFormatter from 'shared/helpers/MessageFormatter.js';
 import CardLayout from 'dashboard/components-next/CardLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 
@@ -88,6 +89,12 @@ const resolveImageUrl = url => {
   const base = window.chatwootConfig?.hostURL?.replace(/\/$/, '') || '';
   return base ? `${base}${url}` : url;
 };
+
+const renderedDescription = computed(() => {
+  const raw = props.suggestion.description;
+  if (!raw) return '';
+  return new MessageFormatter(raw).formattedMessage;
+});
 </script>
 
 <template>
@@ -174,8 +181,7 @@ const resolveImageUrl = url => {
           class="text-sm text-n-slate-11 break-words prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_p:first-child]:mt-0 [&_ul]:my-1 [&_ol]:my-1"
           :class="{ 'line-clamp-2': !expanded }"
         >
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <div v-html="suggestion.description" />
+          <div v-dompurify-html="renderedDescription" />
         </div>
         <button
           v-if="isClamped || expanded"
