@@ -6,7 +6,7 @@ class Api::V1::Accounts::ApprovalBotConfigsController < Api::V1::Accounts::BaseC
   before_action :set_config, only: [:update, :destroy]
 
   def index
-    @configs = Current.account.approval_bot_configs
+    render json: Current.account.approval_bot_configs
   end
 
   def create

@@ -450,6 +450,17 @@
         "MODEL_DESCRIPTION": "Select the AI model to use for analyzing conversations and suggesting appropriate labels"
       }
     },
+    "APPROVAL_BOT": {
+      "TITLE": "Approval Bot",
+      "DESCRIPTION": "Configure the Telegram bot that delivers operator approval requests and notifications from Captain.",
+      "BOT_TOKEN_LABEL": "Telegram Bot Token",
+      "BOT_TOKEN_PLACEHOLDER": "e.g. 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+      "CONNECTED_AS": "Connected as @{name}",
+      "ENABLED_LABEL": "Enable approval notifications via Telegram",
+      "SAVE": "Save",
+      "SAVE_SUCCESS": "Approval Bot configuration saved successfully.",
+      "SAVE_ERROR": "Failed to save Approval Bot configuration. Please try again."
+    },
     "API": {
       "SUCCESS": "Captain settings updated successfully.",
       "ERROR": "Failed to update Captain settings. Please try again."
