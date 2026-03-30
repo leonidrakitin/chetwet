@@ -7,8 +7,6 @@ module SuperAdmin::FeaturesHelper
 
     yaml_features.each_with_object({}) do |(key, attrs), result|
       result[key] = attrs.dup
-      next if attrs[:enterprise]
-
       result[key][:toggleable] = true
       override_key = "#{OVERRIDE_PREFIX}#{key.upcase}"
       result[key][:enabled] = overrides[override_key] unless overrides[override_key].nil?
@@ -24,7 +22,6 @@ module SuperAdmin::FeaturesHelper
   def self.toggle_feature!(feature_key)
     features = available_features
     return false unless features[feature_key]
-    return false if features[feature_key][:enterprise]
 
     config_name = "#{OVERRIDE_PREFIX}#{feature_key.upcase}"
     config = InstallationConfig.find_or_initialize_by(name: config_name)
