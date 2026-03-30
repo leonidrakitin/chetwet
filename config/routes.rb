@@ -435,6 +435,8 @@ Rails.application.routes.draw do
           put :set_active_account
           post :resend_confirmation
           post :reset_access_token
+          post :telegram_link
+          delete :disconnect_telegram
         end
 
         # MFA routes

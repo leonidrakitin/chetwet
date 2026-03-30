@@ -55,6 +55,14 @@ const endPoints = {
   resetAccessToken: {
     url: '/api/v1/profile/reset_access_token',
   },
+
+  telegramLink: {
+    url: '/api/v1/profile/telegram_link',
+  },
+
+  disconnectTelegram: {
+    url: '/api/v1/profile/disconnect_telegram',
+  },
 };
 
 export default page => {

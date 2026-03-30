@@ -24,7 +24,8 @@ class ApprovalBot::Telegram::SenderService < ApprovalBot::BaseSenderService
   end
 
   def send_message(chat_id:, text:, reply_markup: nil)
-    post_message(chat_id: chat_id, text: text, reply_markup: reply_markup&.to_json)
+    markup = reply_markup.is_a?(String) ? reply_markup : reply_markup&.to_json
+    post_message(chat_id: chat_id, text: text, reply_markup: markup)
   end
 
   def edit_message(chat_id:, message_id:, text:, reply_markup: nil)

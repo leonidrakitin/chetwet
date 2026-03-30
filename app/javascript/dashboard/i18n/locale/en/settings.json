@@ -174,13 +174,18 @@
       },
       "TELEGRAM_CONNECT": {
         "TITLE": "Telegram Notifications",
-        "DESCRIPTION": "Enter your Telegram chat ID to receive notifications in Telegram. Message t.me/userinfobot on Telegram to get your chat ID.",
-        "LABEL": "Telegram Chat ID",
-        "PLACEHOLDER": "e.g. 123456789",
-        "HINT": "Send /start to t.me/userinfobot on Telegram to get your chat ID.",
-        "SAVE": "Save",
-        "UPDATE_SUCCESS": "Telegram Chat ID saved successfully",
-        "UPDATE_ERROR": "Failed to save Telegram Chat ID"
+        "DESCRIPTION": "Connect your Telegram account to receive notifications directly in Telegram.",
+        "DESCRIPTION_NEW": "Click the button below to connect your Telegram account. You will be redirected to our bot where you can share your phone number to verify.",
+        "CONNECT": "Connect Telegram",
+        "OPEN_TELEGRAM": "Open Telegram",
+        "LINK_HINT": "Click the button to open the bot in Telegram, then share your phone number to complete the connection.",
+        "WAITING": "Waiting for confirmation from Telegram...",
+        "CONNECTED": "Your Telegram account is connected. You will receive notifications here.",
+        "DISCONNECT": "Disconnect Telegram",
+        "DISCONNECTED": "Telegram disconnected successfully",
+        "DISCONNECT_ERROR": "Failed to disconnect Telegram",
+        "UPDATE_SUCCESS": "Telegram connected successfully!",
+        "LINK_ERROR": "Failed to generate Telegram link. Make sure the Approval Bot is configured."
       },
       "PUSH_NOTIFICATIONS_SECTION": {
         "TITLE": "Push Notifications",

@@ -43,6 +43,22 @@ class Api::V1::ProfilesController < Api::BaseController
     @user.reload
   end
 
+  def telegram_link
+    account = @user.accounts.find(params[:account_id])
+    config = account.approval_bot_configs.enabled.find_by(channel_type: 'telegram')
+    return render json: { error: 'Telegram bot not configured' }, status: :unprocessable_entity if config&.bot_name.blank?
+
+    token = SecureRandom.uuid
+    key = format(Redis::RedisKeys::APPROVAL_BOT_LINK_TOKEN, token: token)
+    Redis::Alfred.set(key, { user_id: @user.id, account_id: account.id }.to_json, ex: 1800) # 30 min
+    render json: { url: "https://t.me/#{config.bot_name}?start=#{token}" }
+  end
+
+  def disconnect_telegram
+    @user.update!(telegram_chat_id: nil)
+    head :ok
+  end
+
   private
 
   def set_user

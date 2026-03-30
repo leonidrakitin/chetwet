@@ -13,6 +13,10 @@ class ApprovalBot::Telegram::CallbackHandlerService
   def perform
     if callback_query?
       handle_callback_query
+    elsif contact_message?
+      handle_contact_share
+    elsif start_command?
+      handle_start_command
     elsif text_message?
       handle_text_reply
     end
@@ -168,8 +172,33 @@ class ApprovalBot::Telegram::CallbackHandlerService
     @sender ||= ApprovalBot::Telegram::SenderService.new(config: @config)
   end
 
+  def account_linker
+    @account_linker ||= ApprovalBot::Telegram::AccountLinkerService.new(config: @config, sender: sender)
+  end
+
+  def handle_start_command
+    chat_id = @payload.dig(:message, :chat, :id).to_s
+    token = @payload.dig(:message, :text).to_s.sub('/start ', '').strip
+    return if token.blank?
+
+    account_linker.handle_start(chat_id, token)
+  end
+
+  def handle_contact_share
+    chat_id = @payload.dig(:message, :chat, :id).to_s
+    account_linker.handle_contact(chat_id)
+  end
+
   def callback_query?
     @payload[:callback_query].present?
+  end
+
+  def contact_message?
+    @payload.dig(:message, :contact).present?
+  end
+
+  def start_command?
+    @payload.dig(:message, :text).to_s.start_with?('/start ')
   end
 
   def text_message?

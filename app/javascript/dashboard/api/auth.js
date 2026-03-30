@@ -106,4 +106,14 @@ export default {
     const urlData = endPoints('resetAccessToken');
     return axios.post(urlData.url);
   },
+
+  generateTelegramLink(accountId) {
+    const urlData = endPoints('telegramLink');
+    return axios.post(urlData.url, { account_id: accountId });
+  },
+
+  disconnectTelegram() {
+    const urlData = endPoints('disconnectTelegram');
+    return axios.delete(urlData.url);
+  },
 };

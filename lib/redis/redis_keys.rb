@@ -60,4 +60,6 @@ module Redis::RedisKeys
   ## Approval Bot
   # Tracks agents awaiting free-text input after tapping "Suggest your own"
   APPROVAL_BOT_AWAITING_TEXT = 'APPROVAL_BOT::%<account_id>d::AWAIT::%<chat_id>s'.freeze
+  # Temporary token linking a Telegram /start deep-link to a Chatwoot user
+  APPROVAL_BOT_LINK_TOKEN = 'APPROVAL_BOT::LINK::%<token>s'.freeze
 end
