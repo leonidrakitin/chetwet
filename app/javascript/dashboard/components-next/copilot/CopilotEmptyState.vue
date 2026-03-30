@@ -40,18 +40,89 @@ const routePromptMap = {
       prompt: 'CAPTAIN.COPILOT.PROMPTS.LIST_CONTACTS.CONTENT',
     },
   ],
+  notification: [
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.LIST_TEMPLATES.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.LIST_TEMPLATES.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.CREATE_TEMPLATE.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.CREATE_TEMPLATE.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.FIND_TEMPLATE.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.FIND_TEMPLATE.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.REVIEW_TEMPLATES.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.REVIEW_TEMPLATES.CONTENT',
+    },
+  ],
+  contacts: [
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.SEARCH_CONTACTS.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.SEARCH_CONTACTS.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.RECENT_CONTACTS.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.RECENT_CONTACTS.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.CONTACT_CONVERSATIONS.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.CONTACT_CONVERSATIONS.CONTENT',
+    },
+  ],
+  reports: [
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.OPEN_CONVERSATIONS.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.OPEN_CONVERSATIONS.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.AGENT_PERFORMANCE.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.AGENT_PERFORMANCE.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.UNRESOLVED_HIGH_PRIORITY.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.UNRESOLVED_HIGH_PRIORITY.CONTENT',
+    },
+  ],
+  settings: [
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.SEARCH_HELP.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.SEARCH_HELP.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.INBOX_OVERVIEW.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.INBOX_OVERVIEW.CONTENT',
+    },
+  ],
+  captain: [
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.LIST_ASSISTANTS.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.LIST_ASSISTANTS.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.SEARCH_KNOWLEDGE.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.SEARCH_KNOWLEDGE.CONTENT',
+    },
+  ],
 };
 
 const getCurrentRoute = () => {
   const path = route.path;
   if (path.includes('/conversations')) return 'conversations';
+  if (path.includes('/notification')) return 'notification';
+  if (path.includes('/contacts')) return 'contacts';
+  if (path.includes('/reports')) return 'reports';
+  if (path.includes('/captain')) return 'captain';
+  if (path.includes('/settings')) return 'settings';
   if (path.includes('/dashboard')) return 'dashboard';
   return 'dashboard';
 };
 
 const promptOptions = computed(() => {
   const currentRoute = getCurrentRoute();
-  return routePromptMap[currentRoute] || routePromptMap.conversations;
+  return routePromptMap[currentRoute] || routePromptMap.dashboard;
 });
 
 const handleSuggestion = opt => {

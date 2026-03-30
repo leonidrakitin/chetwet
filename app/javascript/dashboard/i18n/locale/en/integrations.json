@@ -490,6 +490,62 @@
         "LIST_CONTACTS": {
           "LABEL": "List contacts",
           "CONTENT": "Show me the list of top 10 contacts. Include name, email or phone number (if available), last seen time, tags (if any)."
+        },
+        "LIST_TEMPLATES": {
+          "LABEL": "List all notification templates",
+          "CONTENT": "Show me all notification templates with their type, enabled status, and description."
+        },
+        "CREATE_TEMPLATE": {
+          "LABEL": "Help me create a template",
+          "CONTENT": "Help me create a new notification template. Ask me about the name, type (event, time, interval, lost_clients, or client_consent), and message text."
+        },
+        "FIND_TEMPLATE": {
+          "LABEL": "Find a specific template",
+          "CONTENT": "Find a notification template by its name or ID and show me its full details including messages and settings."
+        },
+        "REVIEW_TEMPLATES": {
+          "LABEL": "Review disabled templates",
+          "CONTENT": "List all disabled notification templates and suggest which ones could be re-enabled or cleaned up."
+        },
+        "SEARCH_CONTACTS": {
+          "LABEL": "Search for a contact",
+          "CONTENT": "Search for a contact by name, email, or phone number and show me their details and recent conversations."
+        },
+        "RECENT_CONTACTS": {
+          "LABEL": "Show recent contacts",
+          "CONTENT": "Show me the 10 most recently active contacts with their name, email, last seen time, and any tags."
+        },
+        "CONTACT_CONVERSATIONS": {
+          "LABEL": "Contact conversation history",
+          "CONTENT": "Find a contact and summarize their recent conversation history, including resolution status and satisfaction."
+        },
+        "OPEN_CONVERSATIONS": {
+          "LABEL": "Open conversations overview",
+          "CONTENT": "Give me a summary of all open conversations grouped by status and priority. Include total counts and any that are overdue."
+        },
+        "AGENT_PERFORMANCE": {
+          "LABEL": "Agent performance summary",
+          "CONTENT": "Summarize agent workload: how many open conversations each agent has and any unassigned conversations."
+        },
+        "UNRESOLVED_HIGH_PRIORITY": {
+          "LABEL": "Unresolved high-priority issues",
+          "CONTENT": "List all unresolved high-priority conversations with customer name, last message, and how long they have been open."
+        },
+        "SEARCH_HELP": {
+          "LABEL": "Search help documentation",
+          "CONTENT": "Search the documentation to help me understand how to configure a specific setting or feature."
+        },
+        "INBOX_OVERVIEW": {
+          "LABEL": "Overview of inboxes",
+          "CONTENT": "Give me an overview of the configured inboxes, their types, and any associated notification templates."
+        },
+        "LIST_ASSISTANTS": {
+          "LABEL": "Show assistants overview",
+          "CONTENT": "List all Captain assistants with their configuration, connected inboxes, and knowledge sources."
+        },
+        "SEARCH_KNOWLEDGE": {
+          "LABEL": "Search knowledge base",
+          "CONTENT": "Search the knowledge base articles for information on a specific topic."
         }
       }
     },
