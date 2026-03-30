@@ -14,9 +14,7 @@ const isGenerating = ref(false);
 const isDisconnecting = ref(false);
 
 const currentUser = computed(() => store.getters.getCurrentUser);
-const currentAccountId = computed(
-  () => store.getters['auth/getCurrentAccountId']
-);
+const currentAccountId = computed(() => store.getters.getCurrentAccountId);
 const isConnected = computed(() => !!currentUser.value?.telegram_chat_id);
 
 async function generateLink() {
