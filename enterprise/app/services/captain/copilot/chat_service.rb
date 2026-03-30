@@ -61,18 +61,31 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
   end
 
   def build_tools
-    tools = []
-
-    tools << Captain::Tools::SearchDocumentationService.new(@assistant, user: @user)
-    tools << Captain::Tools::Copilot::GetConversationService.new(@assistant, user: @user)
-    tools << Captain::Tools::Copilot::SearchConversationsService.new(@assistant, user: @user)
-    tools << Captain::Tools::Copilot::GetContactService.new(@assistant, user: @user)
-    tools << Captain::Tools::Copilot::GetArticleService.new(@assistant, user: @user)
-    tools << Captain::Tools::Copilot::SearchArticlesService.new(@assistant, user: @user)
-    tools << Captain::Tools::Copilot::SearchContactsService.new(@assistant, user: @user)
-    tools << Captain::Tools::Copilot::SearchLinearIssuesService.new(@assistant, user: @user)
-
+    tools = core_copilot_tools + notification_template_tools
     tools.select(&:active?)
+  end
+
+  def core_copilot_tools
+    [
+      Captain::Tools::SearchDocumentationService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::GetConversationService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::SearchConversationsService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::GetContactService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::GetArticleService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::SearchArticlesService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::SearchContactsService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::SearchLinearIssuesService.new(@assistant, user: @user)
+    ]
+  end
+
+  def notification_template_tools
+    [
+      Captain::Tools::Copilot::ListNotificationTemplatesService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::GetNotificationTemplateService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::CreateNotificationTemplateService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::UpdateNotificationTemplateService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::DeleteNotificationTemplateService.new(@assistant, user: @user)
+    ]
   end
 
   def system_message
