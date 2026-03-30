@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_27_120001) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_29_232202) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -172,6 +172,19 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_120001) do
     t.index ["account_id"], name: "index_applied_slas_on_account_id"
     t.index ["conversation_id"], name: "index_applied_slas_on_conversation_id"
     t.index ["sla_policy_id"], name: "index_applied_slas_on_sla_policy_id"
+  end
+
+  create_table "approval_bot_configs", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "channel_type", null: false
+    t.text "bot_token"
+    t.string "bot_name"
+    t.boolean "enabled", default: false, null: false
+    t.jsonb "settings", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "channel_type"], name: "index_approval_bot_configs_on_account_id_and_channel_type", unique: true
+    t.index ["account_id"], name: "index_approval_bot_configs_on_account_id"
   end
 
   create_table "article_embeddings", force: :cascade do |t|
@@ -341,6 +354,32 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_120001) do
     t.datetime "updated_at", precision: nil, null: false
   end
 
+  create_table "captain_approval_requests", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "conversation_id", null: false
+    t.bigint "assistant_id"
+    t.string "title", null: false
+    t.text "context"
+    t.jsonb "options", default: [], null: false
+    t.integer "selected_option_index"
+    t.text "custom_response"
+    t.integer "status", default: 0, null: false
+    t.string "assignee_type"
+    t.bigint "assignee_id"
+    t.bigint "resolved_by_id"
+    t.string "messenger_type"
+    t.string "messenger_message_id"
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_captain_approval_requests_on_account_id"
+    t.index ["assignee_type", "assignee_id", "status"], name: "idx_on_assignee_type_assignee_id_status_eee2bf9c60"
+    t.index ["assistant_id"], name: "index_captain_approval_requests_on_assistant_id"
+    t.index ["conversation_id", "status"], name: "index_captain_approval_requests_on_conversation_id_and_status"
+    t.index ["conversation_id"], name: "index_captain_approval_requests_on_conversation_id"
+    t.index ["resolved_by_id"], name: "index_captain_approval_requests_on_resolved_by_id"
+  end
+
   create_table "captain_assistant_responses", force: :cascade do |t|
     t.string "question", null: false
     t.text "answer", null: false
@@ -352,6 +391,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_120001) do
     t.datetime "updated_at", null: false
     t.integer "status", default: 1, null: false
     t.string "documentable_type"
+    t.boolean "requires_clarification", default: false, null: false
     t.index ["account_id"], name: "index_captain_assistant_responses_on_account_id"
     t.index ["assistant_id"], name: "index_captain_assistant_responses_on_assistant_id"
     t.index ["documentable_id", "documentable_type"], name: "idx_cap_asst_resp_on_documentable"
@@ -1535,10 +1575,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_120001) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_activity_logs", "accounts"
   add_foreign_key "agent_activity_logs", "users"
+  add_foreign_key "approval_bot_configs", "accounts"
   add_foreign_key "bulk_migrations", "accounts"
   add_foreign_key "bulk_migrations", "captain_assistants"
   add_foreign_key "bulk_migrations", "inboxes"
   add_foreign_key "bulk_migrations", "telegram_sessions"
+  add_foreign_key "captain_approval_requests", "accounts"
+  add_foreign_key "captain_approval_requests", "captain_assistants", column: "assistant_id"
+  add_foreign_key "captain_approval_requests", "conversations"
+  add_foreign_key "captain_approval_requests", "users", column: "resolved_by_id"
   add_foreign_key "channel_avito", "accounts"
   add_foreign_key "channel_max", "accounts"
   add_foreign_key "channel_telegram_personal", "accounts"

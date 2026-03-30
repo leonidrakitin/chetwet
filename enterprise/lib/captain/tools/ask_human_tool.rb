@@ -1,0 +1,82 @@
+# frozen_string_literal: true
+
+class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
+  description 'Request operator/human approval or clarification via messenger (Telegram/VK/Max). ' \
+              'Use when you are unsure about the answer or need to confirm an action with a human.'
+  param :title, type: 'string', desc: 'The question or request for the operator', required: true
+  param :target, type: 'string',
+                 desc: 'Who to ask: "@team:team_slug" for a team, or "@member:user_id" for a specific agent',
+                 required: true
+  param :options, type: 'array',
+                  desc: 'Array of response options for the operator (last should be a free-text option). Each is a string label.',
+                  required: false
+  param :action_type, type: 'string',
+                      desc: 'What to do with the selected option: "reply_to_customer", "resume_captain", or "external_api_call"',
+                      required: false
+
+  def perform(tool_context, title:, target:, options: nil, action_type: nil)
+    conversation = find_conversation(tool_context.state)
+    return 'Conversation not found' unless conversation
+
+    assignee_type, assignee_id = parse_target(target)
+    return "Invalid target format: #{target}. Use @team:slug or @member:id" unless assignee_id
+
+    log_tool_usage('ask_human', { conversation_id: conversation.id, target: target })
+    send_clarifying_message(conversation)
+
+    action = action_type.presence || 'reply_to_customer'
+    request = Captain::ApprovalRequest.create!(
+      account_id: @assistant.account_id, conversation: conversation, assistant: @assistant,
+      title: title, context: generate_context(conversation), options: build_options(options, action),
+      assignee_type: assignee_type, assignee_id: assignee_id, expires_at: 30.minutes.from_now
+    )
+    ApprovalBot::NotifyJob.perform_later(request)
+
+    "Approval request ##{request.id} sent to #{target}. Waiting for human response. " \
+      'Do NOT send any message to the customer until the operator responds.'
+  end
+
+  private
+
+  def parse_target(target)
+    case target
+    when /\A@team:(.+)\z/
+      team = account_scoped(::Team).find_by(slug: ::Regexp.last_match(1)) || account_scoped(::Team).find_by(name: ::Regexp.last_match(1))
+      team ? ['team', team.id] : [nil, nil]
+    when /\A@member:(\d+)\z/
+      user_id = ::Regexp.last_match(1).to_i
+      user = ::User.joins(:account_users).where(account_users: { account_id: @assistant.account_id }).find_by(id: user_id)
+      user ? ['user', user.id] : [nil, nil]
+    else
+      [nil, nil]
+    end
+  end
+
+  def build_options(labels, action_type)
+    result = (labels || []).map do |label|
+      { label: label, action_type: action_type, action_payload: {} }
+    end
+    result << { label: I18n.t('approval_bot.suggest_your_own'), action_type: 'free_text' }
+    result
+  end
+
+  def generate_context(conversation)
+    messages = conversation.messages.order(:created_at).to_a
+    summarizer = Captain::ConversationSummarizerService.new(conversation: conversation, message_history: messages)
+    summary_result = summarizer.call
+    summary_result&.dig(:summary) || messages.last(5).filter_map(&:content).join("\n").truncate(300)
+  rescue StandardError => e
+    Rails.logger.warn("[AskHumanTool] Failed to summarize conversation #{conversation.id}: #{e.message}")
+    conversation.messages.last(3).filter_map(&:content).join("\n").truncate(200)
+  end
+
+  def send_clarifying_message(conversation)
+    conversation.messages.create!(
+      message_type: :outgoing,
+      account_id: @assistant.account_id,
+      inbox_id: conversation.inbox_id,
+      sender: @assistant,
+      content: I18n.t('captain.clarifying_with_operator')
+    )
+  end
+end

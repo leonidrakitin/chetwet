@@ -290,6 +290,7 @@ onMounted(() => {
           :assistant="response.assistant"
           :documentable="response.documentable"
           :status="response.status"
+          :requires-clarification="response.requires_clarification"
           :created-at="response.created_at"
           :updated-at="response.updated_at"
           :is-selected="bulkSelectedIds.has(response.id)"

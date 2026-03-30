@@ -31,6 +31,7 @@ const formState = {
 const initialState = {
   question: '',
   answer: '',
+  requires_clarification: false,
 };
 
 const state = reactive({ ...initialState });
@@ -60,6 +61,7 @@ const handleCancel = () => emit('cancel');
 const prepareDocumentDetails = () => ({
   question: state.question,
   answer: state.answer,
+  requires_clarification: state.requires_clarification,
 });
 
 const handleSubmit = async () => {
@@ -74,11 +76,12 @@ const handleSubmit = async () => {
 const updateStateFromResponse = response => {
   if (!response) return;
 
-  const { question, answer } = response;
+  const { question, answer, requires_clarification } = response;
 
   Object.assign(state, {
     question,
     answer,
+    requires_clarification: requires_clarification || false,
   });
 };
 
@@ -110,6 +113,14 @@ watch(
       :max-length="10000"
       :message-type="formErrors.answer ? 'error' : 'info'"
     />
+    <label class="flex items-center gap-2 text-sm text-n-slate-11">
+      <input
+        v-model="state.requires_clarification"
+        type="checkbox"
+        class="rounded border-n-weak"
+      />
+      {{ t('CAPTAIN.RESPONSES.FORM.REQUIRES_CLARIFICATION') }}
+    </label>
     <div class="flex items-center justify-between w-full gap-3">
       <Button
         type="button"

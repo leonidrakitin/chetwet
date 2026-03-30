@@ -946,6 +946,14 @@
           "TITLE": "Yclients: Update Visit Status",
           "DESCRIPTION": "Update attendance status of a Yclients appointment"
         },
+        "ask_human": {
+          "TITLE": "Ask Human",
+          "DESCRIPTION": "Request operator approval or clarification via messenger"
+        },
+        "notify_staff": {
+          "TITLE": "Notify Staff",
+          "DESCRIPTION": "Notify a staff member via messenger with optional response"
+        },
         "vk_market_get_products": {
           "TITLE": "VK Market: Products",
           "DESCRIPTION": "Get list of products from VK community market"
@@ -1077,6 +1085,7 @@
       "PENDING_FAQS": "Pending FAQs",
       "ADD_NEW": "Create new FAQ",
       "QUESTION_BADGE": "Q",
+      "REQUIRES_CLARIFICATION_BADGE": "Clarify",
       "ANSWER_BADGE": "A",
       "DOCUMENTABLE": {
         "CONVERSATION": "Conversation #{id}"
@@ -1136,7 +1145,8 @@
           "LABEL": "Answer",
           "PLACEHOLDER": "Enter the answer here",
           "ERROR": "Please provide a valid answer."
-        }
+        },
+        "REQUIRES_CLARIFICATION": "Require operator clarification before replying"
       },
       "EDIT": {
         "TITLE": "Update the FAQ",

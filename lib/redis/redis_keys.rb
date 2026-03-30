@@ -56,4 +56,8 @@ module Redis::RedisKeys
   ## Bot Message Buffer
   BOT_BUFFER_TOKEN = 'BOT_BUFFER::%<conversation_id>d::%<bot_type>s::%<bot_id>d::TOKEN'.freeze
   BOT_BUFFER_START_ID = 'BOT_BUFFER::%<conversation_id>d::%<bot_type>s::%<bot_id>d::START_ID'.freeze
+
+  ## Approval Bot
+  # Tracks agents awaiting free-text input after tapping "Suggest your own"
+  APPROVAL_BOT_AWAITING_TEXT = 'APPROVAL_BOT::%<account_id>d::AWAIT::%<chat_id>s'.freeze
 end

@@ -82,7 +82,8 @@ class Api::V1::Accounts::Captain::AssistantResponsesController < Api::V1::Accoun
       :question,
       :answer,
       :assistant_id,
-      :status
+      :status,
+      :requires_clarification
     )
   end
 end

@@ -41,6 +41,9 @@ class Captain::Tools::SearchReplyDocumentationService < RubyLLM::Tool
   def format_response(response)
     result = "\nQuestion: #{response.question}\nAnswer: #{response.answer}\n"
     result += "Source: #{response.documentable.external_link}\n" if response.documentable.present? && response.documentable.try(:external_link)
+    if response.requires_clarification?
+      result += "[REQUIRES_OPERATOR_CLARIFICATION: Before answering with this content, call ask_human tool to get operator approval first]\n"
+    end
     result
   end
 end

@@ -102,6 +102,18 @@
   description: 'Update attendance status of a YClients appointment'
   icon: 'checkmark-circle'
 
+- id: ask_human
+  category: core
+  title: 'Ask Human'
+  description: 'Request operator approval or clarification via messenger'
+  icon: 'people'
+
+- id: notify_staff
+  category: core
+  title: 'Notify Staff'
+  description: 'Notify a staff member via messenger with optional response'
+  icon: 'send'
+
 - id: vk_market_get_products
   category: vk_market
   title: 'VK Market: Products'

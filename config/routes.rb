@@ -81,6 +81,7 @@ Rails.application.routes.draw do
               resources :copilot_messages, only: [:index, :create]
             end
             resources :custom_tools
+            resources :approval_requests, only: [:index, :show, :update]
             resources :bulk_migrations, only: [:index, :create, :show]
             resources :documents, only: [:index, :show, :create, :destroy]
             resource :tasks, only: [], controller: 'tasks' do
@@ -337,6 +338,7 @@ Rails.application.routes.draw do
             resource :authorization, only: [:create]
           end
 
+          resources :approval_bot_configs, only: [:index, :create, :update, :destroy], param: :channel_type
           resources :webhooks, only: [:index, :create, :update, :destroy]
           namespace :integrations do
             resources :apps, only: [:index, :show]
@@ -632,6 +634,9 @@ Rails.application.routes.draw do
   post 'webhooks/max/:account_id/:inbox_id', to: 'webhooks/max#process_payload'
   post 'webhooks/yclients', to: 'webhooks/yclients#process_payload'
   post 'webhooks/yclients/marketplace', to: 'webhooks/yclients_marketplace#receive'
+  post 'webhooks/approval_bot/telegram/:bot_token', to: 'webhooks/approval_bot#telegram'
+  post 'webhooks/approval_bot/vk/:bot_token', to: 'webhooks/approval_bot#vk'
+  post 'webhooks/approval_bot/max/:bot_token', to: 'webhooks/approval_bot#max'
 
   namespace :twitter do
     resource :callback, only: [:show]

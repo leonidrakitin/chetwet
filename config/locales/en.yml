@@ -427,8 +427,26 @@ en:
       processing_pages: 'Processing pages %{start}-%{end} (iteration %{iteration})'
       chunk_generated: 'Chunk generated %{chunk_faqs} FAQs. Total so far: %{total_faqs}'
       page_processing_error: 'Error processing pages %{start}-%{end}: %{error}'
+    clarifying_with_operator: 'Let me check with our team — I'll get back to you shortly.'
     custom_tool:
       slug_generation_failed: 'Unable to generate unique slug after 5 attempts'
+  approval_bot:
+    suggest_your_own: 'Suggest your own'
+    faq_clarification_title: 'Clarify before replying: %{question}'
+    customer_replied: 'Customer replied'
+    view_summary: 'View Summary'
+    take_over: 'Take Over'
+    conversation_ref: 'Conversation #%{id}'
+    already_resolved: 'Already handled by %{name}'
+    request_expired: 'This request has expired'
+    write_your_response: 'Please write your response:'
+    free_text_received: 'Response received, processing...'
+    not_found: 'Request not found'
+    type_your_response: 'Please type your response:'
+    already_handled: 'Already handled by %{name}'
+    sent: 'Your response has been sent'
+    summary_unavailable: 'Summary is not available at this time'
+    taken_over: 'You have taken over this conversation'
   public_portal:
     search:
       search_placeholder: Search for article by title or body...

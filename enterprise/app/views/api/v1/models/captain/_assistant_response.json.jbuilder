@@ -27,5 +27,6 @@ end
 
 json.id resource.id
 json.question resource.question
+json.requires_clarification resource.requires_clarification
 json.updated_at resource.updated_at.to_i
 json.status resource.status

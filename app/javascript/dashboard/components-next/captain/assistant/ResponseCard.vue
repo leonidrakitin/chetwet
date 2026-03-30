@@ -64,6 +64,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  requiresClarification: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['action', 'navigate', 'select', 'hover']);
@@ -145,6 +149,13 @@ const handleDocumentableClick = () => {
           </span>
           <span class="text-sm font-medium text-n-slate-12 line-clamp-2">
             {{ question }}
+          </span>
+          <span
+            v-if="requiresClarification"
+            class="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-n-amber-11 bg-n-amber-3 rounded px-1.5 py-0.5 mt-0.5 leading-4"
+            :title="$t('CAPTAIN.RESPONSES.REQUIRES_CLARIFICATION_BADGE')"
+          >
+            {{ $t('CAPTAIN.RESPONSES.REQUIRES_CLARIFICATION_BADGE') }}
           </span>
         </div>
         <div

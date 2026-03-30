@@ -67,6 +67,9 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
   def process_response
     return unless conversation_pending?
+    # If ask_human tool (or FAQ requires_clarification) created an ApprovalRequest,
+    # the operator will respond via Telegram — skip sending a message now.
+    return if pending_approval_request_exists?
 
     if handoff_requested?
       process_action('handoff')
@@ -161,6 +164,10 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
   def log_error(error)
     ChatwootExceptionTracker.new(error, account: account).capture_exception
+  end
+
+  def pending_approval_request_exists?
+    Captain::ApprovalRequest.where(conversation_id: @conversation.id, status: :pending).exists?
   end
 
   def captain_v2_enabled?
