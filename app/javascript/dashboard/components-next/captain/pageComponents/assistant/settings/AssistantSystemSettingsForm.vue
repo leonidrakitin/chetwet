@@ -102,7 +102,7 @@ watch(
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 gap-6">
       <Editor
         v-model="state.handoffMessage"
         :label="t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_MESSAGE.LABEL')"

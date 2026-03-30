@@ -146,7 +146,7 @@ defineExpose({ open, close });
       <OnClickOutside @trigger="handleClickOutside">
         <form
           ref="dialogContentRef"
-          class="flex flex-col w-full gap-6 p-6 overflow-hidden text-start align-middle transition-all duration-300 ease-in-out transform bg-n-alpha-3 backdrop-blur-[100px] shadow-xl rounded-xl min-h-0"
+          class="flex flex-col w-full gap-6 p-6 overflow-visible text-start align-middle transition-all duration-300 ease-in-out transform bg-n-alpha-3 backdrop-blur-[100px] shadow-xl rounded-xl min-h-0"
           :class="maxHeight ? 'flex-1 min-h-0' : 'h-auto'"
           @submit.prevent="confirm"
           @click.stop
