@@ -325,11 +325,6 @@ Rails.application.routes.draw do
             resource :authorization, only: [:create]
           end
 
-          namespace :vk do
-            resource :authorization, only: [:create]
-            resources :groups, only: [:index]
-          end
-
           namespace :notion do
             resource :authorization, only: [:create]
           end
@@ -667,7 +662,6 @@ Rails.application.routes.draw do
   get 'google/callback', to: 'google/callbacks#show'
   get 'instagram/callback', to: 'instagram/callbacks#show'
   get 'tiktok/callback', to: 'tiktok/callbacks#show'
-  get 'vk/callback', to: 'vk/callbacks#show'
   get 'notion/callback', to: 'notion/callbacks#show'
   # ----------------------------------------------------------------------
   # Routes for external service verifications
