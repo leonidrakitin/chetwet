@@ -13,7 +13,6 @@ import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SectionLayout from '../account/components/SectionLayout.vue';
 import ModelSelector from './components/ModelSelector.vue';
 import CaptainPaywall from 'next/captain/pageComponents/Paywall.vue';
-import ApprovalBotConfig from './components/ApprovalBotConfig.vue';
 
 const { t } = useI18n();
 const { captainEnabled } = useCaptain();
@@ -173,14 +172,6 @@ onMounted(() => {
               </span>
             </div>
           </div>
-        </SectionLayout>
-        <!-- Approval Bot -->
-        <SectionLayout
-          :title="t('CAPTAIN_SETTINGS.APPROVAL_BOT.TITLE')"
-          :description="t('CAPTAIN_SETTINGS.APPROVAL_BOT.DESCRIPTION')"
-          with-border
-        >
-          <ApprovalBotConfig />
         </SectionLayout>
       </div>
       <div v-else>

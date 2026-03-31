@@ -525,6 +525,21 @@
   type: secret
 # ------- End of Telegram Personal Channel Related Config ------- #
 
+# ------- Approval Bot (Telegram) Config ------- #
+- name: APPROVAL_BOT_TELEGRAM_TOKEN
+  display_title: 'Approval Bot Telegram Token'
+  description: 'Bot token for the Telegram approval bot that delivers operator approval requests from Captain'
+  value:
+  locked: false
+  type: secret
+- name: APPROVAL_BOT_TELEGRAM_ENABLED
+  display_title: 'Enable Approval Bot (Telegram)'
+  value: false
+  description: 'Enable the Telegram approval bot for delivering operator approval requests'
+  locked: false
+  type: boolean
+# ------- End of Approval Bot (Telegram) Config ------- #
+
 # ------- Migration Related Config ------- #
 - name: TELEGRAM_MIGRATION_MAX_CONCURRENCY
   display_title: 'Max Concurrent Telegram Migrations'

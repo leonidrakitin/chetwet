@@ -31,6 +31,7 @@ class InstallationConfig < ApplicationRecord
   scope :editable, -> { where(locked: false) }
 
   after_commit :clear_cache
+  after_commit :sync_approval_bot_telegram, if: -> { name.in?(%w[APPROVAL_BOT_TELEGRAM_TOKEN APPROVAL_BOT_TELEGRAM_ENABLED]) }
 
   def value
     # This is an extra hack again cause of the YAML serialization, in case of new object initialization in super admin
@@ -54,6 +55,22 @@ class InstallationConfig < ApplicationRecord
 
   def clear_cache
     GlobalConfig.clear_cache
+  end
+
+  def sync_approval_bot_telegram
+    values = GlobalConfig.get('APPROVAL_BOT_TELEGRAM_TOKEN', 'APPROVAL_BOT_TELEGRAM_ENABLED')
+    token = values['APPROVAL_BOT_TELEGRAM_TOKEN']
+    enabled = values['APPROVAL_BOT_TELEGRAM_ENABLED'] == true
+
+    Account.find_each do |account|
+      config = account.approval_bot_configs.find_or_initialize_by(channel_type: 'telegram')
+      config.update!(bot_token: token.presence || config.bot_token, enabled: token.present? && enabled)
+    end
+
+    config = ApprovalBotConfig.enabled.find_by(channel_type: 'telegram')
+    ApprovalBot::Telegram::WebhookRegistrationService.new(config: config).perform if config
+  rescue StandardError => e
+    Rails.logger.error("[InstallationConfig] Approval bot sync failed: #{e.message}")
   end
 
   def saml_sso_users_check
