@@ -441,7 +441,7 @@ onMounted(() => {
     :show-know-more="false"
   >
     <template #body>
-      <div class="flex flex-col gap-4 pb-8">
+      <div class="flex flex-col gap-4 pb-8 max-w-2xl ltr:mr-auto rtl:ml-auto">
         <!-- ── Basic Settings ─────────────────────────────────── -->
         <div class="rounded-xl border border-n-weak bg-n-solid-1">
           <div
