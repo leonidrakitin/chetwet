@@ -451,21 +451,21 @@
         "STEPS": {
           "TITLE": "How to create a Telegram bot and get a token",
           "STEP_1": "Open Telegram on any device.",
-          "STEP_2": "Search for <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">@BotFather</a> and start a conversation (tap <strong>Start</strong>).",
+          "STEP_2": "Search for <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">{'@'}BotFather</a> and start a conversation (tap <strong>Start</strong>).",
           "STEP_3": "Send the command <strong>/newbot</strong>.",
           "STEP_4": "Follow the prompts: choose a bot name and username (the username must end with <code>bot</code>).",
-          "STEP_5": "Copy the token that @BotFather sends you and paste it below."
+          "STEP_5": "Copy the token that {'@'}BotFather sends you and paste it below."
         },
         "STEPS_HAS_BOT": {
           "TITLE": "How to find your existing bot token",
-          "STEP_1": "Open Telegram and start a conversation with <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">@BotFather</a>.",
+          "STEP_1": "Open Telegram and start a conversation with <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">{'@'}BotFather</a>.",
           "STEP_2": "Send <strong>/mybots</strong> and choose your bot from the list.",
           "STEP_3": "Tap <strong>API Token</strong> — copy it and paste below."
         },
         "DIRECT_LINK": "Direct link: <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">t.me/BotFather</a>",
         "BOT_TOKEN": {
           "LABEL": "Bot Token",
-          "SUBTITLE": "Paste the token you received from @BotFather after creating the bot.",
+          "SUBTITLE": "Paste the token you received from {'@'}BotFather after creating the bot.",
           "PLACEHOLDER": "Paste your bot token here"
         },
         "SUBMIT_BUTTON": "Create Telegram Channel",
@@ -561,19 +561,19 @@
         "STEPS": {
           "TITLE": "How to create a MAX bot and get a token",
           "STEP_1": "Open <a href=\"https://max.ru\" target=\"_blank\" rel=\"noopener noreferrer\">MAX Messenger</a> on any device.",
-          "STEP_2": "Find <strong>@MasterBot</strong> and start a conversation with it.",
+          "STEP_2": "Find <strong>{'@'}MasterBot</strong> and start a conversation with it.",
           "STEP_3": "Send <strong>/newbot</strong>, follow the prompts to set a name and username for your bot.",
-          "STEP_4": "Copy the token that @MasterBot sends you and paste it below."
+          "STEP_4": "Copy the token that {'@'}MasterBot sends you and paste it below."
         },
         "STEPS_HAS_BOT": {
           "TITLE": "How to find your existing bot token",
-          "STEP_1": "Open MAX Messenger and start a conversation with <strong>@MasterBot</strong>.",
+          "STEP_1": "Open MAX Messenger and start a conversation with <strong>{'@'}MasterBot</strong>.",
           "STEP_2": "Send <strong>/mybots</strong> and choose your bot from the list.",
           "STEP_3": "Copy the token shown and paste it below."
         },
         "BOT_TOKEN": {
           "LABEL": "Bot Token",
-          "SUBTITLE": "The token is provided by @MasterBot after creating a new bot.",
+          "SUBTITLE": "The token is provided by {'@'}MasterBot after creating a new bot.",
           "PLACEHOLDER": "Paste your bot token here"
         },
         "SUBMIT_BUTTON": "Connect MAX Bot",
