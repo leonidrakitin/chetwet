@@ -20,15 +20,17 @@ const hasBot = ref(null);
 const rules = { botToken: { required } };
 const v$ = useVuelidate(rules, { botToken });
 
+const atParams = { atSign: '@' };
+
 const allSteps = computed(() => [
   t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_1'),
-  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_2'),
+  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_2', atParams),
   t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_3'),
-  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_4'),
+  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS.STEP_4', atParams),
 ]);
 
 const hasBotSteps = computed(() => [
-  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS_HAS_BOT.STEP_1'),
+  t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS_HAS_BOT.STEP_1', atParams),
   t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS_HAS_BOT.STEP_2'),
   t('INBOX_MGMT.ADD.MAX_CHANNEL.STEPS_HAS_BOT.STEP_3'),
 ]);
@@ -144,7 +146,11 @@ const createChannel = async () => {
             />
           </label>
           <p class="help-text">
-            {{ $t('INBOX_MGMT.ADD.MAX_CHANNEL.BOT_TOKEN.SUBTITLE') }}
+            {{
+              $t('INBOX_MGMT.ADD.MAX_CHANNEL.BOT_TOKEN.SUBTITLE', {
+                atSign: '@',
+              })
+            }}
           </p>
         </div>
 
