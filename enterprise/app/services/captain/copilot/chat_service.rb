@@ -84,7 +84,8 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
       Captain::Tools::Copilot::GetNotificationTemplateService.new(@assistant, user: @user),
       Captain::Tools::Copilot::CreateNotificationTemplateService.new(@assistant, user: @user),
       Captain::Tools::Copilot::UpdateNotificationTemplateService.new(@assistant, user: @user),
-      Captain::Tools::Copilot::DeleteNotificationTemplateService.new(@assistant, user: @user)
+      Captain::Tools::Copilot::DeleteNotificationTemplateService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::CreateSegmentService.new(@assistant, user: @user)
     ]
   end
 

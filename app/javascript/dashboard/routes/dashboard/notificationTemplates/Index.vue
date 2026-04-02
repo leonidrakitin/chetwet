@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Draggable from 'vuedraggable';
-import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -22,25 +21,21 @@ const route = useRoute();
 const router = useRouter();
 const store = useStore();
 
-const tabs = computed(() => [
-  { label: t('NOTIFICATION_TEMPLATES.TABS.ALL'), key: 'all' },
-  { label: t('NOTIFICATION_TEMPLATES.TABS.EVENT'), key: 'event' },
-  { label: t('NOTIFICATION_TEMPLATES.TABS.TIME'), key: 'time' },
-  { label: t('NOTIFICATION_TEMPLATES.TABS.INTERVAL'), key: 'interval' },
-  { label: t('NOTIFICATION_TEMPLATES.TABS.CASCADE'), key: 'cascade' },
-  { label: t('NOTIFICATION_TEMPLATES.TABS.STATISTICS'), key: 'statistics' },
-]);
-
-const activeTabIndex = ref(0);
-const activeTab = computed(() => tabs.value[activeTabIndex.value]);
-
-const onTabChanged = tab => {
-  const index = tabs.value.findIndex(item => item.key === tab.key);
-  if (index !== -1) activeTabIndex.value = index;
-  if (tab.key === 'statistics') {
-    store.dispatch('notificationTemplates/fetchStatistics');
-  }
+const ROUTE_TYPE_MAP = {
+  notification_templates_event: 'event',
+  notification_templates_time: 'time',
+  notification_templates_interval: 'interval',
+  notification_templates_one_time: 'one_time',
+  notification_templates_delivery: 'cascade',
+  notification_templates_statistics: 'statistics',
 };
+
+const activeType = computed(() => ROUTE_TYPE_MAP[route.name] || 'all');
+const isStatisticsTab = computed(() => activeType.value === 'statistics');
+const isCascadeTab = computed(() => activeType.value === 'cascade');
+const isTemplateList = computed(
+  () => !isStatisticsTab.value && !isCascadeTab.value
+);
 
 const uiFlags = computed(
   () => store.getters['notificationTemplates/getUIFlags']
@@ -68,11 +63,11 @@ const viewModes = computed(() => [
 ]);
 
 const filteredTemplates = computed(() => {
-  const key = activeTab.value.key;
+  const type = activeType.value;
   let templates =
-    key === 'all' || key === 'statistics'
+    type === 'all'
       ? allTemplates.value
-      : store.getters['notificationTemplates/getTemplatesByType'](key);
+      : store.getters['notificationTemplates/getTemplatesByType'](type);
 
   const q = searchQuery.value.trim().toLowerCase();
   if (q) {
@@ -84,9 +79,6 @@ const filteredTemplates = computed(() => {
   }
   return templates;
 });
-
-const isStatisticsTab = computed(() => activeTab.value.key === 'statistics');
-const isCascadeTab = computed(() => activeTab.value.key === 'cascade');
 
 const deleteDialogRef = ref(null);
 const previewDialogRef = ref(null);
@@ -157,6 +149,15 @@ const orderedTemplates = computed({
   },
 });
 
+watch(
+  () => activeType.value,
+  type => {
+    if (type === 'statistics') {
+      store.dispatch('notificationTemplates/fetchStatistics');
+    }
+  }
+);
+
 onMounted(() => {
   store.dispatch('notificationTemplates/get');
   if (!inboxes.value.length) {
@@ -164,6 +165,9 @@ onMounted(() => {
   }
   if (!accountLabels.value.length) {
     store.dispatch('labels/get');
+  }
+  if (activeType.value === 'statistics') {
+    store.dispatch('notificationTemplates/fetchStatistics');
   }
 });
 </script>
@@ -181,7 +185,10 @@ onMounted(() => {
           <h1 class="text-lg font-semibold text-n-slate-12 truncate">
             {{ t('NOTIFICATION_TEMPLATES.HEADER') }}
           </h1>
-          <span class="text-sm font-normal text-n-slate-9">
+          <span
+            v-if="isTemplateList"
+            class="text-sm font-normal text-n-slate-9"
+          >
             {{ filteredTemplates.length }}
           </span>
         </div>
@@ -191,7 +198,7 @@ onMounted(() => {
       </div>
 
       <!-- Controls row -->
-      <div class="flex items-center gap-2 flex-shrink-0">
+      <div v-if="isTemplateList" class="flex items-center gap-2 flex-shrink-0">
         <Input
           :model-value="searchQuery"
           type="search"
@@ -212,7 +219,6 @@ onMounted(() => {
 
         <!-- New template: desktop with label -->
         <Button
-          v-if="!isCascadeTab"
           class="hidden md:inline-flex"
           icon="i-lucide-plus"
           :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
@@ -220,7 +226,6 @@ onMounted(() => {
         />
         <!-- New template: mobile icon only -->
         <Button
-          v-if="!isCascadeTab"
           class="inline-flex md:hidden"
           icon="i-lucide-plus"
           @click="openNewTemplate"
@@ -228,20 +233,13 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Tabs + View toggle -->
+    <!-- View toggle (only for template lists) -->
     <div
-      class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 flex items-center justify-between gap-4"
+      v-if="isTemplateList"
+      class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 flex items-center justify-end gap-4"
       :class="viewMode === 'flow' ? 'pb-6' : ''"
     >
-      <div class="overflow-x-auto">
-        <TabBar
-          :tabs="tabs"
-          :initial-active-tab="activeTabIndex"
-          @tab-changed="onTabChanged"
-        />
-      </div>
       <div
-        v-if="!isCascadeTab"
         class="flex items-center gap-1 rounded-lg bg-n-alpha-1 p-1 flex-shrink-0"
       >
         <button
@@ -265,12 +263,12 @@ onMounted(() => {
     <div
       class="flex-1 min-h-0"
       :class="
-        viewMode === 'flow' && !isCascadeTab
+        viewMode === 'flow' && isTemplateList
           ? 'overflow-hidden min-w-0'
           : 'overflow-y-auto px-4 py-3 md:px-6 md:py-4'
       "
     >
-      <!-- Cascade tab -->
+      <!-- Cascade/Delivery tab -->
       <CascadeSettings v-if="isCascadeTab" />
 
       <!-- Loading -->

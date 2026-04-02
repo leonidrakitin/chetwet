@@ -1,6 +1,6 @@
 class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::BaseController
   before_action :check_authorization
-  before_action :fetch_template, only: [:show, :update, :destroy, :clone]
+  before_action :fetch_template, only: [:show, :update, :destroy, :clone, :send_now, :preview_audience]
 
   def index
     @notification_templates = Current.account.notification_templates.includes(:inbox, :yclients_integration).ordered
@@ -56,6 +56,21 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
     render json: { payload: Current.account.cascade_settings }
   end
 
+  def send_now
+    NotificationTemplates::DispatchJob.perform_later(@notification_template)
+    @notification_template.update!(last_sent_at: Time.current, enabled: false) if @notification_template.one_time_template?
+    render :show
+  end
+
+  def preview_audience
+    conversations = NotificationTemplates::AudienceScope.new(template: @notification_template).call
+    contacts = conversations.map(&:contact).uniq(&:id)
+    render json: {
+      count: contacts.size,
+      sample: contacts.first(10).map { |c| { id: c.id, name: c.name, email: c.email, phone_number: c.phone_number } }
+    }
+  end
+
   def statistics
     raw = Current.account.notification_template_deliveries
                  .group(:notification_template_id, :status)
@@ -83,7 +98,7 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
       :last_sent_at, :next_send_at,
       schedule: {},
       conditions: {},
-      audience: { tags: [], exclude_tags: [] },
+      audience: { tags: [], exclude_tags: [], segment_id: nil },
       limits: {},
       metadata: {},
       messages: [:text, { attachments: [:id, :type, :name, :url], buttons: [:id, :label, :type, :url, :templateId] }]

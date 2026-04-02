@@ -78,6 +78,7 @@ const defaultForm = () => ({
     tags: [],
     excludeTags: [],
     requireMailingConsent: false,
+    segmentId: '',
   },
   limits: {
     minIntervalHours: 24,
@@ -97,7 +98,33 @@ const typeOptions = computed(() => [
   { value: 'event', label: t('NOTIFICATION_TEMPLATES.TYPES.EVENT') },
   { value: 'time', label: t('NOTIFICATION_TEMPLATES.TYPES.TIME') },
   { value: 'interval', label: t('NOTIFICATION_TEMPLATES.TYPES.INTERVAL') },
+  { value: 'one_time', label: t('NOTIFICATION_TEMPLATES.TYPES.ONE_TIME') },
 ]);
+
+const isOneTime = computed(() => form.value.type === 'one_time');
+const contactSegments = computed(
+  () => store.getters['customViews/getContactCustomViews']
+);
+
+const audiencePreview = ref(null);
+const isPreviewingAudience = ref(false);
+const isSending = ref(false);
+const showSendConfirm = ref(false);
+
+const previewAudience = async () => {
+  if (!isEditing.value) return;
+  isPreviewingAudience.value = true;
+  try {
+    audiencePreview.value = await store.dispatch(
+      'notificationTemplates/previewAudience',
+      templateId.value
+    );
+  } catch {
+    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.PREVIEW_ERROR'));
+  } finally {
+    isPreviewingAudience.value = false;
+  }
+};
 
 const triggerEventOptions = computed(() => {
   const options = [
@@ -206,6 +233,7 @@ const normalizeForm = tmpl => ({
     tags: [...(tmpl.audience?.tags ?? [])],
     excludeTags: [...(tmpl.audience?.exclude_tags ?? [])],
     requireMailingConsent: tmpl.audience?.require_mailing_consent ?? false,
+    segmentId: tmpl.audience?.segment_id ?? '',
   },
   limits: {
     minIntervalHours: tmpl.limits?.min_interval_hours ?? 24,
@@ -248,6 +276,20 @@ const goBack = () => {
     name: 'notification_templates_index',
     params: { accountId: route.params.accountId },
   });
+};
+
+const handleSendNow = async () => {
+  showSendConfirm.value = false;
+  isSending.value = true;
+  try {
+    await store.dispatch('notificationTemplates/sendNow', templateId.value);
+    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_SUCCESS'));
+    goBack();
+  } catch {
+    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_ERROR'));
+  } finally {
+    isSending.value = false;
+  }
 };
 
 const setEditorRef = (el, idx) => {
@@ -337,6 +379,7 @@ const handleSave = async () => {
       tags: [...form.value.audience.tags],
       exclude_tags: [...form.value.audience.excludeTags],
       require_mailing_consent: form.value.audience.requireMailingConsent,
+      segment_id: form.value.audience.segmentId || null,
     },
     limits: {
       min_interval_hours: Number(form.value.limits.minIntervalHours || 0),
@@ -366,6 +409,7 @@ const handleSave = async () => {
 
 onMounted(() => {
   store.dispatch('notificationTemplates/get');
+  store.dispatch('customViews/get', { filter_type: 'contact' });
   if (!availableInboxes.value.length) {
     store.dispatch('inboxes/get');
   }
@@ -686,6 +730,136 @@ onMounted(() => {
             </div>
           </div>
 
+          <!-- One-time settings -->
+          <div
+            v-if="isOneTime"
+            class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_LABEL') }}
+                </label>
+                <select
+                  v-model="form.audience.segmentId"
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                >
+                  <option value="">
+                    {{
+                      t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_PLACEHOLDER')
+                    }}
+                  </option>
+                  <option
+                    v-for="segment in contactSegments"
+                    :key="segment.id"
+                    :value="segment.id"
+                  >
+                    {{ segment.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SCHEDULED_AT') }}
+                </label>
+                <input
+                  v-model="form.schedule.sendAt"
+                  type="datetime-local"
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                />
+                <span class="text-xs text-n-slate-9">
+                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SCHEDULED_AT_HINT') }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Audience preview & Send -->
+            <div
+              v-if="isEditing"
+              class="flex flex-col gap-3 border-t border-n-weak pt-4"
+            >
+              <div class="flex items-center gap-2">
+                <Button
+                  variant="faded"
+                  color="slate"
+                  size="sm"
+                  icon="i-lucide-users"
+                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.PREVIEW_AUDIENCE')"
+                  :is-loading="isPreviewingAudience"
+                  @click="previewAudience"
+                />
+                <Button
+                  variant="faded"
+                  size="sm"
+                  icon="i-lucide-send"
+                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_NOW')"
+                  :is-loading="isSending"
+                  @click="showSendConfirm = true"
+                />
+              </div>
+
+              <!-- Audience preview results -->
+              <div
+                v-if="audiencePreview"
+                class="rounded-lg border border-n-weak bg-n-solid-1 p-3"
+              >
+                <p class="text-sm font-medium text-n-slate-12 mb-2">
+                  {{
+                    t('NOTIFICATION_TEMPLATES.ONE_TIME.AUDIENCE_COUNT', {
+                      count: audiencePreview.count,
+                    })
+                  }}
+                </p>
+                <div
+                  v-for="contact in audiencePreview.sample"
+                  :key="contact.id"
+                  class="flex items-center gap-2 py-1 text-sm text-n-slate-11"
+                >
+                  <span class="i-lucide-user size-3.5" />
+                  <span>{{
+                    contact.name || contact.email || contact.phone_number
+                  }}</span>
+                </div>
+                <p
+                  v-if="audiencePreview.count > audiencePreview.sample.length"
+                  class="text-xs text-n-slate-9 mt-1"
+                >
+                  {{
+                    t('NOTIFICATION_TEMPLATES.ONE_TIME.AND_MORE', {
+                      count:
+                        audiencePreview.count - audiencePreview.sample.length,
+                    })
+                  }}
+                </p>
+              </div>
+
+              <!-- Send confirmation -->
+              <div
+                v-if="showSendConfirm"
+                class="flex items-center gap-2 rounded-lg border border-n-ruby-6 bg-n-ruby-2 p-3"
+              >
+                <span class="i-lucide-alert-triangle size-4 text-n-ruby-11" />
+                <p class="text-sm text-n-ruby-11 flex-1">
+                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_CONFIRM') }}
+                </p>
+                <Button
+                  size="sm"
+                  color="ruby"
+                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.CONFIRM_SEND')"
+                  @click="handleSendNow"
+                />
+                <Button
+                  variant="faded"
+                  color="slate"
+                  size="sm"
+                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.CANCEL')"
+                  @click="showSendConfirm = false"
+                />
+              </div>
+            </div>
+          </div>
+
           <div
             v-if="yclientsEnabled"
             class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
@@ -747,6 +921,29 @@ onMounted(() => {
                     t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.PLACEHOLDER')
                   "
                 />
+              </div>
+
+              <div v-if="!isOneTime" class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_LABEL') }}
+                </label>
+                <select
+                  v-model="form.audience.segmentId"
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                >
+                  <option value="">
+                    {{
+                      t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_PLACEHOLDER')
+                    }}
+                  </option>
+                  <option
+                    v-for="segment in contactSegments"
+                    :key="segment.id"
+                    :value="segment.id"
+                  >
+                    {{ segment.name }}
+                  </option>
+                </select>
               </div>
 
               <div class="flex flex-col gap-1">

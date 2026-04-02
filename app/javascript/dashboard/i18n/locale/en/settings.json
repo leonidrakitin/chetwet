@@ -405,6 +405,13 @@
     "CAPTAIN_AI": "Captain",
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
     "NOTIFICATION_TEMPLATES": "Mailings",
+    "MAILINGS_ALL": "All",
+    "MAILINGS_EVENT": "On Event",
+    "MAILINGS_TIME": "By Time",
+    "MAILINGS_INTERVAL": "Interval",
+    "MAILINGS_ONE_TIME": "One-time",
+    "MAILINGS_DELIVERY": "Delivery",
+    "MAILINGS_STATISTICS": "Statistics",
     "SUGGESTIONS": "Suggestions"
   },
   "CAPTAIN_SETTINGS": {

@@ -139,6 +139,8 @@ Rails.application.routes.draw do
           resources :notification_templates, only: [:index, :create, :show, :update, :destroy] do
             member do
               post :clone
+              post :send_now
+              get  :preview_audience
             end
             collection do
               post :reorder

@@ -10,6 +10,7 @@ class NotificationTemplates::AudienceScope
   def standard_scope
     scoped = template.account.conversations.includes(:contact, :inbox, :contact_inbox, :messages)
     scoped = scoped.where(inbox_id: template.effective_inbox_id) if template.effective_inbox_id.present?
+    scoped = scoped.where(contact_id: segment_contact_ids) if segment_contact_ids.present?
     scoped = filter_by_yclients(scoped)
     scoped.order(updated_at: :desc)
           .select { |conversation| audience_match?(conversation) }
@@ -44,6 +45,21 @@ class NotificationTemplates::AudienceScope
       "(additional_attributes -> 'yclients' ->> 'company_id') = ?",
       template.yclients_integration.salon_id.to_s
     )
+  end
+
+  def segment_contact_ids
+    return @segment_contact_ids if defined?(@segment_contact_ids)
+
+    segment_id = template.audience['segment_id']
+    @segment_contact_ids = if segment_id.present?
+                             custom_filter = template.account.custom_filters.find_by(id: segment_id, filter_type: :contact)
+                             return nil unless custom_filter
+
+                             result = ::Contacts::FilterService.new(
+                               template.account, nil, { payload: custom_filter.query }
+                             ).perform
+                             result[:contacts].pluck(:id)
+                           end
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity

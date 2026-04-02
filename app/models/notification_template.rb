@@ -23,8 +23,24 @@
 #  inbox_id                :bigint
 #  yclients_integration_id :bigint
 #
+# Indexes
+#
+#  index_notification_templates_on_account_id                    (account_id)
+#  index_notification_templates_on_account_id_and_enabled        (account_id,enabled)
+#  index_notification_templates_on_account_id_and_next_send_at   (account_id,next_send_at)
+#  index_notification_templates_on_account_id_and_position       (account_id,position)
+#  index_notification_templates_on_account_id_and_template_type  (account_id,template_type)
+#  index_notification_templates_on_inbox_id                      (inbox_id)
+#  index_notification_templates_on_yclients_integration_id       (yclients_integration_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
+#  fk_rails_...  (inbox_id => inboxes.id)
+#  fk_rails_...  (yclients_integration_id => yclients_integrations.id)
+#
 class NotificationTemplate < ApplicationRecord
-  TEMPLATE_TYPES = %w[event time interval lost_clients client_consent].freeze
+  TEMPLATE_TYPES = %w[event time interval lost_clients client_consent one_time].freeze
   EVENT_TEMPLATE_TYPES = %w[event client_consent].freeze
   INTERVAL_TEMPLATE_TYPES = %w[interval lost_clients].freeze
 
@@ -84,6 +100,10 @@ class NotificationTemplate < ApplicationRecord
 
   def interval_template?
     template_type.in?(INTERVAL_TEMPLATE_TYPES)
+  end
+
+  def one_time_template?
+    template_type == 'one_time'
   end
 
   def yclients_enabled?

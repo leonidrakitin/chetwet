@@ -484,10 +484,57 @@ const menuItems = computed(() => {
       ],
     },
     {
-      name: 'Notification Templates',
-      label: t('SIDEBAR.NOTIFICATION_TEMPLATES'),
+      name: 'Mailings',
       icon: 'i-lucide-send',
-      to: accountScopedRoute('notification_templates_index'),
+      label: t('SIDEBAR.NOTIFICATION_TEMPLATES'),
+      children: [
+        {
+          name: 'All Mailings',
+          label: t('SIDEBAR.MAILINGS_ALL'),
+          activeOn: [
+            'notification_templates_index',
+            'notification_templates_new',
+            'notification_templates_edit',
+          ],
+          to: accountScopedRoute('notification_templates_index'),
+        },
+        {
+          name: 'On Event',
+          label: t('SIDEBAR.MAILINGS_EVENT'),
+          activeOn: ['notification_templates_event'],
+          to: accountScopedRoute('notification_templates_event'),
+        },
+        {
+          name: 'By Time',
+          label: t('SIDEBAR.MAILINGS_TIME'),
+          activeOn: ['notification_templates_time'],
+          to: accountScopedRoute('notification_templates_time'),
+        },
+        {
+          name: 'Interval',
+          label: t('SIDEBAR.MAILINGS_INTERVAL'),
+          activeOn: ['notification_templates_interval'],
+          to: accountScopedRoute('notification_templates_interval'),
+        },
+        {
+          name: 'One-time',
+          label: t('SIDEBAR.MAILINGS_ONE_TIME'),
+          activeOn: ['notification_templates_one_time'],
+          to: accountScopedRoute('notification_templates_one_time'),
+        },
+        {
+          name: 'Delivery',
+          label: t('SIDEBAR.MAILINGS_DELIVERY'),
+          activeOn: ['notification_templates_delivery'],
+          to: accountScopedRoute('notification_templates_delivery'),
+        },
+        {
+          name: 'Statistics',
+          label: t('SIDEBAR.MAILINGS_STATISTICS'),
+          activeOn: ['notification_templates_statistics'],
+          to: accountScopedRoute('notification_templates_statistics'),
+        },
+      ],
     },
     {
       name: 'Suggestions',

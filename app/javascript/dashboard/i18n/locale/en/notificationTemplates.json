@@ -25,7 +25,24 @@
     "TYPES": {
       "EVENT": "On Event",
       "TIME": "By Time",
-      "INTERVAL": "Interval"
+      "INTERVAL": "Interval",
+      "ONE_TIME": "One-time"
+    },
+    "ONE_TIME": {
+      "SEGMENT_LABEL": "Segment",
+      "SEGMENT_PLACEHOLDER": "All contacts (no segment filter)",
+      "SCHEDULED_AT": "Schedule send",
+      "SCHEDULED_AT_HINT": "Leave empty to send immediately",
+      "PREVIEW_AUDIENCE": "Preview recipients",
+      "PREVIEW_ERROR": "Failed to load audience preview",
+      "SEND_NOW": "Send now",
+      "SEND_SUCCESS": "Mailing dispatched successfully",
+      "SEND_ERROR": "Failed to dispatch mailing",
+      "SEND_CONFIRM": "This will send the mailing to all matching recipients. This action cannot be undone.",
+      "CONFIRM_SEND": "Confirm send",
+      "CANCEL": "Cancel",
+      "AUDIENCE_COUNT": "{count} recipients",
+      "AND_MORE": "and {count} more..."
     },
     "REPEAT": {
       "NONE": "Does not repeat",

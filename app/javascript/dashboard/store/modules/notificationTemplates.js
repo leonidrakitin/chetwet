@@ -155,6 +155,14 @@ export const actions = {
       commit('SET_UI_FLAG', { isSavingCascade: false });
     }
   },
+  async sendNow({ commit }, id) {
+    const response = await NotificationTemplatesAPI.sendNow(id);
+    commit('UPDATE_TEMPLATE', response.data);
+  },
+  async previewAudience(_, id) {
+    const response = await NotificationTemplatesAPI.previewAudience(id);
+    return response.data;
+  },
   async fetchStatistics({ commit }) {
     commit('SET_UI_FLAG', { isFetchingStatistics: true });
     try {
