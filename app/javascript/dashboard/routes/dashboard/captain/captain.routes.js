@@ -62,7 +62,7 @@ const assistantRoutes = [
       params: to.params,
     }),
     name: 'captain_tools_index',
-    meta: metaV2,
+    meta,
   },
   {
     path: frontendURL('accounts/:accountId/captain/:assistantId/scenarios'),

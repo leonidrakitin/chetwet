@@ -11,7 +11,6 @@ import { useAccount } from 'dashboard/composables/useAccount';
 import { useCaptainConfigStore } from 'dashboard/store/captain/preferences';
 
 import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
-import CaptainPaywall from 'dashboard/components-next/captain/pageComponents/Paywall.vue';
 import CustomToolsPageEmptyState from 'dashboard/components-next/captain/pageComponents/emptyStates/CustomToolsPageEmptyState.vue';
 import CreateCustomToolDialog from 'dashboard/components-next/captain/pageComponents/customTool/CreateCustomToolDialog.vue';
 import ToolCategorySection from 'dashboard/components-next/captain/pageComponents/customTool/ToolCategorySection.vue';
@@ -384,10 +383,6 @@ onMounted(() => {
     @update:current-page="onPageChange"
     @click="openCreateDialog"
   >
-    <template #paywall>
-      <CaptainPaywall />
-    </template>
-
     <template #emptyState>
       <CustomToolsPageEmptyState @click="openCreateDialog" />
     </template>

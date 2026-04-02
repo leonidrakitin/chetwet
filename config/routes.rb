@@ -80,7 +80,9 @@ Rails.application.routes.draw do
             resources :copilot_threads, only: [:index, :create] do
               resources :copilot_messages, only: [:index, :create]
             end
-            resources :custom_tools
+            resources :custom_tools do
+              post :test, on: :collection
+            end
             resources :approval_requests, only: [:index, :show, :update]
             resources :bulk_migrations, only: [:index, :create, :show]
             resources :documents, only: [:index, :show, :create, :destroy]
@@ -562,6 +564,7 @@ Rails.application.routes.draw do
               delete :destroy
             end
           end
+          resources :email_channel_migrations, only: [:create]
         end
       end
     end

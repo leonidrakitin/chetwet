@@ -158,7 +158,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
   def handle_error(error)
     log_error(error)
-    process_action('handoff')
+    process_action('handoff') if conversation_pending?
     true
   end
 
@@ -175,7 +175,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def conversation_pending?
-    status = Conversation.where(id: @conversation.id).pick(:status)
+    status = Conversation.uncached { Conversation.where(id: @conversation.id).pick(:status) }
     status == 'pending' || status == Conversation.statuses[:pending]
   end
 end
