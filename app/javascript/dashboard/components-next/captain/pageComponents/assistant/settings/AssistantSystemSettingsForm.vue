@@ -24,7 +24,7 @@ const { t } = useI18n();
 const { isCloudFeatureEnabled } = useAccount();
 
 const store = useStore();
-const agents = useMapGetter('agents/getRecords');
+const agents = useMapGetter('agents/getAgents');
 
 const isCaptainV2Enabled = computed(() =>
   isCloudFeatureEnabled(FEATURE_FLAGS.CAPTAIN_V2)
@@ -68,7 +68,7 @@ const formErrors = computed(() => ({
 }));
 
 const updateStateFromAssistant = assistant => {
-  const { config = {} } = assistant;
+  const config = assistant.config || {};
   // API may return null for unset JSON keys; Editor breaks on null (modelValue.length).
   state.handoffMessage = config.handoff_message ?? '';
   state.resolutionMessage = config.resolution_message ?? '';
