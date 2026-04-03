@@ -14,7 +14,6 @@ import DocumentsIndex from './documents/Index.vue';
 import ResponsesIndex from './responses/Index.vue';
 import KnowledgeIndex from './knowledge/Index.vue';
 import ResponsesPendingIndex from './responses/Pending.vue';
-import MigrationsIndex from './migrations/Index.vue';
 
 const meta = {
   permissions: ['administrator', 'agent'],
@@ -90,7 +89,11 @@ const assistantRoutes = [
   },
   {
     path: frontendURL('accounts/:accountId/captain/:assistantId/migrations'),
-    component: MigrationsIndex,
+    redirect: to => ({
+      name: 'onboarding_wizard',
+      params: { accountId: to.params.accountId },
+      query: { assistantId: to.params.assistantId },
+    }),
     name: 'captain_assistants_migrations_index',
     meta,
   },

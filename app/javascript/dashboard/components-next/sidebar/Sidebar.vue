@@ -339,10 +339,8 @@ const menuItems = computed(() => {
         {
           name: 'Migrations',
           label: t('SIDEBAR.CAPTAIN_MIGRATIONS'),
-          activeOn: ['captain_assistants_migrations_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_migrations_index',
-          }),
+          activeOn: ['onboarding_wizard'],
+          to: accountScopedRoute('onboarding_wizard'),
         },
         {
           name: 'Settings',

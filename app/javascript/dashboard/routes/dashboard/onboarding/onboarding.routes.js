@@ -1,13 +1,13 @@
 import { frontendURL } from 'dashboard/helper/URLHelper';
 
-const OnboardingWizard = () => import('./Index.vue');
+const MigrationsWizard = () => import('./MigrationsWizard.vue');
 
 export default {
   routes: [
     {
       path: frontendURL('accounts/:accountId/onboarding/wizard'),
       name: 'onboarding_wizard',
-      component: OnboardingWizard,
+      component: MigrationsWizard,
       meta: {
         permissions: ['administrator'],
       },
