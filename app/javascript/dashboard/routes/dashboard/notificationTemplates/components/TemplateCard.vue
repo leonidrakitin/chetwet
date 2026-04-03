@@ -138,17 +138,25 @@ const formattedLastSent = computed(() => {
     @click="handleEdit"
   >
     <!-- Top row: name + status dot | menu -->
-    <div class="flex items-start justify-between gap-3 w-full">
-      <div class="flex items-start gap-2 min-w-0 pr-2">
-        <span
-          class="size-2 rounded-full flex-shrink-0 mt-1.5"
-          :class="template.enabled ? 'bg-n-teal-9' : 'bg-n-slate-8'"
-        />
-        <h3
-          class="text-sm font-semibold text-n-slate-12 leading-snug break-words"
+    <div class="flex items-start justify-between gap-3 w-full pl-5">
+      <div class="flex flex-col min-w-0 pr-2">
+        <div
+          v-if="eventLabel(template)"
+          class="text-[10px] font-semibold text-n-slate-9 uppercase tracking-wide mb-1"
         >
-          {{ template.name }}
-        </h3>
+          {{ eventLabel(template) }}
+        </div>
+        <div class="flex items-center gap-2">
+          <span
+            class="size-2 rounded-full flex-shrink-0"
+            :class="template.enabled ? 'bg-n-teal-9' : 'bg-n-slate-8'"
+          />
+          <h3
+            class="text-sm font-semibold text-n-slate-12 leading-snug break-words"
+          >
+            {{ template.name }}
+          </h3>
+        </div>
       </div>
       <OnClickOutside @trigger="closeMenu">
         <div class="relative flex-shrink-0 -mr-2">
@@ -230,13 +238,7 @@ const formattedLastSent = computed(() => {
       </div>
     </div>
 
-    <div class="flex items-center justify-between mt-1">
-      <span
-        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-n-brand/10 text-n-blue-11"
-      >
-        {{ eventLabel(template) }}
-      </span>
-
+    <div class="flex items-center justify-end mt-1">
       <div class="flex items-center gap-2">
         <div
           v-if="hasError"

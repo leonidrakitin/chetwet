@@ -142,6 +142,36 @@ const confirmDelete = async () => {
   }
 };
 
+const sendDialogRef = ref(null);
+const sendingTemplate = ref(null);
+const isSending = ref(false);
+
+const handleSendNowRequest = template => {
+  closeAllDialogs();
+  sendingTemplate.value = template;
+  sendDialogRef.value?.open();
+};
+
+const confirmSendNow = async () => {
+  if (!sendingTemplate.value) return;
+  isSending.value = true;
+  try {
+    await store.dispatch(
+      'notificationTemplates/sendNow',
+      sendingTemplate.value.id
+    );
+    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_SUCCESS'));
+    // Refetch to see stats update
+    store.dispatch('notificationTemplates/get');
+  } catch {
+    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_ERROR'));
+  } finally {
+    isSending.value = false;
+    sendingTemplate.value = null;
+    sendDialogRef.value?.close();
+  }
+};
+
 // DnD reorder
 const orderedTemplates = computed({
   get: () => filteredTemplates.value,
@@ -177,10 +207,12 @@ onMounted(() => {
   >
     <!-- Header -->
     <div
-      class="flex flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6 md:py-5 border-b border-n-weak flex-shrink-0"
+      class="sticky top-0 z-10 px-4 md:px-6 bg-n-surface-1 border-b border-n-weak flex-shrink-0"
     >
-      <div class="min-w-0">
-        <div class="flex items-center gap-2">
+      <div
+        class="flex items-start sm:items-center justify-between w-full py-4 md:py-5 gap-4"
+      >
+        <div class="flex items-center gap-2 min-w-0">
           <h1 class="text-lg font-semibold text-n-slate-12 truncate">
             {{ t('NOTIFICATION_TEMPLATES.HEADER') }}
           </h1>
@@ -191,70 +223,69 @@ onMounted(() => {
             {{ filteredTemplates.length }}
           </span>
         </div>
-        <p class="hidden md:block text-sm text-n-slate-10 mt-0.5">
-          {{ t('NOTIFICATION_TEMPLATES.DESCRIPTION') }}
-        </p>
-      </div>
 
-      <!-- Controls row -->
-      <div v-if="isTemplateList" class="flex items-center gap-2 flex-shrink-0">
-        <Input
-          :model-value="searchQuery"
-          type="search"
-          :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
-          :custom-input-class="[
-            'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
-          ]"
-          class="w-48"
-          @input="searchQuery = $event.target.value"
+        <!-- Controls row -->
+        <div
+          class="flex items-center flex-col sm:flex-row flex-shrink-0 gap-3 w-full sm:w-auto"
         >
-          <template #prefix>
-            <Icon
-              icon="i-lucide-search"
-              class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
+          <div
+            v-if="isTemplateList"
+            class="flex items-center gap-2 w-full sm:w-64"
+          >
+            <Input
+              :model-value="searchQuery"
+              type="search"
+              :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
+              :custom-input-class="[
+                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
+              ]"
+              class="w-full"
+              @input="searchQuery = $event.target.value"
+            >
+              <template #prefix>
+                <Icon
+                  icon="i-lucide-search"
+                  class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
+                />
+              </template>
+            </Input>
+          </div>
+
+          <div
+            v-if="isTemplateList"
+            class="flex items-center flex-shrink-0 gap-2 sm:gap-4"
+          >
+            <!-- View toggles (hidden for one time templates) -->
+            <div
+              v-if="activeType !== 'one_time'"
+              class="hidden sm:flex items-center gap-1 rounded-lg bg-n-alpha-1 p-1 flex-shrink-0"
+            >
+              <button
+                v-for="mode in viewModes"
+                :key="mode.key"
+                class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                :class="
+                  viewMode === mode.key
+                    ? 'bg-n-solid-active shadow-sm text-n-blue-11'
+                    : 'text-n-slate-10 hover:text-n-slate-12'
+                "
+                @click="viewMode = mode.key"
+              >
+                <span :class="mode.icon" class="size-3.5" />
+                <span class="hidden md:inline">{{ mode.label }}</span>
+              </button>
+            </div>
+
+            <div class="hidden sm:block w-px h-4 bg-n-strong shrink-0" />
+
+            <Button
+              :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
+              icon="i-lucide-plus"
+              size="sm"
+              @click="openNewTemplate"
             />
-          </template>
-        </Input>
-
-        <!-- New template: desktop with label -->
-        <Button
-          class="hidden md:inline-flex"
-          icon="i-lucide-plus"
-          :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
-          @click="openNewTemplate"
-        />
-        <!-- New template: mobile icon only -->
-        <Button
-          class="inline-flex md:hidden"
-          icon="i-lucide-plus"
-          @click="openNewTemplate"
-        />
-      </div>
-    </div>
-
-    <!-- View toggle (only for template lists) -->
-    <div
-      v-if="isTemplateList && activeType !== 'one_time'"
-      class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 flex items-center justify-end gap-4"
-      :class="viewMode === 'flow' ? 'pb-6' : ''"
-    >
-      <div
-        class="flex items-center gap-1 rounded-lg bg-n-alpha-1 p-1 flex-shrink-0"
-      >
-        <button
-          v-for="mode in viewModes"
-          :key="mode.key"
-          class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
-          :class="
-            viewMode === mode.key
-              ? 'bg-n-solid-active shadow-sm text-n-blue-11'
-              : 'text-n-slate-10 hover:text-n-slate-12'
-          "
-          @click="viewMode = mode.key"
-        >
-          <span :class="mode.icon" class="size-3.5" />
-          {{ mode.label }}
-        </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -326,6 +357,7 @@ onMounted(() => {
           @clone="handleClone"
           @delete="handleDeleteRequest"
           @preview="handlePreview"
+          @send-now="handleSendNowRequest"
         />
       </div>
 
@@ -343,7 +375,7 @@ onMounted(() => {
           <div class="relative group">
             <!-- Drag handle -->
             <div
-              class="drag-handle absolute top-2 left-2 z-10 opacity-50 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-grab p-2 rounded text-n-slate-9 hover:text-n-slate-12"
+              class="drag-handle absolute top-[14px] left-1 bottom-auto w-6 h-6 z-10 opacity-50 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-grab flex items-center justify-center rounded text-n-slate-9 hover:text-n-slate-12"
             >
               <span class="i-lucide-grip-vertical size-4" />
             </div>
@@ -400,5 +432,15 @@ onMounted(() => {
     :confirm-button-label="t('NOTIFICATION_TEMPLATES.DELETE.CONFIRM.YES')"
     :cancel-button-label="t('NOTIFICATION_TEMPLATES.DELETE.CONFIRM.NO')"
     @confirm="confirmDelete"
+  />
+
+  <Dialog
+    ref="sendDialogRef"
+    type="alert"
+    :title="t('NOTIFICATION_TEMPLATES.ONE_TIME.CONFIRM_SEND')"
+    :description="t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_CONFIRM')"
+    :confirm-button-label="t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_NOW')"
+    :cancel-button-label="t('NOTIFICATION_TEMPLATES.ONE_TIME.CANCEL')"
+    @confirm="confirmSendNow"
   />
 </template>
