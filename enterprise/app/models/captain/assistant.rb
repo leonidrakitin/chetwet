@@ -106,10 +106,13 @@ class Captain::Assistant < ApplicationRecord
   end
 
   def agent_tools
-    [
+    tools = [
       self.class.resolve_tool_class('faq_lookup').new(self),
       self.class.resolve_tool_class('handoff').new(self)
     ]
+    dm_ids = config['decision_maker_ids']
+    tools << self.class.resolve_tool_class('ask_human').new(self) if dm_ids.present?
+    tools
   end
 
   def prompt_context
