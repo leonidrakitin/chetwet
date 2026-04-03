@@ -10,6 +10,12 @@ class NotificationTemplates::MessageSenderService
       end
     end
 
+    template.metadata.delete('last_error') if template.metadata.key?('last_error')
+    template.update!(last_sent_at: Time.current, next_send_at: next_send_at)
+  rescue StandardError => e
+    ChatwootExceptionTracker.new(e).capture_exception
+    create_failed_delivery!(e.message)
+    template.metadata['last_error'] = e.message
     template.update!(last_sent_at: Time.current, next_send_at: next_send_at)
   end
 
@@ -44,6 +50,18 @@ class NotificationTemplates::MessageSenderService
       trigger_type: trigger_type,
       sent_at: Time.current,
       metadata: { message_id: message.id }
+    )
+  end
+
+  def create_failed_delivery!(error_message)
+    template.deliveries.create!(
+      account: template.account,
+      contact: conversation.contact,
+      conversation: conversation,
+      status: 'failed',
+      trigger_type: trigger_type,
+      sent_at: Time.current,
+      metadata: { error: error_message }
     )
   end
 
