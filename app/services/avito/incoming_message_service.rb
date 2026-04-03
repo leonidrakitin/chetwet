@@ -7,9 +7,7 @@ class Avito::IncomingMessageService
   pattr_initialize [:inbox!, :params!]
 
   def perform
-    return unless message_params?
-    return unless incoming_message?
-    return if duplicate_message?
+    return if skip_processing?
 
     set_contact
     set_conversation
@@ -23,17 +21,26 @@ class Avito::IncomingMessageService
 
   private
 
+  def skip_processing?
+    return true unless message_params?
+    return true if seller_echo? && params[:user_id].blank?
+    return true unless seller_echo? || incoming_message?
+    return true if duplicate_message?
+
+    false
+  end
+
   def set_contact
     user_info = fetch_contact_info
     name = extract_contact_name(user_info)
 
     contact_inbox = ::ContactInboxWithContactBuilder.new(
-      source_id: avito_author_id.to_s,
+      source_id: contact_avito_user_id.to_s,
       inbox: inbox,
       contact_attributes: {
         name: name,
         additional_attributes: {
-          avito_user_id: avito_author_id
+          avito_user_id: contact_avito_user_id
         }
       }
     ).perform
@@ -51,10 +58,10 @@ class Avito::IncomingMessageService
   end
 
   def extract_contact_name(user_info)
-    return "Пользователь #{avito_author_id}" if user_info.blank?
+    return "Пользователь #{contact_avito_user_id}" if user_info.blank?
 
     name = user_info['name'] || user_info[:name]
-    name.presence || "Пользователь #{avito_author_id}"
+    name.presence || "Пользователь #{contact_avito_user_id}"
   end
 
   def update_contact_avatar(user_info)
@@ -103,9 +110,10 @@ class Avito::IncomingMessageService
       content: message_content_text,
       account_id: inbox.account_id,
       inbox_id: inbox.id,
-      message_type: :incoming,
-      sender: @contact,
-      content_attributes: content_attributes,
+      message_type: seller_echo? ? :outgoing : :incoming,
+      sender: seller_echo? ? nil : @contact,
+      status: seller_echo? ? :delivered : :sent,
+      content_attributes: seller_echo? ? content_attributes.merge('external_echo' => true) : content_attributes,
       source_id: avito_message_id.to_s
     )
 
@@ -188,5 +196,14 @@ class Avito::IncomingMessageService
     inbox.channel.mark_chat_as_read(avito_chat_id)
   rescue StandardError => e
     Rails.logger.warn "[Avito] mark_chat_as_read failed: #{e.message}"
+  end
+
+  def seller_echo?
+    avito_author_id.to_i == inbox.channel.avito_user_id.to_i
+  end
+
+  # Buyer messages: author is the buyer. Messages from Avito UI (seller): author is us; buyer is user_id.
+  def contact_avito_user_id
+    seller_echo? ? params[:user_id] : avito_author_id
   end
 end

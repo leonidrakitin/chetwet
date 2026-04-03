@@ -42,9 +42,6 @@ class Webhooks::AvitoEventsJob < ApplicationJob
     message_data = payload[:value] || payload
     return if message_data.blank?
 
-    # Skip echo: skip messages sent by the channel owner
-    return if message_data[:author_id].to_i == channel.avito_user_id.to_i
-
     Avito::IncomingMessageService.new(
       inbox: channel.inbox,
       params: message_data.with_indifferent_access

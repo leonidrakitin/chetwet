@@ -6,7 +6,7 @@ module Avito::ParamHelpers
   #   id:           "message_id",
   #   chat_id:      "chat_id",
   #   author_id:    123,        # sender
-  #   user_id:      456,        # recipient (channel owner)
+  #   user_id:      456,        # recipient (the other party: buyer when author is seller, seller when author is buyer)
   #   type:         "text",     # message type
   #   content:      { text: "...", image: {...}, voice: {...}, link: {...}, ... },
   #   created:      1571654040,
