@@ -2,17 +2,18 @@
 #
 # Table name: captain_assistant_responses
 #
-#  id                :bigint           not null, primary key
-#  answer            :text             not null
-#  documentable_type :string
-#  embedding         :vector(1536)
-#  question          :string           not null
-#  status            :integer          default("approved"), not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  account_id        :bigint           not null
-#  assistant_id      :bigint           not null
-#  documentable_id   :bigint
+#  id                     :bigint           not null, primary key
+#  answer                 :text             not null
+#  documentable_type      :string
+#  embedding              :vector(1536)
+#  question               :string           not null
+#  requires_clarification :boolean          default(FALSE), not null
+#  status                 :integer          default("approved"), not null
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  account_id             :bigint           not null
+#  assistant_id           :bigint           not null
+#  documentable_id        :bigint
 #
 # Indexes
 #

@@ -1,5 +1,48 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: bulk_migrations
+#
+#  id                      :bigint           not null, primary key
+#  config                  :jsonb            not null
+#  dry_run                 :boolean          default(FALSE), not null
+#  faqs_generated          :integer          default(0)
+#  finished_at             :datetime
+#  include_groups          :boolean          default(FALSE)
+#  max_messages_per_dialog :integer
+#  processed               :integer          default(0)
+#  report                  :jsonb
+#  skipped                 :integer          default(0)
+#  source                  :string           not null
+#  started_at              :datetime
+#  status                  :string           default("pending"), not null
+#  total_dialogs           :integer          default(0)
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  account_id              :bigint           not null
+#  agent_external_id       :string
+#  captain_assistant_id    :bigint           not null
+#  inbox_id                :bigint           not null
+#  telegram_session_id     :bigint
+#
+# Indexes
+#
+#  index_bulk_migrations_on_account_id                       (account_id)
+#  index_bulk_migrations_on_account_id_and_status            (account_id,status)
+#  index_bulk_migrations_on_captain_assistant_id             (captain_assistant_id)
+#  index_bulk_migrations_on_captain_assistant_id_and_status  (captain_assistant_id,status)
+#  index_bulk_migrations_on_inbox_id                         (inbox_id)
+#  index_bulk_migrations_on_source                           (source)
+#  index_bulk_migrations_on_telegram_session_id              (telegram_session_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
+#  fk_rails_...  (captain_assistant_id => captain_assistants.id)
+#  fk_rails_...  (inbox_id => inboxes.id)
+#  fk_rails_...  (telegram_session_id => telegram_sessions.id)
+#
 class BulkMigration < ApplicationRecord
   belongs_to :account
   belongs_to :captain_assistant, class_name: 'Captain::Assistant'

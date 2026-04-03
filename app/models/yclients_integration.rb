@@ -4,21 +4,28 @@
 #
 # Table name: yclients_integrations
 #
-#  id            :bigint           not null, primary key
-#  account_id    :bigint           not null
-#  salon_id      :integer          not null
-#  bearer_token  :string
-#  connected_at  :datetime
-#  status        :integer          default("active"), not null
-#  webhook_secret: string
-#  system_user_id: string
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
+#  id             :bigint           not null, primary key
+#  bearer_token   :string
+#  connected_at   :datetime
+#  status         :integer          default("active"), not null
+#  webhook_secret :string
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  account_id     :bigint           not null
+#  inbox_id       :bigint
+#  salon_id       :integer          not null
+#  system_user_id :string
 #
 # Indexes
 #
+#  index_yclients_integrations_on_account_id               (account_id)
 #  index_yclients_integrations_on_account_id_and_salon_id  (account_id,salon_id) UNIQUE
+#  index_yclients_integrations_on_inbox_id                 (inbox_id)
 #  index_yclients_integrations_on_salon_id                 (salon_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (inbox_id => inboxes.id)
 #
 class YclientsIntegration < ApplicationRecord
   belongs_to :account

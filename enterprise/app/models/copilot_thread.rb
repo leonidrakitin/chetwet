@@ -3,6 +3,7 @@
 # Table name: copilot_threads
 #
 #  id           :bigint           not null, primary key
+#  source       :string
 #  title        :string           not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
@@ -12,12 +13,13 @@
 #
 # Indexes
 #
-#  index_copilot_threads_on_account_id    (account_id)
-#  index_copilot_threads_on_assistant_id  (assistant_id)
-#  index_copilot_threads_on_user_id       (user_id)
+#  index_copilot_threads_on_account_id             (account_id)
+#  index_copilot_threads_on_assistant_id           (assistant_id)
+#  index_copilot_threads_on_user_assistant_source  (user_id,assistant_id,source)
+#  index_copilot_threads_on_user_id                (user_id)
 #
 class CopilotThread < ApplicationRecord
-  scope :for_source, ->(source) {
+  scope :for_source, lambda { |source|
     val = source.presence || 'default'
     where("COALESCE(copilot_threads.source, 'default') = ?", val)
   }

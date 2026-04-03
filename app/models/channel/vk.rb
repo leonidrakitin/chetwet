@@ -4,18 +4,26 @@
 #
 # Table name: channel_vk
 #
-#  id           :bigint           not null, primary key
-#  account_id   :integer          not null
-#  group_id     :string           not null
-#  access_token :string           not null
-#  secret       :string
-#  group_name   :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id               :bigint           not null, primary key
+#  access_token     :string           not null
+#  group_name       :string
+#  refresh_token    :string
+#  secret           :string
+#  token_expires_at :datetime
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  account_id       :bigint           not null
+#  group_id         :string           not null
+#  vk_user_id       :bigint
 #
 # Indexes
 #
-#  index_channel_vk_on_group_id  (group_id) UNIQUE
+#  index_channel_vk_on_account_id  (account_id)
+#  index_channel_vk_on_group_id    (group_id) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
 #
 
 class Channel::Vk < ApplicationRecord

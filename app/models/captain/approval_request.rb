@@ -1,5 +1,44 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: captain_approval_requests
+#
+#  id                    :bigint           not null, primary key
+#  assignee_type         :string
+#  context               :text
+#  custom_response       :text
+#  expires_at            :datetime
+#  messenger_type        :string
+#  options               :jsonb            not null
+#  selected_option_index :integer
+#  status                :integer          default("pending"), not null
+#  title                 :string           not null
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  account_id            :bigint           not null
+#  assignee_id           :bigint
+#  assistant_id          :bigint
+#  conversation_id       :bigint           not null
+#  messenger_message_id  :string
+#  resolved_by_id        :bigint
+#
+# Indexes
+#
+#  idx_on_assignee_type_assignee_id_status_eee2bf9c60             (assignee_type,assignee_id,status)
+#  index_captain_approval_requests_on_account_id                  (account_id)
+#  index_captain_approval_requests_on_assistant_id                (assistant_id)
+#  index_captain_approval_requests_on_conversation_id             (conversation_id)
+#  index_captain_approval_requests_on_conversation_id_and_status  (conversation_id,status)
+#  index_captain_approval_requests_on_resolved_by_id              (resolved_by_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
+#  fk_rails_...  (assistant_id => captain_assistants.id)
+#  fk_rails_...  (conversation_id => conversations.id)
+#  fk_rails_...  (resolved_by_id => users.id)
+#
 class Captain::ApprovalRequest < ApplicationRecord
   self.table_name = 'captain_approval_requests'
 

@@ -5,20 +5,25 @@
 # Table name: channel_avito
 #
 #  id               :bigint           not null, primary key
-#  account_id       :integer          not null
-#  client_id        :string           not null
-#  client_secret    :string           not null
-#  avito_user_id    :bigint
 #  access_token     :string
-#  token_expires_at :datetime
 #  avito_user_name  :string
+#  client_secret    :string           not null
+#  token_expires_at :datetime
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  account_id       :bigint           not null
+#  avito_user_id    :bigint
+#  client_id        :string           not null
 #
 # Indexes
 #
-#  index_channel_avito_on_client_id      (client_id) UNIQUE
+#  index_channel_avito_on_account_id     (account_id)
 #  index_channel_avito_on_avito_user_id  (avito_user_id)
+#  index_channel_avito_on_client_id      (client_id) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
 #
 
 class Channel::Avito < ApplicationRecord

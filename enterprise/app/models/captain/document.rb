@@ -2,29 +2,29 @@
 #
 # Table name: captain_documents
 #
-#  id            :bigint           not null, primary key
+#  id                   :bigint           not null, primary key
 #  chunking_status      :integer          default("pending"), not null
-#  chunks_generated_at :datetime
-#  content       :text
+#  chunks_generated_at  :datetime
+#  content              :text
 #  expected_chunk_count :integer          default(0), not null
-#  external_link :string           not null
-#  indexed_chunk_count :integer          default(0), not null
-#  last_chunk_error    :text
-#  metadata      :jsonb
-#  name          :string
-#  status        :integer          default("in_progress"), not null
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  account_id    :bigint           not null
-#  assistant_id  :bigint           not null
+#  external_link        :string           not null
+#  indexed_chunk_count  :integer          default(0), not null
+#  last_chunk_error     :text
+#  metadata             :jsonb
+#  name                 :string
+#  status               :integer          default("in_progress"), not null
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  account_id           :bigint           not null
+#  assistant_id         :bigint           not null
 #
 # Indexes
 #
 #  index_captain_documents_on_account_id                      (account_id)
 #  index_captain_documents_on_assistant_id                    (assistant_id)
 #  index_captain_documents_on_assistant_id_and_external_link  (assistant_id,external_link) UNIQUE
-#  index_captain_documents_on_chunks_generated_at             (chunks_generated_at)
 #  index_captain_documents_on_chunking_status                 (chunking_status)
+#  index_captain_documents_on_chunks_generated_at             (chunks_generated_at)
 #  index_captain_documents_on_status                          (status)
 #
 class Captain::Document < ApplicationRecord

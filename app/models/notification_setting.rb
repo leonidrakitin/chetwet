@@ -2,13 +2,14 @@
 #
 # Table name: notification_settings
 #
-#  id          :bigint           not null, primary key
-#  email_flags :integer          default(0), not null
-#  push_flags  :integer          default(0), not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  account_id  :integer
-#  user_id     :integer
+#  id             :bigint           not null, primary key
+#  email_flags    :integer          default(0), not null
+#  push_flags     :integer          default(0), not null
+#  telegram_flags :integer          default(0), not null
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  account_id     :integer
+#  user_id        :integer
 #
 # Indexes
 #

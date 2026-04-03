@@ -1,3 +1,32 @@
+# == Schema Information
+#
+# Table name: suggestions
+#
+#  id                :bigint           not null, primary key
+#  description       :text
+#  description_plain :text
+#  downvotes_count   :integer          default(0), not null
+#  status            :string           default("pending"), not null
+#  tags              :string           default([]), is an Array
+#  title             :string           not null
+#  upvotes_count     :integer          default(0), not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  account_id        :bigint           not null
+#  user_id           :bigint           not null
+#
+# Indexes
+#
+#  index_suggestions_on_account_id  (account_id)
+#  index_suggestions_on_status      (status)
+#  index_suggestions_on_tags        (tags) USING gin
+#  index_suggestions_on_user_id     (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
+#  fk_rails_...  (user_id => users.id)
+#
 class Suggestion < ApplicationRecord
   MAX_IMAGES = 10
   ALLOWED_IMAGE_TYPES = %w[image/jpeg image/png image/gif image/webp image/heic image/heif].freeze

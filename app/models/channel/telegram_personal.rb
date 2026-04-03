@@ -5,12 +5,21 @@
 #  id                :bigint           not null, primary key
 #  last_error        :text
 #  status            :string           default("disconnected"), not null
-#  telegram_user_id  :string
 #  telegram_username :string
 #  title             :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  account_id        :integer          not null
+#  account_id        :bigint           not null
+#  telegram_user_id  :string
+#
+# Indexes
+#
+#  index_channel_telegram_personal_on_account_id               (account_id)
+#  index_channel_telegram_personal_on_telegram_user_id_unique  (telegram_user_id) UNIQUE WHERE ((telegram_user_id IS NOT NULL) AND ((telegram_user_id)::text <> ''::text))
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
 #
 
 class Channel::TelegramPersonal < ApplicationRecord

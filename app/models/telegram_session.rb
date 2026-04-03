@@ -4,7 +4,6 @@
 #
 #  id                     :bigint           not null, primary key
 #  api_hash               :string           not null
-#  api_id                 :string           not null
 #  auth_state             :string
 #  encrypted_session_data :text
 #  last_error             :text
@@ -13,8 +12,20 @@
 #  status                 :integer          default("authenticating"), not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  api_id                 :string           not null
 #  inbox_id               :bigint           not null
 #  user_id                :bigint           not null
+#
+# Indexes
+#
+#  index_telegram_sessions_on_inbox_id      (inbox_id) UNIQUE
+#  index_telegram_sessions_on_phone_number  (phone_number) UNIQUE
+#  index_telegram_sessions_on_user_id       (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (inbox_id => inboxes.id)
+#  fk_rails_...  (user_id => users.id)
 #
 
 class TelegramSession < ApplicationRecord

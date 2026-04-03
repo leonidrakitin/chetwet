@@ -6,7 +6,7 @@
 #  auto_resolve_duration :integer
 #  custom_attributes     :jsonb
 #  domain                :string(100)
-#  feature_flags         :bigint           default(0), not null
+#  feature_flags         :decimal(80, )    default(0), not null
 #  internal_attributes   :jsonb            not null
 #  limits                :jsonb
 #  locale                :integer          default("en")
@@ -16,10 +16,16 @@
 #  support_email         :string(100)
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
+#  plan_id               :bigint
 #
 # Indexes
 #
-#  index_accounts_on_status  (status)
+#  index_accounts_on_plan_id  (plan_id)
+#  index_accounts_on_status   (status)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (plan_id => plans.id) ON DELETE => nullify
 #
 
 class Account < ApplicationRecord

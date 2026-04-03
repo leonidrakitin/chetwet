@@ -9,11 +9,16 @@
 #  bot_token  :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  account_id :integer          not null
+#  account_id :bigint           not null
 #
 # Indexes
 #
-#  index_channel_max_on_bot_token  (bot_token) UNIQUE
+#  index_channel_max_on_account_id  (account_id)
+#  index_channel_max_on_bot_token   (bot_token) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
 #
 
 class Channel::Max < ApplicationRecord
