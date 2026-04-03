@@ -113,27 +113,45 @@ const borderColorClass = computed(() => {
   };
   return colors[props.template.type] ?? 'border-l-n-slate-8';
 });
+
+// Stats derived from store
+import { useStore } from 'dashboard/composables/store';
+const store = useStore();
+const statistics = computed(
+  () => store.getters['notificationTemplates/getStatistics']
+);
+const templateStats = computed(() => statistics.value[props.template.id] || {});
+const sentCount = computed(() => templateStats.value.sent || 0);
+const failedCount = computed(() => templateStats.value.failed || 0);
+const hasError = computed(() => !!props.template.metadata?.last_error);
+
+const formattedLastSent = computed(() => {
+  if (!props.template.last_sent_at) return null;
+  return new Date(props.template.last_sent_at).toLocaleString();
+});
 </script>
 
 <template>
   <div
-    class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-weak border-l-[3px] bg-n-solid-1 hover:border-n-strong hover:shadow-md transition-all duration-200 cursor-pointer"
+    class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-weak border-l-[3px] bg-n-solid-1 hover:border-n-strong hover:shadow-lg transition-all duration-200 cursor-pointer"
     :class="[borderColorClass, { 'opacity-60': !template.enabled }]"
     @click="handleEdit"
   >
     <!-- Top row: name + status dot | menu -->
-    <div class="flex items-start justify-between gap-2">
-      <div class="flex items-center gap-2 min-w-0">
+    <div class="flex items-start justify-between gap-3 w-full">
+      <div class="flex items-start gap-2 min-w-0 pr-2">
         <span
-          class="size-2 rounded-full flex-shrink-0"
+          class="size-2 rounded-full flex-shrink-0 mt-1.5"
           :class="template.enabled ? 'bg-n-teal-9' : 'bg-n-slate-8'"
         />
-        <h3 class="text-sm font-semibold text-n-slate-12 leading-snug truncate">
+        <h3
+          class="text-sm font-semibold text-n-slate-12 leading-snug break-words"
+        >
           {{ template.name }}
         </h3>
       </div>
       <OnClickOutside @trigger="closeMenu">
-        <div class="relative flex-shrink-0">
+        <div class="relative flex-shrink-0 -mr-2">
           <Button
             variant="ghost"
             color="slate"
@@ -212,12 +230,50 @@ const borderColorClass = computed(() => {
       </div>
     </div>
 
-    <div class="flex items-center">
+    <div class="flex items-center justify-between mt-1">
       <span
         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-n-brand/10 text-n-blue-11"
       >
         {{ eventLabel(template) }}
       </span>
+
+      <div class="flex items-center gap-2">
+        <div
+          v-if="hasError"
+          class="relative group flex items-center justify-center size-6 rounded-full bg-n-ruby-3 text-n-ruby-11 cursor-help"
+        >
+          <span class="i-lucide-alert-triangle size-3" />
+          <div
+            class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 p-2 bg-n-slate-12 text-n-slate-1 text-xs rounded-lg shadow-lg z-50 pointer-events-none break-words whitespace-pre-wrap"
+          >
+            {{ template.metadata?.last_error }}
+          </div>
+        </div>
+
+        <div class="text-xs text-n-slate-10 text-right">
+          <span>
+            {{
+              t('NOTIFICATION_TEMPLATES.CARD.SENT_COUNT_LINE', {
+                count: sentCount,
+              })
+            }}
+          </span>
+          <span v-if="failedCount > 0" class="text-n-ruby-11 font-medium ml-1">
+            {{
+              t('NOTIFICATION_TEMPLATES.CARD.FAILED_WARNING_BADGE', {
+                count: failedCount,
+              })
+            }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div v-if="formattedLastSent" class="text-[11px] text-n-slate-9 mt-1">
+      {{
+        t('NOTIFICATION_TEMPLATES.LAST_SENT_LINE', {
+          datetime: formattedLastSent,
+        })
+      }}
     </div>
   </div>
 </template>

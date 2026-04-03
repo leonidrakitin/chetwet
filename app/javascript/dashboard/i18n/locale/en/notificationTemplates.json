@@ -153,11 +153,20 @@
       "SUCCESS": "Template saved successfully.",
       "ERROR": "Could not save template."
     },
+    "LAST_SENT": "Last sent",
+    "LAST_SENT_LINE": "Last sent: {datetime}",
+    "CARD": {
+      "SENT_COUNT_LINE": "Sent: {count}",
+      "FAILED_WARNING_BADGE": "(!{count})",
+      "SENT_TOTAL": "{sent} / {total}",
+      "UNKNOWN_TOTAL": "?"
+    },
     "STATISTICS": {
       "COMING_SOON": "Statistics will be available in a future update.",
       "TITLE": "Delivery statistics",
       "LOADING": "Loading statistics...",
       "EMPTY": "No delivery data yet. Enable templates and wait for the first sends.",
+      "REPLY_RATE_PERCENT": "{value}%",
       "COLUMNS": {
         "TEMPLATE": "Template",
         "SENT": "Sent",

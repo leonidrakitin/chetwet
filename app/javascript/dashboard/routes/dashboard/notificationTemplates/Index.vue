@@ -11,6 +11,7 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TemplateCard from './components/TemplateCard.vue';
+import TemplateListRow from './components/TemplateListRow.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 import FlowMap from './components/FlowMap.vue';
 import CascadeSettings from './components/CascadeSettings.vue';
@@ -166,9 +167,7 @@ onMounted(() => {
   if (!accountLabels.value.length) {
     store.dispatch('labels/get');
   }
-  if (activeType.value === 'statistics') {
-    store.dispatch('notificationTemplates/fetchStatistics');
-  }
+  store.dispatch('notificationTemplates/fetchStatistics');
 });
 </script>
 
@@ -235,7 +234,7 @@ onMounted(() => {
 
     <!-- View toggle (only for template lists) -->
     <div
-      v-if="isTemplateList"
+      v-if="isTemplateList && activeType !== 'one_time'"
       class="px-4 pt-3 md:px-6 md:pt-4 flex-shrink-0 flex items-center justify-end gap-4"
       :class="viewMode === 'flow' ? 'pb-6' : ''"
     >
@@ -314,6 +313,19 @@ onMounted(() => {
           icon="i-lucide-plus"
           :label="t('NOTIFICATION_TEMPLATES.NEW_TEMPLATE')"
           @click="openNewTemplate"
+        />
+      </div>
+
+      <!-- List view for One Time campaigns -->
+      <div v-else-if="activeType === 'one_time'" class="flex flex-col gap-3">
+        <TemplateListRow
+          v-for="element in filteredTemplates"
+          :key="element.id"
+          :template="element"
+          @edit="handleEdit"
+          @clone="handleClone"
+          @delete="handleDeleteRequest"
+          @preview="handlePreview"
         />
       </div>
 
