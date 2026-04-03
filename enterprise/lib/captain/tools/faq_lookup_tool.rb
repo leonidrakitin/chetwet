@@ -86,6 +86,11 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
           Source: #{response.documentable.external_link}
           "
     end
+    if response.requires_clarification?
+      hint = '[REQUIRES_OPERATOR_CLARIFICATION: Call ask_human tool with title to get ' \
+             'operator approval first. DO NOT answer to the customer explicitly yet.]'
+      formatted_response += "\n          #{hint}\n          "
+    end
 
     formatted_response
   end

@@ -5,8 +5,8 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
               'Use when you are unsure about the answer or need to confirm an action with a human.'
   param :title, type: 'string', desc: 'The question or request for the operator', required: true
   param :target, type: 'string',
-                 desc: 'Who to ask: "@team:team_slug" for a team, or "@member:user_id" for a specific agent',
-                 required: true
+                 desc: 'Who to ask: "@team:team_slug" for a team, or "@member:user_id" for a specific agent (optional)',
+                 required: false
   param :options, type: 'array',
                   desc: 'Array of response options for the operator (last should be a free-text option). Each is a string label.',
                   required: false
@@ -14,14 +14,26 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
                       desc: 'What to do with the selected option: "reply_to_customer", "resume_captain", or "external_api_call"',
                       required: false
 
-  def perform(tool_context, title:, target:, options: nil, action_type: nil)
+  def perform(tool_context, title:, target: nil, options: nil, action_type: nil)
     conversation = find_conversation(tool_context.state)
     return 'Conversation not found' unless conversation
 
-    assignee_type, assignee_id = parse_target(target)
-    return "Invalid target format: #{target}. Use @team:slug or @member:id" unless assignee_id
+    assignee_type = nil
+    assignee_id = nil
 
-    log_tool_usage('ask_human', { conversation_id: conversation.id, target: target })
+    if target.present?
+      assignee_type, assignee_id = parse_target(target)
+      return "Invalid target format: #{target}. Use @team:slug or @member:id" unless assignee_id
+    else
+      dm_ids = @assistant.config['decision_maker_ids'] || []
+      assignee_id = dm_ids.first
+      assignee_type = 'user' if assignee_id
+    end
+
+    # If no assignee could be determined, fallback to failing ask_human
+    return 'No human decision maker is configured to handle this. Proceed with standard conversation handoff.' unless assignee_id
+
+    log_tool_usage('ask_human', { conversation_id: conversation.id, target: target.presence || "user:#{assignee_id}" })
     send_clarifying_message(conversation)
 
     action = action_type.presence || 'reply_to_customer'
