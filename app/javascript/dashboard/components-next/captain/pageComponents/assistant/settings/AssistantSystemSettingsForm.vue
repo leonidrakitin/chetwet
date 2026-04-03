@@ -69,9 +69,10 @@ const formErrors = computed(() => ({
 
 const updateStateFromAssistant = assistant => {
   const { config = {} } = assistant;
-  state.handoffMessage = config.handoff_message;
-  state.resolutionMessage = config.resolution_message;
-  state.instructions = config.instructions;
+  // API may return null for unset JSON keys; Editor breaks on null (modelValue.length).
+  state.handoffMessage = config.handoff_message ?? '';
+  state.resolutionMessage = config.resolution_message ?? '';
+  state.instructions = config.instructions ?? '';
   state.temperature = config.temperature || 1;
   state.decisionMakers = config.decision_maker_ids || [];
 };
@@ -93,7 +94,7 @@ const handleSystemMessagesUpdate = async () => {
 
   const payload = {
     config: {
-      ...props.assistant.config,
+      ...(props.assistant.config || {}),
       handoff_message: state.handoffMessage,
       resolution_message: state.resolutionMessage,
       temperature: state.temperature || 1,

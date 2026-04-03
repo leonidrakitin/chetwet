@@ -34,7 +34,7 @@ const slots = useSlots();
 
 const isFocused = ref(false);
 
-const characterCount = computed(() => props.modelValue.length);
+const characterCount = computed(() => (props.modelValue ?? '').length);
 
 const messageClass = computed(() => {
   switch (props.messageType) {
@@ -69,8 +69,9 @@ watch(
   () => props.modelValue,
   newValue => {
     if (props.maxLength && props.showCharacterCount && !slots.actions) {
-      if (characterCount.value >= props.maxLength) {
-        emit('update:modelValue', newValue.slice(0, props.maxLength));
+      const safe = newValue ?? '';
+      if (safe.length >= props.maxLength) {
+        emit('update:modelValue', safe.slice(0, props.maxLength));
       }
     }
   }
