@@ -26,4 +26,24 @@ class NotificationTemplatePolicy < ApplicationPolicy
   def destroy?
     @account_user.administrator?
   end
+
+  def send_now?
+    @account_user.administrator?
+  end
+
+  def preview_audience?
+    @account_user.administrator?
+  end
+
+  def cascade_settings?
+    @account_user.administrator?
+  end
+
+  def update_cascade_settings?
+    @account_user.administrator?
+  end
+
+  def statistics?
+    @account_user.administrator?
+  end
 end
