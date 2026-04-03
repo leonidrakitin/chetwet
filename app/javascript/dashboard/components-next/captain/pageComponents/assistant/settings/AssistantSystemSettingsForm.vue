@@ -1,13 +1,15 @@
 <script setup>
-import { reactive, computed, watch } from 'vue';
+import { reactive, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useVuelidate } from '@vuelidate/core';
 import { minLength } from '@vuelidate/validators';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useAccount } from 'dashboard/composables/useAccount';
+import { useStore, useMapGetter } from 'dashboard/composables/store';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Editor from 'dashboard/components-next/Editor/Editor.vue';
+import TagMultiSelectComboBox from 'dashboard/components-next/combobox/TagMultiSelectComboBox.vue';
 
 const props = defineProps({
   assistant: {
@@ -21,15 +23,28 @@ const emit = defineEmits(['submit']);
 const { t } = useI18n();
 const { isCloudFeatureEnabled } = useAccount();
 
+const store = useStore();
+const agents = useMapGetter('agents/getRecords');
+
 const isCaptainV2Enabled = computed(() =>
   isCloudFeatureEnabled(FEATURE_FLAGS.CAPTAIN_V2)
 );
+
+const agentOptions = computed(() => {
+  return agents.value
+    .filter(agent => agent.has_telegram)
+    .map(agent => ({
+      label: agent.name,
+      value: agent.id,
+    }));
+});
 
 const initialState = {
   handoffMessage: '',
   resolutionMessage: '',
   instructions: '',
   temperature: 1,
+  decisionMakers: [],
 };
 
 const state = reactive({ ...initialState });
@@ -58,6 +73,7 @@ const updateStateFromAssistant = assistant => {
   state.resolutionMessage = config.resolution_message;
   state.instructions = config.instructions;
   state.temperature = config.temperature || 1;
+  state.decisionMakers = config.decision_maker_ids || [];
 };
 
 const handleSystemMessagesUpdate = async () => {
@@ -81,6 +97,7 @@ const handleSystemMessagesUpdate = async () => {
       handoff_message: state.handoffMessage,
       resolution_message: state.resolutionMessage,
       temperature: state.temperature || 1,
+      decision_maker_ids: state.decisionMakers,
     },
   };
 
@@ -90,6 +107,12 @@ const handleSystemMessagesUpdate = async () => {
 
   emit('submit', payload);
 };
+
+onMounted(() => {
+  if (!agents.value.length) {
+    store.dispatch('agents/get');
+  }
+});
 
 watch(
   () => props.assistant,
@@ -153,6 +176,22 @@ watch(
       <p class="text-sm text-n-slate-11 italic">
         {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.DESCRIPTION') }}
       </p>
+    </div>
+
+    <div class="flex flex-col gap-2 relative z-10">
+      <label class="text-sm font-medium text-n-slate-12">
+        {{ t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.LABEL') }}
+      </label>
+      <TagMultiSelectComboBox
+        v-model="state.decisionMakers"
+        :options="agentOptions"
+        :placeholder="t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.PLACEHOLDER')"
+        :search-placeholder="
+          t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.SEARCH_PLACEHOLDER')
+        "
+        :empty-state="t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.EMPTY_STATE')"
+        :message="t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.HELP')"
+      />
     </div>
 
     <div>
