@@ -5,8 +5,6 @@ import { useStore } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import { emitter } from 'shared/helpers/mitt';
-import { useMapGetter } from 'dashboard/composables/store';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import EmailTranscriptModal from './EmailTranscriptModal.vue';
 import ResolveAction from '../../buttons/ResolveAction.vue';
 import ButtonV4 from 'dashboard/components-next/button/Button.vue';
@@ -26,15 +24,6 @@ const [showEmailActionsModal, toggleEmailModal] = useToggle(false);
 const [showActionsDropdown, toggleDropdown] = useToggle(false);
 
 const currentChat = computed(() => store.getters.getSelectedChat);
-const accountId = useMapGetter('getCurrentAccountId');
-const isFeatureEnabledonAccount = (id, flag) =>
-  store.getters['accounts/isFeatureEnabledonAccount'](id, flag);
-const hideResolveAssign = computed(() =>
-  isFeatureEnabledonAccount(
-    accountId.value,
-    FEATURE_FLAGS.NOTIFY_ALL_AGENTS_NEW_MESSAGE
-  )
-);
 
 const actionMenuItems = computed(() => {
   const items = [];
@@ -104,7 +93,6 @@ onUnmounted(() => {
 <template>
   <div class="relative flex items-center gap-2 actions--container">
     <ResolveAction
-      v-if="!hideResolveAssign"
       :conversation-id="currentChat.id"
       :status="currentChat.status"
     />
