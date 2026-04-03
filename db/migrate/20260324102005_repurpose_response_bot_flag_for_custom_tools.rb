@@ -3,7 +3,11 @@ class RepurposeResponseBotFlagForCustomTools < ActiveRecord::Migration[7.1]
     # The response_bot flag (deprecated) has been renamed to custom_tools.
     # Disable it on any accounts that had response_bot enabled so the repurposed
     # flag starts in its intended default-off state.
-    Account.feature_custom_tools.find_each(batch_size: 100) do |account|
+    # Avoid FlagShihTzu SQL scopes: `feature_flags` is stored as decimal and PostgreSQL
+    # rejects `numeric & bigint` without casts.
+    Account.find_each(batch_size: 100) do |account|
+      next unless account.feature_enabled?('custom_tools')
+
       account.disable_features(:custom_tools)
       account.save!(validate: false)
     end
