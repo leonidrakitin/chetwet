@@ -14,14 +14,26 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
                       desc: 'What to do with the selected option: "reply_to_customer", "resume_captain", or "external_api_call"',
                       required: false
 
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength -- TEMP DEBUG TMP logging (revert commit)
   def perform(tool_context, title:, target: nil, options: nil, action_type: nil)
     conversation = find_conversation(tool_context.state)
-    return 'Conversation not found' unless conversation
+    Rails.logger.info(
+      '[Captain DEBUG TMP] AskHumanTool#perform enter ' \
+      "assistant_id=#{@assistant.id} conversation_id=#{conversation&.id} title=#{title.inspect} target=#{target.inspect}"
+    )
+    return 'Conversation not found'.tap { |msg| Rails.logger.info("[Captain DEBUG TMP] AskHumanTool#perform abort: #{msg}") } unless conversation
 
     resolved = resolve_ask_human_assignee(target)
-    return resolved if resolved.is_a?(String)
+    if resolved.is_a?(String)
+      Rails.logger.info("[Captain DEBUG TMP] AskHumanTool#perform early_return_string=#{resolved.truncate(300).inspect}")
+      return resolved
+    end
 
     assignee_type, assignee_id = resolved
+    Rails.logger.info(
+      '[Captain DEBUG TMP] AskHumanTool#perform resolved_assignee ' \
+      "assignee_type=#{assignee_type.inspect} assignee_id=#{assignee_id.inspect}"
+    )
 
     log_tool_usage('ask_human', { conversation_id: conversation.id, target: target.presence || "user:#{assignee_id}" })
     send_clarifying_message(conversation)
@@ -34,9 +46,15 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     )
     ApprovalBot::NotifyJob.perform_later(request)
 
-    "Approval request ##{request.id} sent to #{target}. Waiting for human response. " \
-      'Do NOT send any message to the customer until the operator responds.'
+    out = "Approval request ##{request.id} sent to #{target}. Waiting for human response. " \
+          'Do NOT send any message to the customer until the operator responds.'
+    Rails.logger.info(
+      '[Captain DEBUG TMP] AskHumanTool#perform SUCCESS ' \
+      "approval_request_id=#{request.id} notify_job=enqueued result=#{out.truncate(200).inspect}"
+    )
+    out
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
   private
 
@@ -50,10 +68,14 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     end
 
     dm_ids = @assistant.config['decision_maker_ids'] || []
+    Rails.logger.info("[Captain DEBUG TMP] AskHumanTool#resolve_ask_human_assignee dm_ids=#{dm_ids.inspect}")
     return 'No human decision maker is configured to handle this. Proceed with standard conversation handoff.' if dm_ids.blank?
 
     user = first_decision_maker_with_telegram(dm_ids)
-    return 'No human decision maker with a configured Telegram account was found. Proceed with standard conversation handoff.' unless user
+    unless user
+      Rails.logger.info('[Captain DEBUG TMP] AskHumanTool#resolve_ask_human_assignee no user with telegram in dm_ids list')
+      return 'No human decision maker with a configured Telegram account was found. Proceed with standard conversation handoff.'
+    end
 
     ['user', user.id]
   end

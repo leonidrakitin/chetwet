@@ -25,7 +25,13 @@ class Captain::Tools::SearchReplyDocumentationService < RubyLLM::Tool
     responses = search_responses(translated_query)
     return 'No FAQs found for the given query' if responses.empty?
 
-    responses.map { |response| format_response(response) }.join
+    body = responses.map { |response| format_response(response) }.join
+    Rails.logger.info(
+      '[Captain DEBUG TMP] SearchReplyDocumentationService#execute ' \
+      "assistant_id=#{@assistant&.id} hits=#{responses.size} " \
+      "requires_operator_hint=#{body.include?('REQUIRES_OPERATOR_CLARIFICATION')} len=#{body.bytesize}"
+    )
+    body
   end
 
   private

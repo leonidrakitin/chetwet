@@ -2,6 +2,7 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
   description 'Search FAQ responses using semantic similarity to find relevant answers'
   param :query, type: 'string', desc: 'The question or topic to search for in the FAQ database'
 
+  # rubocop:disable Metrics/MethodLength -- TEMP DEBUG TMP logging (revert commit)
   def perform(_tool_context, query:)
     log_tool_usage('searching', { query: query })
 
@@ -10,12 +11,25 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
 
     if total_results.zero?
       log_tool_usage('no_results', { query: query })
-      "No relevant FAQs found for: #{query}"
+      out = "No relevant FAQs found for: #{query}"
+      Rails.logger.info(
+        '[Captain DEBUG TMP] FaqLookupTool#perform no_results ' \
+        "assistant_id=#{@assistant.id} query=#{query.inspect} return=#{out.inspect}"
+      )
+      out
     else
       log_tool_usage('found_results', { query: query, count: total_results })
-      "#{format_chunk_results(chunk_results)}#{format_responses(faq_results)}"
+      body = "#{format_chunk_results(chunk_results)}#{format_responses(faq_results)}"
+      needs_operator = body.include?('REQUIRES_OPERATOR_CLARIFICATION')
+      Rails.logger.info(
+        '[Captain DEBUG TMP] FaqLookupTool#perform hit ' \
+        "assistant_id=#{@assistant.id} query=#{query.inspect} chunks=#{chunk_results.size} faqs=#{faq_results.size} " \
+        "requires_operator_hint=#{needs_operator} return_len=#{body.bytesize}"
+      )
+      body
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   private
 

@@ -1,23 +1,40 @@
+# rubocop:disable Metrics/ModuleLength, Metrics/MethodLength, Metrics/AbcSize, Layout/LineLength -- TEMP DEBUG TMP logging
 module Captain::Assistant::AutonomyPolicyHelper
   private
 
   DEFAULT_AUTONOMY_MAX_RETRIES = 2
 
   def run_with_autonomy_policy(message, context)
-    return runner.run(message, context: context, max_turns: 100) unless autonomy_enabled?
+    unless autonomy_enabled?
+      Rails.logger.info('[Captain DEBUG TMP] AutonomyPolicy: disabled — single runner.run (max_turns=100)')
+      result = runner.run(message, context: context, max_turns: 100)
+      log_captain_debug_tmp_run_outcome(result, label: 'single_run')
+      return result
+    end
 
     max_retries = effective_autonomy_max_retries
+    Rails.logger.info(
+      '[Captain DEBUG TMP] AutonomyPolicy: enabled ' \
+      "max_retries=#{max_retries} attempts=#{max_retries + 1}"
+    )
 
     result = nil
     (max_retries + 1).times do |attempt|
+      Rails.logger.info("[Captain DEBUG TMP] AutonomyPolicy: runner.run attempt=#{attempt} / #{max_retries}")
       result = runner.run(message, context: context, max_turns: 100)
       context[:autonomy_retry_count] = attempt
+      log_captain_debug_tmp_run_outcome(result, label: "attempt_#{attempt}")
       break if answer_acceptable?(result)
 
       append_retry_hint!(context, attempt + 1, message) if attempt < max_retries
     end
 
-    answer_acceptable?(result) ? result : escalation_result(context)
+    acceptable = answer_acceptable?(result)
+    Rails.logger.info(
+      "[Captain DEBUG TMP] AutonomyPolicy: finished acceptable=#{acceptable} " \
+      "escalating=#{!acceptable}"
+    )
+    acceptable ? result : escalation_result(context)
   end
 
   # autonomy_max_retries: nil → default 2 (autonomy on)
@@ -37,6 +54,19 @@ module Captain::Assistant::AutonomyPolicyHelper
 
     response_text = output.is_a?(Hash) ? (output['response'] || output[:response]).to_s : output.to_s
     response_text.present? && response_text != 'conversation_handoff'
+  end
+
+  def log_captain_debug_tmp_run_outcome(result, label:)
+    output = result&.output
+    text = output.is_a?(Hash) ? (output['response'] || output[:response]).to_s : output.to_s
+    ctx = result.respond_to?(:context) ? result.context : nil
+    Rails.logger.info(
+      '[Captain DEBUG TMP] runner.run outcome ' \
+      "label=#{label} acceptable=#{answer_acceptable?(result)} " \
+      "response_preview=#{text.truncate(400).inspect} " \
+      "current_agent=#{ctx&.dig(:current_agent).inspect} " \
+      "faq_called=#{ctx&.dig(:captain_v2_faq_lookup_called)} ask_human_called=#{ctx&.dig(:captain_v2_ask_human_called)}"
+    )
   end
 
   def append_retry_hint!(context, attempt, message = nil)
@@ -125,3 +155,4 @@ module Captain::Assistant::AutonomyPolicyHelper
     root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'faq_hit'), (policy != 'no_match').to_s) if policy
   end
 end
+# rubocop:enable Metrics/ModuleLength, Metrics/MethodLength, Metrics/AbcSize, Layout/LineLength

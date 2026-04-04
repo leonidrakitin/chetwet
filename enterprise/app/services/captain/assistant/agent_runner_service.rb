@@ -1,6 +1,7 @@
 require 'agents'
 require 'agents/instrumentation'
 
+# rubocop:disable Metrics/ClassLength, Metrics/AbcSize, Metrics/CyclomaticComplexity -- TEMP DEBUG TMP
 class Captain::Assistant::AgentRunnerService
   include Integrations::LlmInstrumentationConstants
   include Captain::Assistant::RunnerCallbacksHelper
@@ -28,6 +29,14 @@ class Captain::Assistant::AgentRunnerService
 
   def generate_response(message_history: [])
     message_to_process, context = run_payload(message_history)
+    dm_ids = @assistant.config['decision_maker_ids']
+    ask_human_tool_name = (dm_ids.present? ? Captain::Tools::AskHumanTool.new(@assistant).name : nil)
+    Rails.logger.info(
+      '[Captain DEBUG TMP] AgentRunnerService#generate_response start ' \
+      "assistant_id=#{@assistant.id} conversation_id=#{@conversation&.id} source=#{@source.inspect} " \
+      "decision_maker_ids=#{dm_ids.inspect} ask_human_tool_name=#{ask_human_tool_name.inspect}"
+    )
+
     result = run_with_autonomy_policy(message_to_process, context)
 
     process_agent_result(result)
@@ -98,6 +107,14 @@ class Captain::Assistant::AgentRunnerService
     output = result.output
     response = output.is_a?(Hash) ? output.with_indifferent_access : { 'response' => output.to_s, 'reasoning' => 'Processed by agent' }
     response['agent_name'] = result.context&.dig(:current_agent)
+    text = response['response'].to_s
+    Rails.logger.info(
+      '[Captain DEBUG TMP] process_agent_result ' \
+      "current_agent=#{result.context&.dig(:current_agent).inspect} " \
+      "response_preview=#{text.truncate(400).inspect} " \
+      "mentions_approval_request=#{text.include?('Approval request')} faq_lookup_called=#{result.context&.dig(:captain_v2_faq_lookup_called)} " \
+      "ask_human_context_flag=#{result.context&.dig(:captain_v2_ask_human_called)}"
+    )
     response
   end
 
@@ -178,6 +195,13 @@ class Captain::Assistant::AgentRunnerService
     faq_tool_name = Captain::Tools::FaqLookupTool.new(@assistant).name
 
     runner.on_tool_complete do |tool_name, tool_result, context_wrapper|
+      preview = tool_result.is_a?(Hash) ? tool_result.inspect : tool_result.to_s
+      context_wrapper.context[:captain_v2_ask_human_called] = true if context_wrapper&.context && tool_name.to_s.include?('ask_human')
+      Rails.logger.info(
+        '[Captain DEBUG TMP] on_tool_complete ' \
+        "tool_name=#{tool_name.inspect} ask_human=#{(tool_name.to_s.include?('ask_human') ? 'yes' : 'no')} " \
+        "result_preview=#{preview.truncate(500).inspect}"
+      )
       track_handoff_usage(tool_name, handoff_tool_name, context_wrapper)
       track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
     end
@@ -275,3 +299,4 @@ class Captain::Assistant::AgentRunnerService
     [message_to_process, context]
   end
 end
+# rubocop:enable Metrics/ClassLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
