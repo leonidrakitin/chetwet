@@ -43,7 +43,7 @@ class Captain::ApprovalRequest < ApplicationRecord
   self.table_name = 'captain_approval_requests'
 
   belongs_to :account
-  belongs_to :conversation
+  belongs_to :conversation, class_name: '::Conversation'
   belongs_to :assistant, class_name: 'Captain::Assistant', optional: true
   belongs_to :resolved_by, class_name: 'User', optional: true
 
