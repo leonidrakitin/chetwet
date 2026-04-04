@@ -276,5 +276,30 @@ RSpec.describe 'Captain ask_human tool flow', type: :integration do
       end.not_to change(Captain::ApprovalRequest, :count)
     end
   end
+
+  describe '@team target without teams.slug column' do
+    let(:tool_ctx) do
+      Struct.new(:state).new({
+                               conversation: {
+                                 id: conversation.id,
+                                 display_id: conversation.display_id,
+                                 additional_attributes: {}
+                               }
+                             })
+    end
+
+    it 'resolves team by name (case-insensitive) and creates a team assignee request' do
+      team = create(:team, account: account, name: 'support')
+      ask_human_tool = Captain::Tools::AskHumanTool.new(assistant)
+
+      expect do
+        ask_human_tool.perform(tool_ctx, title: 'Need team approval', target: '@team:Support')
+      end.to change(Captain::ApprovalRequest, :count).by(1)
+
+      request = Captain::ApprovalRequest.last
+      expect(request.assignee_type).to eq('team')
+      expect(request.assignee_id).to eq(team.id)
+    end
+  end
 end
 # rubocop:enable RSpec/DescribeClass, RSpec/AnyInstance, RSpec/ExpectInHook

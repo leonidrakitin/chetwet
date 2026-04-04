@@ -5,7 +5,7 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
               'Use when you are unsure about the answer or need to confirm an action with a human.'
   param :title, type: 'string', desc: 'The question or request for the operator', required: true
   param :target, type: 'string',
-                 desc: 'Who to ask: "@team:team_slug" for a team, or "@member:user_id" for a specific agent (optional)',
+                 desc: 'Who to ask: "@team:team_name" for a team, or "@member:user_id" for a specific agent (optional)',
                  required: false
   param :options, type: 'array',
                   desc: 'Array of response options for the operator (last should be a free-text option). Each is a string label.',
@@ -14,26 +14,14 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
                       desc: 'What to do with the selected option: "reply_to_customer", "resume_captain", or "external_api_call"',
                       required: false
 
-  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength -- TEMP DEBUG TMP logging (revert commit)
   def perform(tool_context, title:, target: nil, options: nil, action_type: nil)
     conversation = find_conversation(tool_context.state)
-    Rails.logger.info(
-      '[Captain DEBUG TMP] AskHumanTool#perform enter ' \
-      "assistant_id=#{@assistant.id} conversation_id=#{conversation&.id} title=#{title.inspect} target=#{target.inspect}"
-    )
-    return 'Conversation not found'.tap { |msg| Rails.logger.info("[Captain DEBUG TMP] AskHumanTool#perform abort: #{msg}") } unless conversation
+    return 'Conversation not found' unless conversation
 
     resolved = resolve_ask_human_assignee(target)
-    if resolved.is_a?(String)
-      Rails.logger.info("[Captain DEBUG TMP] AskHumanTool#perform early_return_string=#{resolved.truncate(300).inspect}")
-      return resolved
-    end
+    return resolved if resolved.is_a?(String)
 
     assignee_type, assignee_id = resolved
-    Rails.logger.info(
-      '[Captain DEBUG TMP] AskHumanTool#perform resolved_assignee ' \
-      "assignee_type=#{assignee_type.inspect} assignee_id=#{assignee_id.inspect}"
-    )
 
     log_tool_usage('ask_human', { conversation_id: conversation.id, target: target.presence || "user:#{assignee_id}" })
     send_clarifying_message(conversation)
@@ -46,15 +34,9 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     )
     ApprovalBot::NotifyJob.perform_later(request)
 
-    out = "Approval request ##{request.id} sent to #{target}. Waiting for human response. " \
-          'Do NOT send any message to the customer until the operator responds.'
-    Rails.logger.info(
-      '[Captain DEBUG TMP] AskHumanTool#perform SUCCESS ' \
-      "approval_request_id=#{request.id} notify_job=enqueued result=#{out.truncate(200).inspect}"
-    )
-    out
+    "Approval request ##{request.id} sent to #{target}. Waiting for human response. " \
+      'Do NOT send any message to the customer until the operator responds.'
   end
-  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
   private
 
@@ -62,20 +44,16 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
   def resolve_ask_human_assignee(target)
     if target.present?
       assignee_type, assignee_id = parse_target(target)
-      return "Invalid target format: #{target}. Use @team:slug or @member:id" unless assignee_id
+      return "Invalid target format: #{target}. Use @team:team_name or @member:id" unless assignee_id
 
       return [assignee_type, assignee_id]
     end
 
     dm_ids = @assistant.config['decision_maker_ids'] || []
-    Rails.logger.info("[Captain DEBUG TMP] AskHumanTool#resolve_ask_human_assignee dm_ids=#{dm_ids.inspect}")
     return 'No human decision maker is configured to handle this. Proceed with standard conversation handoff.' if dm_ids.blank?
 
     user = first_decision_maker_with_telegram(dm_ids)
-    unless user
-      Rails.logger.info('[Captain DEBUG TMP] AskHumanTool#resolve_ask_human_assignee no user with telegram in dm_ids list')
-      return 'No human decision maker with a configured Telegram account was found. Proceed with standard conversation handoff.'
-    end
+    return 'No human decision maker with a configured Telegram account was found. Proceed with standard conversation handoff.' unless user
 
     ['user', user.id]
   end
@@ -90,10 +68,19 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     dm_ids.filter_map { |raw_id| users_by_id[raw_id.to_i] }.find { |u| u.telegram_chat_id.present? }
   end
 
+  # Teams table has no slug column; match by name (Team stores names lowercased).
+  def find_team_for_ask_human_target(raw_identifier)
+    identifier = raw_identifier.to_s.strip
+    return nil if identifier.blank?
+
+    scope = account_scoped(::Team)
+    scope.find_by(name: identifier.downcase) || scope.where('LOWER(name) = LOWER(?)', identifier).first
+  end
+
   def parse_target(target)
     case target
     when /\A@team:(.+)\z/
-      team = account_scoped(::Team).find_by(slug: ::Regexp.last_match(1)) || account_scoped(::Team).find_by(name: ::Regexp.last_match(1))
+      team = find_team_for_ask_human_target(::Regexp.last_match(1))
       team ? ['team', team.id] : [nil, nil]
     when /\A@member:(\d+)\z/
       user_id = ::Regexp.last_match(1).to_i
