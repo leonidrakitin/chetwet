@@ -5,7 +5,7 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
               'Use when you are unsure about the answer or need to confirm an action with a human.'
   param :title, type: 'string', desc: 'The question or request for the operator', required: true
   param :target, type: 'string',
-                 desc: 'Who to ask: "@team:team_name" for a team, or "@member:user_id" for a specific agent (optional)',
+                 desc: 'Optional: "@member:user_id" for a specific agent. Default: first decision maker from assistant config.',
                  required: false
   param :options, type: 'array',
                   desc: 'Array of response options for the operator (last should be a free-text option). Each is a string label.',
@@ -44,7 +44,7 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
   def resolve_ask_human_assignee(target)
     if target.present?
       assignee_type, assignee_id = parse_target(target)
-      return "Invalid target format: #{target}. Use @team:team_name or @member:id" unless assignee_id
+      return "Invalid target format: #{target}. Use @member:id" unless assignee_id
 
       return [assignee_type, assignee_id]
     end
@@ -68,20 +68,8 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     dm_ids.filter_map { |raw_id| users_by_id[raw_id.to_i] }.find { |u| u.telegram_chat_id.present? }
   end
 
-  # Teams table has no slug column; match by name (Team stores names lowercased).
-  def find_team_for_ask_human_target(raw_identifier)
-    identifier = raw_identifier.to_s.strip
-    return nil if identifier.blank?
-
-    scope = account_scoped(::Team)
-    scope.find_by(name: identifier.downcase) || scope.where('LOWER(name) = LOWER(?)', identifier).first
-  end
-
   def parse_target(target)
     case target
-    when /\A@team:(.+)\z/
-      team = find_team_for_ask_human_target(::Regexp.last_match(1))
-      team ? ['team', team.id] : [nil, nil]
     when /\A@member:(\d+)\z/
       user_id = ::Regexp.last_match(1).to_i
       user = ::User.joins(:account_users).where(account_users: { account_id: @assistant.account_id }).find_by(id: user_id)
