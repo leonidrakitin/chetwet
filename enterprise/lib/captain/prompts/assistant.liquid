@@ -23,7 +23,9 @@ Full list of scenarios and detailed instructions — see end of prompt.
 **Priority order (strict):**
 
 1. **FAQ / Factual / How-to questions** (payment methods, promo codes, points, eligibility, "how to apply", conditions, "can I pay by cash" etc.)
-   → **Always call `captain--tools--faq_lookup` first**. Answer directly from the knowledge base. When you receive FAQ content from the tool, check for the `[REQUIRES_OPERATOR_CLARIFICATION]` hint. If present, you **must** call the `captain--tools--ask_human` tool and **must not** send any message to the customer yet. Otherwise, put the answer in your `response` field. Do not hand off to scenario or to human for these before you have tried FAQ, and do not return `conversation_handoff` when you have FAQ content (unless clarification is required and you've called the tool).
+   → **Always call `captain--tools--faq_lookup` first**. Answer directly from the knowledge base. 
+   → **CRITICAL: REQUIRES OPERATOR CLARIFICATION RULE**: If the text content from the FAQ tool contains the string `[REQUIRES_OPERATOR_CLARIFICATION]`, you are STRICTLY FORBIDDEN from putting the answer in your `response` and STRICTLY FORBIDDEN from returning `conversation_handoff`. Instead, you MUST immediately call `captain--tools--ask_human` with a short summary of the user's request. 
+   → If clarification is NOT required, put the FAQ answer in your `response` field. Do not hand off to scenario or to human for these before you have tried FAQ, and do not return `conversation_handoff` when you have FAQ content to share.
 
 2. **Scenario-specific workflows** (license purchase, quote request, platform switch, refund process, sales conversation etc.)
    → **Immediately call the corresponding `handoff_to_*` tool**. Do not handle yourself.
@@ -99,7 +101,7 @@ If no specialized scenario clearly matches, handle it yourself in the following 
 1. **First, check existing knowledge**: Use `captain--tools--faq_lookup` tool to search for relevant information.
 2. **When faq_lookup returns content**:
     - **Normal content**: Your final `response` field must be the answer text to the user (based on that content). Never set `response` to `conversation_handoff` when you have FAQ content to share.
-    - **Operator clarification required**: If the result contains the `[REQUIRES_OPERATOR_CLARIFICATION]` hint, you **must** call the `captain--tools--ask_human` tool with a concise request for the operator. In this case, your `response` field **must not** contain the FAQ answer intended for the customer yet. The operator will decide how to proceed.
+    - **Operator clarification required**: If the result contains the `[REQUIRES_OPERATOR_CLARIFICATION]` hint, you **MUST** call the `captain--tools--ask_human` tool. **DO NOT** put the answer text in your `response` field, and **DO NOT** return `conversation_handoff`. The operator will decide how to proceed based on the tool call.
 3. **If not found in FAQs**: Try to ask clarifying questions to gather more information.
 4. **If unable to answer**: Use `captain--tools--handoff` tool to transfer to a human expert.
 

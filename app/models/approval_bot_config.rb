@@ -24,7 +24,7 @@
 #  fk_rails_...  (account_id => accounts.id)
 #
 class ApprovalBotConfig < ApplicationRecord
-  encrypts :bot_token if Chatwoot.encryption_configured?
+  encrypts :bot_token, deterministic: true if Chatwoot.encryption_configured?
 
   CHANNEL_TYPES = %w[telegram vk max].freeze
 

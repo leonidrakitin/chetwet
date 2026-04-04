@@ -78,7 +78,7 @@ class Captain::ConversationSummarizerService
       recent_messages: recent_messages
     }
     cache_value = result.merge(recent_messages: recent_serializable).transform_keys(&:to_s).to_json
-    Redis::Alfred.setex(cache_key, CACHE_TTL_SECONDS, cache_value)
+    Redis::Alfred.setex(cache_key, cache_value, CACHE_TTL_SECONDS)
     result
   end
 
