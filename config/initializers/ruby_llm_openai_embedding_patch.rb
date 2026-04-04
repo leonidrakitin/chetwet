@@ -14,6 +14,30 @@
 # positional String argument instead of a Faraday::Response, triggering
 # "undefined method 'body' for an instance of String". We inline the three
 # lines of original parsing logic to stay self-contained and predictable.
+# Logs raw embedding HTTP payload shape before RubyLLM parses it (helps debug custom endpoints).
+module RubyLLMOpenAIEmbeddingResponseLogger
+  def parse_embedding_response(response, model:, text: _text)
+    log_embedding_response_preview(response, model)
+    super
+  end
+
+  private
+
+  def log_embedding_response_preview(response, model)
+    preview =
+      case response
+      when String
+        "response=String bytes=#{response.bytesize} preview=#{response.truncate(1500).inspect}"
+      else
+        raw = response.respond_to?(:body) ? response.body : response
+        "response=#{response.class.name} body_class=#{raw.class.name} preview=#{raw.to_s.truncate(1500).inspect}"
+      end
+    Rails.logger.info("[Captain][Embedding] #{preview} model=#{model.inspect}")
+  rescue StandardError => e
+    Rails.logger.warn("[Captain][Embedding] preview log failed: #{e.class}: #{e.message}")
+  end
+end
+
 module RubyLLMOpenAIEmbeddingPatch
   def parse_embedding_response(response, model:, text:)
     body = extract_embedding_body(response)
@@ -40,3 +64,4 @@ module RubyLLMOpenAIEmbeddingPatch
 end
 
 RubyLLM::Providers::OpenAI::Embeddings.prepend(RubyLLMOpenAIEmbeddingPatch)
+RubyLLM::Providers::OpenAI.prepend(RubyLLMOpenAIEmbeddingResponseLogger)
