@@ -87,7 +87,7 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
           "
     end
     if response.requires_clarification?
-      hint = '[REQUIRES_OPERATOR_CLARIFICATION: Call ask_human tool with title to get ' \
+      hint = '[REQUIRES_OPERATOR_CLARIFICATION: Call `captain--tools--ask_human` tool with title to get ' \
              'operator approval first. DO NOT answer to the customer explicitly yet.]'
       formatted_response += "\n          #{hint}\n          "
     end

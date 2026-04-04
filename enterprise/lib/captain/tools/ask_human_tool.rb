@@ -18,20 +18,10 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     conversation = find_conversation(tool_context.state)
     return 'Conversation not found' unless conversation
 
-    assignee_type = nil
-    assignee_id = nil
+    resolved = resolve_ask_human_assignee(target)
+    return resolved if resolved.is_a?(String)
 
-    if target.present?
-      assignee_type, assignee_id = parse_target(target)
-      return "Invalid target format: #{target}. Use @team:slug or @member:id" unless assignee_id
-    else
-      dm_ids = @assistant.config['decision_maker_ids'] || []
-      assignee_id = dm_ids.first
-      assignee_type = 'user' if assignee_id
-    end
-
-    # If no assignee could be determined, fallback to failing ask_human
-    return 'No human decision maker is configured to handle this. Proceed with standard conversation handoff.' unless assignee_id
+    assignee_type, assignee_id = resolved
 
     log_tool_usage('ask_human', { conversation_id: conversation.id, target: target.presence || "user:#{assignee_id}" })
     send_clarifying_message(conversation)
@@ -49,6 +39,34 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
   end
 
   private
+
+  # @return [Array(String, Integer)] assignee_type and assignee_id, or an error String
+  def resolve_ask_human_assignee(target)
+    if target.present?
+      assignee_type, assignee_id = parse_target(target)
+      return "Invalid target format: #{target}. Use @team:slug or @member:id" unless assignee_id
+
+      return [assignee_type, assignee_id]
+    end
+
+    dm_ids = @assistant.config['decision_maker_ids'] || []
+    return 'No human decision maker is configured to handle this. Proceed with standard conversation handoff.' if dm_ids.blank?
+
+    user = first_decision_maker_with_telegram(dm_ids)
+    return 'No human decision maker with a configured Telegram account was found. Proceed with standard conversation handoff.' unless user
+
+    ['user', user.id]
+  end
+
+  def first_decision_maker_with_telegram(dm_ids)
+    account_id = @assistant.account_id
+    users_by_id = ::User.joins(:account_users)
+                        .where(account_users: { account_id: account_id })
+                        .where(id: dm_ids)
+                        .index_by(&:id)
+
+    dm_ids.filter_map { |raw_id| users_by_id[raw_id.to_i] }.find { |u| u.telegram_chat_id.present? }
+  end
 
   def parse_target(target)
     case target
