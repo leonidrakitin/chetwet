@@ -42,7 +42,7 @@ module RubyLLMOpenAIEmbeddingPatch
   def parse_embedding_response(response, model:, text:)
     body = extract_embedding_body(response)
     data_array = body.is_a?(Hash) && body['data']
-    raise_embedding_error(body) unless data_array
+    raise_embedding_error(response, body) unless data_array
 
     input_tokens = body.dig('usage', 'prompt_tokens') || 0
     vectors = data_array.map { |d| d['embedding'] } # rubocop:disable Rails/Pluck
@@ -57,9 +57,13 @@ module RubyLLMOpenAIEmbeddingPatch
     body.is_a?(String) ? JSON.parse(body) : body
   end
 
-  def raise_embedding_error(body)
+  def raise_embedding_error(response, body)
     msg = body.is_a?(Hash) ? (body.dig('error', 'message') || body.inspect) : body.to_s
-    raise RubyLLM::Error, "Embedding API error: #{msg}. Check CAPTAIN_OPEN_AI_ENDPOINT and API key."
+    response_object = response.respond_to?(:body) ? response : Struct.new(:body).new(body)
+    raise RubyLLM::Error.new(
+      response_object,
+      "Embedding API error: #{msg}. Check CAPTAIN_OPEN_AI_ENDPOINT and API key."
+    )
   end
 end
 
