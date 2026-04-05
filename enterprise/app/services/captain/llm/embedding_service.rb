@@ -3,6 +3,9 @@ class Captain::Llm::EmbeddingService
 
   class EmbeddingsError < StandardError; end
 
+  EMBEDDING_MAX_RETRIES = 3
+  EMBEDDING_RETRY_DELAY = 0.5
+
   def initialize(account_id: nil)
     Llm::Config.initialize!
     @account_id = account_id
@@ -17,13 +20,7 @@ class Captain::Llm::EmbeddingService
     return [] if content.blank?
 
     instrument_embedding_call(instrumentation_params(content, model)) do
-      key, base = Llm::Config.embedding_openai_credentials
-      Rails.logger.info("[Captain][EmbeddingService] credentials key_suffix=#{key.to_s.last(8).inspect} base=#{base.inspect} model=#{model.inspect}")
-      context = RubyLLM.context do |config|
-        config.openai_api_key = key
-        config.openai_api_base = base
-      end
-      context.embed(content, model: model).vectors || []
+      embed_with_retry(content, model)
     end
   rescue StandardError => e
     log_embedding_failure(e, content, model)
@@ -31,6 +28,30 @@ class Captain::Llm::EmbeddingService
   end
 
   private
+
+  def embed_with_retry(content, model)
+    key, base = Llm::Config.embedding_openai_credentials
+    context = RubyLLM.context do |config|
+      config.openai_api_key = key
+      config.openai_api_base = base
+    end
+
+    attempts = 0
+    begin
+      attempts += 1
+      context.embed(content, model: model).vectors || []
+    rescue RubyLLM::Error => e
+      raise unless attempts < EMBEDDING_MAX_RETRIES && transient_embedding_error?(e)
+
+      Rails.logger.warn("[Captain][EmbeddingService] transient error, retrying (#{attempts}/#{EMBEDDING_MAX_RETRIES}): #{e.message}")
+      sleep(EMBEDDING_RETRY_DELAY * attempts)
+      retry
+    end
+  end
+
+  def transient_embedding_error?(error)
+    error.message.include?('No successful provider responses')
+  end
 
   def log_embedding_failure(error, content, model)
     Rails.logger.error(
