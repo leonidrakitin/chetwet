@@ -6,11 +6,22 @@ class Captain::Llm::EmbeddingService
   def initialize(account_id: nil)
     Llm::Config.initialize!
     @account_id = account_id
-    @embedding_model = InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_MODEL')&.value.presence || LlmConstants::DEFAULT_EMBEDDING_MODEL
+    @embedding_model = self.class.resolved_embedding_model
   end
 
   def self.embedding_model
-    InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_MODEL')&.value.presence || LlmConstants::DEFAULT_EMBEDDING_MODEL
+    resolved_embedding_model
+  end
+
+  def self.resolved_embedding_model
+    explicit = InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_MODEL')&.value.presence
+    return explicit if explicit.present?
+
+    if Llm::Config.captain_openrouter_endpoint?
+      LlmConstants::OPENROUTER_DEFAULT_EMBEDDING_MODEL
+    else
+      LlmConstants::DEFAULT_EMBEDDING_MODEL
+    end
   end
 
   def get_embedding(content, model: @embedding_model)

@@ -38,6 +38,15 @@ module Llm::Config
       [key, base]
     end
 
+    # True when Captain chat/embeddings use an OpenRouter base URL (CAPTAIN_OPEN_AI_ENDPOINT).
+    def captain_openrouter_endpoint?
+      raw = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
+      return false if raw.blank?
+
+      url = raw.is_a?(Hash) ? (raw[:value] || raw['value']).to_s : raw.to_s
+      url.include?('openrouter.ai')
+    end
+
     private
 
     def configure_ruby_llm

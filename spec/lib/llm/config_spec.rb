@@ -11,6 +11,26 @@ RSpec.describe Llm::Config do
 
   after { described_class.reset! }
 
+  describe '.captain_openrouter_endpoint?' do
+    it 'is false when endpoint is blank' do
+      InstallationConfig.where(name: 'CAPTAIN_OPEN_AI_ENDPOINT').delete_all
+
+      expect(described_class.captain_openrouter_endpoint?).to be false
+    end
+
+    it 'is true when endpoint host is openrouter' do
+      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://openrouter.ai/api/v1')
+
+      expect(described_class.captain_openrouter_endpoint?).to be true
+    end
+
+    it 'is false for direct OpenAI' do
+      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://api.openai.com/v1')
+
+      expect(described_class.captain_openrouter_endpoint?).to be false
+    end
+  end
+
   describe '.embedding_openai_credentials' do
     it 'uses main key and normalizes global endpoint when embedding endpoint unset' do
       upsert_installation_config('CAPTAIN_OPEN_AI_API_KEY', 'main-key')
