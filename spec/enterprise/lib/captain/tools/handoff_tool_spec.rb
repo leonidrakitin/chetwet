@@ -12,7 +12,11 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
 
   describe '#description' do
     it 'returns the correct description' do
-      expect(tool.description).to eq('Hand off the conversation to a human agent when unable to assist further')
+      expect(tool.description).to eq(
+        'Use ONLY as a last resort to permanently transfer the conversation to human support. Trigger strictly ' \
+        'if the user explicitly demands a human agent or the issue is completely unsolvable here. Do NOT use ' \
+        'for approval or quick clarification — use `captain--tools--ask_human` instead.'
+      )
     end
   end
 

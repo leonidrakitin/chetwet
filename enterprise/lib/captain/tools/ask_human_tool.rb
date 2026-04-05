@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
-  description 'Request operator/human approval or clarification via messenger (Telegram/VK/Max). ' \
-              'Use when you are unsure about the answer or need to confirm an action with a human.'
+  description 'Use this tool to silently ask a human operator a background question or to request approval for a ' \
+              'restricted action (e.g., canceling an order). The conversation will NOT be handed off; you remain ' \
+              'active and receive a hidden response from the operator to continue the chat with the user.'
   param :title, type: 'string', desc: 'The question or request for the operator', required: true
   param :target, type: 'string',
                  desc: 'Optional: "@member:user_id" for a specific agent. Default: first decision maker from assistant config.',

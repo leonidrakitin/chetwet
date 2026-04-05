@@ -994,7 +994,7 @@
         },
         "handoff": {
           "TITLE": "Handoff to Human",
-          "DESCRIPTION": "Hand off the conversation to a human agent"
+          "DESCRIPTION": "Last resort: permanently transfer the conversation to human support. Not for approvals—use Ask Human."
         },
         "yclients_lookup_client": {
           "TITLE": "Yclients: Lookup Client",
@@ -1022,7 +1022,7 @@
         },
         "ask_human": {
           "TITLE": "Ask Human",
-          "DESCRIPTION": "Request operator approval or clarification via messenger"
+          "DESCRIPTION": "Background question or approval from an operator; conversation stays with the assistant"
         },
         "notify_staff": {
           "TITLE": "Notify Staff",

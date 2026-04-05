@@ -101,8 +101,10 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
           "
     end
     if response.requires_clarification?
-      hint = '[REQUIRES_OPERATOR_CLARIFICATION: Call `captain--tools--ask_human` tool with title to get ' \
-             'operator approval first. DO NOT answer to the customer explicitly yet.]'
+      hint = '[REQUIRES_OPERATOR_CLARIFICATION: CRITICAL INSTRUCTION — You MUST call the `captain--tools--ask_human` ' \
+             'tool to request operator approval for this action. Strict rule: DO NOT use the ' \
+             '`captain--tools--handoff` tool. Stay in the conversation and wait for the operator\'s background ' \
+             'instructions via `ask_human`. DO NOT answer the customer directly until the human replies.]'
       formatted_response += "\n          #{hint}\n          "
     end
 

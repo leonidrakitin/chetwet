@@ -1,8 +1,12 @@
 class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
-  description 'Hand off the conversation to a human agent when unable to assist further'
+  description 'Use ONLY as a last resort to permanently transfer the conversation to human support. Trigger strictly ' \
+              'if the user explicitly demands a human agent or the issue is completely unsolvable here. Do NOT use ' \
+              'for approval or quick clarification — use `captain--tools--ask_human` instead.'
   param :reason, type: 'string', desc: 'The reason why handoff is needed (optional)', required: false
   param :post_reason_as_note, type: 'boolean',
-                              desc: 'If false, do not create a private note with the reason (use when you already added a note via Add Private Note)', required: false
+                              desc: 'If false, do not create a private note with the reason ' \
+                                    '(use when you already added a note via Add Private Note)',
+                              required: false
 
   def perform(tool_context, reason: nil, post_reason_as_note: true)
     conversation = find_conversation(tool_context.state)

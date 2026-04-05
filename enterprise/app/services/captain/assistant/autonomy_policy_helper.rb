@@ -93,10 +93,14 @@ module Captain::Assistant::AutonomyPolicyHelper
         context[:scenario_router_attempted] = true
         router.routing_hint
       else
-        'Try a different approach. If you still cannot help, hand off to a human agent.'
+        'Try a different approach. If you need operator approval or a background clarification, use captain--tools--ask_human. ' \
+          'Only use captain--tools--handoff if the user explicitly asked for a human agent or the issue is completely ' \
+          'outside your capabilities and cannot be addressed via ask_human.'
       end
     else
-      'If you still cannot help, hand off to a human agent.'
+      'If you still cannot help, use captain--tools--ask_human when you need approval or operator input. ' \
+      'Use captain--tools--handoff only as a last resort if the user explicitly demands a live agent or the problem ' \
+      'is entirely unsolvable here.'
     end
   end
 
