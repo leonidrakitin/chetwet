@@ -18,6 +18,7 @@ class Captain::Llm::EmbeddingService
 
     instrument_embedding_call(instrumentation_params(content, model)) do
       key, base = Llm::Config.embedding_openai_credentials
+      Rails.logger.info("[Captain][EmbeddingService] credentials key_suffix=#{key.to_s.last(8).inspect} base=#{base.inspect} model=#{model.inspect}")
       context = RubyLLM.context do |config|
         config.openai_api_key = key
         config.openai_api_base = base
