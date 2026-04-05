@@ -31,6 +31,32 @@ RSpec.describe Llm::Config do
     end
   end
 
+  describe '.captain_openai_api_base' do
+    it 'does not double-append /v1 for OpenRouter full API path' do
+      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://openrouter.ai/api/v1')
+
+      expect(described_class.captain_openai_api_base).to eq('https://openrouter.ai/api/v1')
+    end
+
+    it 'maps bare OpenRouter origin to /api/v1' do
+      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://openrouter.ai')
+
+      expect(described_class.captain_openai_api_base).to eq('https://openrouter.ai/api/v1')
+    end
+
+    it 'defaults to OpenAI /v1 when endpoint unset' do
+      InstallationConfig.where(name: 'CAPTAIN_OPEN_AI_ENDPOINT').delete_all
+
+      expect(described_class.captain_openai_api_base).to eq('https://api.openai.com/v1')
+    end
+
+    it 'preserves explicit OpenAI /v1 base' do
+      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://api.openai.com/v1')
+
+      expect(described_class.captain_openai_api_base).to eq('https://api.openai.com/v1')
+    end
+  end
+
   describe '.embedding_openai_credentials' do
     it 'uses main key and normalizes global endpoint when embedding endpoint unset' do
       upsert_installation_config('CAPTAIN_OPEN_AI_API_KEY', 'main-key')

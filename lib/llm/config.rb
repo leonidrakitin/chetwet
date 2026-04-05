@@ -47,6 +47,13 @@ module Llm::Config
       url.include?('openrouter.ai')
     end
 
+    # Normalized OpenAI-compatible base URL for Captain tasks (summarize, reply suggestion, etc.).
+    # Matches RubyLLM global config and avoids double /v1 when the endpoint already includes it (e.g. OpenRouter).
+    def captain_openai_api_base
+      raw = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
+      normalize_openai_api_base(raw.presence || 'https://api.openai.com')
+    end
+
     private
 
     def configure_ruby_llm
@@ -65,6 +72,9 @@ module Llm::Config
       base = raw.is_a?(Hash) ? (raw[:value] || raw['value']).to_s : raw.to_s
       base = base.strip.chomp('/')
       return nil if base.blank?
+
+      # OpenRouter serves the OpenAI-compatible API under /api/v1, not /v1 on the domain root.
+      return "#{base}/api/v1" if base.match?(%r{\Ahttps?://openrouter\.ai\z}i)
 
       %r{/v\d+/?$}.match?(base) ? base : "#{base}/v1"
     end

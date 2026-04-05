@@ -125,11 +125,7 @@ class Captain::ConversationSummarizerService
   end
 
   def conversation_api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
-    return nil if endpoint.blank?
-
-    base = endpoint.to_s.strip.chomp('/')
-    base.end_with?('/v1') ? base : "#{base}/v1"
+    Llm::Config.captain_openai_api_base
   end
 
   def summarizer_model
