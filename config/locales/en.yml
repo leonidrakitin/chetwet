@@ -432,6 +432,7 @@ en:
       slug_generation_failed: 'Unable to generate unique slug after 5 attempts'
       limit_exceeded: 'You can create a maximum of %{limit} custom tools per account'
   approval_bot:
+    connect_use_dashboard_link: 'To connect your account, open your profile notification settings, tap Connect Telegram, then open the link from there (do not type /start manually).'
     suggest_your_own: 'Suggest your own'
     faq_clarification_title: 'Clarify before replying: %{question}'
     customer_replied: 'Customer replied'

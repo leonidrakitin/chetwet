@@ -4,6 +4,8 @@ class ApprovalBot::Telegram::CallbackHandlerService
   include Redis::RedisKeys
 
   AWAITING_TEXT_TTL = 600 # 10 minutes
+  # Private /start, /start PAYLOAD, and group-style /start@BotName (optional payload)
+  START_COMMAND_PATTERN = %r{\A/start(?:@[A-Za-z0-9_]+)?(?:\s+(.+))?\z}
 
   def initialize(payload:, config:)
     @payload = payload.with_indifferent_access
@@ -177,9 +179,20 @@ class ApprovalBot::Telegram::CallbackHandlerService
   end
 
   def handle_start_command
+    text = @payload.dig(:message, :text).to_s.strip
+    m = text.match(START_COMMAND_PATTERN)
+    return unless m
+
     chat_id = @payload.dig(:message, :chat, :id).to_s
-    token = @payload.dig(:message, :text).to_s.sub('/start ', '').strip
-    return if token.blank?
+    token = m[1].to_s.strip
+
+    if token.blank?
+      sender.send_message(
+        chat_id: chat_id,
+        text: I18n.t('approval_bot.connect_use_dashboard_link')
+      )
+      return
+    end
 
     account_linker.handle_start(chat_id, token)
   end
@@ -198,7 +211,7 @@ class ApprovalBot::Telegram::CallbackHandlerService
   end
 
   def start_command?
-    @payload.dig(:message, :text).to_s.start_with?('/start ')
+    @payload.dig(:message, :text).to_s.strip.match?(START_COMMAND_PATTERN)
   end
 
   def text_message?

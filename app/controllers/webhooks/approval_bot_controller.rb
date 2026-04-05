@@ -26,6 +26,6 @@ class Webhooks::ApprovalBotController < ActionController::API
       bot_token: params[:bot_token],
       channel_type: channel_type
     )
-    head :not_found unless @config
+    head :not_found and return if @config.blank?
   end
 end
