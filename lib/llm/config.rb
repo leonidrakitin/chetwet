@@ -38,15 +38,6 @@ module Llm::Config
       [key, base]
     end
 
-    # True when Captain chat/embeddings use an OpenRouter base URL (CAPTAIN_OPEN_AI_ENDPOINT).
-    def captain_openrouter_endpoint?
-      raw = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
-      return false if raw.blank?
-
-      url = raw.is_a?(Hash) ? (raw[:value] || raw['value']).to_s : raw.to_s
-      url.include?('openrouter.ai')
-    end
-
     # Normalized OpenAI-compatible base URL for Captain tasks (summarize, reply suggestion, etc.).
     # Matches RubyLLM global config and avoids double /v1 when the endpoint already includes it (e.g. OpenRouter).
     def captain_openai_api_base

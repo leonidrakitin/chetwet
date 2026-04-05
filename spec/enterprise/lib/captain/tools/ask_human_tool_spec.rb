@@ -275,6 +275,18 @@ RSpec.describe 'Captain ask_human tool flow', type: :integration do
         expect(result).to include('No human decision maker with a configured Telegram account')
       end.not_to change(Captain::ApprovalRequest, :count)
     end
+
+    it 'creates a message with content_type input_select and approval_request_id' do
+      ask_human_tool = Captain::Tools::AskHumanTool.new(assistant)
+      expect do
+        ask_human_tool.perform(tool_ctx, title: 'Need approval')
+      end.to change(conversation.messages, :count).by(1)
+
+      message = conversation.messages.last
+      expect(message.content_type).to eq('input_select')
+      expect(message.content_attributes['approval_request_id']).to eq(Captain::ApprovalRequest.last.id)
+      expect(message.content_attributes['items']).not_to be_empty
+    end
   end
 end
 # rubocop:enable RSpec/DescribeClass, RSpec/AnyInstance, RSpec/ExpectInHook
