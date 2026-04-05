@@ -24,14 +24,13 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     assignee_type, assignee_id = resolved
 
     log_tool_usage('ask_human', { conversation_id: conversation.id, target: target.presence || "user:#{assignee_id}" })
-    send_clarifying_message(conversation)
-
     action = action_type.presence || 'reply_to_customer'
     request = Captain::ApprovalRequest.create!(
       account_id: @assistant.account_id, conversation: conversation, assistant: @assistant,
       title: title, context: generate_context(conversation), options: build_options(options, action),
       assignee_type: assignee_type, assignee_id: assignee_id, expires_at: 30.minutes.from_now
     )
+    send_clarifying_message(conversation, request)
     ApprovalBot::NotifyJob.perform_later(request)
 
     "Approval request ##{request.id} sent to #{target}. Waiting for human response. " \
@@ -97,13 +96,18 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     conversation.messages.last(3).filter_map(&:content).join("\n").truncate(200)
   end
 
-  def send_clarifying_message(conversation)
+  def send_clarifying_message(conversation, request)
     conversation.messages.create!(
       message_type: :outgoing,
       account_id: @assistant.account_id,
       inbox_id: conversation.inbox_id,
       sender: @assistant,
-      content: I18n.t('captain.clarifying_with_operator')
+      content: I18n.t('captain.clarifying_with_operator'),
+      content_type: :input_select,
+      content_attributes: {
+        items: request.options.map { |opt| { title: opt[:label] || opt['label'], value: opt[:label] || opt['label'] } },
+        approval_request_id: request.id
+      }
     )
   end
 end

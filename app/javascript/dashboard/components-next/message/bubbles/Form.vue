@@ -1,14 +1,18 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import BaseBubble from './Base.vue';
 import { useI18n } from 'vue-i18n';
 import { CONTENT_TYPES } from '../constants.js';
 import { useMessageContext } from '../provider.js';
 import { useInbox } from 'dashboard/composables/useInbox';
+import Button from 'dashboard/components-next/button/Button.vue';
+import approvalRequestsApi from 'dashboard/api/captain/approvalRequests';
 
 const { content, contentAttributes, contentType } = useMessageContext();
 const { t } = useI18n();
 const { isAWebWidgetInbox } = useInbox();
+
+const isResolving = ref(false);
 
 const formValues = computed(() => {
   if (contentType.value === CONTENT_TYPES.FORM) {
@@ -45,6 +49,28 @@ const formValues = computed(() => {
 
   return [];
 });
+
+const approvalRequestId = computed(
+  () => contentAttributes.value?.approval_request_id
+);
+const showsApprovalButtons = computed(
+  () => approvalRequestId.value && !formValues.value.length
+);
+
+const onOptionSelect = async index => {
+  if (isResolving.value) return;
+  isResolving.value = true;
+  try {
+    await approvalRequestsApi.update(approvalRequestId.value, {
+      selectedOptionIndex: index,
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to resolve approval request', error);
+  } finally {
+    isResolving.value = false;
+  }
+};
 </script>
 
 <template>
@@ -58,6 +84,17 @@ const formValues = computed(() => {
         <dd>{{ item.title }}</dd>
       </template>
     </dl>
+    <div v-else-if="showsApprovalButtons" class="flex flex-col gap-2 mt-4">
+      <Button
+        v-for="(item, index) in contentAttributes.items"
+        :key="item.title"
+        :label="item.title || item.label"
+        size="sm"
+        variant="faded"
+        :is-loading="isResolving"
+        @click="onOptionSelect(index)"
+      />
+    </div>
     <div v-else-if="isAWebWidgetInbox" class="my-2 font-medium">
       {{ t('CONVERSATION.NO_RESPONSE') }}
     </div>

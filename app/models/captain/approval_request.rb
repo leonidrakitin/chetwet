@@ -78,6 +78,7 @@ class Captain::ApprovalRequest < ApplicationRecord
         resolved_by_id: by_user_id
       )
       ApprovalBot::ActionExecutorService.new(self).execute
+      update_associated_message
       true
     end
   end
@@ -103,5 +104,20 @@ class Captain::ApprovalRequest < ApplicationRecord
 
   def expired?
     expires_at.present? && expires_at < Time.current
+  end
+
+  def update_associated_message
+    # Find the message that initiated this approval request
+    message = conversation.messages.where("content_attributes->>'approval_request_id' = ?", id.to_s).last
+    return unless message
+
+    label = selected_option&.dig(:label) || custom_response
+    return if label.blank?
+
+    message.update!(
+      content_attributes: message.content_attributes.merge(
+        submittedValues: [{ title: label, value: label }]
+      )
+    )
   end
 end
