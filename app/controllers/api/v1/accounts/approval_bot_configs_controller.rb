@@ -11,13 +11,11 @@ class Api::V1::Accounts::ApprovalBotConfigsController < Api::V1::Accounts::BaseC
 
   def create
     @config = Current.account.approval_bot_configs.create!(config_params)
-    register_webhook if @config.channel_type == 'telegram' && @config.enabled?
     render json: @config, status: :created
   end
 
   def update
     @config.update!(config_params)
-    register_webhook if @config.channel_type == 'telegram' && @config.enabled?
     render json: @config
   end
 
@@ -38,11 +36,5 @@ class Api::V1::Accounts::ApprovalBotConfigsController < Api::V1::Accounts::BaseC
 
   def check_admin_authorization
     raise Pundit::NotAuthorizedError unless Current.user&.administrator?
-  end
-
-  def register_webhook
-    ApprovalBot::Telegram::WebhookRegistrationService.new(config: @config).perform
-  rescue StandardError => e
-    Rails.logger.warn("[ApprovalBotConfig] Webhook registration failed: #{e.message}")
   end
 end

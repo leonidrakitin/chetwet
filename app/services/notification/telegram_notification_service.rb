@@ -30,7 +30,11 @@ class Notification::TelegramNotificationService
   end
 
   def bot_token
-    ENV.fetch('TELEGRAM_NOTIFICATION_BOT_TOKEN', nil)
+    @bot_token ||= notification.account
+                               .approval_bot_configs
+                               .enabled
+                               .find_by(channel_type: 'telegram')
+                               &.bot_token
   end
 
   def send_telegram_message
