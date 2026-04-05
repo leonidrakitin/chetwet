@@ -3,8 +3,8 @@ class Captain::Llm::EmbeddingService
 
   class EmbeddingsError < StandardError; end
 
-  EMBEDDING_MAX_RETRIES = 3
-  EMBEDDING_RETRY_DELAY = 0.5
+  EMBEDDING_MAX_RETRIES = 5
+  EMBEDDING_RETRY_DELAY = 0.25
 
   def initialize(account_id: nil)
     Llm::Config.initialize!
