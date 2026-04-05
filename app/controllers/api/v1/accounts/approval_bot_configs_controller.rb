@@ -16,6 +16,7 @@ class Api::V1::Accounts::ApprovalBotConfigsController < Api::V1::Accounts::BaseC
 
   def update
     @config.update!(config_params)
+    @config.ensure_webhook!
     render json: @config
   end
 

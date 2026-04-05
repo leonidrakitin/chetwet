@@ -36,15 +36,17 @@ class ApprovalBotConfig < ApplicationRecord
 
   scope :enabled, -> { where(enabled: true) }
 
-  after_commit :register_telegram_webhook, if: :should_register_webhook?
+  after_commit :register_channel_webhook, on: [:create, :update]
+
+  def ensure_webhook!
+    register_channel_webhook
+  end
 
   private
 
-  def should_register_webhook?
-    channel_type == 'telegram' && enabled? && (saved_change_to_bot_token? || saved_change_to_enabled?)
-  end
+  def register_channel_webhook
+    return unless channel_type == 'telegram' && enabled? && bot_token.present?
 
-  def register_telegram_webhook
     ApprovalBot::Telegram::WebhookRegistrationService.new(config: self).perform
   rescue StandardError => e
     Rails.logger.error("[ApprovalBotConfig] Auto webhook registration failed: #{e.message}")
