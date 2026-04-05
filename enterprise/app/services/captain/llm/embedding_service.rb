@@ -17,7 +17,12 @@ class Captain::Llm::EmbeddingService
     return [] if content.blank?
 
     instrument_embedding_call(instrumentation_params(content, model)) do
-      RubyLLM.embed(content, model: model).vectors || []
+      key, base = Llm::Config.embedding_openai_credentials
+      context = RubyLLM.context do |config|
+        config.openai_api_key = key
+        config.openai_api_base = base
+      end
+      context.embed(content, model: model).vectors || []
     end
   rescue StandardError => e
     log_embedding_failure(e, content, model)
