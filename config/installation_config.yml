@@ -198,7 +198,38 @@
   locked: false
 - name: CAPTAIN_OPEN_AI_ENDPOINT
   display_title: 'OpenAI API Endpoint (optional)'
-  description: 'The OpenAI endpoint configured for use in Captain AI. Default: https://api.openai.com/'
+  description: >-
+    Base URL for Captain chat/completions (OpenAI-compatible). For OpenRouter use https://openrouter.ai/api/v1
+    (or https://openrouter.ai — /v1 is appended automatically). Embeddings use the same URL unless
+    CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT is set. If OpenRouter returns "No successful provider responses" for embeddings,
+    set CAPTAIN_EMBEDDING_MODEL to a model OpenRouter routes (e.g. text-embedding-ada-002) or point embeddings at direct OpenAI.
+  locked: false
+- name: CAPTAIN_EMBEDDING_MODEL
+  display_title: 'Captain embedding model (optional)'
+  description: >-
+    Model id for FAQ/document vector search (RubyLLM.embed). Default: text-embedding-3-small. With OpenRouter, pick a model
+    their API successfully routes (verify with a curl to /v1/embeddings). Must match vector column dimensions (pgvector 1536).
+  locked: false
+- name: CAPTAIN_EMBEDDING_OPEN_AI_API_KEY
+  display_title: 'Captain embeddings API key (optional)'
+  description: >-
+    If set, embedding requests use this key instead of CAPTAIN_OPEN_AI_API_KEY. Use when chat runs on OpenRouter but
+    embeddings should call OpenAI (or another provider) with a different key.
+  locked: false
+  type: secret
+- name: CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT
+  display_title: 'Captain embeddings API endpoint (optional)'
+  description: >-
+    If set, embedding requests use this base URL instead of CAPTAIN_OPEN_AI_ENDPOINT. Example: https://api.openai.com
+    for direct OpenAI while CAPTAIN_OPEN_AI_ENDPOINT points at OpenRouter.
+  locked: false
+- name: CAPTAIN_OPENROUTER_HTTP_REFERER
+  display_title: 'OpenRouter HTTP-Referer (optional)'
+  description: 'Sent on OpenRouter requests when CAPTAIN_OPEN_AI_ENDPOINT is openrouter.ai. Defaults to BRAND_URL or a generic URL.'
+  locked: false
+- name: CAPTAIN_OPENROUTER_TITLE
+  display_title: 'OpenRouter X-OpenRouter-Title (optional)'
+  description: 'Application title header for OpenRouter. Defaults to INSTALLATION_NAME or Chatwoot.'
   locked: false
 - name: CAPTAIN_DEEPSEEK_API_KEY
   display_title: 'DeepSeek API Key'

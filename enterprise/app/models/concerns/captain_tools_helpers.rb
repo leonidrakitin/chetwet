@@ -22,8 +22,10 @@ module Concerns::CaptainToolsHelpers
     # @param tool_id [String] The snake_case tool identifier
     # @return [Class, nil] The tool class if found, nil if not resolvable
     def resolve_tool_class(tool_id)
-      class_name = "Captain::Tools::#{tool_id.classify}Tool"
-      class_name.safe_constantize
+      # Do not use String#classify: it singularizes the last segment (e.g. search_conversations
+      # -> SearchConversationTool), which does not match Captain::Tools::SearchConversationsTool.
+      suffix = tool_id.to_s.split('_').map(&:camelize).join
+      "Captain::Tools::#{suffix}Tool".safe_constantize
     end
 
     # Returns an array of all built-in tool IDs.

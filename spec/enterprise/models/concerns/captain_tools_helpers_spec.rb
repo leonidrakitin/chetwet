@@ -62,6 +62,12 @@ RSpec.describe Concerns::CaptainToolsHelpers, type: :concern do
       result = test_class.resolve_tool_class('add_private_note')
       expect(result).to eq(Captain::Tools::AddPrivateNoteTool)
     end
+
+    it 'does not singularize the last segment (Rails classify would break plural tool ids)' do
+      expect(test_class.resolve_tool_class('search_conversations')).to eq(Captain::Tools::SearchConversationsTool)
+      expect(test_class.resolve_tool_class('yclients_get_services')).to eq(Captain::Tools::YclientsGetServicesTool)
+      expect(test_class.resolve_tool_class('vk_market_get_products')).to eq(Captain::Tools::VkMarketGetProductsTool)
+    end
   end
 
   describe '#extract_tool_ids_from_text' do

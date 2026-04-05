@@ -29,19 +29,35 @@ module Llm::Config
       yield context
     end
 
+    # API key and base URL for RubyLLM.embed (Captain embeddings). Optional dedicated endpoint/key
+    # allow routing embeddings to direct OpenAI while chat uses OpenRouter.
+    def embedding_openai_credentials
+      key = InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_OPEN_AI_API_KEY')&.value.presence || system_api_key
+      dedicated = InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT')&.value
+      base = normalize_openai_api_base(dedicated.presence || openai_endpoint)
+      [key, base]
+    end
+
     private
 
     def configure_ruby_llm
       RubyLLM.configure do |config|
         config.openai_api_key = system_api_key if system_api_key.present?
-        if openai_endpoint.present?
-          base = openai_endpoint.is_a?(Hash) ? (openai_endpoint[:value] || openai_endpoint['value']).to_s : openai_endpoint.to_s
-          base = base.strip.chomp('/')
-          config.openai_api_base = %r{/v\d+/?$}.match?(base) ? base : "#{base}/v1" if base.present?
-        end
+        normalized = normalize_openai_api_base(openai_endpoint)
+        config.openai_api_base = normalized if normalized.present?
         config.openai_use_system_role = true
         config.logger = Rails.logger
       end
+    end
+
+    def normalize_openai_api_base(raw)
+      return nil if raw.blank?
+
+      base = raw.is_a?(Hash) ? (raw[:value] || raw['value']).to_s : raw.to_s
+      base = base.strip.chomp('/')
+      return nil if base.blank?
+
+      %r{/v\d+/?$}.match?(base) ? base : "#{base}/v1"
     end
 
     def system_api_key
