@@ -3,7 +3,7 @@
 # Table name: article_embeddings
 #
 #  id         :bigint           not null, primary key
-#  embedding  :vector(1536)
+#  embedding  :vector(1024)
 #  term       :text             not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null

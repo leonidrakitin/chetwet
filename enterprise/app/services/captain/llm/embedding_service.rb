@@ -39,7 +39,11 @@ class Captain::Llm::EmbeddingService
     attempts = 0
     begin
       attempts += 1
-      context.embed(content, model: model).vectors || []
+      context.embed(
+        content,
+        model: model,
+        dimensions: LlmConstants::EMBEDDING_VECTOR_DIMENSIONS
+      ).vectors || []
     rescue RubyLLM::Error => e
       raise unless attempts < EMBEDDING_MAX_RETRIES && transient_embedding_error?(e)
 

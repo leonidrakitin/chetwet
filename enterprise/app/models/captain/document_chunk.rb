@@ -5,7 +5,7 @@
 #  id           :bigint           not null, primary key
 #  content      :text             not null
 #  context      :text
-#  embedding    :vector(1536)
+#  embedding    :vector(1024)
 #  position     :integer          not null
 #  searchable   :tsvector
 #  token_count  :integer

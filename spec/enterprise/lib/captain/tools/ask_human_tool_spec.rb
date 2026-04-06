@@ -26,7 +26,7 @@ RSpec.describe 'Captain ask_human tool flow', type: :integration do
 
     embedding_service = instance_double(Captain::Llm::EmbeddingService)
     allow(Captain::Llm::EmbeddingService).to receive(:new).and_return(embedding_service)
-    allow(embedding_service).to receive(:get_embedding).and_return(Array.new(1536, 0.1))
+    allow(embedding_service).to receive(:get_embedding).and_return(Array.new(1024, 0.1))
 
     # Stub ConversationSummarizerService used by ask_human to build context (avoids LLM calls)
     summarizer = instance_double(Captain::ConversationSummarizerService)

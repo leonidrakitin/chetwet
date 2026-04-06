@@ -2,6 +2,8 @@
 
 module LlmConstants
   DEFAULT_MODEL = 'gpt-4.1'
+  # Must match pgvector column limits; passed to OpenAI-compatible /v1/embeddings as `dimensions`.
+  EMBEDDING_VECTOR_DIMENSIONS = 1024
   DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small'
   PDF_PROCESSING_MODEL = 'gpt-4.1-mini'
 

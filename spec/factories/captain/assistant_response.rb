@@ -4,7 +4,7 @@ FactoryBot.define do
     association :account
     sequence(:question) { |n| "Test question #{n}?" }
     sequence(:answer) { |n| "Test answer #{n}" }
-    embedding { Array.new(1536) { rand(-1.0..1.0) } }
+    embedding { Array.new(1024) { rand(-1.0..1.0) } }
 
     trait :with_document do
       association :document, factory: :captain_document

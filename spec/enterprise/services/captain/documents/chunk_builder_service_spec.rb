@@ -11,7 +11,7 @@ RSpec.describe Captain::Documents::ChunkBuilderService do
       { position: 1, content: 'Chunk 2', token_count: 12 }
     ]
   end
-  let(:embedding_vector) { Array.new(1536, 0.1) }
+  let(:embedding_vector) { Array.new(1024, 0.1) }
 
   before do
     allow(Captain::Documents::ChunkingService).to receive(:new).and_return(chunking_service)

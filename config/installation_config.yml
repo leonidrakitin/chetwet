@@ -207,8 +207,8 @@
 - name: CAPTAIN_EMBEDDING_MODEL
   display_title: 'Captain embedding model (optional)'
   description: >-
-    Model id for FAQ/document vector search (RubyLLM.embed). Default: text-embedding-3-small. With OpenRouter, pick a model
-    their API successfully routes (verify with a curl to /v1/embeddings). Must match vector column dimensions (pgvector 1536).
+    Model id for FAQ/document vector search (RubyLLM.embed). Default: text-embedding-3-small at 1024 dimensions. With OpenRouter,
+    pick a model their API successfully routes (verify with a curl to /v1/embeddings). Must match vector column dimensions (pgvector 1024).
   locked: false
 - name: CAPTAIN_EMBEDDING_OPEN_AI_API_KEY
   display_title: 'Captain embeddings API key (optional)'

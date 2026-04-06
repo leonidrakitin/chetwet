@@ -13,7 +13,7 @@ RSpec.describe Captain::Tools::FaqLookupTool, type: :model do
     # Mock embedding service to avoid actual API calls
     embedding_service = instance_double(Captain::Llm::EmbeddingService)
     allow(Captain::Llm::EmbeddingService).to receive(:new).and_return(embedding_service)
-    allow(embedding_service).to receive(:get_embedding).and_return(Array.new(1536, 0.1))
+    allow(embedding_service).to receive(:get_embedding).and_return(Array.new(1024, 0.1))
   end
 
   describe '#description' do

@@ -5,7 +5,7 @@ FactoryBot.define do
     account { document.account }
     content { 'Chunk content' }
     add_attribute(:context) { 'Chunk context' }
-    embedding { Array.new(1536, 0.1) }
+    embedding { Array.new(1024, 0.1) }
     position { 0 }
     token_count { 12 }
   end

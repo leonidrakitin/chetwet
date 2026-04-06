@@ -5,7 +5,7 @@
 #  id                     :bigint           not null, primary key
 #  answer                 :text             not null
 #  documentable_type      :string
-#  embedding              :vector(1536)
+#  embedding              :vector(1024)
 #  question               :string           not null
 #  requires_clarification :boolean          default(FALSE), not null
 #  status                 :integer          default("approved"), not null
