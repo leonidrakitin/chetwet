@@ -21,10 +21,10 @@ const STEPS = [
 const currentStep = ref(0);
 const slideDirection = ref('forward');
 
-const currentUser = computed(() => store.getters['auth/getCurrentUser']);
+const currentUser = computed(() => store.getters.getCurrentUser);
 
 const wizardData = reactive({
-  displayName: currentUser.value.display_name || currentUser.value.name || '',
+  displayName: currentUser.value?.display_name || currentUser.value?.name || '',
   useCase: '',
   channels: [],
 });
@@ -63,7 +63,7 @@ function skip() {
 
 async function finish() {
   if (wizardData.displayName) {
-    await store.dispatch('auth/updateProfile', {
+    await store.dispatch('updateProfile', {
       displayName: wizardData.displayName,
     });
   }
