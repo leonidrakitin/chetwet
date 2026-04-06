@@ -12,6 +12,13 @@ import BulkMigrationsAPI from 'dashboard/api/captain/bulkMigrations';
 import CaptainInboxes from 'dashboard/api/captain/inboxes';
 import TelegramSessionsAPI from 'dashboard/api/telegramSessions';
 
+const props = defineProps({
+  embedded: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
@@ -369,13 +376,24 @@ function goToDashboard() {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-n-brand/5 via-n-background to-n-brand/10 dark:from-n-background dark:via-n-solid-1 dark:to-n-background p-4"
+    :class="
+      props.embedded
+        ? 'w-full'
+        : 'fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-n-brand/5 via-n-background to-n-brand/10 dark:from-n-background dark:via-n-solid-1 dark:to-n-background p-4'
+    "
   >
     <div
-      class="w-full max-w-2xl mx-auto flex flex-col bg-white dark:bg-n-solid-2 rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden"
+      :class="
+        props.embedded
+          ? 'w-full flex flex-col min-h-0 overflow-hidden'
+          : 'w-full max-w-2xl mx-auto flex flex-col bg-white dark:bg-n-solid-2 rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden'
+      "
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 pt-5 pb-0">
+      <div
+        class="flex items-center px-6 pt-5 pb-0"
+        :class="props.embedded ? 'justify-start' : 'justify-between'"
+      >
         <div class="flex items-center gap-2">
           <!-- Tab: New migration -->
           <button
@@ -409,6 +427,7 @@ function goToDashboard() {
           </button>
         </div>
         <button
+          v-if="!props.embedded"
           class="text-sm text-n-slate-10 hover:text-n-slate-12 transition-colors"
           @click="goToDashboard"
         >
@@ -420,7 +439,10 @@ function goToDashboard() {
       <div class="h-px bg-n-container mx-6 mt-4" />
 
       <!-- Content -->
-      <div class="px-8 py-6 overflow-y-auto max-h-[80vh]">
+      <div
+        class="px-8 py-6 overflow-y-auto"
+        :class="props.embedded ? 'max-h-[min(60vh,28rem)]' : 'max-h-[80vh]'"
+      >
         <!-- ─── FORM VIEW ─── -->
         <Transition
           enter-active-class="transition duration-200 ease-out"
@@ -941,7 +963,10 @@ function goToDashboard() {
       </div>
 
       <!-- Footer -->
-      <div class="flex items-center justify-between px-8 pb-6 pt-2">
+      <div
+        v-if="!props.embedded"
+        class="flex items-center justify-between px-8 pb-6 pt-2"
+      >
         <NextButton
           variant="ghost"
           color="slate"

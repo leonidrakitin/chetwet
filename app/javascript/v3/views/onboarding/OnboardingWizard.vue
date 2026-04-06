@@ -1,12 +1,28 @@
 <script setup>
-import { ref, reactive, computed, markRaw } from 'vue';
+import {
+  ref,
+  reactive,
+  computed,
+  markRaw,
+  watch,
+  onMounted,
+  onUnmounted,
+} from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import {
+  setAccountScopedPathOverride,
+  clearAccountScopedPathOverride,
+} from 'dashboard/api/ApiClient';
 import WelcomeStep from './steps/WelcomeStep.vue';
 import UseCaseStep from './steps/UseCaseStep.vue';
 import ChannelsStep from './steps/ChannelsStep.vue';
+import MigrationStep from './steps/MigrationStep.vue';
 import CompleteStep from './steps/CompleteStep.vue';
+
+const CHANNEL_STEP_INDEX = 2;
+const MIGRATION_STEP_INDEX = 3;
 
 const store = useStore();
 const { t } = useI18n();
@@ -15,6 +31,7 @@ const STEPS = [
   markRaw(WelcomeStep),
   markRaw(UseCaseStep),
   markRaw(ChannelsStep),
+  markRaw(MigrationStep),
   markRaw(CompleteStep),
 ];
 
@@ -37,9 +54,35 @@ const showBackButton = computed(
   () => currentStep.value > 0 && currentStep.value < totalSteps - 1
 );
 const showNextButton = computed(() => {
-  // Welcome step and Channels step have explicit continue buttons
+  // Welcome, Channels, and Migration use the wizard footer Continue
   // UseCase auto-advances on click, Complete has its own CTA
-  return currentStep.value === 0 || currentStep.value === 2;
+  return (
+    currentStep.value === 0 ||
+    currentStep.value === CHANNEL_STEP_INDEX ||
+    currentStep.value === MIGRATION_STEP_INDEX
+  );
+});
+
+const cardMaxWidthClass = computed(() =>
+  currentStep.value === MIGRATION_STEP_INDEX ? 'max-w-2xl' : 'max-w-lg'
+);
+
+function applyAccountScopedApiOverride() {
+  const user = store.getters.getCurrentUser;
+  const id = user?.account_id || user?.accounts?.[0]?.id;
+  if (id) setAccountScopedPathOverride(id);
+}
+
+onMounted(() => applyAccountScopedApiOverride());
+
+watch(
+  () => store.getters.getCurrentUser,
+  () => applyAccountScopedApiOverride(),
+  { deep: true }
+);
+
+onUnmounted(() => {
+  clearAccountScopedPathOverride();
 });
 
 function goNext(data = {}) {
@@ -73,8 +116,10 @@ async function finish() {
 function handleNext() {
   if (currentStep.value === 0) {
     goNext({ displayName: wizardData.displayName });
-  } else if (currentStep.value === 2) {
+  } else if (currentStep.value === CHANNEL_STEP_INDEX) {
     goNext({ channels: wizardData.channels });
+  } else if (currentStep.value === MIGRATION_STEP_INDEX) {
+    goNext();
   }
 }
 
@@ -92,7 +137,8 @@ function handleStepUpdate(data) {
     class="flex items-center justify-center w-full min-h-screen bg-gradient-to-br from-n-brand/5 via-n-background to-n-brand/10 dark:from-n-background dark:via-n-solid-1 dark:to-n-background p-4"
   >
     <div
-      class="w-full max-w-lg mx-auto flex flex-col bg-white dark:bg-n-solid-2 rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden"
+      class="w-full mx-auto flex flex-col bg-white dark:bg-n-solid-2 rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden transition-[max-width] duration-300"
+      :class="cardMaxWidthClass"
     >
       <!-- Header -->
       <div class="flex items-center justify-end px-6 pt-4">
@@ -106,7 +152,12 @@ function handleStepUpdate(data) {
       </div>
 
       <!-- Content -->
-      <div class="px-8 py-8">
+      <div
+        class="px-8 py-8"
+        :class="
+          currentStep === MIGRATION_STEP_INDEX ? 'min-h-0 flex flex-col' : ''
+        "
+      >
         <Transition
           enter-active-class="transition duration-300 ease-in-out"
           :enter-from-class="

@@ -2,6 +2,18 @@
 
 const DEFAULT_API_VERSION = 'v1';
 
+/** Used when the URL is not under /app/accounts/:id (e.g. v3 onboarding wizard). */
+let accountScopedPathOverride = '';
+
+export function setAccountScopedPathOverride(accountId) {
+  accountScopedPathOverride =
+    accountId != null && accountId !== '' ? String(accountId) : '';
+}
+
+export function clearAccountScopedPathOverride() {
+  accountScopedPathOverride = '';
+}
+
 class ApiClient {
   constructor(resource, options = {}) {
     this.apiVersion = `/api/${options.apiVersion || DEFAULT_API_VERSION}`;
@@ -22,7 +34,7 @@ class ApiClient {
       return window.location.pathname.split('/')[3];
     }
 
-    return '';
+    return accountScopedPathOverride;
   }
 
   baseUrl() {
