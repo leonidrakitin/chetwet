@@ -613,6 +613,11 @@
           "LABEL": "Response Temperature",
           "DESCRIPTION": "Adjust how creative or restrictive the assistant's responses should be. Lower values produce more focused and deterministic responses, while higher values allow for more creative and varied outputs."
         },
+        "MESSAGE_BUFFER": {
+          "LABEL": "Message buffer",
+          "DESCRIPTION": "Seconds to wait for the customer to finish typing before messages are sent to the AI. Applies to this account.",
+          "SECONDS": "{count}s"
+        },
         "DESCRIPTION": {
           "LABEL": "Description",
           "PLACEHOLDER": "Enter assistant description",

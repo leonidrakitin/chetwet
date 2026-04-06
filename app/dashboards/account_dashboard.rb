@@ -21,6 +21,7 @@ class AccountDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number.with_options(searchable: true),
     name: Field::String.with_options(searchable: true),
+    captain_models: CaptainModelsField,
     created_at: Field::DateTime,
     updated_at: Field::DateTime,
     users: CountField,
@@ -65,7 +66,7 @@ class AccountDashboard < Administrate::BaseDashboard
     plan
     plan_expires_at
     plan_price
-  ] + enterprise_show_page_attributes).freeze
+  ] + enterprise_show_page_attributes + %i[captain_models]).freeze
 
   # FORM_ATTRIBUTES
   # an array of attributes that will be displayed
@@ -80,7 +81,7 @@ class AccountDashboard < Administrate::BaseDashboard
     plan
     plan_expires_at
     plan_price
-  ] + enterprise_form_attributes).freeze
+  ] + enterprise_form_attributes + %i[captain_models]).freeze
 
   # COLLECTION_FILTERS
   # a hash that defines filters that can be used while searching via the search
@@ -114,6 +115,8 @@ class AccountDashboard < Administrate::BaseDashboard
 
     # Add manually_managed_features to permitted attributes only for Chatwoot Cloud
     attrs << { manually_managed_features: [] } if ChatwootApp.chatwoot_cloud?
+
+    attrs << { captain_models: {} }
 
     attrs
   end

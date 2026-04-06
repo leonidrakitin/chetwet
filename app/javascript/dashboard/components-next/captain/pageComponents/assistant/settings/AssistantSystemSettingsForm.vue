@@ -1,11 +1,14 @@
 <script setup>
-import { reactive, computed, watch, onMounted } from 'vue';
+import { reactive, computed, watch, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { storeToRefs } from 'pinia';
 import { useVuelidate } from '@vuelidate/core';
 import { minLength } from '@vuelidate/validators';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useAccount } from 'dashboard/composables/useAccount';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
+import { useCaptainConfigStore } from 'dashboard/store/captain/preferences';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Editor from 'dashboard/components-next/Editor/Editor.vue';
@@ -22,6 +25,35 @@ const emit = defineEmits(['submit']);
 
 const { t } = useI18n();
 const { isCloudFeatureEnabled } = useAccount();
+
+const captainConfigStore = useCaptainConfigStore();
+const { messageBufferSeconds } = storeToRefs(captainConfigStore);
+const bufferSecondsInput = ref(4);
+watch(
+  messageBufferSeconds,
+  val => {
+    bufferSecondsInput.value = val;
+  },
+  { immediate: true }
+);
+
+function clampBufferSeconds(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.min(30, Math.max(1, Math.round(n))) : 4;
+}
+
+async function handleMessageBufferChange(value) {
+  const seconds = clampBufferSeconds(value);
+  try {
+    await captainConfigStore.updatePreferences({
+      message_buffer_seconds: seconds,
+    });
+    useAlert(t('CAPTAIN_SETTINGS.API.SUCCESS'));
+  } catch {
+    useAlert(t('CAPTAIN_SETTINGS.API.ERROR'));
+    captainConfigStore.fetch();
+  }
+}
 
 const store = useStore();
 const agents = useMapGetter('agents/getAgents');
@@ -110,6 +142,7 @@ const handleSystemMessagesUpdate = async () => {
 };
 
 onMounted(() => {
+  captainConfigStore.fetch();
   if (!agents.value.length) {
     store.dispatch('agents/get');
   }
@@ -159,24 +192,53 @@ watch(
       class="z-0"
     />
 
-    <div class="flex flex-col gap-2">
-      <label class="text-sm font-medium text-n-slate-12">
-        {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.LABEL') }}
-      </label>
-      <div class="flex items-center gap-4">
-        <input
-          v-model="state.temperature"
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          class="w-full"
-        />
-        <span class="text-sm text-n-slate-12">{{ state.temperature }}</span>
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.LABEL') }}
+        </label>
+        <div class="flex items-center gap-4">
+          <input
+            v-model="state.temperature"
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            class="w-full"
+          />
+          <span class="text-sm text-n-slate-12">{{ state.temperature }}</span>
+        </div>
+        <p class="text-sm text-n-slate-11 italic">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.DESCRIPTION') }}
+        </p>
       </div>
-      <p class="text-sm text-n-slate-11 italic">
-        {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.DESCRIPTION') }}
-      </p>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.MESSAGE_BUFFER.LABEL') }}
+        </label>
+        <div class="flex items-center gap-4">
+          <input
+            v-model.number="bufferSecondsInput"
+            type="range"
+            min="1"
+            max="30"
+            step="1"
+            class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-n-weak accent-n-blue-11"
+            @change="handleMessageBufferChange(bufferSecondsInput)"
+          />
+          <span class="text-sm font-medium text-n-slate-12 shrink-0 w-10">
+            {{
+              t('CAPTAIN.ASSISTANTS.FORM.MESSAGE_BUFFER.SECONDS', {
+                count: bufferSecondsInput,
+              })
+            }}
+          </span>
+        </div>
+        <p class="text-sm text-n-slate-11 italic">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.MESSAGE_BUFFER.DESCRIPTION') }}
+        </p>
+      </div>
     </div>
 
     <div class="flex flex-col gap-2 relative z-10">

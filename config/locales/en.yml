@@ -547,3 +547,15 @@ en:
       subject: 'Finish setting up %{custom_domain}'
     ssl_status:
       custom_domain_not_configured: 'Custom domain is not configured'
+  helpers:
+    label:
+      account:
+        captain_models: 'Captain AI model configuration'
+        captain_models_default_option: 'Use default (from installation)'
+        captain_model_feature:
+          editor: 'Editor features'
+          assistant: 'Assistant'
+          copilot: 'Co-pilot'
+    hint:
+      account:
+        captain_models: 'Per-feature models for this account. Available options follow the installation CAPTAIN_HOST setting in Super Admin → App Config.'

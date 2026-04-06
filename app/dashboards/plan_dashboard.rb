@@ -11,6 +11,7 @@ class PlanDashboard < Administrate::BaseDashboard
     description: Field::Text,
     active: Field::Boolean,
     feature_list: PlanFeaturesField,
+    captain_models: CaptainModelsField,
     accounts: Field::HasMany,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
@@ -19,11 +20,11 @@ class PlanDashboard < Administrate::BaseDashboard
   COLLECTION_ATTRIBUTES = %i[id name price annual_price trial_days active accounts].freeze
 
   SHOW_PAGE_ATTRIBUTES = %i[
-    id name display_name price annual_price trial_days description active feature_list accounts created_at updated_at
+    id name display_name price annual_price trial_days description active feature_list accounts created_at updated_at captain_models
   ].freeze
 
   FORM_ATTRIBUTES = %i[
-    name display_name price annual_price trial_days description active feature_list
+    name display_name price annual_price trial_days description active feature_list captain_models
   ].freeze
 
   COLLECTION_FILTERS = {}.freeze
@@ -33,6 +34,6 @@ class PlanDashboard < Administrate::BaseDashboard
   end
 
   def permitted_attributes(_action)
-    super + [feature_list: []]
+    super + [feature_list: [], captain_models: {}]
   end
 end

@@ -415,7 +415,7 @@
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",
-    "DESCRIPTION": "Configure your AI models and features for Captain. Captain follows a credit based billing, you will be charged credits for every action Captain takes based on the model selected.",
+    "DESCRIPTION": "Captain uses credits for AI actions. Default models for your account are configured by an administrator in Super Admin.",
     "LOADING": "Loading Captain configuration...",
     "LINK_TEXT": "Learn more about Captain Credits",
     "NOT_ENABLED": "Captain is not enabled for your account. Please upgrade your plan to access Captain features.",
@@ -442,6 +442,10 @@
       "TITLE": "Message buffer",
       "DESCRIPTION": "Time to wait (in seconds) for the client to finish writing messages before sending them to the AI. Gives customers time to send multiple messages in one go.",
       "SECONDS": "{count}s"
+    },
+    "MANAGED_IN_SUPER_ADMIN": {
+      "TITLE": "Account-level configuration",
+      "DESCRIPTION": "Default AI models for editor, assistant, and co-pilot are set in Super Admin under Accounts → your account → Edit (Captain AI model configuration). You can adjust the message buffer for each assistant next to response temperature in that assistant’s settings."
     },
     "FEATURES": {
       "TITLE": "Features",

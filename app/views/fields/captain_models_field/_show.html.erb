@@ -1,0 +1,15 @@
+<% account = field.resource %>
+<% if account.captain_models.present? %>
+  <dl class="space-y-2">
+    <% CaptainModelsField::FEATURE_ROWS.each do |row| %>
+      <% val = account.captain_models[row[:key]] || account.captain_models[row[:key].to_sym] %>
+      <% next if val.blank? %>
+      <div>
+        <dt class="inline font-medium"><%= t(row[:label_key]) %>:</dt>
+        <dd class="inline ml-1"><%= val %></dd>
+      </div>
+    <% end %>
+  </dl>
+<% else %>
+  —
+<% end %>

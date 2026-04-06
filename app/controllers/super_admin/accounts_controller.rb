@@ -46,6 +46,7 @@ class SuperAdmin::AccountsController < SuperAdmin::ApplicationController
   def resource_params
     permitted_params = super
     permitted_params[:limits] = permitted_params[:limits].to_h.compact
+    permitted_params[:captain_models] = permitted_params[:captain_models].to_h.compact_blank if permitted_params[:captain_models].present?
     permitted_params[:selected_feature_flags] = params[:enabled_features].keys.map(&:to_sym) if params[:enabled_features].present?
     permitted_params
   end

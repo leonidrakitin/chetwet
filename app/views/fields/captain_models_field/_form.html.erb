@@ -1,0 +1,22 @@
+<div class="field-unit__label">
+  <%= f.label field.attribute %>
+</div>
+<div class="field-unit__field space-y-4">
+  <p class="text-sm text-slate-600 max-w-2xl">
+    <%= t('helpers.hint.account.captain_models') %>
+  </p>
+  <% field.feature_rows.each do |row| %>
+    <% feature_key = row[:key] %>
+    <div class="field-unit field-unit--string">
+      <label class="field-unit__label" for="account_captain_models_<%= feature_key %>"><%= row[:label] %></label>
+      <div class="field-unit__field">
+        <%= select_tag(
+              "account[captain_models][#{feature_key}]",
+              options_for_select(field.select_options(feature_key), field.selected_model_id(feature_key)),
+              id: "account_captain_models_#{feature_key}",
+              class: "mt-1 border border-slate-200 p-2 rounded-md max-w-xl"
+            ) %>
+      </div>
+    </div>
+  <% end %>
+</div>
