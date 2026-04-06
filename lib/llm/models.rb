@@ -1,11 +1,13 @@
 module Llm::Models
   CONFIG = YAML.load_file(Rails.root.join('config/llm.yml')).freeze
+  HOSTS = %w[openrouter openai deepseek bigmodel.cn].freeze
 
   class << self
     def providers = CONFIG['providers']
     def models = CONFIG['models']
     def features = CONFIG['features']
     def feature_keys = CONFIG['features'].keys
+    def hosts = HOSTS
 
     def default_model_for(feature)
       CONFIG.dig('features', feature.to_s, 'default')
@@ -17,6 +19,12 @@ module Llm::Models
 
     def valid_model_for?(feature, model_name)
       models_for(feature).include?(model_name.to_s)
+    end
+
+    def models_for_host(host)
+      return models if host.blank?
+
+      models.select { |_id, cfg| cfg['hosts'].nil? || cfg['hosts'].include?(host) }
     end
 
     def feature_config(feature_key)
@@ -36,6 +44,17 @@ module Llm::Models
         end,
         default: feature['default']
       }
+    end
+
+    def feature_config_for_host(feature_key, host)
+      cfg = feature_config(feature_key)
+      return cfg if host.blank? || cfg.nil?
+
+      filtered = cfg[:models].select do |m|
+        model_cfg = models[m[:id]]
+        model_cfg && (model_cfg['hosts'].nil? || model_cfg['hosts'].include?(host))
+      end
+      cfg.merge(models: filtered)
     end
   end
 end

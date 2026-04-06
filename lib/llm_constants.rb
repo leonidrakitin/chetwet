@@ -13,8 +13,9 @@ module LlmConstants
     'openai' => %w[gpt- o1 o3 o4 text-embedding- whisper- tts-],
     'cohere' => %w[rerank- command- embed-],
     'anthropic' => %w[claude-],
-    'google' => %w[gemini-],
+    'google' => %w[gemini- google/],
     'mistral' => %w[mistral- codestral-],
-    'deepseek' => %w[deepseek-]
+    'deepseek' => %w[deepseek- deepseek/],
+    'qwen' => %w[qwen/ qwen-]
   }.freeze
 end

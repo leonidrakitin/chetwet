@@ -54,11 +54,21 @@
               </button>
             </div>
           <% elsif @installation_configs[key]&.dig('type') == 'select' && @installation_configs[key]&.dig('options').present? %>
-            <%= form.select "app_config[#{key}]",
-              @installation_configs[key]['options'].map { |val, label| [label, val] },
-              { selected: @app_config[key] },
-              class: "mt-2 border border-slate-100 p-1 rounded-md"
-            %>
+            <% options_raw = @installation_configs[key]['options'] %>
+            <% has_hosts = options_raw.values.any? { |v| v.is_a?(Hash) && v.key?('hosts') } %>
+            <select name="app_config[<%= key %>]" id="app_config_<%= key %>"
+                    class="mt-2 border border-slate-100 p-1 rounded-md"
+                    <% if has_hosts %>data-host-filtered="true"<% end %>>
+              <% options_raw.each do |val, meta| %>
+                <% label = meta.is_a?(Hash) ? meta['label'] : meta %>
+                <% hosts = meta.is_a?(Hash) ? meta['hosts'] : nil %>
+                <option value="<%= val %>"
+                        <%= 'selected' if @app_config[key].to_s == val.to_s %>
+                        <% if hosts %> data-hosts="<%= hosts.join(',') %>"<% end %>>
+                  <%= label %>
+                </option>
+              <% end %>
+            </select>
         <% else %>
           <%= form.text_field "app_config[#{key}]", value: @app_config[key] %>
         <% end %>
@@ -95,6 +105,32 @@
         }
       });
     });
+
+    // Host-based model filtering
+    const hostSelect = document.getElementById('app_config_CAPTAIN_HOST');
+    if (hostSelect) {
+      const filteredSelects = document.querySelectorAll('select[data-host-filtered]');
+      function filterByHost() {
+        const host = hostSelect.value;
+        filteredSelects.forEach(select => {
+          const currentValue = select.value;
+          let firstVisible = null;
+          let currentStillVisible = false;
+          Array.from(select.options).forEach(option => {
+            const hosts = option.dataset.hosts;
+            if (!hosts) { option.hidden = false; return; }
+            const allowed = hosts.split(',');
+            const visible = !host || allowed.includes(host);
+            option.hidden = !visible;
+            if (visible && !firstVisible) firstVisible = option.value;
+            if (visible && option.value === currentValue) currentStillVisible = true;
+          });
+          if (!currentStillVisible && firstVisible) select.value = firstVisible;
+        });
+      }
+      hostSelect.addEventListener('change', filterByHost);
+      filterByHost();
+    }
   });
   </script>
 <% end %>

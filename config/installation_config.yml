@@ -187,15 +187,72 @@
 # End of Microsoft Email Channel Config
 
 # MARK: Captain Config
+- name: CAPTAIN_HOST
+  display_title: 'API Host / Provider'
+  description: 'Select the API host. OpenRouter proxies all models. Other hosts show only their own models.'
+  locked: false
+  type: select
+  options:
+    openrouter: "OpenRouter (all models)"
+    openai: "OpenAI"
+    deepseek: "DeepSeek"
+    bigmodel.cn: "BigModel.cn (Z.AI)"
 - name: CAPTAIN_OPEN_AI_API_KEY
   display_title: 'OpenAI API Key'
   description: 'The API key used to authenticate requests to OpenAI services for Captain AI.'
   locked: false
   type: secret
 - name: CAPTAIN_OPEN_AI_MODEL
-  display_title: 'OpenAI Model'
-  description: 'The OpenAI model configured for use in Captain AI. Default: gpt-4.1-mini'
+  display_title: 'Default Captain Model'
+  description: 'The default model for Captain AI completions.'
   locked: false
+  type: select
+  options:
+    gpt-4.1:
+      label: "GPT-4.1 — Flagship OpenAI, max quality"
+      hosts: [openai, openrouter]
+    gpt-4.1-mini:
+      label: "GPT-4.1 Mini — Best price/quality balance"
+      hosts: [openai, openrouter]
+    gpt-4.1-nano:
+      label: "GPT-4.1 Nano — Fastest and cheapest"
+      hosts: [openai, openrouter]
+    gpt-5.1:
+      label: "GPT-5.1 — Latest OpenAI flagship"
+      hosts: [openai, openrouter]
+    gpt-5-mini:
+      label: "GPT-5 Mini — Fast and smart"
+      hosts: [openai, openrouter]
+    gpt-5-nano:
+      label: "GPT-5 Nano — Ultra-fast"
+      hosts: [openai, openrouter]
+    gpt-5.2:
+      label: "GPT-5.2 — Latest GPT-5"
+      hosts: [openai, openrouter]
+    glm-5:
+      label: "GLM-5 — Z.AI flagship (BigModel)"
+      hosts: [bigmodel.cn, openrouter]
+    glm-4.7:
+      label: "GLM-4.7 — Z.AI mid-range"
+      hosts: [bigmodel.cn, openrouter]
+    glm-4.6:
+      label: "GLM-4.6 — Z.AI lightweight"
+      hosts: [bigmodel.cn, openrouter]
+    google/gemma-4-26b-a4b-it:
+      label: "Gemma 4 26B — Google open-source"
+      hosts: [openrouter]
+    deepseek/deepseek-v3.2:
+      label: "DeepSeek V3.2 — via OpenRouter"
+      hosts: [openrouter]
+    deepseek-chat:
+      label: "DeepSeek Chat — Direct DeepSeek API"
+      hosts: [deepseek]
+    deepseek-reasoner:
+      label: "DeepSeek Reasoner — Chain of thought"
+      hosts: [deepseek]
+    qwen/qwen3.6-plus:free:
+      label: "Qwen 3.6 Plus — Free (OpenRouter)"
+      hosts: [openrouter]
 - name: CAPTAIN_OPEN_AI_ENDPOINT
   display_title: 'OpenAI API Endpoint (optional)'
   description: >-
@@ -205,11 +262,19 @@
     set CAPTAIN_EMBEDDING_MODEL to a model OpenRouter routes (e.g. text-embedding-ada-002) or point embeddings at direct OpenAI.
   locked: false
 - name: CAPTAIN_EMBEDDING_MODEL
-  display_title: 'Captain embedding model (optional)'
-  description: >-
-    Model id for FAQ/document vector search (RubyLLM.embed). Default: text-embedding-3-small at 1024 dimensions. With OpenRouter,
-    pick a model their API successfully routes (verify with a curl to /v1/embeddings). Must match vector column dimensions (pgvector 1024).
+  display_title: 'Embedding Model'
+  description: 'Model for FAQ/document vector search. All models work with 1024 dimensions (pgvector).'
   locked: false
+  type: select
+  options:
+    baai/bge-m3: "BGE-M3 — Universal, hybrid search (Dense+Sparse), $0.01/1M"
+    perplexity/pplx-embed-v1-0.6b: "PPLX-v1 (0.6B) — Late Chunking, long docs, $0.02/1M"
+    perplexity/pplx-embed-v1-4b: "PPLX-v1 (4B) — Max intelligence, tech docs, $0.03/1M"
+    qwen/qwen3-embedding-8b: "Qwen3 Embedding 8B — SOTA 2026, ru/zh, $0.07/1M"
+    cohere/embed-multilingual-v4.0: "Cohere Embed v4.0 — Premium, multimodal, $0.10/1M"
+    jinaai/jina-embeddings-v3: "Jina v5 Small — Extremely fast, $0.015/1M"
+    openai/text-embedding-3-small: "OpenAI text-embedding-3-small — Most popular, $0.02/1M"
+    zhipu/embedding-3: "Zhipu Embedding-3 — Chinese flagship, $0.07/1M"
 - name: CAPTAIN_EMBEDDING_OPEN_AI_API_KEY
   display_title: 'Captain embeddings API key (optional)'
   description: >-

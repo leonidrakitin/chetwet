@@ -21,10 +21,11 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
   private
 
   def preferences_payload
+    host = InstallationConfig.find_by(name: 'CAPTAIN_HOST')&.value
     {
       providers: Llm::Models.providers,
-      models: Llm::Models.models,
-      features: features_with_account_preferences,
+      models: Llm::Models.models_for_host(host),
+      features: features_with_account_preferences(host),
       message_buffer_seconds: @current_account.captain_message_buffer_seconds.presence&.to_i || 4
     }
   end
@@ -65,13 +66,13 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
     ).to_h.stringify_keys
   end
 
-  def features_with_account_preferences
+  def features_with_account_preferences(host = nil)
     preferences = Current.account.captain_preferences
     account_features = preferences[:features] || {}
     account_models = preferences[:models] || {}
 
     Llm::Models.feature_keys.index_with do |feature_key|
-      config = Llm::Models.feature_config(feature_key)
+      config = host.present? ? Llm::Models.feature_config_for_host(feature_key, host) : Llm::Models.feature_config(feature_key)
       config.merge(
         enabled: account_features[feature_key] == true,
         selected: account_models[feature_key] || config[:default]
