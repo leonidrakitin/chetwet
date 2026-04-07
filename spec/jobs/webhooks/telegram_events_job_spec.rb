@@ -21,7 +21,7 @@ RSpec.describe Webhooks::TelegramEventsJob do
     end
 
     it 'logs a warning when channel is not found' do
-      expect(Rails.logger).to receive(:warn).with('Telegram event discarded: Channel not found for bot_token: invalid')
+      expect(Rails.logger).to receive(:warn).with('Telegram event discarded: Channel not found for bot_token: [REDACTED]')
       described_class.perform_now({ bot_token: 'invalid' })
     end
   end

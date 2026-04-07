@@ -1,6 +1,17 @@
 class Webhooks::TelegramEventsJob < ApplicationJob
   queue_as :default
 
+  # Avoid logging full Telegram bot secrets in ActiveJob/Sidekiq output (payload includes :bot_token).
+  self.log_arguments = false
+
+  def self.redact_bot_token_for_log(token)
+    s = token.to_s
+    return '[blank]' if s.blank?
+    return '[REDACTED]' if s.length < 12
+
+    "#{s[0, 4]}…#{s[-4, 4]}"
+  end
+
   def perform(params = {})
     params = params.with_indifferent_access
     return unless params[:bot_token]
@@ -28,7 +39,7 @@ class Webhooks::TelegramEventsJob < ApplicationJob
     message = if channel&.id
                 "Account #{channel.account.id} is not active for channel #{channel.id}"
               else
-                "Channel not found for bot_token: #{params[:bot_token]}"
+                "Channel not found for bot_token: #{self.class.redact_bot_token_for_log(params[:bot_token])}"
               end
     Rails.logger.warn("Telegram event discarded: #{message}")
   end
@@ -38,7 +49,7 @@ class Webhooks::TelegramEventsJob < ApplicationJob
     telegram_params = params.except(:controller, :action, :bot_token).with_indifferent_access
     return if telegram_params.blank?
 
-    if telegram_params.dig(:edited_message).present? || telegram_params.dig(:edited_business_message).present?
+    if telegram_params[:edited_message].present? || telegram_params[:edited_business_message].present?
       Telegram::UpdateMessageService.new(inbox: channel.inbox, params: telegram_params).perform
     else
       Telegram::IncomingMessageService.new(inbox: channel.inbox, params: telegram_params).perform
