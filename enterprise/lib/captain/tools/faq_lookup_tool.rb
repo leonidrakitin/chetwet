@@ -30,7 +30,7 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
       needs_operator = faq_results.any?(&:requires_clarification?)
       result = {
         status: 'ok',
-        policy: needs_operator ? 'ask_human' : 'answer',
+        policy: needs_operator ? 'escalate' : 'answer',
         query: query,
         answer_draft: answer_draft,
         sources: collect_sources(faq_results, chunk_results),
@@ -117,10 +117,9 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
           "
     end
     if response.requires_clarification?
-      hint = '[REQUIRES_OPERATOR_CLARIFICATION: CRITICAL INSTRUCTION — You MUST call the `captain--tools--ask_human` ' \
-             'tool to request operator approval for this action. Strict rule: DO NOT use the ' \
-             '`captain--tools--escalate_to_human` tool. Stay in the conversation and wait for the operator\'s background ' \
-             'instructions via `ask_human`. DO NOT answer the customer directly until the human replies.]'
+      hint = '[REQUIRES_OPERATOR_CLARIFICATION: This topic requires operator review. ' \
+             'You MUST call `captain--tools--escalate_to_human` to transfer the conversation to a human agent. ' \
+             'The operator will be notified via Telegram. DO NOT answer the customer directly.]'
       formatted_response += "\n          #{hint}\n          "
     end
 

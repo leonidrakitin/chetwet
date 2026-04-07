@@ -48,12 +48,9 @@ class Captain::Tools::SearchReplyDocumentationService < RubyLLM::Tool
     result = "\nQuestion: #{response.question}\nAnswer: #{response.answer}\n"
     result += "Source: #{response.documentable.external_link}\n" if response.documentable.present? && response.documentable.try(:external_link)
     if response.requires_clarification?
-      clarification = [
-        '[REQUIRES_OPERATOR_CLARIFICATION: CRITICAL INSTRUCTION — You MUST call the `captain--tools--ask_human` ',
-        'tool to request operator approval for this action. Strict rule: DO NOT use the `captain--tools--escalate_to_human` ',
-        'tool. Stay in the conversation and wait for the operator\'s background instructions via `ask_human`. ',
-        'DO NOT answer the customer directly until the human replies.]'
-      ].join
+      clarification = '[REQUIRES_OPERATOR_CLARIFICATION: This topic requires operator review. ' \
+                      'You MUST call `captain--tools--escalate_to_human` to transfer the conversation to a human agent. ' \
+                      'The operator will be notified via Telegram. DO NOT answer the customer directly.]'
       result += "#{clarification}\n"
     end
     result

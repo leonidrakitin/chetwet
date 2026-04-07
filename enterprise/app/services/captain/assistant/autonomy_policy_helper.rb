@@ -75,7 +75,7 @@ module Captain::Assistant::AutonomyPolicyHelper
       "label=#{label} acceptable=#{answer_acceptable?(result)} " \
       "response_preview=#{text.truncate(400).inspect} " \
       "current_agent=#{ctx&.dig(:current_agent).inspect} " \
-      "faq_called=#{ctx&.dig(:captain_v2_faq_lookup_called)} ask_human_called=#{ctx&.dig(:captain_v2_ask_human_called)} " \
+      "faq_called=#{ctx&.dig(:captain_v2_faq_lookup_called)} " \
       "error=#{error&.class}:#{error&.message&.truncate(500)}"
     )
   end
@@ -106,14 +106,11 @@ module Captain::Assistant::AutonomyPolicyHelper
         context[:scenario_router_attempted] = true
         router.routing_hint
       else
-        'Try a different approach. If you need operator approval or a background clarification, use captain--tools--ask_human. ' \
-          'Only use captain--tools--escalate_to_human if the user explicitly asked for a human agent or the issue is completely ' \
-          'outside your capabilities and cannot be addressed via ask_human.'
+        'Try a different approach. If you need operator help or the issue requires human judgment, ' \
+          'use captain--tools--escalate_to_human to transfer the conversation to a human agent.'
       end
     else
-      'If you still cannot help, use captain--tools--ask_human when you need approval or operator input. ' \
-      'Use captain--tools--escalate_to_human only as a last resort if the user explicitly demands a live agent or the problem ' \
-      'is entirely unsolvable here.'
+      'If you still cannot help, use captain--tools--escalate_to_human to transfer the conversation to a human agent.'
     end
   end
 

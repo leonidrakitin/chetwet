@@ -72,9 +72,9 @@ module Concerns::Agentable
     Agents::Agent.new(
       name: "#{agent_name}_planner",
       instructions: lambda { |_context|
-        "You are a planning sub-agent. Decide the safest next action for the current customer turn. " \
-          "Prefer one of: faq_lookup, scenario handoff, clarification question, ask_human, or human escalation. " \
-          "Keep your reasoning concise and return only structured output."
+        'You are a planning sub-agent. Decide the safest next action for the current customer turn. ' \
+          'Prefer one of: faq_lookup, scenario handoff, clarification question, or escalate_to_human. ' \
+          'Keep your reasoning concise and return only structured output.'
       },
       model: orchestration_subagent_model,
       temperature: 0.2,
@@ -89,15 +89,15 @@ module Concerns::Agentable
     Agents::Agent.new(
       name: "#{agent_name}_policy",
       instructions: lambda { |_context|
-        "You are a policy sub-agent. Review whether the assistant should reply directly, wait for ask_human, " \
-          "or escalate to a human. Use escalation only as a last resort. Return only structured output."
+        'You are a policy sub-agent. Review whether the assistant should reply directly ' \
+          'or escalate to a human agent. Return only structured output.'
       },
       model: orchestration_subagent_model,
       temperature: 0.1,
       response_schema: policy_response_schema
     ).as_tool(
       name: 'check_response_policy',
-      description: 'Validate whether to reply, wait for ask_human, or escalate to human support'
+      description: 'Validate whether to reply directly or escalate to human support'
     )
   end
 
@@ -111,7 +111,7 @@ module Concerns::Agentable
       properties: {
         route: {
           type: 'string',
-          enum: %w[faq scenario direct clarify ask_human escalate_to_human]
+          enum: %w[faq scenario direct clarify escalate_to_human]
         },
         confidence: { type: 'number' },
         rationale: { type: 'string' },
@@ -130,7 +130,7 @@ module Concerns::Agentable
       properties: {
         action: {
           type: 'string',
-          enum: %w[reply ask_human await_human escalate_to_human]
+          enum: %w[reply escalate_to_human]
         },
         confidence: { type: 'number' },
         rationale: { type: 'string' },

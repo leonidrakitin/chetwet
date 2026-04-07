@@ -67,8 +67,8 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
   def process_response
     return unless conversation_pending?
-    # If ask_human tool (or FAQ requires_clarification) created an ApprovalRequest,
-    # the operator will respond via Telegram — skip sending a message now.
+    # If a prior escalation created a pending ApprovalRequest,
+    # skip sending a message — the operator will respond via Telegram.
     return if pending_approval_request_exists?
     return if orchestration_waiting_state?
     return if @response['status'] == 'busy'

@@ -31,12 +31,9 @@ class Captain::Assistant::AgentRunnerService
     Llm::Config.initialize!
 
     message_to_process, context = run_payload(message_history)
-    dm_ids = @assistant.config['decision_maker_ids']
-    ask_human_tool_name = (dm_ids.present? ? Captain::Tools::AskHumanTool.new(@assistant).name : nil)
     Rails.logger.info(
       '[Captain DEBUG TMP] AgentRunnerService#generate_response start ' \
-      "assistant_id=#{@assistant.id} conversation_id=#{@conversation&.id} source=#{@source.inspect} " \
-      "decision_maker_ids=#{dm_ids.inspect} ask_human_tool_name=#{ask_human_tool_name.inspect}"
+      "assistant_id=#{@assistant.id} conversation_id=#{@conversation&.id} source=#{@source.inspect}"
     )
 
     with_conversation_lock do
@@ -115,8 +112,7 @@ class Captain::Assistant::AgentRunnerService
       '[Captain DEBUG TMP] process_agent_result ' \
       "current_agent=#{result.context&.dig(:current_agent).inspect} " \
       "response_preview=#{text.truncate(400).inspect} " \
-      "mentions_approval_request=#{text.include?('Approval request')} faq_lookup_called=#{result.context&.dig(:captain_v2_faq_lookup_called)} " \
-      "ask_human_context_flag=#{result.context&.dig(:captain_v2_ask_human_called)}"
+      "faq_lookup_called=#{result.context&.dig(:captain_v2_faq_lookup_called)}"
     )
     response
   end
@@ -200,11 +196,9 @@ class Captain::Assistant::AgentRunnerService
 
     runner.on_tool_complete do |tool_name, tool_result, context_wrapper|
       preview = tool_result.is_a?(Hash) ? tool_result.inspect : tool_result.to_s
-      context_wrapper.context[:captain_v2_ask_human_called] = true if context_wrapper&.context && tool_name.to_s.include?('ask_human')
       Rails.logger.info(
         '[Captain DEBUG TMP] on_tool_complete ' \
-        "tool_name=#{tool_name.inspect} ask_human=#{(tool_name.to_s.include?('ask_human') ? 'yes' : 'no')} " \
-        "result_preview=#{preview.truncate(500).inspect}"
+        "tool_name=#{tool_name.inspect} result_preview=#{preview.truncate(500).inspect}"
       )
       track_handoff_usage(tool_name, handoff_tool_name, context_wrapper)
       track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
@@ -257,7 +251,6 @@ class Captain::Assistant::AgentRunnerService
 
     return 'scenario_handoff' if scenario_agent_responded?(result)
     return 'human' if human_handoff_response?(result)
-    return 'ask_human' if context_wrapper.context[:captain_v2_ask_human_called]
     return 'faq' if context_wrapper.context[:captain_v2_faq_lookup_called]
 
     'direct'
@@ -291,11 +284,7 @@ class Captain::Assistant::AgentRunnerService
   def persist_tool_runtime_state(tool_name, _tool_result, context_wrapper)
     return unless context_wrapper&.context
 
-    if tool_name.to_s.include?('ask_human')
-      append_private_note('Captain asked a human operator for approval/background guidance.')
-    elsif tool_name.to_s == Captain::Tools::HandoffTool.new(@assistant).name
-      append_private_note('Captain escalated the conversation to a human agent.')
-    end
+    append_private_note('Captain escalated the conversation to a human agent.') if tool_name.to_s == Captain::Tools::HandoffTool.new(@assistant).name
 
     persist_runtime_context!(context_wrapper)
   end

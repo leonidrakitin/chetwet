@@ -102,11 +102,6 @@
   description: 'Update attendance status of a YClients appointment'
   icon: 'checkmark-circle'
 
-- id: ask_human
-  category: core
-  title: 'Ask Human'
-  description: 'Request operator approval or clarification via messenger'
-  icon: 'people'
 
 - id: notify_staff
   category: core
