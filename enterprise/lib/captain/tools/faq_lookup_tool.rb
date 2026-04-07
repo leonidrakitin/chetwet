@@ -2,8 +2,7 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
   description 'Search FAQ responses using semantic similarity to find relevant answers'
   param :query, type: 'string', desc: 'The question or topic to search for in the FAQ database'
 
-  # rubocop:disable Metrics/MethodLength -- TEMP DEBUG TMP logging (revert commit)
-  def perform(_tool_context, query:)
+  def perform(tool_context, query:)
     log_tool_usage('searching', { query: query })
 
     faq_results, chunk_results = search_knowledge(query)
@@ -11,25 +10,42 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
 
     if total_results.zero?
       log_tool_usage('no_results', { query: query })
-      out = "No relevant FAQs found for: #{query}"
+      result = {
+        status: 'no_match',
+        policy: 'no_match',
+        query: query,
+        answer_draft: nil,
+        sources: [],
+        requires_operator: false
+      }
+      write_state(tool_context, result)
       Rails.logger.info(
         '[Captain DEBUG TMP] FaqLookupTool#perform no_results ' \
-        "assistant_id=#{@assistant.id} query=#{query.inspect} return=#{out.inspect}"
+        "assistant_id=#{@assistant.id} query=#{query.inspect} return=#{result.inspect}"
       )
-      out
+      result
     else
       log_tool_usage('found_results', { query: query, count: total_results })
-      body = "#{format_chunk_results(chunk_results)}#{format_responses(faq_results)}"
-      needs_operator = body.include?('REQUIRES_OPERATOR_CLARIFICATION')
+      answer_draft = "#{format_chunk_results(chunk_results)}#{format_responses(faq_results)}"
+      needs_operator = faq_results.any?(&:requires_clarification?)
+      result = {
+        status: 'ok',
+        policy: needs_operator ? 'ask_human' : 'answer',
+        query: query,
+        answer_draft: answer_draft,
+        sources: collect_sources(faq_results, chunk_results),
+        requires_operator: needs_operator,
+        confidence: total_results
+      }
+      write_state(tool_context, result)
       Rails.logger.info(
         '[Captain DEBUG TMP] FaqLookupTool#perform hit ' \
         "assistant_id=#{@assistant.id} query=#{query.inspect} chunks=#{chunk_results.size} faqs=#{faq_results.size} " \
-        "requires_operator_hint=#{needs_operator} return_len=#{body.bytesize}"
+        "requires_operator_hint=#{needs_operator} return_len=#{answer_draft.bytesize}"
       )
-      body
+      result
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
 
@@ -103,12 +119,28 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
     if response.requires_clarification?
       hint = '[REQUIRES_OPERATOR_CLARIFICATION: CRITICAL INSTRUCTION — You MUST call the `captain--tools--ask_human` ' \
              'tool to request operator approval for this action. Strict rule: DO NOT use the ' \
-             '`captain--tools--handoff` tool. Stay in the conversation and wait for the operator\'s background ' \
+             '`captain--tools--escalate_to_human` tool. Stay in the conversation and wait for the operator\'s background ' \
              'instructions via `ask_human`. DO NOT answer the customer directly until the human replies.]'
       formatted_response += "\n          #{hint}\n          "
     end
 
     formatted_response
+  end
+
+  def collect_sources(faq_results, chunk_results)
+    faq_sources = faq_results.filter_map do |response|
+      response.documentable&.try(:external_link) if should_show_source?(response)
+    end
+    chunk_sources = chunk_results.filter_map do |chunk|
+      document = chunk.document
+      document&.external_link if should_show_document_source?(document)
+    end
+    (faq_sources + chunk_sources).compact.uniq
+  end
+
+  def write_state(tool_context, result)
+    tool_context.state[:orchestration] ||= {}
+    tool_context.state[:orchestration][:last_faq_lookup] = result
   end
 
   def should_show_source?(response)

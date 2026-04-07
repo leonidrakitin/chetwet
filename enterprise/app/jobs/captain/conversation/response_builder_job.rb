@@ -70,6 +70,8 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     # If ask_human tool (or FAQ requires_clarification) created an ApprovalRequest,
     # the operator will respond via Telegram — skip sending a message now.
     return if pending_approval_request_exists?
+    return if orchestration_waiting_state?
+    return if @response['status'] == 'busy'
 
     if handoff_requested?
       process_action('handoff')
@@ -140,6 +142,10 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
   def validate_message_content!(content)
     raise ArgumentError, 'Message content cannot be blank' if content.blank?
+  end
+
+  def orchestration_waiting_state?
+    @response['status'] == 'awaiting_human' || @response['response'].blank?
   end
 
   def create_outgoing_message(message_content, agent_name: nil)

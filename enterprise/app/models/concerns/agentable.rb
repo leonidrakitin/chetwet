@@ -20,13 +20,22 @@ module Concerns::Agentable
       config = state[:assistant_config] || {}
       enhanced_context = enhanced_context.merge(
         conversation: state[:conversation] || {},
-        contact: config['feature_contact_attributes'].present? ? state[:contact] : nil
+        contact: config['feature_contact_attributes'].present? ? state[:contact] : nil,
+        orchestration_state: state[:orchestration] || {},
+        orchestration_state_json: (state[:orchestration] || {}).to_json,
+        handoff_summary: context.context.dig(:last_handoff, :summary),
+        handoff_reason: context.context.dig(:last_handoff, :reason)
       )
       enhanced_context[:conversation_length] = context.context[:conversation_length] if context.context.key?(:conversation_length)
       enhanced_context[:routing_hint] = context.context[:routing_hint] if context.context.key?(:routing_hint)
+      enhanced_context[:routing_plan] = context.context[:routing_plan] if context.context.key?(:routing_plan)
+      enhanced_context[:routing_plan_json] = context.context[:routing_plan].to_json if context.context.key?(:routing_plan)
     end
 
-    Captain::PromptRenderer.render(template_name, enhanced_context.with_indifferent_access)
+    [
+      Agents::RECOMMENDED_HANDOFF_PROMPT_PREFIX,
+      Captain::PromptRenderer.render(template_name, enhanced_context.with_indifferent_access)
+    ].join("\n")
   end
 
   private
@@ -51,7 +60,84 @@ module Concerns::Agentable
     Captain::ResponseSchema
   end
 
+  def orchestration_subagent_tools
+    [planner_agent_tool, policy_agent_tool]
+  end
+
   def prompt_context
     raise NotImplementedError, "#{self.class} must implement prompt_context"
+  end
+
+  def planner_agent_tool
+    Agents::Agent.new(
+      name: "#{agent_name}_planner",
+      instructions: lambda { |_context|
+        "You are a planning sub-agent. Decide the safest next action for the current customer turn. " \
+          "Prefer one of: faq_lookup, scenario handoff, clarification question, ask_human, or human escalation. " \
+          "Keep your reasoning concise and return only structured output."
+      },
+      model: orchestration_subagent_model,
+      temperature: 0.2,
+      response_schema: planner_response_schema
+    ).as_tool(
+      name: 'plan_next_step',
+      description: 'Plan the next orchestration step with route, confidence, and a compact transfer summary if needed'
+    )
+  end
+
+  def policy_agent_tool
+    Agents::Agent.new(
+      name: "#{agent_name}_policy",
+      instructions: lambda { |_context|
+        "You are a policy sub-agent. Review whether the assistant should reply directly, wait for ask_human, " \
+          "or escalate to a human. Use escalation only as a last resort. Return only structured output."
+      },
+      model: orchestration_subagent_model,
+      temperature: 0.1,
+      response_schema: policy_response_schema
+    ).as_tool(
+      name: 'check_response_policy',
+      description: 'Validate whether to reply, wait for ask_human, or escalate to human support'
+    )
+  end
+
+  def orchestration_subagent_model
+    LlmConstants::DEFAULT_MODEL
+  end
+
+  def planner_response_schema
+    {
+      type: 'object',
+      properties: {
+        route: {
+          type: 'string',
+          enum: %w[faq scenario direct clarify ask_human escalate_to_human]
+        },
+        confidence: { type: 'number' },
+        rationale: { type: 'string' },
+        suggested_tool: { type: 'string' },
+        handoff_reason: { type: 'string' },
+        transfer_summary: { type: 'string' }
+      },
+      required: %w[route confidence rationale],
+      additionalProperties: false
+    }
+  end
+
+  def policy_response_schema
+    {
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          enum: %w[reply ask_human await_human escalate_to_human]
+        },
+        confidence: { type: 'number' },
+        rationale: { type: 'string' },
+        safe_to_reply: { type: 'boolean' }
+      },
+      required: %w[action confidence rationale safe_to_reply],
+      additionalProperties: false
+    }
   end
 end

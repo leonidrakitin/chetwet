@@ -17,7 +17,7 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
 
   def perform(tool_context, title:, target: nil, options: nil, action_type: nil)
     conversation = find_conversation(tool_context.state)
-    return 'Conversation not found' unless conversation
+    return { status: 'error', message: 'Conversation not found' } unless conversation
 
     resolved = resolve_ask_human_assignee(target)
     return resolved if resolved.is_a?(String)
@@ -31,11 +31,19 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
       title: title, context: generate_context(conversation), options: build_options(options, action),
       assignee_type: assignee_type, assignee_id: assignee_id, expires_at: 30.minutes.from_now
     )
+    persist_pending_interaction(conversation, request, tool_context, title, action)
     send_clarifying_message(conversation, request)
     ApprovalBot::NotifyJob.perform_later(request)
 
-    "Approval request ##{request.id} sent to #{target}. Waiting for human response. " \
-      'Do NOT send any message to the customer until the operator responds.'
+    {
+      status: 'awaiting_human',
+      interaction_id: request.id,
+      waiting_tool_name: name,
+      requested_at: request.created_at.iso8601,
+      action_type: action,
+      assignee: target.presence || "user:#{assignee_id}",
+      message: "Approval request ##{request.id} sent. Wait for the operator response before replying to the customer."
+    }
   end
 
   private
@@ -50,10 +58,10 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     end
 
     dm_ids = @assistant.config['decision_maker_ids'] || []
-    return 'No human decision maker is configured to handle this. Proceed with standard conversation handoff.' if dm_ids.blank?
+    return 'No human decision maker is configured to handle this. Proceed with standard human escalation if required.' if dm_ids.blank?
 
     user = first_decision_maker_with_telegram(dm_ids)
-    return 'No human decision maker with a configured Telegram account was found. Proceed with standard conversation handoff.' unless user
+    return 'No human decision maker with a configured Telegram account was found. Proceed with standard human escalation if required.' unless user
 
     ['user', user.id]
   end
@@ -85,6 +93,30 @@ class Captain::Tools::AskHumanTool < Captain::Tools::BasePublicTool
     end
     result << { label: I18n.t('approval_bot.suggest_your_own'), action_type: 'free_text' }
     result
+  end
+
+  def persist_pending_interaction(conversation, request, tool_context, title, action)
+    runtime_state = Captain::RuntimeStateService.new(conversation)
+    snapshot = {
+      message_count: conversation.messages.count,
+      last_message_id: conversation.messages.order(:created_at).last&.id,
+      requested_at: request.created_at.iso8601
+    }
+    pending = {
+      status: 'awaiting_human',
+      interaction_id: request.id,
+      waiting_tool_name: name,
+      title: title,
+      action_type: action,
+      snapshot: snapshot
+    }
+
+    runtime_state.update_state(
+      pending_human_interaction: pending,
+      last_human_interaction_id: request.id
+    )
+    tool_context.state[:orchestration] ||= {}
+    tool_context.state[:orchestration][:pending_human_interaction] = pending
   end
 
   def generate_context(conversation)

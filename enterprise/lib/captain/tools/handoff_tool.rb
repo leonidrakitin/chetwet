@@ -1,30 +1,32 @@
 class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
-  description 'Use ONLY as a last resort to permanently transfer the conversation to human support. Trigger strictly ' \
+  description 'Use ONLY as a last resort to escalate the conversation to human support. Trigger strictly ' \
               'if the user explicitly demands a human agent or the issue is completely unsolvable here. Do NOT use ' \
               'for approval or quick clarification — use `captain--tools--ask_human` instead.'
-  param :reason, type: 'string', desc: 'The reason why handoff is needed (optional)', required: false
+  param :reason, type: 'string', desc: 'The reason why human escalation is needed (optional)', required: false
   param :post_reason_as_note, type: 'boolean',
                               desc: 'If false, do not create a private note with the reason ' \
                                     '(use when you already added a note via Add Private Note)',
                               required: false
 
+  def name
+    'escalate_to_human'
+  end
+
   def perform(tool_context, reason: nil, post_reason_as_note: true)
     conversation = find_conversation(tool_context.state)
     return 'Conversation not found' unless conversation
 
-    # Log the handoff with reason
-    log_tool_usage('tool_handoff', {
+    log_tool_usage('tool_human_escalation', {
                      conversation_id: conversation.id,
-                     reason: reason || 'Agent requested handoff'
+                     reason: reason || 'Agent requested human escalation'
                    })
 
-    # Use existing handoff mechanism from ResponseBuilderJob
     trigger_handoff(conversation, reason, post_reason_as_note)
 
-    "Conversation handed off to human support team#{" (Reason: #{reason})" if reason}"
+    "Conversation escalated to human support team#{" (Reason: #{reason})" if reason}"
   rescue StandardError => e
     ChatwootExceptionTracker.new(e).capture_exception
-    'Failed to handoff conversation'
+    'Failed to escalate conversation to human support'
   end
 
   private

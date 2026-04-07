@@ -38,7 +38,7 @@ module Captain::Assistant::AutonomyPolicyHelper
   end
 
   # autonomy_max_retries: nil → default 2 (autonomy on)
-  # autonomy_max_retries: 0  → simple mode: answer or handoff, no retries
+  # autonomy_max_retries: 0  → simple mode: answer or escalation, no retries
   def effective_autonomy_max_retries
     val = @assistant.autonomy_max_retries
     val.nil? ? DEFAULT_AUTONOMY_MAX_RETRIES : val.to_i
@@ -79,7 +79,7 @@ module Captain::Assistant::AutonomyPolicyHelper
     case attempt
     when 1
       if context[:captain_v2_faq_lookup_hit]
-        'You already called captain--tools--faq_lookup and received results. You must reply to the user with that content. Put the answer text in the "response" field. Do not set response to conversation_handoff when you have FAQ content to share.'
+        'You already called captain--tools--faq_lookup and received results. If the policy is answer, use the answer_draft in your response. Do not set response to conversation_handoff when you have FAQ content to share.'
       elsif context[:captain_v2_faq_lookup_called]
         context[:clarification_sent] = true
         'You already called captain--tools--faq_lookup, but it returned no relevant FAQs. Ask the user one short clarification question or rephrase the query and call captain--tools--faq_lookup again. Do not hand off to a human yet.'
@@ -94,12 +94,12 @@ module Captain::Assistant::AutonomyPolicyHelper
         router.routing_hint
       else
         'Try a different approach. If you need operator approval or a background clarification, use captain--tools--ask_human. ' \
-          'Only use captain--tools--handoff if the user explicitly asked for a human agent or the issue is completely ' \
+          'Only use captain--tools--escalate_to_human if the user explicitly asked for a human agent or the issue is completely ' \
           'outside your capabilities and cannot be addressed via ask_human.'
       end
     else
       'If you still cannot help, use captain--tools--ask_human when you need approval or operator input. ' \
-      'Use captain--tools--handoff only as a last resort if the user explicitly demands a live agent or the problem ' \
+      'Use captain--tools--escalate_to_human only as a last resort if the user explicitly demands a live agent or the problem ' \
       'is entirely unsolvable here.'
     end
   end
@@ -115,6 +115,13 @@ module Captain::Assistant::AutonomyPolicyHelper
     return unless @conversation
 
     state = Captain::RuntimeStateService.new(@conversation).state
+    pending_interaction = state['pending_human_interaction']
+    if pending_interaction.present?
+      context[:pending_human_interaction] = pending_interaction
+      snapshot_count = pending_interaction.dig('snapshot', 'message_count').to_i
+      context[:pending_human_interaction_stale] = snapshot_count.positive? && snapshot_count != @conversation.messages.count
+    end
+    context[:last_human_response] = state['last_human_response'] if state['last_human_response'].present?
     Captain::ScenarioResumeService.new(@conversation, state).enrich_context(context)
   end
 

@@ -50,7 +50,7 @@ class Captain::Tools::SearchReplyDocumentationService < RubyLLM::Tool
     if response.requires_clarification?
       clarification = [
         '[REQUIRES_OPERATOR_CLARIFICATION: CRITICAL INSTRUCTION — You MUST call the `captain--tools--ask_human` ',
-        'tool to request operator approval for this action. Strict rule: DO NOT use the `captain--tools--handoff` ',
+        'tool to request operator approval for this action. Strict rule: DO NOT use the `captain--tools--escalate_to_human` ',
         'tool. Stay in the conversation and wait for the operator\'s background instructions via `ask_human`. ',
         'DO NOT answer the customer directly until the human replies.]'
       ].join

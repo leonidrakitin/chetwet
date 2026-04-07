@@ -98,7 +98,7 @@ class Captain::Scenario < ApplicationRecord
   end
 
   def agent_tools
-    resolved_tools.map { |tool| resolve_tool_instance(tool) }
+    orchestration_subagent_tools + resolved_tools.map { |tool| resolve_tool_instance(tool) }
   end
 
   def resolved_instructions

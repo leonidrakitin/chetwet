@@ -64,6 +64,26 @@ class ApprovalBot::ActionExecutorService
     instruction = payload&.dig('instruction') || payload&.dig(:instruction)
     return if instruction.blank?
 
+    runtime_state = Captain::RuntimeStateService.new(conversation)
+    pending = runtime_state.state['pending_human_interaction'] || {}
+    snapshot = pending['snapshot'] || {}
+    freshness = {
+      stale: snapshot['message_count'].to_i != conversation.messages.count,
+      resumed_at: Time.current.iso8601
+    }
+    runtime_state.update_state(
+      pending_human_interaction: pending.merge(
+        'status' => 'resolved',
+        'human_response' => instruction,
+        'freshness' => freshness
+      ),
+      last_human_response: {
+        request_id: @request.id,
+        instruction: instruction,
+        freshness: freshness
+      }
+    )
+
     conversation.messages.create!(
       content: "[Operator instruction: #{instruction}]",
       message_type: :activity,

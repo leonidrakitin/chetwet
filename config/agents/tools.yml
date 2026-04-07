@@ -62,8 +62,8 @@
 
 - id: handoff
   category: core
-  title: 'Handoff to Human'
-  description: 'Hand off the conversation to a human agent'
+  title: 'Escalate to Human'
+  description: 'Escalate the conversation to a human agent as a last resort'
   icon: 'user-switch'
 
 - id: yclients_lookup_client

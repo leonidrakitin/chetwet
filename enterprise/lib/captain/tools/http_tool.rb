@@ -16,10 +16,26 @@ class Captain::Tools::HttpTool < Agents::Tool
     body = @custom_tool.build_request_body(params)
 
     response = execute_http_request(url, body, tool_context)
-    @custom_tool.format_response(response.body)
+    raw_body = response.body
+    parsed_body = parse_response_body(raw_body)
+    formatted = @custom_tool.format_response(raw_body)
+    result = {
+      status: 'success',
+      data: parsed_body,
+      user_safe_summary: formatted,
+      retryable: false
+    }
+    tool_context.state[:orchestration] ||= {}
+    tool_context.state[:orchestration][:last_http_tool_result] = result
+    result
   rescue StandardError => e
     Rails.logger.error("HttpTool execution error for #{@custom_tool.slug}: #{e.class} - #{e.message}")
-    'An error occurred while executing the request'
+    {
+      status: 'error',
+      data: nil,
+      user_safe_summary: 'An error occurred while executing the request',
+      retryable: true
+    }
   end
 
   private
@@ -108,5 +124,11 @@ class Captain::Tools::HttpTool < Agents::Tool
     state = tool_context&.state || {}
     metadata_headers = @custom_tool.build_metadata_headers(state)
     metadata_headers.each { |key, value| request[key] = value }
+  end
+
+  def parse_response_body(body)
+    JSON.parse(body)
+  rescue JSON::ParserError, TypeError
+    body
   end
 end

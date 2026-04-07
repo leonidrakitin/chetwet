@@ -37,9 +37,10 @@ class Captain::Assistant::AgentRunnerService
       "decision_maker_ids=#{dm_ids.inspect} ask_human_tool_name=#{ask_human_tool_name.inspect}"
     )
 
-    result = run_with_autonomy_policy(message_to_process, context)
-
-    process_agent_result(result)
+    with_conversation_lock do
+      result = run_with_autonomy_policy(message_to_process, context)
+      process_agent_result(result)
+    end
   rescue StandardError => e
     # In rake/local runs, conversation may not be present, so account is optional here.
     ChatwootExceptionTracker.new(e, account: @conversation&.account).capture_exception
@@ -94,7 +95,9 @@ class Captain::Assistant::AgentRunnerService
 
   def extract_text_from_content(content)
     # Handle structured output from agents
-    return content[:response] || content['response'] || content.to_s if content.is_a?(Hash)
+    if content.is_a?(Hash)
+      return content[:response] || content['response'] || content[:answer_draft] || content['answer_draft'] || content.to_s
+    end
 
     return content unless content.is_a?(Array)
 
@@ -129,7 +132,8 @@ class Captain::Assistant::AgentRunnerService
     state = {
       account_id: @assistant.account_id,
       assistant_id: @assistant.id,
-      assistant_config: @assistant.config
+      assistant_config: @assistant.config,
+      orchestration: runtime_state_service&.state || {}
     }
     state[:source] = @source if @source.present?
 
@@ -204,11 +208,19 @@ class Captain::Assistant::AgentRunnerService
       )
       track_handoff_usage(tool_name, handoff_tool_name, context_wrapper)
       track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
+      persist_tool_runtime_state(tool_name, tool_result, context_wrapper)
+    end
+
+    runner.on_agent_handoff do |from_agent, to_agent, _reason, context_wrapper|
+      append_private_note("Captain internal handoff: #{from_agent} -> #{to_agent}")
+      persist_runtime_context!(context_wrapper, current_agent: to_agent)
     end
 
     runner.on_run_complete do |_agent_name, result, context_wrapper|
       write_credits_used_metadata(context_wrapper, result)
       log_routing_decision(context_wrapper, result)
+      persist_runtime_context!(context_wrapper, current_agent: result.context&.dig(:current_agent),
+                                                routing_decision: compute_routing_decision(context_wrapper, result))
     end
     runner
   end
@@ -245,6 +257,7 @@ class Captain::Assistant::AgentRunnerService
 
     return 'scenario_handoff' if scenario_agent_responded?(result)
     return 'human' if human_handoff_response?(result)
+    return 'ask_human' if context_wrapper.context[:captain_v2_ask_human_called]
     return 'faq' if context_wrapper.context[:captain_v2_faq_lookup_called]
 
     'direct'
@@ -275,6 +288,18 @@ class Captain::Assistant::AgentRunnerService
     )
   end
 
+  def persist_tool_runtime_state(tool_name, tool_result, context_wrapper)
+    return unless context_wrapper&.context
+
+    if tool_name.to_s.include?('ask_human')
+      append_private_note('Captain asked a human operator for approval/background guidance.')
+    elsif tool_name.to_s == Captain::Tools::HandoffTool.new(@assistant).name
+      append_private_note('Captain escalated the conversation to a human agent.')
+    end
+
+    persist_runtime_context!(context_wrapper)
+  end
+
   def runner
     @runner ||= begin
       configured_runner = Agents::Runner.with_agents(*build_and_wire_agents)
@@ -292,11 +317,72 @@ class Captain::Assistant::AgentRunnerService
     if message_history.size > 7
       last_text = message_to_process.respond_to?(:to_s) ? message_to_process.to_s : message_to_process
       router = Captain::ScenarioRouterService.new(last_text, @assistant)
-      context[:routing_hint] = router.routing_hint if router.scenarios_available?
+      if router.scenarios_available?
+        context[:routing_hint] = router.routing_hint
+        context[:routing_plan] = router.routing_plan
+      end
     end
     enrich_context_with_trace_payload!(context, message_history, message_to_process)
     enrich_context_with_runtime_state!(context)
     [message_to_process, context]
+  end
+
+  def runtime_state_service
+    return @runtime_state_service if defined?(@runtime_state_service)
+
+    @runtime_state_service = @conversation ? Captain::RuntimeStateService.new(@conversation) : nil
+  end
+
+  def with_conversation_lock
+    return yield unless @conversation
+
+    lock_manager = Redis::LockManager.new
+    lock_key = "captain:agent_runner:conversation:#{@conversation.id}"
+    lock_acquired = lock_manager.lock(lock_key, 2.minutes)
+    return busy_response unless lock_acquired
+
+    runtime_state_service&.update_state(last_run_started_at: Time.current.iso8601)
+    yield
+  ensure
+    lock_manager&.unlock(lock_key) if @conversation && lock_acquired
+  end
+
+  def busy_response
+    {
+      'response' => nil,
+      'status' => 'busy',
+      'reasoning' => 'Skipped concurrent orchestration run'
+    }
+  end
+
+  def persist_runtime_context!(context_wrapper, current_agent: nil, routing_decision: nil)
+    return unless runtime_state_service && context_wrapper&.context
+
+    orchestration = context_wrapper.context[:state]&.dig(:orchestration) || {}
+    runtime_state_service.update_state(
+      current_agent: current_agent || context_wrapper.context[:current_agent],
+      handoff_trace: context_wrapper.context[:handoff_trace],
+      last_handoff: context_wrapper.context[:last_handoff],
+      last_routing_decision: routing_decision,
+      last_faq_lookup: orchestration[:last_faq_lookup],
+      last_http_tool_result: orchestration[:last_http_tool_result],
+      pending_human_interaction: orchestration[:pending_human_interaction] || runtime_state_service.state['pending_human_interaction'],
+      last_run_completed_at: Time.current.iso8601
+    )
+  end
+
+  def append_private_note(content)
+    return unless @conversation
+    return if content.blank?
+
+    @conversation.messages.create!(
+      message_type: :outgoing,
+      private: true,
+      sender: @assistant,
+      account: @conversation.account,
+      inbox: @conversation.inbox,
+      content: content
+    )
   end
 end
 # rubocop:enable Metrics/ClassLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
