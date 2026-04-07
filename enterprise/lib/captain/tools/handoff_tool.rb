@@ -3,6 +3,10 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
               'if they have it configured. Use this tool when the user explicitly asks for a human agent, when the ' \
               'issue requires operator judgment, or when FAQ lookup indicates operator clarification is needed.'
   param :reason, type: 'string', desc: 'The reason why human escalation is needed (optional)', required: false
+  param :options, type: 'array',
+                  desc: 'Array of response options for the operator (e.g. ["Approve cancellation", "Deny"]). ' \
+                        'A free-text option is appended automatically.',
+                  required: false
   param :post_reason_as_note, type: 'boolean',
                               desc: 'If false, do not create a private note with the reason ' \
                                     '(use when you already added a note via Add Private Note)',
@@ -12,7 +16,7 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     'escalate_to_human'
   end
 
-  def perform(tool_context, reason: nil, post_reason_as_note: true)
+  def perform(tool_context, reason: nil, options: nil, post_reason_as_note: true)
     conversation = find_conversation(tool_context.state)
     return 'Conversation not found' unless conversation
 
@@ -22,7 +26,8 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
                    })
 
     trigger_handoff(conversation, reason, post_reason_as_note)
-    notify_operator_via_telegram(conversation, reason)
+    request = notify_operator_via_telegram(conversation, reason, options)
+    send_clarifying_message(conversation, request) if request
 
     "Conversation escalated to human support team#{" (Reason: #{reason})" if reason}"
   rescue StandardError => e
@@ -48,9 +53,9 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     send_out_of_office_message_if_applicable(conversation)
   end
 
-  def notify_operator_via_telegram(conversation, reason)
+  def notify_operator_via_telegram(conversation, reason, options)
     user = resolve_notification_target(conversation)
-    return unless user
+    return nil unless user
 
     context_text = generate_context(conversation)
     request = Captain::ApprovalRequest.create!(
@@ -59,14 +64,41 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
       assistant: @assistant,
       title: reason.presence || 'Conversation escalated to human support',
       context: context_text,
-      options: [{ label: I18n.t('approval_bot.suggest_your_own'), action_type: 'free_text' }],
+      options: build_options(options),
       assignee_type: 'user',
       assignee_id: user.id,
       expires_at: 1.hour.from_now
     )
     ApprovalBot::NotifyJob.perform_later(request)
+    request
   rescue StandardError => e
     Rails.logger.warn("[HandoffTool] Telegram notification failed for conversation #{conversation.id}: #{e.message}")
+    nil
+  end
+
+  def build_options(labels)
+    result = (labels || []).map do |label|
+      { label: label, action_type: 'reply_to_customer', action_payload: {} }
+    end
+    result << { label: I18n.t('approval_bot.suggest_your_own'), action_type: 'free_text' }
+    result
+  end
+
+  def send_clarifying_message(conversation, request)
+    conversation.messages.create!(
+      message_type: :outgoing,
+      account_id: @assistant.account_id,
+      inbox_id: conversation.inbox_id,
+      sender: @assistant,
+      content: I18n.t('captain.clarifying_with_operator'),
+      content_type: :input_select,
+      content_attributes: {
+        items: request.options.map { |opt| { title: opt[:label] || opt['label'], value: opt[:label] || opt['label'] } },
+        approval_request_id: request.id
+      }
+    )
+  rescue StandardError => e
+    Rails.logger.warn("[HandoffTool] Clarifying message failed for conversation #{conversation.id}: #{e.message}")
   end
 
   def resolve_notification_target(conversation)
