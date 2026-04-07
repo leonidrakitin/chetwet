@@ -2,17 +2,18 @@
 #
 # Table name: plans
 #
-#  id           :bigint           not null, primary key
-#  active       :boolean          default(TRUE), not null
-#  annual_price :decimal(10, 2)   default(0.0)
-#  description  :text
-#  display_name :string
-#  feature_list :jsonb
-#  name         :string           not null
-#  price        :decimal(10, 2)   default(0.0)
-#  trial_days   :integer          default(0)
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id             :bigint           not null, primary key
+#  active         :boolean          default(TRUE), not null
+#  annual_price   :decimal(10, 2)   default(0.0)
+#  captain_models :jsonb
+#  description    :text
+#  display_name   :string
+#  feature_list   :jsonb
+#  name           :string           not null
+#  price          :decimal(10, 2)   default(0.0)
+#  trial_days     :integer          default(0)
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
 #
 # Indexes
 #
