@@ -26,6 +26,15 @@ module Captain::Assistant::AutonomyPolicyHelper
       log_captain_debug_tmp_run_outcome(result, label: "attempt_#{attempt}")
       break if answer_acceptable?(result)
 
+      # Stop retrying if the runner itself errored (e.g. LLM API failure) — retries would be identical
+      if result.respond_to?(:error) && result.error
+        Rails.logger.error(
+          "[Captain DEBUG TMP] AutonomyPolicy: runner error on attempt #{attempt}, " \
+          "aborting retries: #{result.error.class}: #{result.error.message}"
+        )
+        break
+      end
+
       append_retry_hint!(context, attempt + 1, message) if attempt < max_retries
     end
 
@@ -60,19 +69,23 @@ module Captain::Assistant::AutonomyPolicyHelper
     output = result&.output
     text = output.is_a?(Hash) ? (output['response'] || output[:response]).to_s : output.to_s
     ctx = result.respond_to?(:context) ? result.context : nil
+    error = result.respond_to?(:error) ? result.error : nil
     Rails.logger.info(
       '[Captain DEBUG TMP] runner.run outcome ' \
       "label=#{label} acceptable=#{answer_acceptable?(result)} " \
       "response_preview=#{text.truncate(400).inspect} " \
       "current_agent=#{ctx&.dig(:current_agent).inspect} " \
-      "faq_called=#{ctx&.dig(:captain_v2_faq_lookup_called)} ask_human_called=#{ctx&.dig(:captain_v2_ask_human_called)}"
+      "faq_called=#{ctx&.dig(:captain_v2_faq_lookup_called)} ask_human_called=#{ctx&.dig(:captain_v2_ask_human_called)} " \
+      "error=#{error&.class}:#{error&.message&.truncate(500)}"
     )
   end
 
   def append_retry_hint!(context, attempt, message = nil)
     hint = build_retry_hint(attempt, message, context)
     context[:conversation_history] ||= []
-    context[:conversation_history] << { role: :system, content: hint }
+    # NOTE: role must be :user because the Agents::Runner only restores user/assistant/tool messages.
+    # System-role messages are silently dropped during conversation history restoration.
+    context[:conversation_history] << { role: :user, content: "[SYSTEM INSTRUCTION] #{hint}" }
   end
 
   def build_retry_hint(attempt, message, context)
