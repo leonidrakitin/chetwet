@@ -22,11 +22,12 @@ GIT
       devise (>= 4.0.0, < 5.0.0)
       railties (>= 5.0.0, < 8.0.0)
 
-PATH
-  remote: ../ai-agents
+GIT
+  remote: https://github.com/leonidrakitin/ai-agents.git
+  revision: 4b9287879e6fe75773bf55055f038df3eb029202
   specs:
     ai-agents (0.9.2)
-      ruby_llm (>= 1.9.1)
+      ruby_llm (~> 1.14)
 
 PATH
   remote: vendor/gems/tdlib-ruby
@@ -1057,7 +1058,7 @@ DEPENDENCIES
   administrate (>= 0.20.1)
   administrate-field-active_storage (>= 1.0.3)
   administrate-field-belongs_to_search (>= 0.9.0)
-  ai-agents (>= 0.9.2)!
+  ai-agents!
   annotaterb
   attr_extras
   audited (~> 5.4, >= 5.4.1)
