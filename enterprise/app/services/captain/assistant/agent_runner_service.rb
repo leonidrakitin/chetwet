@@ -28,6 +28,8 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def generate_response(message_history: [])
+    Llm::Config.initialize!
+
     message_to_process, context = run_payload(message_history)
     dm_ids = @assistant.config['decision_maker_ids']
     ask_human_tool_name = (dm_ids.present? ? Captain::Tools::AskHumanTool.new(@assistant).name : nil)
@@ -95,9 +97,7 @@ class Captain::Assistant::AgentRunnerService
 
   def extract_text_from_content(content)
     # Handle structured output from agents
-    if content.is_a?(Hash)
-      return content[:response] || content['response'] || content[:answer_draft] || content['answer_draft'] || content.to_s
-    end
+    return content[:response] || content['response'] || content[:answer_draft] || content['answer_draft'] || content.to_s if content.is_a?(Hash)
 
     return content unless content.is_a?(Array)
 
@@ -288,7 +288,7 @@ class Captain::Assistant::AgentRunnerService
     )
   end
 
-  def persist_tool_runtime_state(tool_name, tool_result, context_wrapper)
+  def persist_tool_runtime_state(tool_name, _tool_result, context_wrapper)
     return unless context_wrapper&.context
 
     if tool_name.to_s.include?('ask_human')
