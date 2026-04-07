@@ -192,7 +192,7 @@ gem 'reverse_markdown'
 
 gem 'iso-639'
 gem 'ruby-openai'
-gem 'ai-agents', git: 'https://github.com/chatwoot/ai-agents.git'
+gem 'ai-agents', git: 'git@github.com:leonidrakitin/ai-agents.git'
 
 # TODO: Move this gem as a dependency of ai-agents
 gem 'ruby_llm', '~> 1.14'
