@@ -15,7 +15,8 @@ class Llm::BaseAiService
   end
 
   def chat(model: @model, temperature: @temperature)
-    RubyLLM.chat(model: model).with_temperature(temperature)
+    provider = Llm::Config.current_provider
+    RubyLLM.chat(model: model, provider: provider, assume_model_exists: true).with_temperature(temperature)
   end
 
   private

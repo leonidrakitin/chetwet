@@ -98,9 +98,10 @@ class Integrations::LlmBaseService
   def execute_ruby_llm_request(parsed_body)
     messages = parsed_body['messages']
     model = parsed_body['model']
+    provider = Llm::Config.current_provider
 
-    Llm::Config.with_api_key(hook.settings['api_key'], api_base: api_base) do |context|
-      chat = context.chat(model: model)
+    Llm::Config.with_api_key(hook.settings['api_key'], api_base: api_base, provider: provider) do |context|
+      chat = context.chat(model: model, provider: provider, assume_model_exists: true)
       setup_chat_with_messages(chat, messages)
     end
   rescue StandardError => e

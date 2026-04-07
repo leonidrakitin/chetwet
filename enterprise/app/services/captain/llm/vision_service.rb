@@ -50,7 +50,7 @@ class Captain::Llm::VisionService
         content_parts = [{ type: 'text', text: text || 'Describe this image.' }]
         image_urls.each { |url| content_parts << { type: 'image_url', image_url: { url: url } } }
 
-        chat = context.chat(model: 'glm-4.6v').with_temperature(0.5)
+        chat = context.chat(model: 'glm-4.6v', provider: :openai, assume_model_exists: true).with_temperature(0.5)
         response = chat.ask(RubyLLM::Content.new(text || 'Describe this image.', image_urls))
         response&.content
       end

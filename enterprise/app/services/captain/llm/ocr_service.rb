@@ -15,7 +15,7 @@ class Captain::Llm::OcrService
       api_base = system_api_base
 
       Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
-        chat = context.chat(model: 'glm-ocr').with_temperature(0)
+        chat = context.chat(model: 'glm-ocr', provider: :openai, assume_model_exists: true).with_temperature(0)
         prompt = 'Extract all text from this image. Return only the extracted text without any explanation.'
         response = chat.ask(RubyLLM::Content.new(prompt, [@image_url]))
         response&.content&.strip

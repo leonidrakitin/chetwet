@@ -30,26 +30,32 @@ class Captain::Llm::EmbeddingService
   private
 
   def embed_with_retry(content, model)
-    key, base = Llm::Config.embedding_openai_credentials
-    context = RubyLLM.context do |config|
-      config.openai_api_key = key
-      config.openai_api_base = base
-    end
+    provider = Llm::Config.current_provider
+    context = build_embedding_context(provider)
 
     attempts = 0
     begin
       attempts += 1
-      context.embed(
-        content,
-        model: model,
-        dimensions: LlmConstants::EMBEDDING_VECTOR_DIMENSIONS
-      ).vectors || []
+      context.embed(content, model: model, provider: provider, assume_model_exists: true,
+                             dimensions: LlmConstants::EMBEDDING_VECTOR_DIMENSIONS).vectors || []
     rescue RubyLLM::Error => e
       raise unless attempts < EMBEDDING_MAX_RETRIES && transient_embedding_error?(e)
 
       Rails.logger.warn("[Captain][EmbeddingService] transient error, retrying (#{attempts}/#{EMBEDDING_MAX_RETRIES}): #{e.message}")
       sleep(EMBEDDING_RETRY_DELAY * attempts)
       retry
+    end
+  end
+
+  def build_embedding_context(provider)
+    key, base = Llm::Config.embedding_openai_credentials
+    RubyLLM.context do |config|
+      if provider == :openrouter
+        config.openrouter_api_key = key
+      else
+        config.openai_api_key = key
+        config.openai_api_base = base
+      end
     end
   end
 

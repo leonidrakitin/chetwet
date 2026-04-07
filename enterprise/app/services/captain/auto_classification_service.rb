@@ -61,8 +61,9 @@ class Captain::AutoClassificationService
     api_base = classification_api_base
     model = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || Llm::Config::DEFAULT_MODEL
 
-    Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
-      chat = context.chat(model: model).with_temperature(0.3)
+    provider = Llm::Config.current_provider
+    Llm::Config.with_api_key(api_key, api_base: api_base, provider: provider) do |context|
+      chat = context.chat(model: model, provider: provider, assume_model_exists: true).with_temperature(0.3)
       chat.with_instructions(CLASSIFICATION_SYSTEM_PROMPT).ask(message_text)
     end
   rescue StandardError => e

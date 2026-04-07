@@ -103,8 +103,9 @@ class Captain::ConversationSummarizerService
     end
 
     api_base = conversation_api_base
-    Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
-      chat = context.chat(model: summarizer_model).with_temperature(0.3)
+    provider = Llm::Config.current_provider
+    Llm::Config.with_api_key(api_key, api_base: api_base, provider: provider) do |context|
+      chat = context.chat(model: summarizer_model, provider: provider, assume_model_exists: true).with_temperature(0.3)
       chat.with_instructions(
         'You are a summarizer. Reply only with valid JSON matching the requested keys. No markdown, no explanation.'
       ).ask(user_content)

@@ -34,7 +34,7 @@ class Captain::Llm::AudioTranscriptionService
     api_base = system_api_base
 
     Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
-      chat = context.chat(model: 'glm-asr-2512').with_temperature(0)
+      chat = context.chat(model: 'glm-asr-2512', provider: :openai, assume_model_exists: true).with_temperature(0)
       prompt = 'Transcribe the audio in this message. Return only the transcribed text.'
       response = chat.ask(RubyLLM::Content.new(prompt, [audio_url]))
       success_response(response&.content)

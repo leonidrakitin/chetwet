@@ -19,14 +19,23 @@ module Llm::Config
       @initialized = false
     end
 
-    def with_api_key(api_key, api_base: nil)
+    def with_api_key(api_key, api_base: nil, provider: nil)
       context = RubyLLM.context do |config|
-        config.openai_api_key = api_key
-        config.openai_api_base = api_base
+        if provider == :openrouter
+          config.openrouter_api_key = api_key
+        else
+          config.openai_api_key = api_key
+          config.openai_api_base = api_base
+        end
         config.openai_use_system_role = true
       end
 
       yield context
+    end
+
+    # Provider symbol based on CAPTAIN_HOST setting.
+    def current_provider
+      captain_host == 'openrouter' ? :openrouter : :openai
     end
 
     # API key and base URL for RubyLLM.embed (Captain embeddings). Optional dedicated endpoint/key
@@ -49,11 +58,18 @@ module Llm::Config
 
     def configure_ruby_llm
       RubyLLM.configure do |config|
-        config.openai_api_key = system_api_key if system_api_key.present?
-        normalized = normalize_openai_api_base(openai_endpoint)
-        config.openai_api_base = normalized if normalized.present?
+        case captain_host
+        when 'openrouter'
+          config.openrouter_api_key = system_api_key if system_api_key.present?
+        else
+          config.openai_api_key = system_api_key if system_api_key.present?
+          normalized = normalize_openai_api_base(openai_endpoint)
+          config.openai_api_base = normalized if normalized.present?
+        end
         config.openai_use_system_role = true
         config.logger = Rails.logger
+        registry = Rails.root.join('storage/ruby_llm_models.json').to_s
+        config.model_registry_file = registry if File.exist?(registry)
       end
     end
 
@@ -68,6 +84,10 @@ module Llm::Config
       return "#{base}/api/v1" if base.match?(%r{\Ahttps?://openrouter\.ai\z}i)
 
       %r{/v\d+/?$}.match?(base) ? base : "#{base}/v1"
+    end
+
+    def captain_host
+      InstallationConfig.find_by(name: 'CAPTAIN_HOST')&.value
     end
 
     def system_api_key
