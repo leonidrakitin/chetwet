@@ -118,21 +118,31 @@ class Captain::Assistant < ApplicationRecord
       key = "#{scenario.title} Agent".parameterize(separator: '_')
       "- #{scenario.title}: #{scenario.description}, use handoff_to_#{key} tool"
     end
+
     {
       name: name,
       description: description,
       product_name: config['product_name'] || 'this product',
       scenarios: enabled.map do |scenario|
-        {
-          title: scenario.title,
-          key: scenario.handoff_key,
-          description: scenario.description
-        }
+        { title: scenario.title, key: scenario.handoff_key, description: scenario.description }
       end,
       scenarios_list: scenario_entries.join("\n"),
+      system_tools_list: build_system_tools_list(enabled),
       response_guidelines: response_guidelines || [],
       guardrails: guardrails || []
     }
+  end
+
+  def build_system_tools_list(enabled_scenarios)
+    scenario_tool_ids = enabled_scenarios.flat_map { |s| s.tools || [] }.uniq
+    all_built_in = self.class.built_in_agent_tools
+
+    scenario_tool_ids.filter_map do |tool_id|
+      meta = all_built_in.find { |t| t[:id] == tool_id }
+      next unless meta
+
+      "- #{tool_id}: #{meta[:description]}"
+    end.join("\n")
   end
 
   def default_avatar_url
