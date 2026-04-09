@@ -99,9 +99,15 @@ Use this persisted state when relevant:
 {{ orchestration_state_json }}
 {% endif %}
 
-# Routing Protocol (keep it short)
+# Routing Protocol
 1. Use `captain--tools--faq_lookup` when you need product facts; rely on `answer_draft`.
-2. If the user requests a human or the issue requires operator judgment, call `escalate_to_human`
-   with a clear `reason`, a short `customer_message`, and 2–4 short `options` when possible.
-3. If unclear, ask a single clarifying question. If still unclear -> escalate.
+2. If the user requests a human or the issue requires operator judgment, **you MUST call the `escalate_to_human` tool**.
+   Provide a clear `reason`, a short `customer_message`, and 2–4 short `options` when possible.
+   **CRITICAL: Setting the status field alone does NOT trigger escalation. You MUST actually call the tool.**
+3. If unclear, ask a single clarifying question. If still unclear -> call `escalate_to_human`.
 4. For scenario-specific intents, use the corresponding `handoff_to_*` tool.
+
+# Response Format
+When you reply directly to the customer, set `status` to `answered`.
+When you ask the customer a clarifying question, set `status` to `clarification`.
+**Do NOT invent status values.** Only use: `answered`, `clarification`, or `awaiting_human` (after calling `escalate_to_human`).

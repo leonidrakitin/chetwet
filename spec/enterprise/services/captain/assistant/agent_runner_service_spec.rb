@@ -214,6 +214,22 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       end
     end
 
+    context 'when agent hallucinates a free-form escalation status' do
+      let(:mock_result) do
+        instance_double(
+          Agents::RunResult,
+          output: { 'status' => 'Escalating to human operator', 'response' => 'I will transfer you now.' },
+          context: nil
+        )
+      end
+
+      it 'normalizes hallucinated status to conversation_handoff' do
+        result = service.generate_response(message_history: message_history)
+
+        expect(result['response']).to eq('conversation_handoff')
+      end
+    end
+
     context 'when an error occurs' do
       let(:error) { StandardError.new('Test error') }
 

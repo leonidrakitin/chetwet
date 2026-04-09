@@ -119,16 +119,22 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def normalize_escalation_response!(response)
-    status = response['status']
+    status = response['status'].to_s.strip
     return if status.blank?
-    return unless %w[escalate_to_human handoff conversation_handoff].include?(status.to_s.downcase)
     return if response['response'].to_s == 'conversation_handoff'
+    return unless escalation_status_detected?(status)
 
     Rails.logger.info(
       '[Captain DEBUG TMP] normalize_escalation_response ' \
       "status=#{status.inspect} response_preview=#{response['response'].to_s.truncate(200).inspect}"
     )
     response['response'] = 'conversation_handoff'
+  end
+
+  def escalation_status_detected?(status)
+    return true if %w[escalate_to_human handoff conversation_handoff awaiting_human].include?(status.downcase)
+
+    status.match?(/\bescalat/i) || status.match?(/\bhandoff\b/i)
   end
 
   def error_response(error_message)
