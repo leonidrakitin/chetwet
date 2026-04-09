@@ -118,7 +118,7 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
     end
     if response.requires_clarification?
       hint = '[REQUIRES_OPERATOR_CLARIFICATION: This topic requires operator review. ' \
-             'You MUST call `captain--tools--escalate_to_human` to transfer the conversation to a human agent. ' \
+             'You MUST call `escalate_to_human` to transfer the conversation to a human agent. ' \
              'The operator will be notified via Telegram. DO NOT answer the customer directly.]'
       formatted_response += "\n          #{hint}\n          "
     end

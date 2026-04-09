@@ -118,10 +118,10 @@ module Captain::Assistant::AutonomyPolicyHelper
         router.routing_hint
       else
         'Try a different approach. If you need operator help or the issue requires human judgment, ' \
-          'use captain--tools--escalate_to_human to transfer the conversation to a human agent.'
+          'use escalate_to_human to transfer the conversation to a human agent.'
       end
     else
-      'If you still cannot help, use captain--tools--escalate_to_human to transfer the conversation to a human agent.'
+      'If you still cannot help, use escalate_to_human to transfer the conversation to a human agent.'
     end
   end
 
