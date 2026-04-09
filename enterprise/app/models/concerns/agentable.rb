@@ -61,7 +61,20 @@ module Concerns::Agentable
   end
 
   def orchestration_subagent_tools
+    return [] unless orchestration_subagents_enabled?
+
     [planner_agent_tool, policy_agent_tool]
+  end
+
+  def orchestration_subagents_enabled?
+    config = if respond_to?(:config)
+               self.config
+             elsif respond_to?(:assistant)
+               assistant&.config
+             end
+    return true if config.blank? || !config.key?('autonomy_self_check_enabled')
+
+    ActiveModel::Type::Boolean.new.cast(config['autonomy_self_check_enabled'])
   end
 
   def prompt_context

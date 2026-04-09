@@ -11,12 +11,8 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
   let(:tool_context) { Struct.new(:state).new({ conversation: { id: conversation.id } }) }
 
   describe '#description' do
-    it 'returns the correct description' do
-      expect(tool.description).to eq(
-        'Use ONLY as a last resort to permanently transfer the conversation to human support. Trigger strictly ' \
-        'if the user explicitly demands a human agent or the issue is completely unsolvable here. Do NOT use ' \
-        'for approval or quick clarification — use `captain--tools--ask_human` instead.'
-      )
+    it 'mentions escalation to human support' do
+      expect(tool.description).to include('Escalate the conversation to the human support team')
     end
   end
 
@@ -25,8 +21,12 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
       expect(tool.parameters).to have_key(:reason)
       expect(tool.parameters[:reason].name).to eq(:reason)
       expect(tool.parameters[:reason].type).to eq('string')
-      expect(tool.parameters[:reason].description).to eq('The reason why handoff is needed (optional)')
+      expect(tool.parameters[:reason].description).to eq('The reason why human escalation is needed (optional)')
       expect(tool.parameters[:reason].required).to be false
+      expect(tool.parameters).to have_key(:customer_message)
+      expect(tool.parameters[:customer_message].required).to be false
+      expect(tool.parameters).to have_key(:options)
+      expect(tool.parameters[:options].required).to be false
       expect(tool.parameters).to have_key(:post_reason_as_note)
       expect(tool.parameters[:post_reason_as_note].required).to be false
     end
@@ -40,7 +40,7 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
 
           expect do
             result = tool.perform(tool_context, reason: reason)
-            expect(result).to eq("Conversation handed off to human support team (Reason: #{reason})")
+            expect(result).to eq("Conversation escalated to human support team (Reason: #{reason})")
           end.to change(Message, :count).by(1)
         end
 
@@ -48,14 +48,14 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
           reason = 'Customer needs specialized support'
           tool.perform(tool_context, reason: reason)
 
-          created_message = Message.last
-          expect(created_message.content).to eq(reason)
-          expect(created_message.message_type).to eq('outgoing')
-          expect(created_message.private).to be true
-          expect(created_message.sender).to eq(assistant)
-          expect(created_message.account).to eq(account)
-          expect(created_message.inbox).to eq(inbox)
-          expect(created_message.conversation).to eq(conversation)
+          private_message = conversation.messages.where(private: true).order(:created_at).last
+          expect(private_message.content).to eq(reason)
+          expect(private_message.message_type).to eq('outgoing')
+          expect(private_message.private).to be true
+          expect(private_message.sender).to eq(assistant)
+          expect(private_message.account).to eq(account)
+          expect(private_message.inbox).to eq(inbox)
+          expect(private_message.conversation).to eq(conversation)
         end
 
         it 'triggers bot handoff on conversation' do
@@ -86,7 +86,7 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
         it 'logs tool usage with reason' do
           reason = 'Customer needs help'
           expect(tool).to receive(:log_tool_usage).with(
-            'tool_handoff',
+            'tool_human_escalation',
             { conversation_id: conversation.id, reason: reason }
           )
 
@@ -95,20 +95,45 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
       end
 
       context 'without reason provided' do
-        it 'hands off conversation without creating a private note' do
+        it 'hands off conversation without sending a public message when no operator notified' do
           expect do
             result = tool.perform(tool_context)
-            expect(result).to eq('Conversation handed off to human support team')
+            expect(result).to eq('Conversation escalated to human support team')
           end.not_to change(Message, :count)
         end
 
         it 'logs tool usage with default reason' do
           expect(tool).to receive(:log_tool_usage).with(
-            'tool_handoff',
-            { conversation_id: conversation.id, reason: 'Agent requested handoff' }
+            'tool_human_escalation',
+            { conversation_id: conversation.id, reason: 'Agent requested human escalation' }
           )
 
           tool.perform(tool_context)
+        end
+      end
+
+      context 'when operator notification is available' do
+        let(:user) { create(:user, account: account, telegram_chat_id: '1234') }
+
+        before do
+          conversation.update!(assignee: user)
+        end
+
+        it 'sends a public message with input options' do
+          tool.perform(
+            tool_context,
+            reason: 'Needs operator approval',
+            customer_message: 'I will check this with an operator and get back to you.',
+            options: ['Approve cancellation', 'Deny cancellation']
+          )
+
+          outgoing = conversation.messages.outgoing.order(:created_at).last
+          items = outgoing.content_attributes['items'] || outgoing.content_attributes[:items]
+          titles = items.map { |item| item['title'] || item[:title] }
+
+          expect(outgoing.content).to eq('I will check this with an operator and get back to you.')
+          expect(outgoing.content_type).to eq('input_select')
+          expect(titles).to include('Approve cancellation', 'Deny cancellation')
         end
       end
 
@@ -118,7 +143,7 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
 
           expect do
             result = tool.perform(tool_context, reason: reason, post_reason_as_note: false)
-            expect(result).to eq("Conversation handed off to human support team (Reason: #{reason})")
+            expect(result).to eq("Conversation escalated to human support team (Reason: #{reason})")
           end.not_to change(Message, :count)
         end
 
@@ -146,7 +171,7 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
 
         it 'returns error message' do
           result = tool.perform(tool_context, reason: 'Test')
-          expect(result).to eq('Failed to handoff conversation')
+          expect(result).to eq('Failed to escalate conversation to human support')
         end
 
         it 'captures exception' do

@@ -1,10 +1,14 @@
 class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
   description 'Escalate the conversation to the human support team. The operator will be notified via Telegram ' \
-              'if they have it configured. Use this tool when the user explicitly asks for a human agent, when the ' \
-              'issue requires operator judgment, or when FAQ lookup indicates operator clarification is needed.'
+              'if they have it configured. Provide a short public message for the customer and 2–4 short reply ' \
+              'options for the operator when possible. Use this tool when the user explicitly asks for a human ' \
+              'agent, when the issue requires operator judgment, or when FAQ lookup indicates operator clarification.'
   param :reason, type: 'string', desc: 'The reason why human escalation is needed (optional)', required: false
+  param :customer_message, type: 'string',
+                           desc: 'Public message to the customer while the operator reviews the request (optional)',
+                           required: false
   param :options, type: 'array',
-                  desc: 'Array of response options for the operator (e.g. ["Approve cancellation", "Deny"]). ' \
+                  desc: 'Array of short reply options for the operator (e.g. ["Approve cancellation", "Deny"]). ' \
                         'A free-text option is appended automatically.',
                   required: false
   param :post_reason_as_note, type: 'boolean',
@@ -16,7 +20,7 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     'escalate_to_human'
   end
 
-  def perform(tool_context, reason: nil, options: nil, post_reason_as_note: true)
+  def perform(tool_context, reason: nil, customer_message: nil, options: nil, post_reason_as_note: true)
     conversation = find_conversation(tool_context.state)
     return 'Conversation not found' unless conversation
 
@@ -26,8 +30,8 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
                    })
 
     trigger_handoff(conversation, reason, post_reason_as_note)
-    request = notify_operator_via_telegram(conversation, reason, options)
-    send_clarifying_message(conversation, request) if request
+    request = notify_operator_via_telegram(conversation, reason, normalize_options(options, tool_context))
+    send_customer_message(conversation, request, customer_message)
 
     "Conversation escalated to human support team#{" (Reason: #{reason})" if reason}"
   rescue StandardError => e
@@ -84,21 +88,52 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     result
   end
 
-  def send_clarifying_message(conversation, request)
-    conversation.messages.create!(
+  def send_customer_message(conversation, request, customer_message)
+    content = customer_message.presence || (request ? I18n.t('captain.clarifying_with_operator') : nil)
+    return if content.blank?
+
+    attrs = {
       message_type: :outgoing,
       account_id: @assistant.account_id,
       inbox_id: conversation.inbox_id,
       sender: @assistant,
-      content: I18n.t('captain.clarifying_with_operator'),
-      content_type: :input_select,
-      content_attributes: {
+      content: content
+    }
+    if request
+      attrs[:content_type] = :input_select
+      attrs[:content_attributes] = {
         items: request.options.map { |opt| { title: opt[:label] || opt['label'], value: opt[:label] || opt['label'] } },
         approval_request_id: request.id
       }
-    )
+    end
+    conversation.messages.create!(attrs)
   rescue StandardError => e
     Rails.logger.warn("[HandoffTool] Clarifying message failed for conversation #{conversation.id}: #{e.message}")
+  end
+
+  def normalize_options(labels, tool_context)
+    normalized = Array(labels).compact.map(&:to_s).map(&:strip).reject(&:blank?)
+    return normalized if normalized.any?
+
+    fallback_options_from_faq(tool_context)
+  end
+
+  def fallback_options_from_faq(tool_context)
+    last_faq_lookup = tool_context.state&.dig(:orchestration, :last_faq_lookup)
+    return [] unless last_faq_lookup.is_a?(Hash)
+
+    answer_draft = last_faq_lookup.with_indifferent_access['answer_draft']
+    return [] if answer_draft.blank?
+
+    extract_answer_snippets(answer_draft).first(2)
+  end
+
+  def extract_answer_snippets(answer_draft)
+    matches = answer_draft.to_s.scan(/Answer:\s*(.+?)(?=\n\s*Question:|\z)/m).flatten
+    snippets = matches.map { |text| text.gsub(/\s+/, ' ').strip }.reject(&:blank?)
+    snippets = [answer_draft.to_s.gsub(/\s+/, ' ').strip] if snippets.blank?
+
+    snippets.map { |text| text.truncate(160) }
   end
 
   def resolve_notification_target(conversation)

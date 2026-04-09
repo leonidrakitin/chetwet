@@ -199,40 +199,34 @@ bundle exec rspec spec/enterprise/services/captain/assistant/agent_runner_servic
 ## Ручной тест-план (обязательно)
 
 1. **FAQ happy path**
-   - пользователь задаёт FAQ-вопрос;
-   - `faq_lookup` возвращает `policy: answer`;
-   - ответ уходит пользователю из `answer_draft`;
-   - эскалации нет.
-
+  - пользователь задаёт FAQ-вопрос;
+  - `faq_lookup` возвращает `policy: answer`;
+  - ответ уходит пользователю из `answer_draft`;
+  - эскалации нет.
 2. **FAQ c operator clarification**
-   - `faq_lookup` возвращает `policy: ask_human` / `requires_operator: true`;
-   - вызывается `ask_human`;
-   - в канал не отправляется финальный ответ (`awaiting_human`);
-   - создаётся pending approval request + runtime state.
-
+  - `faq_lookup` возвращает `policy: ask_human` / `requires_operator: true`;
+  - вызывается `ask_human`;
+  - в канал не отправляется финальный ответ (`awaiting_human`);
+  - создаётся pending approval request + runtime state.
 3. **Resume после ответа оператора**
-   - оператор отвечает через Approval flow (`resume_captain`);
-   - появляется `last_human_response` в runtime state;
-   - проверяется `freshness` (stale true/false).
-
+  - оператор отвечает через Approval flow (`resume_captain`);
+  - появляется `last_human_response` в runtime state;
+  - проверяется `freshness` (stale true/false).
 4. **Human escalation**
-   - кейс, когда нужен live agent;
-   - вызывается `escalate_to_human`;
-   - формируется понятный internal note;
-   - conversation переводится на человека.
-
+  - кейс, когда нужен live agent;
+  - вызывается `escalate_to_human`;
+  - формируется понятный internal note;
+  - conversation переводится на человека.
 5. **Scenario routing + handoff payload**
-   - вопрос уводит в scenario;
-   - проверяем `handoff_trace`, `last_handoff`, `transfer_summary` в context/state;
-   - сценарий получает summary в prompt context.
-
+  - вопрос уводит в scenario;
+  - проверяем `handoff_trace`, `last_handoff`, `transfer_summary` в context/state;
+  - сценарий получает summary в prompt context.
 6. **Concurrency**
-   - быстро отправить несколько сообщений в один conversation;
-   - убедиться, что второй run не ломает состояние (lock/busy path).
-
+  - быстро отправить несколько сообщений в один conversation;
+  - убедиться, что второй run не ломает состояние (lock/busy path).
 7. **Loop guard**
-   - смоделировать повторное перекладывание между одними и теми же агентами;
-   - убедиться, что run останавливается по loop guard.
+  - смоделировать повторное перекладывание между одними и теми же агентами;
+  - убедиться, что run останавливается по loop guard.
 
 ---
 

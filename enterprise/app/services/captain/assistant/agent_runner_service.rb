@@ -107,6 +107,7 @@ class Captain::Assistant::AgentRunnerService
     output = result.output
     response = output.is_a?(Hash) ? output.with_indifferent_access : { 'response' => output.to_s, 'reasoning' => 'Processed by agent' }
     response['agent_name'] = result.context&.dig(:current_agent)
+    normalize_escalation_response!(response)
     text = response['response'].to_s
     Rails.logger.info(
       '[Captain DEBUG TMP] process_agent_result ' \
@@ -115,6 +116,19 @@ class Captain::Assistant::AgentRunnerService
       "faq_lookup_called=#{result.context&.dig(:captain_v2_faq_lookup_called)}"
     )
     response
+  end
+
+  def normalize_escalation_response!(response)
+    status = response['status']
+    return if status.blank?
+    return unless %w[escalate_to_human handoff conversation_handoff].include?(status.to_s.downcase)
+    return if response['response'].to_s == 'conversation_handoff'
+
+    Rails.logger.info(
+      '[Captain DEBUG TMP] normalize_escalation_response ' \
+      "status=#{status.inspect} response_preview=#{response['response'].to_s.truncate(200).inspect}"
+    )
+    response['response'] = 'conversation_handoff'
   end
 
   def error_response(error_message)

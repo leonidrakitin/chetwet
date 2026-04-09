@@ -197,6 +197,23 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       end
     end
 
+    context 'when agent result signals human escalation in status' do
+      let(:mock_result) do
+        instance_double(
+          Agents::RunResult,
+          output: { 'status' => 'escalate_to_human', 'response' => 'Needs human review' },
+          context: nil
+        )
+      end
+
+      it 'normalizes response to conversation_handoff' do
+        result = service.generate_response(message_history: message_history)
+
+        expect(result['response']).to eq('conversation_handoff')
+        expect(result['status']).to eq('escalate_to_human')
+      end
+    end
+
     context 'when an error occurs' do
       let(:error) { StandardError.new('Test error') }
 
