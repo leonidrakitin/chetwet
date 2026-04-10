@@ -197,29 +197,11 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       end
     end
 
-    context 'when agent result signals human escalation in status' do
-      let(:mock_result) do
-        instance_double(
-          Agents::RunResult,
-          output: { 'status' => 'escalate_to_human', 'response' => 'Needs human review' },
-          context: nil
-        )
-      end
-
-      it 'normalizes response to conversation_handoff' do
-        result = service.generate_response(message_history: message_history)
-
-        expect(result['response']).to eq('conversation_handoff')
-        expect(result['status']).to eq('escalate_to_human')
-      end
-    end
-
-    context 'when agent hallucinates a free-form escalation status' do
+    context 'when agent reasoning suggests escalation' do
       let(:mock_result) do
         instance_double(
           Agents::RunResult,
           output: {
-            'status' => 'Escalating to human operator',
             'response' => 'I will transfer you now.',
             'reasoning' => 'User wants cancellation, requires operator'
           },
@@ -227,7 +209,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
         )
       end
 
-      it 'normalizes hallucinated status to conversation_handoff' do
+      it 'normalizes response to conversation_handoff' do
         result = service.generate_response(message_history: message_history)
 
         expect(result['response']).to eq('conversation_handoff')
@@ -240,6 +222,38 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
         expect(tool_double).to receive(:perform).with(
           an_instance_of(Agents::ToolContext),
           reason: 'User wants cancellation, requires operator',
+          post_reason_as_note: true
+        )
+
+        service.generate_response(message_history: message_history)
+      end
+    end
+
+    context 'when agent reasoning suggests escalation in Russian' do
+      let(:mock_result) do
+        instance_double(
+          Agents::RunResult,
+          output: {
+            'response' => 'Подождите, я уточню детали вашего заказа.',
+            'reasoning' => 'Пользователь хочет отменить заказ. Нужно эскалировать на оператора.'
+          },
+          context: nil
+        )
+      end
+
+      it 'normalizes reasoning-based intent to conversation_handoff' do
+        result = service.generate_response(message_history: message_history)
+
+        expect(result['response']).to eq('conversation_handoff')
+      end
+
+      it 'programmatically invokes HandoffTool' do
+        tool_double = instance_double(Captain::Tools::HandoffTool)
+        allow(Captain::Tools::HandoffTool).to receive(:new).with(assistant).and_return(tool_double)
+        allow(tool_double).to receive(:name).and_return('escalate_to_human')
+        expect(tool_double).to receive(:perform).with(
+          an_instance_of(Agents::ToolContext),
+          reason: 'Пользователь хочет отменить заказ. Нужно эскалировать на оператора.',
           post_reason_as_note: true
         )
 
@@ -428,8 +442,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       expect(state[:conversation]).to include(
         id: conversation.id,
         inbox_id: inbox.id,
-        contact_id: contact.id,
-        status: conversation.status
+        contact_id: contact.id
       )
       expect(state[:channel_type]).to eq(inbox.channel_type)
     end

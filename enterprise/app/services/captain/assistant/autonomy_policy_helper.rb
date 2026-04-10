@@ -61,23 +61,8 @@ module Captain::Assistant::AutonomyPolicyHelper
     output = result.output
     return false if output.blank?
 
-    return true if escalation_status?(output)
-
     response_text = output.is_a?(Hash) ? (output['response'] || output[:response]).to_s : output.to_s
-    response_text.present? && response_text != 'conversation_handoff'
-  end
-
-  def escalation_status?(output)
-    return false unless output.is_a?(Hash)
-
-    status = (output['status'] || output[:status]).to_s.strip
-    return false if status.blank?
-
-    # Exact matches for well-known statuses
-    return true if %w[escalate_to_human handoff conversation_handoff awaiting_human].include?(status.downcase)
-
-    # Fuzzy match for LLM-hallucinated statuses like "Escalating to human operator"
-    status.match?(/\bescalat/i) || status.match?(/\bhandoff\b/i)
+    response_text.present?
   end
 
   def log_captain_debug_tmp_run_outcome(result, label:)

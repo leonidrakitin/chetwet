@@ -9,7 +9,7 @@ class Captain::Assistant::AgentRunnerService
   include Captain::Assistant::AutonomyPolicyHelper
 
   CONVERSATION_STATE_ATTRIBUTES = %i[
-    id display_id inbox_id contact_id status priority
+    id display_id inbox_id contact_id priority
     label_list custom_attributes additional_attributes
   ].freeze
 
@@ -119,15 +119,13 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def normalize_escalation_response!(response)
-    status = response['status'].to_s.strip
     reasoning = response['reasoning'].to_s
-    return if status.blank?
     return if response['response'].to_s == 'conversation_handoff'
-    return unless escalation_status_detected?(status) || escalation_intent_detected?(reasoning)
+    return unless escalation_intent_detected?(reasoning)
 
     Rails.logger.info(
       '[Captain DEBUG TMP] normalize_escalation_response ' \
-      "status=#{status.inspect} reasoning_detected=#{escalation_intent_detected?(reasoning)} " \
+      'reasoning_detected=true ' \
       "response_preview=#{response['response'].to_s.truncate(200).inspect}"
     )
     invoke_handoff_tool_fallback(response)
@@ -150,12 +148,6 @@ class Captain::Assistant::AgentRunnerService
     state = build_state
     run_context = Agents::RunContext.new(state: state)
     Agents::ToolContext.new(run_context: run_context)
-  end
-
-  def escalation_status_detected?(status)
-    return true if %w[escalate_to_human handoff conversation_handoff awaiting_human].include?(status.downcase)
-
-    status.match?(/\bescalat/i) || status.match?(/\bhandoff\b/i)
   end
 
   def escalation_intent_detected?(reasoning)
@@ -393,7 +385,6 @@ class Captain::Assistant::AgentRunnerService
   def busy_response
     {
       'response' => nil,
-      'status' => 'busy',
       'reasoning' => 'Skipped concurrent orchestration run'
     }
   end
