@@ -14,9 +14,14 @@ const { isAWebWidgetInbox } = useInbox();
 
 const isResolving = ref(false);
 
+const rawContentAttributes = computed(() => contentAttributes.value ?? {});
+
 const formValues = computed(() => {
+  const attrs = rawContentAttributes.value;
+  const submittedValues = attrs.submittedValues ?? attrs.submitted_values ?? [];
+
   if (contentType.value === CONTENT_TYPES.FORM) {
-    const { items, submittedValues = [] } = contentAttributes.value;
+    const items = attrs.items ?? [];
 
     if (submittedValues.length) {
       return submittedValues.map(submittedValue => {
@@ -35,7 +40,7 @@ const formValues = computed(() => {
   }
 
   if (contentType.value === CONTENT_TYPES.INPUT_SELECT) {
-    const [item] = contentAttributes.value?.submittedValues ?? [];
+    const [item] = submittedValues;
     if (!item) return [];
 
     return [
@@ -50,11 +55,18 @@ const formValues = computed(() => {
   return [];
 });
 
-const approvalRequestId = computed(
-  () => contentAttributes.value?.approvalRequestId
-);
+const approvalRequestId = computed(() => {
+  const attrs = rawContentAttributes.value;
+  return attrs.approvalRequestId ?? attrs.approval_request_id;
+});
+
+const approvalOptionItems = computed(() => {
+  const items = rawContentAttributes.value.items;
+  return Array.isArray(items) ? items : [];
+});
+
 const showsApprovalButtons = computed(
-  () => approvalRequestId.value && !formValues.value.length
+  () => approvalRequestId.value != null && !formValues.value.length
 );
 
 const onOptionSelect = async index => {
@@ -86,8 +98,8 @@ const onOptionSelect = async index => {
     </dl>
     <div v-else-if="showsApprovalButtons" class="flex flex-col gap-2 mt-4">
       <Button
-        v-for="(item, index) in contentAttributes.items"
-        :key="item.title"
+        v-for="(item, index) in approvalOptionItems"
+        :key="item.title || item.label || index"
         :label="item.title || item.label"
         size="sm"
         variant="faded"

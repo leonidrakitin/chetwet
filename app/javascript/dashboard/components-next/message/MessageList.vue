@@ -76,7 +76,10 @@ const fetchReplyMessage = async (messageId, conversationId) => {
     const targetMessage = messages.find(msg => msg.id === messageId);
 
     if (targetMessage) {
-      const camelCaseMessage = useCamelCase(targetMessage);
+      const camelCaseMessage = useCamelCase(targetMessage, {
+        deep: true,
+        stopPaths: ['content_attributes.translations'],
+      });
       fetchedReplyMessages.set(messageId, camelCaseMessage);
       return camelCaseMessage;
     }
@@ -158,7 +161,12 @@ const getInReplyToMessage = parentMessage => {
     return null; // Let UI handle loading state
   }
 
-  return replyMessage ? useCamelCase(replyMessage) : null;
+  return replyMessage
+    ? useCamelCase(replyMessage, {
+        deep: true,
+        stopPaths: ['content_attributes.translations'],
+      })
+    : null;
 };
 </script>
 
