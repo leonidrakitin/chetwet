@@ -51,7 +51,7 @@ const formValues = computed(() => {
 });
 
 const approvalRequestId = computed(
-  () => contentAttributes.value?.approval_request_id
+  () => contentAttributes.value?.approvalRequestId
 );
 const showsApprovalButtons = computed(
   () => approvalRequestId.value && !formValues.value.length
