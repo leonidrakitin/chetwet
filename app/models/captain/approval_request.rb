@@ -83,6 +83,12 @@ class Captain::ApprovalRequest < ApplicationRecord
     end
   end
 
+  def selected_option
+    return nil if selected_option_index.nil?
+
+    options[selected_option_index]&.with_indifferent_access
+  end
+
   private
 
   def target_user_members
@@ -94,12 +100,6 @@ class Captain::ApprovalRequest < ApplicationRecord
     return [] unless team
 
     team.members.where.not(telegram_chat_id: [nil, '']).to_a
-  end
-
-  def selected_option
-    return nil if selected_option_index.nil?
-
-    options[selected_option_index]&.with_indifferent_access
   end
 
   def expired?
