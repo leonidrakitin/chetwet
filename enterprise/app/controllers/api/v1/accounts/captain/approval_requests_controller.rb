@@ -34,4 +34,18 @@ class Api::V1::Accounts::Captain::ApprovalRequestsController < Api::V1::Accounts
       render json: { error: 'selected_option_index is required' }, status: :unprocessable_entity
     end
   end
+
+  def generate_draft
+    @request = Current.account.captain_approval_requests.find(params[:id])
+    option_index = params[:selected_option_index].to_i
+
+    draft = ApprovalBot::DraftResponseService.new(@request, option_index).generate
+
+    if draft.present?
+      render json: { draft: draft, option_index: option_index }
+    else
+      option = @request.options[option_index]&.with_indifferent_access
+      render json: { draft: option&.dig(:label) || '', option_index: option_index }
+    end
+  end
 end

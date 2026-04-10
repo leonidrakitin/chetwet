@@ -449,6 +449,9 @@ en:
     sent: 'Your response has been sent'
     summary_unavailable: 'Summary is not available at this time'
     taken_over: 'You have taken over this conversation'
+    draft_header: 'Suggested reply'
+    confirm_send: 'Confirm & Send'
+    draft_expired: 'Draft has expired. Please select an option again.'
   public_portal:
     search:
       search_placeholder: Search for article by title or body...

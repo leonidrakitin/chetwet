@@ -12,6 +12,12 @@ class ApprovalRequests extends ApiClient {
       custom_response: customResponse,
     });
   }
+
+  generateDraft(id, { selectedOptionIndex }) {
+    return axios.post(`${this.url}/${id}/generate_draft`, {
+      selected_option_index: selectedOptionIndex,
+    });
+  }
 }
 
 export default new ApprovalRequests();

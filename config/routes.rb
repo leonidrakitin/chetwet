@@ -83,7 +83,9 @@ Rails.application.routes.draw do
             resources :custom_tools do
               post :test, on: :collection
             end
-            resources :approval_requests, only: [:index, :show, :update]
+            resources :approval_requests, only: [:index, :show, :update] do
+              post :generate_draft, on: :member
+            end
             resources :bulk_migrations, only: [:index, :create, :show]
             resources :documents, only: [:index, :show, :create, :destroy]
             resource :tasks, only: [], controller: 'tasks' do

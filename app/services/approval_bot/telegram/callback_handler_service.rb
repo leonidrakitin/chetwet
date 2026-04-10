@@ -4,6 +4,7 @@ class ApprovalBot::Telegram::CallbackHandlerService
   include Redis::RedisKeys
 
   AWAITING_TEXT_TTL = 600 # 10 minutes
+  DRAFT_TTL = 600 # 10 minutes
   # Private /start, /start PAYLOAD, and group-style /start@BotName (optional payload)
   START_COMMAND_PATTERN = %r{\A/start(?:@[A-Za-z0-9_]+)?(?:\s+(.+))?\z}
 
@@ -39,6 +40,10 @@ class ApprovalBot::Telegram::CallbackHandlerService
     case parts[0]
     when 'appr'
       handle_approval_callback(chat_id, parts[1], parts[2])
+    when 'confirm_draft'
+      handle_confirm_draft(chat_id, parts[1])
+    when 'edit_draft'
+      handle_edit_draft(chat_id, parts[1])
     when 'summary'
       handle_summary_callback(chat_id, parts[1])
     when 'takeover'
@@ -57,19 +62,62 @@ class ApprovalBot::Telegram::CallbackHandlerService
       store_awaiting_text(chat_id, request_id)
       sender.send_message(chat_id: chat_id, text: I18n.t('approval_bot.type_your_response'))
     else
-      resolve_with_option(chat_id, request, user, index_or_type.to_i)
+      generate_and_send_draft(chat_id, request, index_or_type.to_i)
     end
   end
 
-  def resolve_with_option(chat_id, request, user, index)
-    resolved = request.resolve!(index: index, by_user_id: user.id)
+  def generate_and_send_draft(chat_id, request, index)
+    option = request.options[index]&.with_indifferent_access
+    return unless option
+
+    draft = ApprovalBot::DraftResponseService.new(request, index).generate
+    draft = option[:label] if draft.blank?
+
+    store_draft(chat_id, request.id, index, draft)
+
+    text = "📝 <b>#{I18n.t('approval_bot.draft_header')}</b>\n\n#{draft}"
+    keyboard = {
+      inline_keyboard: [
+        [
+          { text: I18n.t('approval_bot.confirm_send'), callback_data: "confirm_draft::#{request.id}" },
+          { text: I18n.t('approval_bot.suggest_your_own'), callback_data: "edit_draft::#{request.id}" }
+        ]
+      ]
+    }.to_json
+
+    sender.send_message(chat_id: chat_id, text: text, reply_markup: keyboard)
+  end
+
+  def handle_confirm_draft(chat_id, request_id)
+    request = find_request(request_id)
+    return sender.send_message(chat_id: chat_id, text: I18n.t('approval_bot.not_found')) unless request
+
+    user = find_user_by_chat_id(chat_id)
+    return unless user
+
+    draft_data = load_draft(chat_id, request_id)
+    unless draft_data
+      sender.send_message(chat_id: chat_id, text: I18n.t('approval_bot.draft_expired'))
+      return
+    end
+
+    clear_draft(chat_id, request_id)
+    resolved = request.resolve!(index: draft_data[:index], custom_text: draft_data[:text], by_user_id: user.id)
     if resolved
-      option_label = request.options.dig(index, 'label') || request.options.dig(index, :label)
-      sender.mark_resolved(request: request, resolved_label: option_label)
+      sender.mark_resolved(request: request, resolved_label: draft_data[:text].truncate(50))
       notify_other_team_members_resolved(request, user)
     else
       sender.send_message(chat_id: chat_id, text: I18n.t('approval_bot.already_handled', name: request.resolved_by&.name))
     end
+  end
+
+  def handle_edit_draft(chat_id, request_id)
+    request = find_request(request_id)
+    return sender.send_message(chat_id: chat_id, text: I18n.t('approval_bot.not_found')) unless request
+
+    clear_draft(chat_id, request_id)
+    store_awaiting_text(chat_id, request_id)
+    sender.send_message(chat_id: chat_id, text: I18n.t('approval_bot.type_your_response'))
   end
 
   def handle_text_reply
@@ -134,6 +182,31 @@ class ApprovalBot::Telegram::CallbackHandlerService
       )
     end
   end
+
+  # --- Draft storage (Redis) ---
+
+  def store_draft(chat_id, request_id, index, text)
+    key = draft_key(chat_id, request_id)
+    ::Redis::Alfred.set(key, { index: index, text: text }.to_json, ex: DRAFT_TTL)
+  end
+
+  def load_draft(chat_id, request_id)
+    key = draft_key(chat_id, request_id)
+    raw = ::Redis::Alfred.get(key)
+    return nil if raw.blank?
+
+    JSON.parse(raw).with_indifferent_access
+  end
+
+  def clear_draft(chat_id, request_id)
+    ::Redis::Alfred.delete(draft_key(chat_id, request_id))
+  end
+
+  def draft_key(chat_id, request_id)
+    "approval_bot:draft:#{@config.account_id}:#{chat_id}:#{request_id}"
+  end
+
+  # --- Awaiting text storage (Redis) ---
 
   def store_awaiting_text(chat_id, request_id)
     key = awaiting_key(chat_id)
