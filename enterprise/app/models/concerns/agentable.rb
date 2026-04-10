@@ -87,6 +87,7 @@ module Concerns::Agentable
       instructions: lambda { |_context|
         'You are a planning sub-agent. Decide the safest next action for the current customer turn. ' \
           'Prefer one of: faq_lookup, scenario handoff, clarification question, or escalate_to_human. ' \
+          'MUST escalate for restricted actions: cancellations, refunds, or account changes. ' \
           'Keep your reasoning concise and return only structured output.'
       },
       model: orchestration_subagent_model,
@@ -103,7 +104,10 @@ module Concerns::Agentable
       name: "#{agent_name}_policy",
       instructions: lambda { |_context|
         'You are a policy sub-agent. Review whether the assistant should reply directly ' \
-          'or escalate to a human agent. Return only structured output.'
+          'or escalate to a human agent. Return only structured output. ' \
+          'CRITICAL: You MUST escalate to a human (action: escalate_to_human, safe_to_reply: false) ' \
+          'for restricted actions: cancellations, refunds, or account changes. ' \
+          'Even if the request looks simple, if it involves these topics, escalation is mandatory.'
       },
       model: orchestration_subagent_model,
       temperature: 0.1,

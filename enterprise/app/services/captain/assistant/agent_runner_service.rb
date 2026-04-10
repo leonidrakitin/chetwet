@@ -120,13 +120,15 @@ class Captain::Assistant::AgentRunnerService
 
   def normalize_escalation_response!(response)
     status = response['status'].to_s.strip
+    reasoning = response['reasoning'].to_s
     return if status.blank?
     return if response['response'].to_s == 'conversation_handoff'
-    return unless escalation_status_detected?(status)
+    return unless escalation_status_detected?(status) || escalation_intent_detected?(reasoning)
 
     Rails.logger.info(
       '[Captain DEBUG TMP] normalize_escalation_response ' \
-      "status=#{status.inspect} response_preview=#{response['response'].to_s.truncate(200).inspect}"
+      "status=#{status.inspect} reasoning_detected=#{escalation_intent_detected?(reasoning)} " \
+      "response_preview=#{response['response'].to_s.truncate(200).inspect}"
     )
     invoke_handoff_tool_fallback(response)
     response['response'] = 'conversation_handoff'
@@ -154,6 +156,19 @@ class Captain::Assistant::AgentRunnerService
     return true if %w[escalate_to_human handoff conversation_handoff awaiting_human].include?(status.downcase)
 
     status.match?(/\bescalat/i) || status.match?(/\bhandoff\b/i)
+  end
+
+  def escalation_intent_detected?(reasoning)
+    return false if reasoning.blank?
+
+    # Matches Russian "эскалир", "перевод на оператора", "связать с человеком"
+    # and English "escalat", "transfer to human", "hand over to operator"
+    reasoning.match?(/\bescalat/i) ||
+      reasoning.match?(/\bhandoff\b/i) ||
+      reasoning.match?(/эскалир/i) ||
+      reasoning.match?(/перевод\w* на оператора/i) ||
+      reasoning.match?(/связать с человеком/i) ||
+      reasoning.match?(/transfer to human/i)
   end
 
   def error_response(error_message)
