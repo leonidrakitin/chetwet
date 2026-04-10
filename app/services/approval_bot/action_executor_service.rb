@@ -27,7 +27,7 @@ class ApprovalBot::ActionExecutorService
   def dispatch_action(option)
     case option[:action_type]
     when 'reply_to_customer'
-      send_reply(option.dig(:action_payload, :content) || @request.custom_response)
+      send_reply(option.dig(:action_payload, :content) || @request.custom_response || option[:label])
     when 'free_text'
       send_reply(@request.custom_response)
     when 'external_api_call'
