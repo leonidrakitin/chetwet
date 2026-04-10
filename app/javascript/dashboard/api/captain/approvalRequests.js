@@ -1,3 +1,4 @@
+/* global axios */
 import ApiClient from '../ApiClient';
 
 class ApprovalRequests extends ApiClient {
@@ -5,8 +6,8 @@ class ApprovalRequests extends ApiClient {
     super('captain/approval_requests', { accountScoped: true });
   }
 
-  update(id, { selectedOptionIndex, customResponse }) {
-    return this.patch(id, {
+  resolve(id, { selectedOptionIndex, customResponse }) {
+    return axios.patch(`${this.url}/${id}`, {
       selected_option_index: selectedOptionIndex,
       custom_response: customResponse,
     });

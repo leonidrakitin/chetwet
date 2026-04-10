@@ -73,7 +73,7 @@ const onOptionSelect = async index => {
   if (isResolving.value) return;
   isResolving.value = true;
   try {
-    await approvalRequestsApi.update(approvalRequestId.value, {
+    await approvalRequestsApi.resolve(approvalRequestId.value, {
       selectedOptionIndex: index,
     });
   } catch (error) {
