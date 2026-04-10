@@ -90,9 +90,8 @@ const assistantRoutes = [
   {
     path: frontendURL('accounts/:accountId/captain/:assistantId/migrations'),
     redirect: to => ({
-      name: 'onboarding_wizard',
-      params: { accountId: to.params.accountId },
-      query: { assistantId: to.params.assistantId },
+      path: frontendURL('onboarding/wizard'),
+      query: { ...to.query, assistantId: to.params.assistantId },
     }),
     name: 'captain_assistants_migrations_index',
     meta,

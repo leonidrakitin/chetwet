@@ -95,12 +95,27 @@ class DashboardController < ActionController::Base
     methods
   end
 
+  # Bulk migrations / Captain onboarding wizard lives in the dashboard SPA and uses
+  # the same path as the old v3 signup wizard. Load dashboard for these URLs so APIs
+  # and store match the account-scoped wizard behavior.
+  DASHBOARD_ONBOARDING_WIZARD_PATH = %r{\A/app(?:/accounts/\d+)?/onboarding/wizard\z}
+
   def set_application_pack
-    @application_pack = if request.path == '/' || request.path.include?('/auth') || request.path.include?('/login') || request.path.include?('/onboarding')
+    path = request.path
+    @application_pack = if use_v3_application_pack?(path)
                           'v3app'
                         else
                           'dashboard'
                         end
+  end
+
+  def use_v3_application_pack?(path)
+    return false if DASHBOARD_ONBOARDING_WIZARD_PATH.match?(path)
+
+    path == '/' ||
+      path.include?('/auth') ||
+      path.include?('/login') ||
+      path.include?('/onboarding')
   end
 
   def sensitive_path?

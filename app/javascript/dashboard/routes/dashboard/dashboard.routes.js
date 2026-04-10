@@ -8,9 +8,9 @@ import { frontendURL } from '../../helper/URLHelper';
 import helpcenterRoutes from './helpcenter/helpcenter.routes';
 import { routes as captainRoutes } from './captain/captain.routes';
 import notificationTemplatesRoutes from './notificationTemplates/notificationTemplates.routes';
-import onboardingRoutes from './onboarding/onboarding.routes';
 import suggestionsRoutes from './suggestions/suggestions.routes';
 import AppContainer from './Dashboard.vue';
+import MigrationsWizard from './onboarding/MigrationsWizard.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
 import YclientsConnect from './settings/integrations/YclientsConnect.vue';
@@ -22,6 +22,21 @@ export default {
       name: 'yclients_connect',
       component: YclientsConnect,
       meta: {},
+    },
+    {
+      path: frontendURL('onboarding/wizard'),
+      name: 'onboarding_wizard',
+      component: MigrationsWizard,
+      meta: {
+        permissions: ['administrator'],
+      },
+    },
+    {
+      path: frontendURL('accounts/:accountId/onboarding/wizard'),
+      redirect: to => ({
+        path: frontendURL('onboarding/wizard'),
+        query: to.query,
+      }),
     },
     {
       path: frontendURL('accounts/:accountId'),
@@ -36,7 +51,6 @@ export default {
         ...notificationRoutes,
         ...helpcenterRoutes.routes,
         ...notificationTemplatesRoutes.routes,
-        ...onboardingRoutes.routes,
         ...suggestionsRoutes.routes,
       ],
     },

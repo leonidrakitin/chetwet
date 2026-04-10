@@ -11,6 +11,10 @@ import NextInput from 'dashboard/components-next/input/Input.vue';
 import BulkMigrationsAPI from 'dashboard/api/captain/bulkMigrations';
 import CaptainInboxes from 'dashboard/api/captain/inboxes';
 import TelegramSessionsAPI from 'dashboard/api/telegramSessions';
+import {
+  setAccountScopedPathOverride,
+  clearAccountScopedPathOverride,
+} from 'dashboard/api/ApiClient';
 
 const props = defineProps({
   embedded: {
@@ -345,6 +349,24 @@ function submitMigration() {
     });
 }
 
+function resolveAccountId() {
+  const fromRoute = Number(route.params.accountId);
+  if (fromRoute) return fromRoute;
+  return store.getters.getCurrentUser?.account_id;
+}
+
+function applyAccountScopedApiOverride() {
+  const id = resolveAccountId();
+  if (id) setAccountScopedPathOverride(id);
+}
+
+function goToDashboard() {
+  const id = resolveAccountId();
+  if (id) {
+    router.push({ name: 'home', params: { accountId: String(id) } });
+  }
+}
+
 watch(
   () => migrations.value.map(m => ({ id: m.id, status: m.status })),
   () => ensureSubscriptions(),
@@ -357,6 +379,7 @@ watch(assistantId, () => {
 });
 
 onMounted(async () => {
+  applyAccountScopedApiOverride();
   await store.dispatch('captainAssistants/get');
   fetchMigrations();
   fetchInboxes();
@@ -364,14 +387,11 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  clearAccountScopedPathOverride();
   Object.keys(cableSubscriptions.value).forEach(id =>
     unsubscribeFromMigration(Number(id))
   );
 });
-
-function goToDashboard() {
-  router.push({ name: 'home', params: { accountId: route.params.accountId } });
-}
 </script>
 
 <template>

@@ -31,6 +31,14 @@ export const validateAuthenticateRoutePermission = (to, next) => {
     return next(frontendURL('no-accounts'));
   }
 
+  if (to.name === 'onboarding_wizard') {
+    const nextRoute = validateLoggedInRoutes(
+      { ...to, params: { ...to.params, accountId: String(accountId) } },
+      store.getters.getCurrentUser
+    );
+    return nextRoute ? next(frontendURL(nextRoute)) : next();
+  }
+
   if (to.name === 'no_accounts' || !to.name) {
     return next(frontendURL(`accounts/${accountId}/dashboard`));
   }

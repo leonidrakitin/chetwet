@@ -8,8 +8,6 @@ import CompleteSignup from './auth/complete-signup/Index.vue';
 import ResetPassword from './auth/reset/password/Index.vue';
 import Confirmation from './auth/confirmation/Index.vue';
 import PasswordEdit from './auth/password/Edit.vue';
-import OnboardingWizard from './onboarding/OnboardingWizard.vue';
-
 export default [
   {
     path: '/',
@@ -83,11 +81,5 @@ export default [
     path: frontendURL('auth/reset/password'),
     name: 'auth_reset_password',
     component: ResetPassword,
-  },
-  {
-    path: frontendURL('onboarding/wizard'),
-    name: 'onboarding_wizard',
-    component: OnboardingWizard,
-    meta: { ignoreSession: true },
   },
 ];
