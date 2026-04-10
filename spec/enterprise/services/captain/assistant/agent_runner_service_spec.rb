@@ -424,8 +424,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       expect(state[:conversation]).to include(
         id: conversation.id,
         inbox_id: inbox.id,
-        contact_id: contact.id,
-        status: conversation.status
+        contact_id: contact.id
       )
       expect(state[:channel_type]).to eq(inbox.channel_type)
     end
@@ -584,7 +583,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
   describe 'constants' do
     it 'defines conversation state attributes' do
       expect(described_class::CONVERSATION_STATE_ATTRIBUTES).to include(
-        :id, :display_id, :inbox_id, :contact_id, :status, :priority
+        :id, :display_id, :inbox_id, :contact_id, :priority
       )
     end
 

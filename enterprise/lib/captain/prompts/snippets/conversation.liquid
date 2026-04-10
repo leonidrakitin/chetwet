@@ -1,7 +1,6 @@
 # Current Conversation Context
 - Conversation ID: {{ conversation.display_id }}
 - Contact ID: {{ conversation.contact_id }}
-- Status: {{ conversation.status }}
 - Priority: {{ conversation.priority || "None" }}
 {% if conversation.label_list.size > 0 -%}
 - Labels: {{ conversation.label_list | join: ", " }}

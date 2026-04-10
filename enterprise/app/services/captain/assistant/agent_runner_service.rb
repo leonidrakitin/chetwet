@@ -7,7 +7,7 @@ class Captain::Assistant::AgentRunnerService
   include Captain::Assistant::TracePayloadHelper
 
   CONVERSATION_STATE_ATTRIBUTES = %i[
-    id display_id inbox_id contact_id status priority
+    id display_id inbox_id contact_id priority
     label_list custom_attributes additional_attributes
   ].freeze
 
