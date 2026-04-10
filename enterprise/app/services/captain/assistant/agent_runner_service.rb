@@ -1,11 +1,12 @@
 require 'agents'
 require 'agents/instrumentation'
 
-# rubocop:disable Metrics/ClassLength, Metrics/AbcSize, Metrics/CyclomaticComplexity -- TEMP DEBUG TMP
+# rubocop:disable Metrics/ClassLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength -- TEMP DEBUG TMP
 class Captain::Assistant::AgentRunnerService
   include Integrations::LlmInstrumentationConstants
   include Captain::Assistant::RunnerCallbacksHelper
   include Captain::Assistant::TracePayloadHelper
+  include Captain::Assistant::LlmPromptLogHelper
   include Captain::Assistant::AutonomyPolicyHelper
 
   CONVERSATION_STATE_ATTRIBUTES = %i[
@@ -339,6 +340,7 @@ class Captain::Assistant::AgentRunnerService
     @runner ||= begin
       configured_runner = Agents::Runner.with_agents(*build_and_wire_agents)
       configured_runner = add_usage_metadata_callback(configured_runner)
+      configured_runner = register_llm_prompt_logging(configured_runner)
       configured_runner = add_callbacks_to_runner(configured_runner) if @callbacks.any?
       install_instrumentation(configured_runner)
       configured_runner
@@ -419,4 +421,4 @@ class Captain::Assistant::AgentRunnerService
     )
   end
 end
-# rubocop:enable Metrics/ClassLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/ClassLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
