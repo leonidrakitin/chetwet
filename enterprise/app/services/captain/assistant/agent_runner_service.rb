@@ -128,7 +128,26 @@ class Captain::Assistant::AgentRunnerService
       '[Captain DEBUG TMP] normalize_escalation_response ' \
       "status=#{status.inspect} response_preview=#{response['response'].to_s.truncate(200).inspect}"
     )
+    invoke_handoff_tool_fallback(response)
     response['response'] = 'conversation_handoff'
+  end
+
+  def invoke_handoff_tool_fallback(response)
+    return unless @conversation
+
+    reason = response['reasoning'].to_s.truncate(500).presence ||
+             'Auto-escalation: LLM signaled escalation without calling tool'
+    tool = Captain::Tools::HandoffTool.new(@assistant)
+    tool_context = build_fallback_tool_context
+    tool.perform(tool_context, reason: reason, post_reason_as_note: true)
+  rescue StandardError => e
+    Rails.logger.warn("[AgentRunnerService] Fallback handoff invocation failed: #{e.message}")
+  end
+
+  def build_fallback_tool_context
+    state = build_state
+    run_context = Agents::RunContext.new(state: state)
+    Agents::ToolContext.new(run_context: run_context)
   end
 
   def escalation_status_detected?(status)

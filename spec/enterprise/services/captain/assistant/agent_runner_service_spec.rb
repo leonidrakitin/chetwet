@@ -218,7 +218,11 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       let(:mock_result) do
         instance_double(
           Agents::RunResult,
-          output: { 'status' => 'Escalating to human operator', 'response' => 'I will transfer you now.' },
+          output: {
+            'status' => 'Escalating to human operator',
+            'response' => 'I will transfer you now.',
+            'reasoning' => 'User wants cancellation, requires operator'
+          },
           context: nil
         )
       end
@@ -227,6 +231,19 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
         result = service.generate_response(message_history: message_history)
 
         expect(result['response']).to eq('conversation_handoff')
+      end
+
+      it 'programmatically invokes HandoffTool with reasoning as reason' do
+        tool_double = instance_double(Captain::Tools::HandoffTool)
+        allow(Captain::Tools::HandoffTool).to receive(:new).with(assistant).and_return(tool_double)
+        allow(tool_double).to receive(:name).and_return('escalate_to_human')
+        expect(tool_double).to receive(:perform).with(
+          an_instance_of(Agents::ToolContext),
+          reason: 'User wants cancellation, requires operator',
+          post_reason_as_note: true
+        )
+
+        service.generate_response(message_history: message_history)
       end
     end
 
