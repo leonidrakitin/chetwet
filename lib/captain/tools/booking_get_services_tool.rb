@@ -2,7 +2,7 @@
 
 require_relative 'base_tool'
 
-class Captain::Tools::BookingGetServicesTool < BaseTool
+class Captain::Tools::BookingGetServicesTool < Captain::Tools::BaseTool
   description 'Get list of available services with their durations and prices for booking'
   param :service_name, type: 'string', desc: 'Optional filter by service name (partial match)', required: false
 

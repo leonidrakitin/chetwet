@@ -2,7 +2,7 @@
 
 require_relative 'base_tool'
 
-class Captain::Tools::BookingCancelAppointmentTool < BaseTool
+class Captain::Tools::BookingCancelAppointmentTool < Captain::Tools::BaseTool
   description 'Cancel an existing booking'
   param :booking_id, type: 'string', desc: 'Booking ID to cancel (required)'
   param :reason, type: 'string', desc: 'Cancellation reason (optional)', required: false

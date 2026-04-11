@@ -2,7 +2,7 @@
 
 require_relative 'base_tool'
 
-class Captain::Tools::BookingGetAvailableSlotsTool < BaseTool
+class Captain::Tools::BookingGetAvailableSlotsTool < Captain::Tools::BaseTool
   description 'Get available time slots for booking on a specific date'
   param :provider_id, type: 'string', desc: 'Service provider ID (required)'
   param :service_ids, type: 'string', desc: 'Comma-separated service IDs (required)'

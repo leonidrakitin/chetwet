@@ -2,7 +2,7 @@
 
 require_relative 'base_tool'
 
-class Captain::Tools::BookingGetProvidersTool < BaseTool
+class Captain::Tools::BookingGetProvidersTool < Captain::Tools::BaseTool
   description 'Get list of available service providers (staff members) for booking'
 
   def perform(_tool_context, **)

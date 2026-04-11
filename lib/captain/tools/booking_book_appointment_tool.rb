@@ -2,7 +2,7 @@
 
 require_relative 'base_tool'
 
-class Captain::Tools::BookingBookAppointmentTool < BaseTool
+class Captain::Tools::BookingBookAppointmentTool < Captain::Tools::BaseTool
   description 'Book an appointment for the contact. Supports multiple services in one booking.'
   param :provider_id, type: 'string', desc: 'Service provider ID (required)'
   param :service_ids, type: 'string', desc: 'Comma-separated service IDs - multiple services supported (required)'
