@@ -97,6 +97,14 @@ const hasAnySetup = computed(() => {
       <p class="text-xs text-n-slate-9 max-w-xs">
         {{ t('ONBOARDING.COMPLETE_STEP.SETUP_LATER_HINT') }}
       </p>
+      <a
+        href="https://www.chatwoot.com/docs"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-xs text-n-brand hover:underline"
+      >
+        {{ t('ONBOARDING.COMPLETE_STEP.DOCS_LINK') }}
+      </a>
     </div>
 
     <NextButton

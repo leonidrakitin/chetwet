@@ -262,6 +262,14 @@ function proceed() {
           />
           <p class="text-xs text-n-slate-10 -mt-2">
             {{ t('ONBOARDING.INBOX_STEP.VK_TOKEN_HELP') }}
+            <a
+              href="https://dev.vk.com/api/bots/getting-started"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-n-brand hover:underline"
+            >
+              {{ t('ONBOARDING.INBOX_STEP.VK_DOCS_LINK') }}
+            </a>
           </p>
         </template>
 
@@ -285,6 +293,14 @@ function proceed() {
           />
           <p class="text-xs text-n-slate-10 -mt-2">
             {{ t('ONBOARDING.INBOX_STEP.AVITO_HELP') }}
+            <a
+              href="https://developers.avito.ru/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-n-brand hover:underline"
+            >
+              {{ t('ONBOARDING.INBOX_STEP.AVITO_DOCS_LINK') }}
+            </a>
           </p>
         </template>
       </div>

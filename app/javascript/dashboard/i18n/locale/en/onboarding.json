@@ -67,11 +67,13 @@
       "ACCESS_TOKEN_LABEL": "Access token",
       "ACCESS_TOKEN_PLACEHOLDER": "Your access token",
       "VK_TOKEN_HELP": "Get the access token from VK Group Settings → API Usage",
+      "VK_DOCS_LINK": "VK Bot API docs",
       "CLIENT_ID_LABEL": "Client ID",
       "CLIENT_ID_PLACEHOLDER": "Your client ID",
       "CLIENT_SECRET_LABEL": "Client secret",
       "CLIENT_SECRET_PLACEHOLDER": "Your client secret",
       "AVITO_HELP": "Get credentials from Avito Developer Settings",
+      "AVITO_DOCS_LINK": "Avito Developers",
       "SUCCESS": "Inbox created successfully",
       "ERROR": "Could not create inbox"
     },
@@ -115,7 +117,8 @@
       "SUMMARY_GREETING": "Greeting message set",
       "SUMMARY_CANNED": "{count} quick reply(s) created",
       "QUICK_START": "Ready to get started!",
-      "SETUP_LATER_HINT": "You can always configure your workspace settings later from the Settings menu."
+      "SETUP_LATER_HINT": "You can always configure your workspace settings later from the Settings menu.",
+      "DOCS_LINK": "Read the documentation to learn more"
     }
   }
 }
