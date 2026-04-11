@@ -7,9 +7,10 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 defineProps({
   isSaving: { type: Boolean, default: false },
+  lastError: { type: String, default: null },
 });
 
-const emit = defineEmits(['next']);
+const emit = defineEmits(['next', 'retry']);
 const { t } = useI18n();
 
 const channelType = ref('website');
@@ -203,6 +204,17 @@ function proceed() {
             :placeholder="t('ONBOARDING.INBOX_STEP.BOT_TOKEN_PLACEHOLDER')"
             @enter="proceed"
           />
+          <p class="text-xs text-n-slate-10 -mt-2">
+            {{ t('ONBOARDING.INBOX_STEP.BOT_TOKEN_HELP') }}
+            <a
+              href="https://t.me/BotFather"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-n-brand hover:underline"
+            >
+              {{ t('ONBOARDING.INBOX_STEP.BOT_FATHER_LINK') }}
+            </a>
+          </p>
         </template>
 
         <!-- WhatsApp -->
@@ -248,6 +260,9 @@ function proceed() {
             :placeholder="t('ONBOARDING.INBOX_STEP.ACCESS_TOKEN_PLACEHOLDER')"
             @enter="proceed"
           />
+          <p class="text-xs text-n-slate-10 -mt-2">
+            {{ t('ONBOARDING.INBOX_STEP.VK_TOKEN_HELP') }}
+          </p>
         </template>
 
         <!-- Avito -->
@@ -268,7 +283,24 @@ function proceed() {
             :placeholder="t('ONBOARDING.INBOX_STEP.CLIENT_SECRET_PLACEHOLDER')"
             @enter="proceed"
           />
+          <p class="text-xs text-n-slate-10 -mt-2">
+            {{ t('ONBOARDING.INBOX_STEP.AVITO_HELP') }}
+          </p>
         </template>
+      </div>
+
+      <div
+        v-if="lastError"
+        class="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-600 dark:text-red-400 mt-4"
+      >
+        <Icon icon="i-lucide-alert-circle" class="size-4 shrink-0" />
+        <span class="flex-1">{{ lastError }}</span>
+        <button
+          class="text-xs underline hover:no-underline"
+          @click="emit('retry')"
+        >
+          {{ t('ONBOARDING.RETRY') }}
+        </button>
       </div>
 
       <NextButton

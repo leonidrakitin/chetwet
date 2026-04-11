@@ -1,9 +1,10 @@
 <script setup>
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 
-defineProps({
+const props = defineProps({
   profileSet: { type: Boolean, default: false },
   agentsInvited: { type: Number, default: 0 },
   inboxCreated: { type: Boolean, default: false },
@@ -13,6 +14,16 @@ defineProps({
 
 const emit = defineEmits(['finish']);
 const { t } = useI18n();
+
+const hasAnySetup = computed(() => {
+  return (
+    props.profileSet ||
+    props.agentsInvited > 0 ||
+    props.inboxCreated ||
+    props.greetingSet ||
+    props.cannedResponsesCreated > 0
+  );
+});
 </script>
 
 <template>
@@ -30,19 +41,13 @@ const { t } = useI18n();
     </p>
 
     <!-- Summary -->
-    <div class="flex flex-col gap-2 w-full max-w-xs mb-8">
+    <div v-if="hasAnySetup" class="flex flex-col gap-2 w-full max-w-xs mb-8">
       <div
         v-if="profileSet"
         class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
         {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_PROFILE') }}
-      </div>
-      <div
-        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
-      >
-        <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
-        {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_ACCOUNT') }}
       </div>
       <div
         v-if="agentsInvited > 0"
@@ -80,6 +85,18 @@ const { t } = useI18n();
           })
         }}
       </div>
+    </div>
+
+    <div v-else class="flex flex-col items-center gap-4 mb-8">
+      <div
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+      >
+        <Icon icon="i-lucide-rocket" class="size-4 text-n-brand shrink-0" />
+        {{ t('ONBOARDING.COMPLETE_STEP.QUICK_START') }}
+      </div>
+      <p class="text-xs text-n-slate-9 max-w-xs">
+        {{ t('ONBOARDING.COMPLETE_STEP.SETUP_LATER_HINT') }}
+      </p>
     </div>
 
     <NextButton

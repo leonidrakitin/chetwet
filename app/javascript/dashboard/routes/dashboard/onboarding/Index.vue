@@ -48,8 +48,8 @@ const { accountId, currentAccount, updateAccount } = useAccount();
 const currentStep = ref(0);
 const slideDirection = ref('forward');
 const isSaving = ref(false);
+const lastError = ref(null);
 
-// Summary state
 const profileSet = ref(false);
 const agentsInvited = ref(0);
 const inboxCreated = ref(false);
@@ -63,13 +63,14 @@ const currentComponent = computed(() => STEPS[currentStep.value]);
 const showBackButton = computed(
   () => currentStep.value > 0 && currentStep.value < totalSteps - 1
 );
+const stepProgress = computed(() => `${currentStep.value + 1} / ${totalSteps}`);
 
 onMounted(async () => {
   await store.dispatch('accounts/get');
   const savedStep = currentAccount.value?.custom_attributes?.onboarding_step;
   if (savedStep) {
     const idx = STEP_KEYS.indexOf(savedStep);
-    if (idx > 0) {
+    if (idx >= 0) {
       currentStep.value = idx;
     }
   }
@@ -86,8 +87,8 @@ async function saveOnboardingStep(stepKey) {
 function goForward() {
   if (currentStep.value < totalSteps - 1) {
     slideDirection.value = 'forward';
+    lastError.value = null;
     let next = currentStep.value + 1;
-    // Auto-skip greeting step if no inbox was created
     if (next === GREETING_STEP_INDEX && !createdInboxId.value) {
       next += 1;
     }
@@ -99,8 +100,8 @@ function goForward() {
 function goBack() {
   if (currentStep.value > 0) {
     slideDirection.value = 'backward';
+    lastError.value = null;
     let prev = currentStep.value - 1;
-    // Auto-skip greeting step going back if no inbox
     if (prev === GREETING_STEP_INDEX && !createdInboxId.value) {
       prev -= 1;
     }
@@ -108,8 +109,17 @@ function goBack() {
   }
 }
 
+function getInboxIdFromStore() {
+  const inboxes = store.getters['inboxes/getInboxes'];
+  if (inboxes && inboxes.length > 0) {
+    return inboxes[inboxes.length - 1].id;
+  }
+  return null;
+}
+
 async function handleProfileNext(data) {
   isSaving.value = true;
+  lastError.value = null;
   try {
     await store.dispatch('auth/updateProfile', {
       displayName: data.displayName,
@@ -117,8 +127,10 @@ async function handleProfileNext(data) {
     profileSet.value = true;
     useAlert(t('ONBOARDING.PROFILE_STEP.SUCCESS'));
     goForward();
-  } catch {
-    useAlert(t('ONBOARDING.PROFILE_STEP.ERROR'));
+  } catch (error) {
+    lastError.value =
+      error.response?.data?.message || t('ONBOARDING.PROFILE_STEP.ERROR');
+    useAlert(lastError.value);
   } finally {
     isSaving.value = false;
   }
@@ -126,6 +138,7 @@ async function handleProfileNext(data) {
 
 async function handleAccountNext(data) {
   isSaving.value = true;
+  lastError.value = null;
   try {
     await updateAccount({
       name: data.name,
@@ -134,8 +147,10 @@ async function handleAccountNext(data) {
     });
     useAlert(t('ONBOARDING.ACCOUNT_STEP.SUCCESS'));
     goForward();
-  } catch {
-    useAlert(t('ONBOARDING.ACCOUNT_STEP.ERROR'));
+  } catch (error) {
+    lastError.value =
+      error.response?.data?.message || t('ONBOARDING.ACCOUNT_STEP.ERROR');
+    useAlert(lastError.value);
   } finally {
     isSaving.value = false;
   }
@@ -147,13 +162,20 @@ async function handleInviteNext(data) {
     return;
   }
   isSaving.value = true;
+  lastError.value = null;
   try {
     await AgentsAPI.bulkInvite({ emails: data.emails });
     agentsInvited.value = data.emails.length;
     useAlert(t('ONBOARDING.INVITE_STEP.SUCCESS'));
     goForward();
-  } catch {
-    useAlert(t('ONBOARDING.INVITE_STEP.ERROR'));
+  } catch (error) {
+    const errorMsg = error.response?.data?.message;
+    if (errorMsg?.includes('already')) {
+      lastError.value = t('ONBOARDING.INVITE_STEP.ERROR_DUPLICATE');
+    } else {
+      lastError.value = errorMsg || t('ONBOARDING.INVITE_STEP.ERROR');
+    }
+    useAlert(lastError.value);
   } finally {
     isSaving.value = false;
   }
@@ -239,17 +261,20 @@ async function handleInboxNext(data) {
     return;
   }
   isSaving.value = true;
+  lastError.value = null;
   try {
     const result = await store.dispatch(
       channelConfig.action,
       channelConfig.params
     );
-    createdInboxId.value = result?.id || null;
-    inboxCreated.value = true;
+    createdInboxId.value = result?.id || getInboxIdFromStore();
+    inboxCreated.value = !!createdInboxId.value;
     useAlert(t('ONBOARDING.INBOX_STEP.SUCCESS'));
     goForward();
-  } catch {
-    useAlert(t('ONBOARDING.INBOX_STEP.ERROR'));
+  } catch (error) {
+    lastError.value =
+      error.response?.data?.message || t('ONBOARDING.INBOX_STEP.ERROR');
+    useAlert(lastError.value);
   } finally {
     isSaving.value = false;
   }
@@ -261,6 +286,7 @@ async function handleGreetingNext(data) {
     return;
   }
   isSaving.value = true;
+  lastError.value = null;
   try {
     await store.dispatch('inboxes/updateInbox', {
       id: createdInboxId.value,
@@ -272,8 +298,10 @@ async function handleGreetingNext(data) {
     greetingSet.value = true;
     useAlert(t('ONBOARDING.GREETING_STEP.SUCCESS'));
     goForward();
-  } catch {
-    useAlert(t('ONBOARDING.GREETING_STEP.ERROR'));
+  } catch (error) {
+    lastError.value =
+      error.response?.data?.message || t('ONBOARDING.GREETING_STEP.ERROR');
+    useAlert(lastError.value);
   } finally {
     isSaving.value = false;
   }
@@ -285,19 +313,38 @@ async function handleCannedNext(data) {
     return;
   }
   isSaving.value = true;
+  lastError.value = null;
   try {
-    const promises = data.responses.map(r =>
-      store.dispatch('cannedResponse/createCannedResponse', {
-        short_code: r.shortCode,
-        content: r.content,
-      })
+    const results = await Promise.allSettled(
+      data.responses.map(r =>
+        store.dispatch('cannedResponse/createCannedResponse', {
+          short_code: r.shortCode,
+          content: r.content,
+        })
+      )
     );
-    await Promise.all(promises);
-    cannedResponsesCreated.value = data.responses.length;
-    useAlert(t('ONBOARDING.CANNED_STEP.SUCCESS'));
+    const succeeded = results.filter(r => r.status === 'fulfilled').length;
+    const failed = results.length - succeeded;
+    cannedResponsesCreated.value = succeeded;
+    if (failed > 0 && succeeded > 0) {
+      useAlert(
+        t('ONBOARDING.CANNED_STEP.PARTIAL_SUCCESS', {
+          succeeded,
+          failed,
+        })
+      );
+    } else if (failed > 0) {
+      lastError.value = t('ONBOARDING.CANNED_STEP.ERROR');
+      useAlert(lastError.value);
+      return;
+    } else {
+      useAlert(t('ONBOARDING.CANNED_STEP.SUCCESS'));
+    }
     goForward();
-  } catch {
-    useAlert(t('ONBOARDING.CANNED_STEP.ERROR'));
+  } catch (error) {
+    lastError.value =
+      error.response?.data?.message || t('ONBOARDING.CANNED_STEP.ERROR');
+    useAlert(lastError.value);
   } finally {
     isSaving.value = false;
   }
@@ -310,7 +357,7 @@ const STEP_HANDLERS = [
   handleInboxNext,
   handleGreetingNext,
   handleCannedNext,
-  () => {}, // Migration step - handled internally
+  () => {},
 ];
 
 function handleStepNext(data) {
@@ -329,6 +376,10 @@ function handleFinish() {
     params: { accountId: accountId.value },
   });
 }
+
+function handleRetry() {
+  lastError.value = null;
+}
 </script>
 
 <template>
@@ -339,9 +390,12 @@ function handleFinish() {
       class="w-full max-w-lg mx-auto flex flex-col bg-white dark:bg-n-solid-2 rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden"
     >
       <!-- Header -->
-      <div class="flex items-center justify-end px-6 pt-4">
+      <div class="flex items-center justify-between px-6 pt-4">
+        <span class="text-xs text-n-slate-9 font-medium">
+          {{ stepProgress }}
+        </span>
         <button
-          v-if="!isLastStep && currentStep > 0"
+          v-if="!isLastStep"
           class="text-sm text-n-slate-10 hover:text-n-slate-12 transition-colors"
           :disabled="isSaving"
           @click="handleSkip"
@@ -373,6 +427,7 @@ function handleFinish() {
             :is="currentComponent"
             :key="currentStep"
             :is-saving="isSaving"
+            :last-error="lastError"
             :profile-set="profileSet"
             :agents-invited="agentsInvited"
             :inbox-created="inboxCreated"
@@ -381,6 +436,7 @@ function handleFinish() {
             :canned-responses-created="cannedResponsesCreated"
             @next="handleStepNext"
             @finish="handleFinish"
+            @retry="handleRetry"
           />
         </Transition>
       </div>

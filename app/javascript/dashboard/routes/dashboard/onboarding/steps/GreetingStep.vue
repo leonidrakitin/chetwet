@@ -1,18 +1,30 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 defineProps({
   isSaving: { type: Boolean, default: false },
+  lastError: { type: String, default: null },
 });
 
-const emit = defineEmits(['next']);
+const emit = defineEmits(['next', 'retry']);
 const { t } = useI18n();
 
 const greetingEnabled = ref(true);
 const greetingMessage = ref('');
+
+const MAX_LENGTH = 1000;
+const charCount = computed(() => greetingMessage.value.length);
+const isOverLimit = computed(() => charCount.value > MAX_LENGTH);
+
+const previewMessage = computed(() => {
+  if (!greetingMessage.value.trim()) {
+    return t('ONBOARDING.GREETING_STEP.MESSAGE_PLACEHOLDER');
+  }
+  return greetingMessage.value;
+});
 
 function proceed() {
   emit('next', {
@@ -32,8 +44,11 @@ function proceed() {
     <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
       {{ t('ONBOARDING.GREETING_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-6">
+    <p class="text-sm text-n-slate-10 mb-2">
       {{ t('ONBOARDING.GREETING_STEP.SUBTITLE') }}
+    </p>
+    <p class="text-xs text-n-slate-9 mb-6">
+      {{ t('ONBOARDING.GREETING_STEP.WEBSITE_ONLY') }}
     </p>
 
     <div class="w-full max-w-sm">
@@ -54,7 +69,7 @@ function proceed() {
         </button>
       </div>
 
-      <!-- Message textarea -->
+      <!-- Message textarea + Preview -->
       <div v-if="greetingEnabled" class="text-left">
         <label class="text-sm font-medium text-n-slate-11 mb-1.5 block">
           {{ t('ONBOARDING.GREETING_STEP.MESSAGE_LABEL') }}
@@ -64,13 +79,54 @@ function proceed() {
           :placeholder="t('ONBOARDING.GREETING_STEP.MESSAGE_PLACEHOLDER')"
           rows="3"
           class="w-full rounded-lg border border-n-weak bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand placeholder:text-n-slate-8 resize-none"
+          :class="{ 'border-red-400': isOverLimit }"
         />
+        <div class="flex justify-between items-center mt-1">
+          <span class="text-xs text-n-slate-9">
+            {{ t('ONBOARDING.GREETING_STEP.PREVIEW_HINT') }}
+          </span>
+          <span
+            class="text-xs"
+            :class="isOverLimit ? 'text-red-500' : 'text-n-slate-9'"
+          >
+            {{ charCount }} / {{ MAX_LENGTH }}
+          </span>
+        </div>
+
+        <!-- Preview bubble -->
+        <div
+          class="mt-4 p-3 bg-n-surface-2 rounded-lg border border-n-container"
+        >
+          <p class="text-xs text-n-slate-9 mb-2">
+            {{ t('ONBOARDING.GREETING_STEP.PREVIEW_LABEL') }}
+          </p>
+          <div
+            class="bg-n-brand text-white text-sm px-3 py-2 rounded-xl rounded-br-sm max-w-xs"
+          >
+            {{ previewMessage }}
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="lastError"
+        class="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-600 dark:text-red-400 mt-4"
+      >
+        <Icon icon="i-lucide-alert-circle" class="size-4 shrink-0" />
+        <span class="flex-1">{{ lastError }}</span>
+        <button
+          class="text-xs underline hover:no-underline"
+          @click="emit('retry')"
+        >
+          {{ t('ONBOARDING.RETRY') }}
+        </button>
       </div>
 
       <NextButton
         class="mt-6 w-full"
         :label="isSaving ? t('ONBOARDING.SAVING') : t('ONBOARDING.NEXT')"
         :is-loading="isSaving"
+        :disabled="isOverLimit"
         @click="proceed"
       />
     </div>

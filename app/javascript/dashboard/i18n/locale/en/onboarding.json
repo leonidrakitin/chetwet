@@ -4,11 +4,14 @@
     "BACK": "Back",
     "NEXT": "Continue",
     "SAVING": "Saving...",
+    "RETRY": "Retry",
     "PROFILE_STEP": {
       "TITLE": "Welcome! Let's set up your profile",
       "SUBTITLE": "How should your team and customers know you?",
       "NAME_LABEL": "Your name",
       "NAME_PLACEHOLDER": "John Doe",
+      "NAME_REQUIRED": "Please enter your name",
+      "NAME_TOO_SHORT": "Name must be at least 2 characters",
       "SUCCESS": "Profile updated",
       "ERROR": "Could not update profile"
     },
@@ -32,6 +35,7 @@
       "INVITED_AGENTS": "Already on the team",
       "SUCCESS": "Invitations sent successfully",
       "ERROR": "Could not send invitations",
+      "ERROR_DUPLICATE": "Some email addresses are already invited",
       "EMPTY": "No agents invited yet"
     },
     "INBOX_STEP": {
@@ -52,6 +56,8 @@
       "EMAIL_PLACEHOLDER": "support@example.com",
       "BOT_TOKEN_LABEL": "Bot token",
       "BOT_TOKEN_PLACEHOLDER": "123456:ABC-DEF1234ghIkl-zyx57W2v",
+      "BOT_TOKEN_HELP": "Get your bot token from",
+      "BOT_FATHER_LINK": "@BotFather",
       "PHONE_LABEL": "Phone number",
       "PHONE_PLACEHOLDER": "+1234567890",
       "WEBHOOK_LABEL": "Webhook URL (optional)",
@@ -60,19 +66,24 @@
       "GROUP_ID_PLACEHOLDER": "123456789",
       "ACCESS_TOKEN_LABEL": "Access token",
       "ACCESS_TOKEN_PLACEHOLDER": "Your access token",
+      "VK_TOKEN_HELP": "Get the access token from VK Group Settings → API Usage",
       "CLIENT_ID_LABEL": "Client ID",
       "CLIENT_ID_PLACEHOLDER": "Your client ID",
       "CLIENT_SECRET_LABEL": "Client secret",
       "CLIENT_SECRET_PLACEHOLDER": "Your client secret",
+      "AVITO_HELP": "Get credentials from Avito Developer Settings",
       "SUCCESS": "Inbox created successfully",
       "ERROR": "Could not create inbox"
     },
     "GREETING_STEP": {
       "TITLE": "Set up a greeting",
       "SUBTITLE": "Welcome visitors with an automatic message",
+      "WEBSITE_ONLY": "Only applies to Website inboxes",
       "ENABLED_LABEL": "Enable greeting message",
       "MESSAGE_LABEL": "Greeting message",
       "MESSAGE_PLACEHOLDER": "Hello! How can we help you today?",
+      "PREVIEW_LABEL": "Preview",
+      "PREVIEW_HINT": "This message will appear when visitors open the chat",
       "SUCCESS": "Greeting saved",
       "ERROR": "Could not save greeting"
     },
@@ -85,18 +96,26 @@
       "CONTENT_PLACEHOLDER": "Thank you for contacting us!",
       "ADD_MORE": "Add another",
       "SUCCESS": "Quick replies created",
+      "PARTIAL_SUCCESS": "Created {succeeded} reply(s), {failed} failed",
       "ERROR": "Could not create quick replies"
+    },
+    "MIGRATION_STEP": {
+      "SUBTITLE": "Import your conversation history to train Captain AI",
+      "DESCRIPTION": "Migrate existing chats from Telegram, WhatsApp, VK or import from JSON files. This helps Captain learn from your past conversations.",
+      "SKIP_MIGRATION": "Skip for now",
+      "START_MIGRATION": "Import Chats"
     },
     "COMPLETE_STEP": {
       "TITLE": "You're all set!",
       "SUBTITLE": "Your workspace is ready. Start engaging with your customers.",
       "GO_TO_DASHBOARD": "Go to Dashboard",
       "SUMMARY_PROFILE": "Profile configured",
-      "SUMMARY_ACCOUNT": "Account configured",
       "SUMMARY_AGENTS": "{count} agent(s) invited",
       "SUMMARY_INBOX": "Inbox created",
       "SUMMARY_GREETING": "Greeting message set",
-      "SUMMARY_CANNED": "{count} quick reply(s) created"
+      "SUMMARY_CANNED": "{count} quick reply(s) created",
+      "QUICK_START": "Ready to get started!",
+      "SETUP_LATER_HINT": "You can always configure your workspace settings later from the Settings menu."
     }
   }
 }

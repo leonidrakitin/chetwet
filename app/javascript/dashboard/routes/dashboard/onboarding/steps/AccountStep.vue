@@ -10,9 +10,10 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 defineProps({
   isSaving: { type: Boolean, default: false },
+  lastError: { type: String, default: null },
 });
 
-const emit = defineEmits(['next']);
+const emit = defineEmits(['next', 'retry']);
 const { t } = useI18n();
 const { currentAccount } = useAccount();
 const { enabledLanguages } = useConfig();
@@ -110,6 +111,21 @@ function proceed() {
           </option>
         </select>
       </div>
+
+      <div
+        v-if="lastError"
+        class="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-600 dark:text-red-400"
+      >
+        <Icon icon="i-lucide-alert-circle" class="size-4 shrink-0" />
+        <span class="flex-1">{{ lastError }}</span>
+        <button
+          class="text-xs underline hover:no-underline"
+          @click="emit('retry')"
+        >
+          {{ t('ONBOARDING.RETRY') }}
+        </button>
+      </div>
+
       <NextButton
         class="mt-6 w-full"
         :label="isSaving ? t('ONBOARDING.SAVING') : t('ONBOARDING.NEXT')"
