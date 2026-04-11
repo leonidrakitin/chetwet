@@ -61,6 +61,7 @@ import captainCustomTools from './captain/customTools';
 import notificationTemplates from './modules/notificationTemplates';
 import campaigns from './modules/campaigns';
 import suggestions from './modules/suggestions';
+import services from './modules/services';
 
 const plugins = [];
 
@@ -127,6 +128,7 @@ export default createStore({
     notificationTemplates,
     campaigns,
     suggestions,
+    services,
   },
   plugins,
 });

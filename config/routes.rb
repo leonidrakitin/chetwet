@@ -412,6 +412,21 @@ Rails.application.routes.draw do
             post 'yclients_marketplace/payment', to: 'yclients_marketplace#payment'
             post 'yclients_marketplace/payment/refund/:payment_id', to: 'yclients_marketplace#refund'
           end
+          namespace :services do
+            resources :providers
+            resources :services
+            resources :bookings do
+              collection do
+                get :available_slots
+                get :upcoming
+              end
+              member do
+                post :confirm
+                post :cancel
+              end
+            end
+            resource :schedule, only: [:show, :create, :update], controller: 'schedule'
+          end
           resources :working_hours, only: [:update]
 
           resources :portals do

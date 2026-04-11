@@ -102,7 +102,6 @@
   description: 'Update attendance status of a YClients appointment'
   icon: 'checkmark-circle'
 
-
 - id: notify_staff
   category: core
   title: 'Notify Staff'
@@ -126,3 +125,33 @@
   title: 'VK Market: Search'
   description: 'Search products in VK community market'
   icon: 'search'
+
+- id: booking_get_services
+  category: booking
+  title: 'Booking: Services'
+  description: 'Get list of available services for booking'
+  icon: 'list'
+
+- id: booking_get_providers
+  category: booking
+  title: 'Booking: Providers'
+  description: 'Get list of available service providers (staff)'
+  icon: 'people'
+
+- id: booking_get_available_slots
+  category: booking
+  title: 'Booking: Available Slots'
+  description: 'Get available time slots for booking on a specific date'
+  icon: 'clock'
+
+- id: booking_book_appointment
+  category: booking
+  title: 'Booking: Book Appointment'
+  description: 'Book an appointment for the contact'
+  icon: 'calendar'
+
+- id: booking_cancel_appointment
+  category: booking
+  title: 'Booking: Cancel Appointment'
+  description: 'Cancel an existing booking'
+  icon: 'calendar'

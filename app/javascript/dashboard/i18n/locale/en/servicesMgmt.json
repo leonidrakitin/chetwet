@@ -1,0 +1,122 @@
+{
+  "SERVICES_MGMT": {
+    "HEADER": "Services & Booking",
+    "DESCRIPTION": "Manage service providers and services for appointment booking.",
+    "LEARN_MORE": "Learn more about services",
+    "SEARCH_PLACEHOLDER": "Search providers and services...",
+    "COUNT": "{n} item | {n} items",
+    "NO_RESULTS": "No items found matching your search",
+    "LOADING": "Loading services...",
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "DURATION": {
+      "MIN": "min"
+    },
+    "PRICE": {
+      "NOT_SET": "—"
+    },
+    "TABS": {
+      "PROVIDERS": "Providers",
+      "SERVICES": "Services"
+    },
+    "LIST": {
+      "404": "No providers or services found. Create your first one!"
+    },
+    "PROVIDERS": {
+      "ADD_BUTTON": "Add Provider",
+      "TABLE_HEADER": {
+        "NAME": "Name",
+        "STATUS": "Status",
+        "ACTION": "Actions"
+      },
+      "ADD": {
+        "TITLE": "Add Service Provider",
+        "DESC": "Add a new staff member who can provide services.",
+        "API": {
+          "SUCCESS_MESSAGE": "Provider added successfully",
+          "ERROR_MESSAGE": "Failed to add provider. Please try again."
+        }
+      },
+      "EDIT": {
+        "TITLE": "Edit Service Provider",
+        "DESC": "Update provider information.",
+        "API": {
+          "SUCCESS_MESSAGE": "Provider updated successfully",
+          "ERROR_MESSAGE": "Failed to update provider. Please try again."
+        }
+      }
+    },
+    "SERVICES": {
+      "ADD_BUTTON": "Add Service",
+      "TABLE_HEADER": {
+        "NAME": "Service Name",
+        "DURATION": "Duration",
+        "PRICE": "Price",
+        "ACTION": "Actions"
+      },
+      "ADD": {
+        "TITLE": "Add Service",
+        "DESC": "Add a new service that can be booked.",
+        "API": {
+          "SUCCESS_MESSAGE": "Service added successfully",
+          "ERROR_MESSAGE": "Failed to add service. Please try again."
+        }
+      },
+      "EDIT": {
+        "TITLE": "Edit Service",
+        "DESC": "Update service information.",
+        "API": {
+          "SUCCESS_MESSAGE": "Service updated successfully",
+          "ERROR_MESSAGE": "Failed to update service. Please try again."
+        }
+      }
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Name",
+        "PLACEHOLDER": "Enter name",
+        "REQUIRED_ERROR": "Name is required"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Enter description (optional)"
+      },
+      "DURATION": {
+        "LABEL": "Duration (minutes)",
+        "PLACEHOLDER": "30",
+        "REQUIRED_ERROR": "Duration must be at least 5 minutes"
+      },
+      "PRICE": {
+        "LABEL": "Price",
+        "PLACEHOLDER": "0.00"
+      },
+      "CURRENCY": {
+        "LABEL": "Currency",
+        "PLACEHOLDER": "RUB"
+      },
+      "STATUS": {
+        "LABEL": "Status",
+        "ACTIVE": "Active (available for booking)"
+      },
+      "EDIT": "Edit",
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "DELETE": "Delete",
+      "CANCEL": "Cancel"
+    },
+    "DELETE": {
+      "API": {
+        "SUCCESS_MESSAGE": "Deleted successfully",
+        "ERROR_MESSAGE": "Failed to delete. Please try again."
+      },
+      "CONFIRM": {
+        "TITLE": "Confirm Deletion",
+        "MESSAGE": "Are you sure you want to delete",
+        "YES": "Yes, Delete",
+        "NO": "No, Keep"
+      }
+    }
+  }
+}

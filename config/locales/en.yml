@@ -121,8 +121,8 @@ en:
       vk:
         group_not_found: "Community not found. Check that the group ID is correct (numeric ID from the group URL) and the access token has 'Manage community' permission."
       avito:
-        invalid_credentials: "Could not obtain access token. Please check your Client ID and Client Secret."
-        user_info_failed: "Could not retrieve Avito user information. Please ensure the credentials are valid."
+        invalid_credentials: 'Could not obtain access token. Please check your Client ID and Client Secret.'
+        user_info_failed: 'Could not retrieve Avito user information. Please ensure the credentials are valid.'
     whatsapp:
       token_exchange_failed: 'Failed to exchange code for access token. Please try again.'
       invalid_token_permissions: 'The access token does not have the required permissions for WhatsApp.'
@@ -550,6 +550,26 @@ en:
       subject: 'Finish setting up %{custom_domain}'
     ssl_status:
       custom_domain_not_configured: 'Custom domain is not configured'
+  services:
+    bookings:
+      created: 'Booking created successfully'
+      updated: 'Booking updated successfully'
+      cancelled: 'Booking cancelled successfully'
+      confirmed: 'Booking confirmed successfully'
+      not_found: 'Booking not found'
+      conflict: 'Time slot is already booked'
+      past_time: 'Cannot book in the past'
+    providers:
+      created: 'Service provider created successfully'
+      updated: 'Service provider updated successfully'
+      deleted: 'Service provider deleted successfully'
+    services:
+      created: 'Service created successfully'
+      updated: 'Service updated successfully'
+      deleted: 'Service deleted successfully'
+    schedule:
+      created: 'Schedule created successfully'
+      updated: 'Schedule updated successfully'
   helpers:
     label:
       account:

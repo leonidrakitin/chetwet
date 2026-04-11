@@ -160,6 +160,11 @@ class Account < ApplicationRecord
   has_many :whatsapp_channels, dependent: :destroy_async, class_name: '::Channel::Whatsapp'
   has_many :working_hours, dependent: :destroy_async
   has_many :yclients_integrations, dependent: :destroy_async
+  has_many :service_providers, dependent: :destroy_async
+  has_many :services, dependent: :destroy_async
+  has_many :service_bookings, dependent: :destroy_async
+
+  has_one :service_schedule, dependent: :destroy_async
 
   has_one_attached :contacts_export
 

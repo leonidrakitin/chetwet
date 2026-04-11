@@ -44,6 +44,7 @@ import notificationTemplates from './notificationTemplates.json';
 import campaigns from './campaigns.json';
 import onboarding from './onboarding.json';
 import suggestions from './suggestions.json';
+import servicesMgmt from './servicesMgmt.json';
 
 export default {
   ...advancedFilters,
@@ -92,4 +93,5 @@ export default {
   ...campaigns,
   ...onboarding,
   ...suggestions,
+  ...servicesMgmt,
 };

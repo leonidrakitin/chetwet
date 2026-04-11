@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_11_075000) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_11_080005) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1399,6 +1399,83 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_11_075000) do
     t.index ["account_id", "metric", "date"], name: "index_rollup_timeseries"
   end
 
+  create_table "service_booking_items", force: :cascade do |t|
+    t.bigint "service_booking_id", null: false
+    t.bigint "service_id", null: false
+    t.integer "position", default: 0, null: false
+    t.integer "duration_minutes"
+    t.decimal "price", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["service_booking_id", "position"], name: "index_service_booking_items_on_service_booking_id_and_position"
+    t.index ["service_booking_id"], name: "index_service_booking_items_on_service_booking_id"
+    t.index ["service_id"], name: "index_service_booking_items_on_service_id"
+  end
+
+  create_table "service_bookings", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "contact_id", null: false
+    t.bigint "service_provider_id", null: false
+    t.datetime "scheduled_at", null: false
+    t.integer "total_duration_minutes"
+    t.integer "status", default: 0, null: false
+    t.text "customer_notes"
+    t.text "internal_notes"
+    t.jsonb "preferences", default: {}
+    t.jsonb "metadata", default: {}
+    t.datetime "cancelled_at"
+    t.string "cancellation_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "scheduled_at"], name: "index_service_bookings_on_account_id_and_scheduled_at"
+    t.index ["account_id"], name: "index_service_bookings_on_account_id"
+    t.index ["contact_id"], name: "index_service_bookings_on_contact_id"
+    t.index ["service_provider_id", "scheduled_at"], name: "index_service_bookings_on_service_provider_id_and_scheduled_at"
+    t.index ["service_provider_id"], name: "index_service_bookings_on_service_provider_id"
+    t.index ["status"], name: "index_service_bookings_on_status"
+  end
+
+  create_table "service_providers", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "active"], name: "index_service_providers_on_account_id_and_active"
+    t.index ["account_id"], name: "index_service_providers_on_account_id"
+    t.index ["name"], name: "index_service_providers_on_name"
+  end
+
+  create_table "service_schedules", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "timezone", default: "UTC", null: false
+    t.jsonb "working_hours", default: "{\"monday\":{\"enabled\":true,\"slots\":[{\"start\":\"09:00\",\"end\":\"18:00\"}]},\"tuesday\":{\"enabled\":true,\"slots\":[{\"start\":\"09:00\",\"end\":\"18:00\"}]},\"wednesday\":{\"enabled\":true,\"slots\":[{\"start\":\"09:00\",\"end\":\"18:00\"}]},\"thursday\":{\"enabled\":true,\"slots\":[{\"start\":\"09:00\",\"end\":\"18:00\"}]},\"friday\":{\"enabled\":true,\"slots\":[{\"start\":\"09:00\",\"end\":\"18:00\"}]},\"saturday\":{\"enabled\":false,\"slots\":[]},\"sunday\":{\"enabled\":false,\"slots\":[]}}"
+    t.jsonb "holidays", default: []
+    t.jsonb "breaks", default: []
+    t.integer "slot_interval_minutes", default: 30, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_service_schedules_on_account_id", unique: true
+  end
+
+  create_table "services", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.integer "duration_minutes", default: 30, null: false
+    t.decimal "price", precision: 10, scale: 2
+    t.string "currency", default: "RUB"
+    t.boolean "active", default: true, null: false
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "active"], name: "index_services_on_account_id_and_active"
+    t.index ["account_id"], name: "index_services_on_account_id"
+    t.index ["name"], name: "index_services_on_name"
+  end
+
   create_table "sla_events", force: :cascade do |t|
     t.bigint "applied_sla_id", null: false
     t.bigint "conversation_id", null: false
@@ -1644,6 +1721,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_11_075000) do
   add_foreign_key "notification_templates", "accounts"
   add_foreign_key "notification_templates", "inboxes"
   add_foreign_key "notification_templates", "yclients_integrations"
+  add_foreign_key "service_booking_items", "service_bookings"
+  add_foreign_key "service_booking_items", "services"
+  add_foreign_key "service_bookings", "accounts"
+  add_foreign_key "service_bookings", "contacts"
+  add_foreign_key "service_bookings", "service_providers"
+  add_foreign_key "service_providers", "accounts"
+  add_foreign_key "service_schedules", "accounts"
+  add_foreign_key "services", "accounts"
   add_foreign_key "suggestion_votes", "suggestions"
   add_foreign_key "suggestion_votes", "users"
   add_foreign_key "suggestions", "accounts"
