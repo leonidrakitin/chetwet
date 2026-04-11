@@ -11,7 +11,6 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TemplateCard from './components/TemplateCard.vue';
-import TemplateListRow from './components/TemplateListRow.vue';
 import NotificationTemplatePreview from './components/NotificationTemplatePreview.vue';
 import FlowMap from './components/FlowMap.vue';
 import CascadeSettings from './components/CascadeSettings.vue';
@@ -26,7 +25,6 @@ const ROUTE_TYPE_MAP = {
   notification_templates_event: 'event',
   notification_templates_time: 'time',
   notification_templates_interval: 'interval',
-  notification_templates_one_time: 'one_time',
   notification_templates_delivery: 'cascade',
   notification_templates_statistics: 'statistics',
 };
@@ -48,7 +46,8 @@ const inboxes = computed(() => store.getters['inboxes/getInboxes']);
 const accountLabels = computed(() => store.getters['labels/getLabels']);
 
 const searchQuery = ref('');
-const viewMode = ref('grid'); // 'grid' | 'flow'
+const inboxFilter = ref('');
+const viewMode = ref('grid');
 
 const viewModes = computed(() => [
   {
@@ -69,6 +68,10 @@ const filteredTemplates = computed(() => {
     type === 'all'
       ? allTemplates.value
       : store.getters['notificationTemplates/getTemplatesByType'](type);
+
+  if (inboxFilter.value) {
+    templates = templates.filter(tmpl => tmpl.inbox_id === inboxFilter.value);
+  }
 
   const q = searchQuery.value.trim().toLowerCase();
   if (q) {
@@ -142,36 +145,6 @@ const confirmDelete = async () => {
   }
 };
 
-const sendDialogRef = ref(null);
-const sendingTemplate = ref(null);
-const isSending = ref(false);
-
-const handleSendNowRequest = template => {
-  closeAllDialogs();
-  sendingTemplate.value = template;
-  sendDialogRef.value?.open();
-};
-
-const confirmSendNow = async () => {
-  if (!sendingTemplate.value) return;
-  isSending.value = true;
-  try {
-    await store.dispatch(
-      'notificationTemplates/sendNow',
-      sendingTemplate.value.id
-    );
-    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_SUCCESS'));
-    // Refetch to see stats update
-    store.dispatch('notificationTemplates/get');
-  } catch {
-    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_ERROR'));
-  } finally {
-    isSending.value = false;
-    sendingTemplate.value = null;
-    sendDialogRef.value?.close();
-  }
-};
-
 // DnD reorder
 const orderedTemplates = computed({
   get: () => filteredTemplates.value,
@@ -230,7 +203,7 @@ onMounted(() => {
         >
           <div
             v-if="isTemplateList"
-            class="flex items-center gap-2 w-full sm:w-64"
+            class="flex items-center gap-2 w-full sm:w-auto"
           >
             <Input
               :model-value="searchQuery"
@@ -239,7 +212,7 @@ onMounted(() => {
               :custom-input-class="[
                 'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
               ]"
-              class="w-full"
+              class="w-full sm:w-48"
               @input="searchQuery = $event.target.value"
             >
               <template #prefix>
@@ -249,15 +222,30 @@ onMounted(() => {
                 />
               </template>
             </Input>
+
+            <select
+              v-model="inboxFilter"
+              class="h-8 w-full sm:w-40 rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+            >
+              <option value="">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.PLACEHOLDER') }}
+              </option>
+              <option
+                v-for="inbox in inboxes"
+                :key="inbox.id"
+                :value="inbox.id"
+              >
+                {{ inbox.name }}
+              </option>
+            </select>
           </div>
 
           <div
             v-if="isTemplateList"
             class="flex items-center flex-shrink-0 gap-2 sm:gap-4"
           >
-            <!-- View toggles (hidden for one time templates) -->
+            <!-- View toggles -->
             <div
-              v-if="activeType !== 'one_time'"
               class="hidden sm:flex items-center gap-1 rounded-lg bg-n-alpha-1 p-1 flex-shrink-0"
             >
               <button
@@ -347,20 +335,6 @@ onMounted(() => {
         />
       </div>
 
-      <!-- List view for One Time campaigns -->
-      <div v-else-if="activeType === 'one_time'" class="flex flex-col gap-3">
-        <TemplateListRow
-          v-for="element in filteredTemplates"
-          :key="element.id"
-          :template="element"
-          @edit="handleEdit"
-          @clone="handleClone"
-          @delete="handleDeleteRequest"
-          @preview="handlePreview"
-          @send-now="handleSendNowRequest"
-        />
-      </div>
-
       <!-- Grid view with DnD -->
       <Draggable
         v-else-if="viewMode === 'grid'"
@@ -432,15 +406,5 @@ onMounted(() => {
     :confirm-button-label="t('NOTIFICATION_TEMPLATES.DELETE.CONFIRM.YES')"
     :cancel-button-label="t('NOTIFICATION_TEMPLATES.DELETE.CONFIRM.NO')"
     @confirm="confirmDelete"
-  />
-
-  <Dialog
-    ref="sendDialogRef"
-    type="alert"
-    :title="t('NOTIFICATION_TEMPLATES.ONE_TIME.CONFIRM_SEND')"
-    :description="t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_CONFIRM')"
-    :confirm-button-label="t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_NOW')"
-    :cancel-button-label="t('NOTIFICATION_TEMPLATES.ONE_TIME.CANCEL')"
-    @confirm="confirmSendNow"
   />
 </template>

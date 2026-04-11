@@ -57,6 +57,12 @@
       "REGISTRATION_DATE": "Registration date"
     },
     "VARIABLES_HINT": "Available variables: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
+    "SECTIONS": {
+      "TRIGGER": "Trigger Settings",
+      "AUDIENCE": "Audience",
+      "LIMITS": "Limits & Restrictions",
+      "YCLIENTS": "Y-Clients Filters"
+    },
     "FORM": {
       "CANCEL": "Cancel",
       "REQUIRED_INDICATOR": "*",
@@ -87,7 +93,9 @@
       "REPEAT_UNTIL": { "LABEL": "Repeat until" },
       "INTERVAL_DAYS": { "LABEL": "Every N days" },
       "SINCE": { "LABEL": "Since" },
-      "MIN_INTERVAL_HOURS": { "LABEL": "Minimum interval between sends (hours)" },
+      "MIN_INTERVAL_HOURS": {
+        "LABEL": "Minimum interval between sends (hours)"
+      },
       "SERVICE_NAME": {
         "LABEL": "Service filter",
         "PLACEHOLDER": "Filter by service name"

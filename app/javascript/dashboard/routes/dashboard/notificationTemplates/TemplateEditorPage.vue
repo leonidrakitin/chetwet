@@ -51,6 +51,17 @@ const activeVariable = ref(null);
 const nameError = ref('');
 const showMobilePreview = ref(false);
 
+const collapsedSections = ref({
+  trigger: false,
+  audience: true,
+  limits: true,
+  yclients: true,
+});
+
+const toggleSection = section => {
+  collapsedSections.value[section] = !collapsedSections.value[section];
+};
+
 const defaultBlock = () => ({ text: '', attachments: [], buttons: [] });
 
 const defaultForm = () => ({
@@ -78,7 +89,6 @@ const defaultForm = () => ({
     tags: [],
     excludeTags: [],
     requireMailingConsent: false,
-    segmentId: '',
   },
   limits: {
     minIntervalHours: 24,
@@ -98,33 +108,7 @@ const typeOptions = computed(() => [
   { value: 'event', label: t('NOTIFICATION_TEMPLATES.TYPES.EVENT') },
   { value: 'time', label: t('NOTIFICATION_TEMPLATES.TYPES.TIME') },
   { value: 'interval', label: t('NOTIFICATION_TEMPLATES.TYPES.INTERVAL') },
-  { value: 'one_time', label: t('NOTIFICATION_TEMPLATES.TYPES.ONE_TIME') },
 ]);
-
-const isOneTime = computed(() => form.value.type === 'one_time');
-const contactSegments = computed(
-  () => store.getters['customViews/getContactCustomViews']
-);
-
-const audiencePreview = ref(null);
-const isPreviewingAudience = ref(false);
-const isSending = ref(false);
-const showSendConfirm = ref(false);
-
-const previewAudience = async () => {
-  if (!isEditing.value) return;
-  isPreviewingAudience.value = true;
-  try {
-    audiencePreview.value = await store.dispatch(
-      'notificationTemplates/previewAudience',
-      templateId.value
-    );
-  } catch {
-    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.PREVIEW_ERROR'));
-  } finally {
-    isPreviewingAudience.value = false;
-  }
-};
 
 const triggerEventOptions = computed(() => {
   const options = [
@@ -233,7 +217,6 @@ const normalizeForm = tmpl => ({
     tags: [...(tmpl.audience?.tags ?? [])],
     excludeTags: [...(tmpl.audience?.exclude_tags ?? [])],
     requireMailingConsent: tmpl.audience?.require_mailing_consent ?? false,
-    segmentId: tmpl.audience?.segment_id ?? '',
   },
   limits: {
     minIntervalHours: tmpl.limits?.min_interval_hours ?? 24,
@@ -276,20 +259,6 @@ const goBack = () => {
     name: 'notification_templates_index',
     params: { accountId: route.params.accountId },
   });
-};
-
-const handleSendNow = async () => {
-  showSendConfirm.value = false;
-  isSending.value = true;
-  try {
-    await store.dispatch('notificationTemplates/sendNow', templateId.value);
-    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_SUCCESS'));
-    goBack();
-  } catch {
-    useAlert(t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_ERROR'));
-  } finally {
-    isSending.value = false;
-  }
 };
 
 const setEditorRef = (el, idx) => {
@@ -379,7 +348,6 @@ const handleSave = async () => {
       tags: [...form.value.audience.tags],
       exclude_tags: [...form.value.audience.excludeTags],
       require_mailing_consent: form.value.audience.requireMailingConsent,
-      segment_id: form.value.audience.segmentId || null,
     },
     limits: {
       min_interval_hours: Number(form.value.limits.minIntervalHours || 0),
@@ -409,7 +377,6 @@ const handleSave = async () => {
 
 onMounted(() => {
   store.dispatch('notificationTemplates/get');
-  store.dispatch('customViews/get', { filter_type: 'contact' });
   if (!availableInboxes.value.length) {
     store.dispatch('inboxes/get');
   }
@@ -485,46 +452,23 @@ onMounted(() => {
         </div>
 
         <div class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem]">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
-                <span class="text-n-ruby-9">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
-                </span>
-              </label>
-              <input
-                v-model="form.name"
-                type="text"
-                :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
-                @input="nameError = ''"
-              />
-              <span v-if="nameError" class="text-xs text-n-ruby-11">
-                {{ nameError }}
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-n-slate-12">
+              {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
+              <span class="text-n-ruby-9">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
               </span>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.LABEL') }}
-              </label>
-              <select
-                v-model="form.inboxId"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              >
-                <option value="">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.PLACEHOLDER') }}
-                </option>
-                <option
-                  v-for="inbox in availableInboxes"
-                  :key="inbox.id"
-                  :value="inbox.id"
-                >
-                  {{ inbox.name }}
-                </option>
-              </select>
-            </div>
+            </label>
+            <input
+              v-model="form.name"
+              type="text"
+              :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
+              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+              @input="nameError = ''"
+            />
+            <span v-if="nameError" class="text-xs text-n-ruby-11">
+              {{ nameError }}
+            </span>
           </div>
 
           <div class="flex flex-col gap-1">
@@ -593,440 +537,365 @@ onMounted(() => {
             </div>
           </div>
 
+          <!-- Trigger Settings (collapsible) -->
           <div
-            v-if="form.type === 'event'"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
           >
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.TRIGGER_EVENT.LABEL') }}
-              </label>
-              <select
-                v-model="form.triggerEvent"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              >
-                <option
-                  v-for="option in triggerEventOptions"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.OFFSET_HOURS.LABEL') }}
-              </label>
-              <input
-                v-model.number="form.conditions.offsetHours"
-                type="number"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div
-            v-if="form.type === 'time'"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
-          >
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.SEND_AT.LABEL') }}
-              </label>
-              <input
-                v-model="form.schedule.sendAt"
-                type="datetime-local"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.TIMEZONE.LABEL') }}
-              </label>
-              <input
-                v-model="form.schedule.timezone"
-                type="text"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT.LABEL') }}
-              </label>
-              <select
-                v-model="form.schedule.repeat"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              >
-                <option
-                  v-for="option in repeatOptions"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT_UNTIL.LABEL') }}
-              </label>
-              <input
-                v-model="form.schedule.repeatUntil"
-                type="date"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div
-            v-if="form.type === 'interval'"
-            class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
-          >
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_DAYS.LABEL') }}
-              </label>
-              <input
-                v-model.number="form.conditions.intervalDays"
-                type="number"
-                min="1"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.SINCE.LABEL') }}
-              </label>
-              <select
-                v-model="form.conditions.since"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              >
-                <option
-                  v-for="option in intervalSinceOptions"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.MIN_INTERVAL_HOURS.LABEL') }}
-              </label>
-              <input
-                v-model.number="form.limits.minIntervalHours"
-                type="number"
-                min="0"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <!-- One-time settings -->
-          <div
-            v-if="isOneTime"
-            class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
-          >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_LABEL') }}
-                </label>
-                <select
-                  v-model="form.audience.segmentId"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                >
-                  <option value="">
-                    {{
-                      t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_PLACEHOLDER')
-                    }}
-                  </option>
-                  <option
-                    v-for="segment in contactSegments"
-                    :key="segment.id"
-                    :value="segment.id"
-                  >
-                    {{ segment.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SCHEDULED_AT') }}
-                </label>
-                <input
-                  v-model="form.schedule.sendAt"
-                  type="datetime-local"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                />
-                <span class="text-xs text-n-slate-9">
-                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SCHEDULED_AT_HINT') }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Audience preview & Send -->
-            <div
-              v-if="isEditing"
-              class="flex flex-col gap-3 border-t border-n-weak pt-4"
+            <button
+              type="button"
+              class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
+              @click="toggleSection('trigger')"
             >
-              <div class="flex items-center gap-2">
-                <Button
-                  variant="faded"
-                  color="slate"
-                  size="sm"
-                  icon="i-lucide-users"
-                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.PREVIEW_AUDIENCE')"
-                  :is-loading="isPreviewingAudience"
-                  @click="previewAudience"
-                />
-                <Button
-                  variant="faded"
-                  size="sm"
-                  icon="i-lucide-send"
-                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_NOW')"
-                  :is-loading="isSending"
-                  @click="showSendConfirm = true"
-                />
-              </div>
-
-              <!-- Audience preview results -->
+              <span class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.SECTIONS.TRIGGER') }}
+              </span>
+              <span
+                class="i-lucide-chevron-down size-4 text-n-slate-9 transition-transform"
+                :class="{ 'rotate-180': !collapsedSections.trigger }"
+              />
+            </button>
+            <div v-show="!collapsedSections.trigger" class="px-4 pb-4">
               <div
-                v-if="audiencePreview"
-                class="rounded-lg border border-n-weak bg-n-solid-1 p-3"
+                v-if="form.type === 'event'"
+                class="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
-                <p class="text-sm font-medium text-n-slate-12 mb-2">
-                  {{
-                    t('NOTIFICATION_TEMPLATES.ONE_TIME.AUDIENCE_COUNT', {
-                      count: audiencePreview.count,
-                    })
-                  }}
-                </p>
-                <div
-                  v-for="contact in audiencePreview.sample"
-                  :key="contact.id"
-                  class="flex items-center gap-2 py-1 text-sm text-n-slate-11"
-                >
-                  <span class="i-lucide-user size-3.5" />
-                  <span>{{
-                    contact.name || contact.email || contact.phone_number
-                  }}</span>
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.TRIGGER_EVENT.LABEL') }}
+                  </label>
+                  <select
+                    v-model="form.triggerEvent"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  >
+                    <option
+                      v-for="option in triggerEventOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
+                      {{ option.label }}
+                    </option>
+                  </select>
                 </div>
-                <p
-                  v-if="audiencePreview.count > audiencePreview.sample.length"
-                  class="text-xs text-n-slate-9 mt-1"
-                >
-                  {{
-                    t('NOTIFICATION_TEMPLATES.ONE_TIME.AND_MORE', {
-                      count:
-                        audiencePreview.count - audiencePreview.sample.length,
-                    })
-                  }}
-                </p>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.OFFSET_HOURS.LABEL') }}
+                  </label>
+                  <input
+                    v-model.number="form.conditions.offsetHours"
+                    type="number"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
               </div>
 
-              <!-- Send confirmation -->
               <div
-                v-if="showSendConfirm"
-                class="flex items-center gap-2 rounded-lg border border-n-ruby-6 bg-n-ruby-2 p-3"
+                v-if="form.type === 'time'"
+                class="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
-                <span class="i-lucide-alert-triangle size-4 text-n-ruby-11" />
-                <p class="text-sm text-n-ruby-11 flex-1">
-                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_CONFIRM') }}
-                </p>
-                <Button
-                  size="sm"
-                  color="ruby"
-                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.CONFIRM_SEND')"
-                  @click="handleSendNow"
-                />
-                <Button
-                  variant="faded"
-                  color="slate"
-                  size="sm"
-                  :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.CANCEL')"
-                  @click="showSendConfirm = false"
-                />
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.SEND_AT.LABEL') }}
+                  </label>
+                  <input
+                    v-model="form.schedule.sendAt"
+                    type="datetime-local"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.TIMEZONE.LABEL') }}
+                  </label>
+                  <input
+                    v-model="form.schedule.timezone"
+                    type="text"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT.LABEL') }}
+                  </label>
+                  <select
+                    v-model="form.schedule.repeat"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  >
+                    <option
+                      v-for="option in repeatOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
+                      {{ option.label }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT_UNTIL.LABEL') }}
+                  </label>
+                  <input
+                    v-model="form.schedule.repeatUntil"
+                    type="date"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div
+                v-if="form.type === 'interval'"
+                class="grid grid-cols-1 md:grid-cols-3 gap-3"
+              >
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_DAYS.LABEL') }}
+                  </label>
+                  <input
+                    v-model.number="form.conditions.intervalDays"
+                    type="number"
+                    min="1"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.SINCE.LABEL') }}
+                  </label>
+                  <select
+                    v-model="form.conditions.since"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  >
+                    <option
+                      v-for="option in intervalSinceOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
+                      {{ option.label }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{
+                      t('NOTIFICATION_TEMPLATES.FORM.MIN_INTERVAL_HOURS.LABEL')
+                    }}
+                  </label>
+                  <input
+                    v-model.number="form.limits.minIntervalHours"
+                    type="number"
+                    min="0"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
+          <!-- YClients Filters (collapsible) -->
           <div
             v-if="yclientsEnabled"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
           >
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.LABEL') }}
-              </label>
-              <input
-                v-model="form.conditions.serviceName"
-                type="text"
-                :placeholder="
-                  t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.PLACEHOLDER')
-                "
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+            <button
+              type="button"
+              class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
+              @click="toggleSection('yclients')"
+            >
+              <span class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.SECTIONS.YCLIENTS') }}
+              </span>
+              <span
+                class="i-lucide-chevron-down size-4 text-n-slate-9 transition-transform"
+                :class="{ 'rotate-180': !collapsedSections.yclients }"
               />
-            </div>
+            </button>
+            <div v-show="!collapsedSections.yclients" class="px-4 pb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.LABEL') }}
+                  </label>
+                  <input
+                    v-model="form.conditions.serviceName"
+                    type="text"
+                    :placeholder="
+                      t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.PLACEHOLDER')
+                    "
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.LABEL') }}
-              </label>
-              <input
-                v-model="form.conditions.staffName"
-                type="text"
-                :placeholder="
-                  t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.PLACEHOLDER')
-                "
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.LABEL') }}
+                  </label>
+                  <input
+                    v-model="form.conditions.staffName"
+                    type="text"
+                    :placeholder="
+                      t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.PLACEHOLDER')
+                    "
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
+          <!-- Audience Settings (collapsible) -->
           <div
-            class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
           >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.TAGS.LABEL') }}
-                </label>
-                <TagMultiSelect
-                  v-model="form.audience.tags"
-                  :labels="accountLabels"
-                  :placeholder="
-                    t('NOTIFICATION_TEMPLATES.FORM.TAGS.PLACEHOLDER')
-                  "
-                />
+            <button
+              type="button"
+              class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
+              @click="toggleSection('audience')"
+            >
+              <span class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.SECTIONS.AUDIENCE') }}
+              </span>
+              <span
+                class="i-lucide-chevron-down size-4 text-n-slate-9 transition-transform"
+                :class="{ 'rotate-180': !collapsedSections.audience }"
+              />
+            </button>
+            <div v-show="!collapsedSections.audience" class="px-4 pb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.TAGS.LABEL') }}
+                  </label>
+                  <TagMultiSelect
+                    v-model="form.audience.tags"
+                    :labels="accountLabels"
+                    :placeholder="
+                      t('NOTIFICATION_TEMPLATES.FORM.TAGS.PLACEHOLDER')
+                    "
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.LABEL') }}
+                  </label>
+                  <TagMultiSelect
+                    v-model="form.audience.excludeTags"
+                    :labels="accountLabels"
+                    :placeholder="
+                      t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.PLACEHOLDER')
+                    "
+                  />
+                </div>
               </div>
 
-              <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.LABEL') }}
-                </label>
-                <TagMultiSelect
-                  v-model="form.audience.excludeTags"
-                  :labels="accountLabels"
-                  :placeholder="
-                    t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.PLACEHOLDER')
-                  "
-                />
-              </div>
-
-              <div v-if="!isOneTime" class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_LABEL') }}
-                </label>
-                <select
-                  v-model="form.audience.segmentId"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                >
-                  <option value="">
-                    {{
-                      t('NOTIFICATION_TEMPLATES.ONE_TIME.SEGMENT_PLACEHOLDER')
-                    }}
-                  </option>
-                  <option
-                    v-for="segment in contactSegments"
-                    :key="segment.id"
-                    :value="segment.id"
-                  >
-                    {{ segment.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_FROM.LABEL') }}
-                </label>
-                <input
-                  v-model="form.limits.quietHoursFrom"
-                  type="time"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                />
-              </div>
-
-              <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_TO.LABEL') }}
-                </label>
-                <input
-                  v-model="form.limits.quietHoursTo"
-                  type="time"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                />
-              </div>
-
-              <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.MAX_PER_DAY.LABEL') }}
-                </label>
-                <input
-                  v-model.number="form.limits.maxPerDay"
-                  type="number"
-                  min="1"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div class="flex flex-col gap-3 border-t border-n-weak pt-4">
-              <div class="flex items-center gap-3">
-                <Switch v-model="form.limits.stopIfReplied" />
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.STOP_IF_REPLIED.LABEL') }}
-                </label>
-              </div>
-              <div class="flex items-center gap-3">
-                <Switch v-model="form.limits.skipIfHasActiveDialog" />
-                <label class="text-sm font-medium text-n-slate-12">
-                  {{
-                    t(
-                      'NOTIFICATION_TEMPLATES.FORM.SKIP_IF_HAS_ACTIVE_DIALOG.LABEL'
-                    )
-                  }}
-                </label>
-              </div>
-              <div v-if="yclientsEnabled" class="flex items-center gap-3">
+              <div
+                v-if="yclientsEnabled"
+                class="flex items-center gap-3 mt-3 pt-3 border-t border-n-weak"
+              >
                 <Switch v-model="form.audience.requireMailingConsent" />
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-xs font-medium text-n-slate-11">
                   {{
                     t(
                       'NOTIFICATION_TEMPLATES.FORM.REQUIRE_MAILING_CONSENT.LABEL'
                     )
                   }}
                 </label>
-                <span class="text-xs text-n-slate-9">
-                  {{
-                    t(
-                      'NOTIFICATION_TEMPLATES.FORM.REQUIRE_MAILING_CONSENT.HINT'
-                    )
-                  }}
-                </span>
               </div>
             </div>
           </div>
 
+          <!-- Limits Settings (collapsible) -->
+          <div
+            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
+          >
+            <button
+              type="button"
+              class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
+              @click="toggleSection('limits')"
+            >
+              <span class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.SECTIONS.LIMITS') }}
+              </span>
+              <span
+                class="i-lucide-chevron-down size-4 text-n-slate-9 transition-transform"
+                :class="{ 'rotate-180': !collapsedSections.limits }"
+              />
+            </button>
+            <div v-show="!collapsedSections.limits" class="px-4 pb-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{
+                      t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_FROM.LABEL')
+                    }}
+                  </label>
+                  <input
+                    v-model="form.limits.quietHoursFrom"
+                    type="time"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_TO.LABEL') }}
+                  </label>
+                  <input
+                    v-model="form.limits.quietHoursTo"
+                    type="time"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.MAX_PER_DAY.LABEL') }}
+                  </label>
+                  <input
+                    v-model.number="form.limits.maxPerDay"
+                    type="number"
+                    min="1"
+                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-2 mt-3 pt-3 border-t border-n-weak">
+                <div class="flex items-center gap-3">
+                  <Switch v-model="form.limits.stopIfReplied" />
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.STOP_IF_REPLIED.LABEL') }}
+                  </label>
+                </div>
+                <div class="flex items-center gap-3">
+                  <Switch v-model="form.limits.skipIfHasActiveDialog" />
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{
+                      t(
+                        'NOTIFICATION_TEMPLATES.FORM.SKIP_IF_HAS_ACTIVE_DIALOG.LABEL'
+                      )
+                    }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Editor (always visible) -->
           <div class="flex flex-col gap-3">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-semibold text-n-slate-12">
               {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
             </label>
 
             <div
               v-for="(block, idx) in form.messages"
               :key="idx"
-              class="flex flex-col gap-2 rounded-xl border border-n-weak bg-n-alpha-1 p-3"
+              class="flex flex-col gap-2 rounded-xl border-2 border-n-brand/30 bg-n-alpha-1 p-3"
             >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-0.5">

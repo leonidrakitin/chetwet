@@ -1,0 +1,47 @@
+{
+  "CAMPAIGNS": {
+    "HEADER": "Campaigns",
+    "BADGE": "Campaign",
+    "NEW_CAMPAIGN": "New Campaign",
+    "SCHEDULED": "Scheduled",
+    "SCHEDULED_AT": "Schedule send",
+    "SCHEDULED_AT_HINT": "Leave empty to send immediately",
+    "SEGMENT_LABEL": "Segment",
+    "SEGMENT_PLACEHOLDER": "All contacts (no segment filter)",
+    "PREVIEW_AUDIENCE": "Preview recipients",
+    "PREVIEW_ERROR": "Failed to load audience preview",
+    "AUDIENCE_COUNT": "{count} recipients",
+    "AND_MORE": "and {count} more...",
+    "SEND_NOW": "Send now",
+    "SEND_SUCCESS": "Campaign dispatched successfully",
+    "SEND_ERROR": "Failed to dispatch campaign",
+    "SEND_CONFIRM": "This will send the campaign to all matching recipients. This action cannot be undone.",
+    "CONFIRM_SEND": "Confirm send",
+    "CANCEL": "Cancel",
+    "SEARCH": {
+      "PLACEHOLDER": "Search campaigns..."
+    },
+    "EMPTY_TITLE": "No campaigns yet",
+    "EMPTY_DESCRIPTION": "Create your first campaign to start sending broadcast messages to your contacts.",
+    "EMPTY_SEARCH_TITLE": "No campaigns found",
+    "EMPTY_SEARCH_DESCRIPTION": "Try adjusting your search query.",
+    "SAVE": {
+      "SUCCESS": "Campaign saved successfully.",
+      "ERROR": "Could not save campaign."
+    },
+    "DELETE": {
+      "BUTTON_TEXT": "Delete",
+      "CONFIRM": {
+        "TITLE": "Confirm Deletion",
+        "MESSAGE": "Delete campaign \"{name}\"?",
+        "YES": "Yes, Delete",
+        "NO": "Cancel"
+      },
+      "SUCCESS": "Campaign deleted successfully.",
+      "ERROR": "Could not delete campaign."
+    },
+    "PREVIEW": {
+      "TITLE": "Preview"
+    }
+  }
+}

@@ -8,6 +8,7 @@ import { frontendURL } from '../../helper/URLHelper';
 import helpcenterRoutes from './helpcenter/helpcenter.routes';
 import { routes as captainRoutes } from './captain/captain.routes';
 import notificationTemplatesRoutes from './notificationTemplates/notificationTemplates.routes';
+import campaignsRoutes from './campaigns/campaigns.routes';
 import suggestionsRoutes from './suggestions/suggestions.routes';
 import AppContainer from './Dashboard.vue';
 import OnboardingWizard from './onboarding/Index.vue';
@@ -51,6 +52,7 @@ export default {
         ...notificationRoutes,
         ...helpcenterRoutes.routes,
         ...notificationTemplatesRoutes.routes,
+        ...campaignsRoutes.routes,
         ...suggestionsRoutes.routes,
       ],
     },

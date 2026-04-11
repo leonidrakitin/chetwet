@@ -24,7 +24,7 @@ export const getters = {
     return _state.meta;
   },
   getCampaigns(_state) {
-    return [..._state.templates].sort((a, b) => b.id - a.id);
+    return [..._state.campaigns].sort((a, b) => b.id - a.id);
   },
   getStatistics(_state) {
     return _state.statistics;
@@ -75,8 +75,6 @@ export const actions = {
         yclientsEnabled: response.data.meta?.yclients_enabled || false,
         yclientsIntegrations: response.data.meta?.yclients_integrations || [],
       });
-    } catch (error) {
-      throw new Error(error);
     } finally {
       commit('SET_UI_FLAG', { isFetching: false });
     }

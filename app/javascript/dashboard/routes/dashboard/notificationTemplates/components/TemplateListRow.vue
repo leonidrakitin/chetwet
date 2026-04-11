@@ -13,7 +13,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['edit', 'delete', 'clone', 'preview', 'sendNow']);
+const emit = defineEmits(['edit', 'delete', 'clone', 'preview']);
 
 const { t } = useI18n();
 const store = useStore();
@@ -46,11 +46,6 @@ const handleClone = () => {
 const handleDelete = () => {
   closeMenu();
   emit('delete', props.template);
-};
-
-const handleSendNow = () => {
-  closeMenu();
-  emit('sendNow', props.template);
 };
 
 const eventLabel = template => getChainLabel(template, t);
@@ -163,19 +158,6 @@ const sentTotalLabel = computed(() =>
           <span class="text-xs text-n-slate-11 whitespace-nowrap">{{
             formattedLastSent
           }}</span>
-        </div>
-        <div
-          v-else-if="template.type === 'one_time'"
-          class="flex items-center justify-end w-36"
-        >
-          <Button
-            variant="smooth"
-            color="brand"
-            size="xs"
-            icon="i-lucide-send"
-            :label="t('NOTIFICATION_TEMPLATES.ONE_TIME.SEND_NOW')"
-            @click.stop="handleSendNow"
-          />
         </div>
 
         <div v-if="hasError" class="relative group">

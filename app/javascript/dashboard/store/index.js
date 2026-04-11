@@ -59,6 +59,7 @@ import captainScenarios from './captain/scenarios';
 import captainTools from './captain/tools';
 import captainCustomTools from './captain/customTools';
 import notificationTemplates from './modules/notificationTemplates';
+import campaigns from './modules/campaigns';
 import suggestions from './modules/suggestions';
 
 const plugins = [];
@@ -124,6 +125,7 @@ export default createStore({
     captainTools,
     captainCustomTools,
     notificationTemplates,
+    campaigns,
     suggestions,
   },
   plugins,

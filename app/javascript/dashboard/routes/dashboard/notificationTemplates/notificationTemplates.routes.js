@@ -31,12 +31,6 @@ export default {
       meta,
     },
     {
-      path: frontendURL('accounts/:accountId/notification/one-time'),
-      name: 'notification_templates_one_time',
-      component: Index,
-      meta,
-    },
-    {
       path: frontendURL('accounts/:accountId/notification/delivery'),
       name: 'notification_templates_delivery',
       component: Index,

@@ -12,7 +12,6 @@ import TagMultiSelect from './TagMultiSelect.vue';
 const props = defineProps({
   template: { type: Object, default: null },
   allTemplates: { type: Array, default: () => [] },
-  availableInboxes: { type: Array, default: () => [] },
   accountLabels: { type: Array, default: () => [] },
   meta: {
     type: Object,
@@ -395,46 +394,23 @@ const handleClose = () => {
       <div
         class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem] md:overflow-y-auto"
       >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
-              <span class="text-n-ruby-9">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
-              </span>
-            </label>
-            <input
-              v-model="form.name"
-              type="text"
-              :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
-              @input="nameError = ''"
-            />
-            <span v-if="nameError" class="text-xs text-n-ruby-11">
-              {{ nameError }}
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
+            <span class="text-n-ruby-9">
+              {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
             </span>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.LABEL') }}
-            </label>
-            <select
-              v-model="form.inboxId"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-            >
-              <option value="">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.PLACEHOLDER') }}
-              </option>
-              <option
-                v-for="inbox in availableInboxes"
-                :key="inbox.id"
-                :value="inbox.id"
-              >
-                {{ inbox.name }}
-              </option>
-            </select>
-          </div>
+          </label>
+          <input
+            v-model="form.name"
+            type="text"
+            :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
+            class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+            @input="nameError = ''"
+          />
+          <span v-if="nameError" class="text-xs text-n-ruby-11">
+            {{ nameError }}
+          </span>
         </div>
 
         <div class="flex flex-col gap-1">
