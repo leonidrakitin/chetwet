@@ -13,6 +13,7 @@ import InviteStep from './steps/InviteStep.vue';
 import InboxStep from './steps/InboxStep.vue';
 import GreetingStep from './steps/GreetingStep.vue';
 import CannedResponseStep from './steps/CannedResponseStep.vue';
+import MigrationStep from './steps/MigrationStep.vue';
 import CompleteStep from './steps/CompleteStep.vue';
 
 const STEPS = [
@@ -22,6 +23,7 @@ const STEPS = [
   markRaw(InboxStep),
   markRaw(GreetingStep),
   markRaw(CannedResponseStep),
+  markRaw(MigrationStep),
   markRaw(CompleteStep),
 ];
 
@@ -32,6 +34,7 @@ const STEP_KEYS = [
   'inbox',
   'greeting',
   'canned',
+  'migration',
   'complete',
 ];
 
@@ -307,6 +310,7 @@ const STEP_HANDLERS = [
   handleInboxNext,
   handleGreetingNext,
   handleCannedNext,
+  () => {}, // Migration step - handled internally
 ];
 
 function handleStepNext(data) {

@@ -10,7 +10,7 @@ import { routes as captainRoutes } from './captain/captain.routes';
 import notificationTemplatesRoutes from './notificationTemplates/notificationTemplates.routes';
 import suggestionsRoutes from './suggestions/suggestions.routes';
 import AppContainer from './Dashboard.vue';
-import MigrationsWizard from './onboarding/MigrationsWizard.vue';
+import OnboardingWizard from './onboarding/Index.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
 import YclientsConnect from './settings/integrations/YclientsConnect.vue';
@@ -26,7 +26,7 @@ export default {
     {
       path: frontendURL('onboarding/wizard'),
       name: 'onboarding_wizard',
-      component: MigrationsWizard,
+      component: OnboardingWizard,
       meta: {
         permissions: ['administrator'],
       },

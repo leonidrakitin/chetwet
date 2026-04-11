@@ -337,12 +337,6 @@ const menuItems = computed(() => {
           }),
         },
         {
-          name: 'Migrations',
-          label: t('SIDEBAR.CAPTAIN_MIGRATIONS'),
-          activeOn: ['onboarding_wizard'],
-          to: { name: 'onboarding_wizard' },
-        },
-        {
           name: 'Settings',
           label: t('SIDEBAR.CAPTAIN_SETTINGS'),
           activeOn: [
