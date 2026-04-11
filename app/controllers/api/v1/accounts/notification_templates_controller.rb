@@ -58,7 +58,6 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
 
   def send_now
     NotificationTemplates::DispatchJob.perform_later(@notification_template)
-    @notification_template.update!(last_sent_at: Time.current, enabled: false) if @notification_template.one_time_template?
     render :show
   end
 

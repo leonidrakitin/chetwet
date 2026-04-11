@@ -40,7 +40,7 @@
 #  fk_rails_...  (yclients_integration_id => yclients_integrations.id)
 #
 class NotificationTemplate < ApplicationRecord
-  TEMPLATE_TYPES = %w[event time interval lost_clients client_consent one_time].freeze
+  TEMPLATE_TYPES = %w[event time interval lost_clients client_consent].freeze
   EVENT_TEMPLATE_TYPES = %w[event client_consent].freeze
   INTERVAL_TEMPLATE_TYPES = %w[interval lost_clients].freeze
 
@@ -100,10 +100,6 @@ class NotificationTemplate < ApplicationRecord
 
   def interval_template?
     template_type.in?(INTERVAL_TEMPLATE_TYPES)
-  end
-
-  def one_time_template?
-    template_type == 'one_time'
   end
 
   def yclients_enabled?

@@ -16,6 +16,9 @@ class TriggerScheduledItemsJob < ApplicationJob
 
     # Job to process notification templates
     NotificationTemplates::ProcessScheduledJob.perform_later
+
+    # Job to process scheduled campaigns
+    Campaigns::ProcessScheduledJob.perform_later
   end
 end
 

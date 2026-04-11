@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_06_221030) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_11_064937) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -320,28 +320,43 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_06_221030) do
     t.index ["telegram_session_id"], name: "index_bulk_migrations_on_telegram_session_id"
   end
 
+  create_table "campaign_deliveries", force: :cascade do |t|
+    t.bigint "campaign_id", null: false
+    t.bigint "account_id", null: false
+    t.bigint "contact_id"
+    t.bigint "conversation_id"
+    t.string "status", null: false
+    t.string "trigger_type"
+    t.datetime "sent_at"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_campaign_deliveries_on_account_id"
+    t.index ["campaign_id", "status"], name: "index_campaign_deliveries_on_campaign_id_and_status"
+    t.index ["campaign_id"], name: "index_campaign_deliveries_on_campaign_id"
+    t.index ["contact_id", "campaign_id"], name: "index_campaign_deliveries_on_contact_id_and_campaign_id"
+    t.index ["contact_id"], name: "index_campaign_deliveries_on_contact_id"
+    t.index ["conversation_id"], name: "index_campaign_deliveries_on_conversation_id"
+  end
+
   create_table "campaigns", force: :cascade do |t|
-    t.integer "display_id", null: false
-    t.string "title", null: false
+    t.string "name", null: false
     t.text "description"
-    t.text "message", null: false
-    t.integer "sender_id"
     t.boolean "enabled", default: true
     t.bigint "account_id", null: false
-    t.bigint "inbox_id", null: false
-    t.jsonb "trigger_rules", default: {}
+    t.bigint "inbox_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.integer "campaign_type", default: 0, null: false
-    t.integer "campaign_status", default: 0, null: false
     t.jsonb "audience", default: []
     t.datetime "scheduled_at", precision: nil
-    t.boolean "trigger_only_during_business_hours", default: false
     t.jsonb "messages"
-    t.jsonb "template_params"
+    t.jsonb "schedule", default: {}
+    t.jsonb "metadata", default: {}
+    t.datetime "last_sent_at"
+    t.bigint "yclients_integration_id"
+    t.index ["account_id", "enabled"], name: "index_campaigns_on_account_id_and_enabled"
+    t.index ["account_id", "scheduled_at"], name: "index_campaigns_on_account_id_and_scheduled_at"
     t.index ["account_id"], name: "index_campaigns_on_account_id"
-    t.index ["campaign_status"], name: "index_campaigns_on_campaign_status"
-    t.index ["campaign_type"], name: "index_campaigns_on_campaign_type"
     t.index ["inbox_id"], name: "index_campaigns_on_inbox_id"
     t.index ["scheduled_at"], name: "index_campaigns_on_scheduled_at"
   end
@@ -1344,8 +1359,21 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_06_221030) do
     t.index ["user_id"], name: "index_reporting_events_on_user_id"
   end
 
-# Could not dump table "reporting_events_rollups" because of following ActiveRecord::ConnectionFailed
-#   PQconsumeInput() could not receive data from server: Operation timed out
+  create_table "reporting_events_rollups", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.date "date", null: false
+    t.string "dimension_type", null: false
+    t.bigint "dimension_id", null: false
+    t.string "metric", null: false
+    t.bigint "count", default: 0, null: false
+    t.float "sum_value", default: 0.0, null: false
+    t.float "sum_value_business_hours", default: 0.0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "date", "dimension_type", "dimension_id", "metric"], name: "index_rollup_unique_key", unique: true
+    t.index ["account_id", "dimension_type", "date"], name: "index_rollup_summary"
+    t.index ["account_id", "metric", "date"], name: "index_rollup_timeseries"
+  end
 
   create_table "sla_events", force: :cascade do |t|
     t.bigint "applied_sla_id", null: false
@@ -1568,6 +1596,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_06_221030) do
   add_foreign_key "bulk_migrations", "captain_assistants"
   add_foreign_key "bulk_migrations", "inboxes"
   add_foreign_key "bulk_migrations", "telegram_sessions"
+  add_foreign_key "campaign_deliveries", "accounts"
+  add_foreign_key "campaign_deliveries", "campaigns"
+  add_foreign_key "campaign_deliveries", "contacts"
+  add_foreign_key "campaign_deliveries", "conversations"
+  add_foreign_key "campaigns", "yclients_integrations", on_delete: :nullify
   add_foreign_key "captain_approval_requests", "accounts"
   add_foreign_key "captain_approval_requests", "captain_assistants", column: "assistant_id"
   add_foreign_key "captain_approval_requests", "conversations"
@@ -1611,13 +1644,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_06_221030) do
       after(:insert).
       for_each(:row) do
     "execute format('create sequence IF NOT EXISTS camp_dpid_seq_%s', NEW.id);"
-  end
-
-  create_trigger("campaigns_before_insert_row_tr", :generated => true, :compatibility => 1).
-      on("campaigns").
-      before(:insert).
-      for_each(:row) do
-    "NEW.display_id := nextval('camp_dpid_seq_' || NEW.account_id);"
   end
 
 end
