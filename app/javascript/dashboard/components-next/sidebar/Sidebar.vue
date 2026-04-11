@@ -663,6 +663,12 @@ const menuItems = computed(() => {
           to: accountScopedRoute('settings_applications'),
         },
         {
+          name: 'Settings Services',
+          label: t('SIDEBAR.SERVICES'),
+          icon: 'i-lucide-calendar-clock',
+          to: accountScopedRoute('services_list'),
+        },
+        {
           name: 'Settings Audit Logs',
           label: t('SIDEBAR.AUDIT_LOGS'),
           icon: 'i-lucide-briefcase',
