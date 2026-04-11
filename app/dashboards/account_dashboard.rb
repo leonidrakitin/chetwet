@@ -32,7 +32,8 @@ class AccountDashboard < Administrate::BaseDashboard
     custom_attributes: Field::String,
     plan: Field::BelongsTo,
     plan_expires_at: DatePickerField,
-    plan_price: Field::String
+    plan_price: Field::String,
+    llm_usage_stats: LlmUsageStatsField
   }.merge(enterprise_attribute_types).freeze
 
   # COLLECTION_ATTRIBUTES
@@ -66,7 +67,7 @@ class AccountDashboard < Administrate::BaseDashboard
     plan
     plan_expires_at
     plan_price
-  ] + enterprise_show_page_attributes + %i[captain_models]).freeze
+  ] + enterprise_show_page_attributes + %i[captain_models llm_usage_stats]).freeze
 
   # FORM_ATTRIBUTES
   # an array of attributes that will be displayed

@@ -12,6 +12,71 @@ providers:
   qwen:
     display_name: 'Qwen'
 
+pricing:
+  gpt-4.1:
+    prompt: 0.00200
+    completion: 0.00800
+  gpt-4.1-mini:
+    prompt: 0.00015
+    completion: 0.00060
+  gpt-4.1-nano:
+    prompt: 0.00005
+    completion: 0.00010
+  gpt-5.1:
+    prompt: 0.00125
+    completion: 0.00500
+  gpt-5-mini:
+    prompt: 0.00015
+    completion: 0.00060
+  gpt-5-nano:
+    prompt: 0.00005
+    completion: 0.00010
+  gpt-5.2:
+    prompt: 0.00150
+    completion: 0.00600
+  claude-haiku-4.5:
+    prompt: 0.00025
+    completion: 0.00125
+  claude-sonnet-4.5:
+    prompt: 0.00300
+    completion: 0.01500
+  gemini-3-flash:
+    prompt: 0.000075
+    completion: 0.00030
+  gemini-3-pro:
+    prompt: 0.00070
+    completion: 0.00280
+  glm-5:
+    prompt: 0.00050
+    completion: 0.00050
+  glm-4.7:
+    prompt: 0.00014
+    completion: 0.00014
+  glm-4.6:
+    prompt: 0.00010
+    completion: 0.00010
+  'google/gemma-4-26b-a4b-it':
+    prompt: 0.00001
+    completion: 0.00001
+  'deepseek/deepseek-v3.2':
+    prompt: 0.00014
+    completion: 0.00028
+  deepseek-chat:
+    prompt: 0.00014
+    completion: 0.00028
+  deepseek-reasoner:
+    prompt: 0.00055
+    completion: 0.00219
+  'qwen/qwen3.6-plus:free':
+    prompt: 0.00000
+    completion: 0.00000
+  whisper-1:
+    prompt: 0.00600
+    completion: 0.00000
+  text-embedding-3-small:
+    prompt: 0.00002
+    completion: 0.00000
+
 models:
   gpt-4.1:
     provider: openai
@@ -87,12 +152,12 @@ models:
     display_name: 'GLM-4.6'
     credit_multiplier: 1
     hosts: [bigmodel.cn, openrouter]
-  "google/gemma-4-26b-a4b-it":
+  'google/gemma-4-26b-a4b-it':
     provider: gemini
     display_name: 'Gemma 4 26B'
     credit_multiplier: 1
     hosts: [openrouter]
-  "deepseek/deepseek-v3.2":
+  'deepseek/deepseek-v3.2':
     provider: deepseek
     display_name: 'DeepSeek V3.2'
     credit_multiplier: 1
@@ -107,7 +172,7 @@ models:
     display_name: 'DeepSeek Reasoner'
     credit_multiplier: 2
     hosts: [deepseek]
-  "qwen/qwen3.6-plus:free":
+  'qwen/qwen3.6-plus:free':
     provider: qwen
     display_name: 'Qwen 3.6 Plus (Free)'
     credit_multiplier: 1
@@ -139,11 +204,11 @@ features:
         glm-4.6,
         glm-4.7,
         glm-5,
-        "google/gemma-4-26b-a4b-it",
-        "deepseek/deepseek-v3.2",
+        'google/gemma-4-26b-a4b-it',
+        'deepseek/deepseek-v3.2',
         deepseek-chat,
         deepseek-reasoner,
-        "qwen/qwen3.6-plus:free",
+        'qwen/qwen3.6-plus:free',
       ]
     default: gpt-4.1-mini
   assistant:
@@ -159,10 +224,10 @@ features:
         gemini-3-pro,
         glm-4.7,
         glm-5,
-        "deepseek/deepseek-v3.2",
+        'deepseek/deepseek-v3.2',
         deepseek-chat,
         deepseek-reasoner,
-        "qwen/qwen3.6-plus:free",
+        'qwen/qwen3.6-plus:free',
       ]
     default: gpt-5.1
   copilot:
@@ -178,10 +243,10 @@ features:
         gemini-3-pro,
         glm-4.7,
         glm-5,
-        "deepseek/deepseek-v3.2",
+        'deepseek/deepseek-v3.2',
         deepseek-chat,
         deepseek-reasoner,
-        "qwen/qwen3.6-plus:free",
+        'qwen/qwen3.6-plus:free',
       ]
     default: gpt-5.1
   label_suggestion:
@@ -193,9 +258,9 @@ features:
         gemini-3-flash,
         claude-haiku-4.5,
         glm-4.7,
-        "google/gemma-4-26b-a4b-it",
+        'google/gemma-4-26b-a4b-it',
         deepseek-chat,
-        "qwen/qwen3.6-plus:free",
+        'qwen/qwen3.6-plus:free',
       ]
     default: gpt-4.1-nano
   audio_transcription:

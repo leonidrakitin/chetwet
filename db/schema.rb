@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_11_064937) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_11_071404) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1104,6 +1104,30 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_11_064937) do
     t.index ["user_id"], name: "index_leaves_on_user_id"
   end
 
+  create_table "llm_usages", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "conversation_id"
+    t.bigint "message_id"
+    t.string "feature", null: false
+    t.string "model", null: false
+    t.string "provider", null: false
+    t.integer "prompt_tokens", default: 0, null: false
+    t.integer "completion_tokens", default: 0, null: false
+    t.integer "total_tokens", default: 0, null: false
+    t.integer "cache_read_tokens"
+    t.integer "cache_creation_tokens"
+    t.decimal "cost_usd", precision: 10, scale: 6, default: "0.0", null: false
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "created_at"], name: "index_llm_usages_on_account_id_and_created_at"
+    t.index ["account_id", "feature"], name: "index_llm_usages_on_account_id_and_feature"
+    t.index ["account_id"], name: "index_llm_usages_on_account_id"
+    t.index ["conversation_id", "created_at"], name: "index_llm_usages_on_conversation_id_and_created_at"
+    t.index ["conversation_id"], name: "index_llm_usages_on_conversation_id"
+    t.index ["message_id"], name: "index_llm_usages_on_message_id"
+  end
+
   create_table "macros", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.string "name", null: false
@@ -1610,6 +1634,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_11_064937) do
   add_foreign_key "channel_telegram_personal", "accounts"
   add_foreign_key "channel_vk", "accounts"
   add_foreign_key "inboxes", "portals"
+  add_foreign_key "llm_usages", "accounts"
+  add_foreign_key "llm_usages", "conversations"
+  add_foreign_key "llm_usages", "messages"
   add_foreign_key "notification_template_deliveries", "accounts"
   add_foreign_key "notification_template_deliveries", "contacts"
   add_foreign_key "notification_template_deliveries", "conversations"

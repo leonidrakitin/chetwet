@@ -8,13 +8,31 @@ module Captain::ChatGenerationRecorder
   def record_llm_generation(chat, message)
     return unless valid_llm_message?(message)
 
-    # Create a generation span with model and token info for Langfuse cost calculation.
-    # Note: span duration will be near-zero since we create and end it immediately, but token counts are what Langfuse uses for cost calculation.
     tracer.in_span("llm.captain.#{feature_name}.generation") do |span|
       set_generation_span_attributes(span, chat, message)
     end
+
+    track_llm_usage_for_message(message)
   rescue StandardError => e
     Rails.logger.warn "Failed to record LLM generation: #{e.message}"
+  end
+
+  def track_llm_usage_for_message(message)
+    usage_details = generation_usage_details(message)
+    return if usage_details.blank?
+
+    account = @account || @assistant&.account
+    return unless account
+
+    Llm::UsageTrackerService.new(
+      account: account,
+      conversation: @conversation,
+      feature: feature_name,
+      model: model,
+      provider: determine_provider(model)
+    ).track(usage_details)
+  rescue StandardError => e
+    Rails.logger.warn "Failed to track LLM usage: #{e.message}"
   end
 
   # Skip non-LLM messages (e.g., tool results that RubyLLM processes internally).

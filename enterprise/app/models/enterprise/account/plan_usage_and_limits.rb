@@ -43,8 +43,21 @@ module Enterprise::Account::PlanUsageAndLimits # rubocop:disable Metrics/ModuleL
       captain: {
         documents: get_captain_limits(:documents),
         responses: get_captain_limits(:responses)
-      }
+      },
+      llm: llm_usage_summary
     }
+  end
+
+  def llm_usage_summary(since_date: nil, until_date: nil)
+    LlmUsage.summary_for_account(id, since_date: since_date, until_date: until_date)
+  end
+
+  def llm_total_cost_usd(since_date: nil, until_date: nil)
+    LlmUsage.total_cost_for_account(id, since_date: since_date, until_date: until_date)
+  end
+
+  def llm_total_tokens(since_date: nil, until_date: nil)
+    LlmUsage.total_tokens_for_account(id, since_date: since_date, until_date: until_date)
   end
 
   def increment_response_usage

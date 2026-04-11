@@ -213,6 +213,21 @@ class Account < ApplicationRecord
     }
   end
 
+  def llm_usage_stats
+    today_start = Time.zone.now.beginning_of_day
+
+    today_summary = LlmUsage.summary_for_account(id, since_date: today_start)
+    total_summary = LlmUsage.summary_for_account(id)
+
+    {
+      today_requests: today_summary[:total_requests],
+      today_tokens: today_summary[:total_tokens],
+      today_cost: today_summary[:total_cost_usd],
+      total_cost: total_summary[:total_cost_usd],
+      by_feature: total_summary[:by_feature]
+    }
+  end
+
   def locale_english_name
     # the locale can also be something like pt_BR, en_US, fr_FR, etc.
     # the format is `<locale_code>_<country_code>`

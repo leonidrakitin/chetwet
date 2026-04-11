@@ -138,6 +138,11 @@ Rails.application.routes.draw do
               delete :remove_tag
             end
           end
+          resources :llm_usages, only: [:index] do
+            collection do
+              get :for_conversation
+            end
+          end
           resources :campaigns, only: [:index, :create, :show, :update, :destroy] do
             member do
               post :send_now

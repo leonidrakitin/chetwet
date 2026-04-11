@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# Base service for LLM operations using RubyLLM.
-# New features should inherit from this class.
 class Llm::BaseAiService
   DEFAULT_MODEL = Llm::Config::DEFAULT_MODEL
   DEFAULT_TEMPERATURE = 1.0
@@ -19,10 +17,27 @@ class Llm::BaseAiService
     RubyLLM.chat(model: model, provider: provider, assume_model_exists: true).with_temperature(temperature)
   end
 
+  protected
+
+  def track_llm_usage(usage_data, account:, conversation: nil, message: nil, feature: nil)
+    return if usage_data.blank?
+
+    Llm::UsageTrackerService.new(
+      account: account,
+      conversation: conversation,
+      message: message,
+      feature: feature || feature_name,
+      model: @model,
+      provider: Llm::Config.current_provider
+    ).track(usage_data)
+  end
+
+  def feature_name
+    'assistant'
+  end
+
   private
 
-  # Strips markdown code fences (```json ... ``` or ``` ... ```) that some
-  # LLM providers/gateways wrap around JSON responses despite response_format hints.
   def sanitize_json_response(response)
     return response if response.nil?
 

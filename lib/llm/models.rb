@@ -6,6 +6,7 @@ module Llm::Models
     def providers = CONFIG['providers']
     def models = CONFIG['models']
     def features = CONFIG['features']
+    def pricing = CONFIG['pricing']
     def feature_keys = CONFIG['features'].keys
     def hosts = HOSTS
 
@@ -25,6 +26,12 @@ module Llm::Models
       return models if host.blank?
 
       models.select { |_id, cfg| cfg['hosts'].nil? || cfg['hosts'].include?(host) }
+    end
+
+    def pricing_for(model_name)
+      return nil if model_name.blank?
+
+      pricing&.dig(model_name.to_s) || models&.dig(model_name.to_s, 'pricing')
     end
 
     def feature_config(feature_key)
