@@ -21,13 +21,35 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
   private
 
   def preferences_payload
-    host = InstallationConfig.find_by(name: 'CAPTAIN_HOST')&.value
+    provider_cfg = Llm::Config.provider_config
+    primary = provider_cfg&.dig('primary_provider') || 'openai'
+    providers_hash = provider_cfg&.dig('providers') || {}
+    disabled_models = provider_cfg&.dig('disabled_models') || []
+
+    enabled_providers = providers_hash.select { |_, v| v.is_a?(Hash) && v['enabled'] == true }.keys
+
     {
       providers: Llm::Models.providers,
-      models: Llm::Models.models_for_host(host),
-      features: features_with_account_preferences(host),
+      models: filter_models_by_enabled_providers(Llm::Models.models, enabled_providers, disabled_models),
+      features: features_with_account_preferences(enabled_providers, disabled_models),
+      enabled_providers: enabled_providers,
+      primary_provider: primary,
       message_buffer_seconds: @current_account.captain_message_buffer_seconds.presence&.to_i || 4
     }
+  end
+
+  def filter_models_by_enabled_providers(models, enabled_providers, disabled_models)
+    models.select do |model_id, cfg|
+      next false if disabled_models.include?(model_id.to_s)
+
+      model_provider = cfg['provider']
+      model_hosts = cfg['hosts']
+
+      next true if model_hosts.nil?
+      next true if model_hosts.any? { |h| enabled_providers.include?(h) }
+
+      enabled_providers.include?(model_provider)
+    end
   end
 
   def authorize_account_update
@@ -66,17 +88,36 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
     ).to_h.stringify_keys
   end
 
-  def features_with_account_preferences(host = nil)
+  def features_with_account_preferences(enabled_providers_arg = nil, disabled_models_arg = nil)
     preferences = Current.account.captain_preferences
     account_features = preferences[:features] || {}
     account_models = preferences[:models] || {}
 
+    provider_cfg = Llm::Config.provider_config
+    disabled = disabled_models_arg.presence || provider_cfg&.dig('disabled_models') || []
+    enabled = enabled_providers_arg.presence || (provider_cfg&.dig('providers') || {}).select { |_, v| v['enabled'] }.keys
+
     Llm::Models.feature_keys.index_with do |feature_key|
-      config = host.present? ? Llm::Models.feature_config_for_host(feature_key, host) : Llm::Models.feature_config(feature_key)
-      config.merge(
+      config = Llm::Models.feature_config(feature_key)
+
+      filtered_models = config[:models].select do |m|
+        next false if disabled.include?(m[:id].to_s)
+
+        model_cfg = Llm::Models.models[m[:id]]
+        model_hosts = model_cfg&.dig('hosts')
+
+        next true if model_hosts.nil?
+        next true if model_hosts.any? { |h| enabled.include?(h) }
+
+        enabled.include?(m[:provider])
+      end
+
+      {
+        models: filtered_models,
+        default: config[:default],
         enabled: account_features[feature_key] == true,
         selected: account_models[feature_key] || config[:default]
-      )
+      }
     end
   end
 end

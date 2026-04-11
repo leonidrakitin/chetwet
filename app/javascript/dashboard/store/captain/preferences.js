@@ -6,6 +6,8 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
     providers: {},
     models: {},
     features: {},
+    enabledProviders: [],
+    primaryProvider: 'openai',
     messageBufferSeconds: 4,
     uiFlags: {
       isFetching: false,
@@ -17,6 +19,8 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
     getModels: state => state.models,
     getFeatures: state => state.features,
     getUIFlags: state => state.uiFlags,
+    getEnabledProviders: state => state.enabledProviders,
+    getPrimaryProvider: state => state.primaryProvider,
     getModelsForFeature: state => featureKey => {
       const feature = state.features[featureKey];
       const models = feature?.models || [];
@@ -31,16 +35,13 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
       };
 
       return [...models].sort((a, b) => {
-        // Move coming_soon items to the end
         if (a.coming_soon && !b.coming_soon) return 1;
         if (!a.coming_soon && b.coming_soon) return -1;
 
-        // Sort by provider
         const providerA = providerOrder[a.provider] ?? 999;
         const providerB = providerOrder[b.provider] ?? 999;
         if (providerA !== providerB) return providerA - providerB;
 
-        // Sort by credit_multiplier (highest first)
         return (b.credit_multiplier || 0) - (a.credit_multiplier || 0);
       });
     },
@@ -62,6 +63,8 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
         this.providers = response.data.providers || {};
         this.models = response.data.models || {};
         this.features = response.data.features || {};
+        this.enabledProviders = response.data.enabled_providers || [];
+        this.primaryProvider = response.data.primary_provider || 'openai';
         const sec = response.data.message_buffer_seconds;
         this.messageBufferSeconds =
           typeof sec === 'number' && sec >= 1 && sec <= 30 ? sec : 4;
@@ -77,6 +80,8 @@ export const useCaptainConfigStore = defineStore('captainConfig', {
       this.providers = response.data.providers || {};
       this.models = response.data.models || {};
       this.features = response.data.features || {};
+      this.enabledProviders = response.data.enabled_providers || [];
+      this.primaryProvider = response.data.primary_provider || 'openai';
       const sec = response.data.message_buffer_seconds;
       if (typeof sec === 'number' && sec >= 1 && sec <= 30) {
         this.messageBufferSeconds = sec;

@@ -1,0 +1,305 @@
+<% content_for(:title) do %>
+  Configure Settings - Captain LLM Providers
+<% end %>
+
+<header class="main-content__header" role="banner">
+  <h1 class="main-content__page-title" id="page-title">
+    <%= content_for(:title) %>
+  </h1>
+</header>
+
+<style>
+.provider-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+.provider-card.disabled {
+  opacity: 0.6;
+}
+.provider-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.provider-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+.provider-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.provider-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.provider-fields.full-width {
+  grid-template-columns: 1fr;
+}
+.field-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+.field-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.field-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.section-description {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+.primary-provider-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.primary-option {
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.primary-option:hover {
+  border-color: #3b82f6;
+}
+.primary-option.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+.embedding-section {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+</style>
+
+<section class="main-content__body">
+  <%= form_with url: super_admin_app_config_url(config: 'captain'), method: :post, html: { id: 'captain_providers_form' } do |form| %>
+    <input type="hidden" name="captain[primary_provider]" id="primary_provider_input" value="<%= @captain_providers['primary_provider'] %>">
+    <input type="hidden" name="captain[fallback_order]" id="fallback_order_input" value="<%= @captain_providers['fallback_order']&.join(',') %>">
+    <input type="hidden" name="captain[disabled_models]" id="disabled_models_input" value="<%= @captain_providers['disabled_models']&.join(',') %>">
+
+    <div class="mb-8">
+      <h2 class="section-title">Primary Provider</h2>
+      <p class="section-description">Select the primary LLM provider. This will be used for all Captain AI operations unless fallback is triggered.</p>
+      <div class="primary-provider-grid">
+        <% %w[openai openrouter anthropic gemini deepseek qwen zai ollama].each do |provider_name| %>
+          <% provider_cfg = @captain_providers.dig('providers', provider_name) || {} %>
+          <div class="primary-option <%= 'selected' if @captain_providers['primary_provider'] == provider_name %>"
+               data-provider="<%= provider_name %>"
+               onclick="selectPrimaryProvider('<%= provider_name %>')">
+            <div class="font-semibold"><%= provider_name.humanize %></div>
+            <div class="text-xs text-slate-500">
+              <%= provider_cfg['enabled'] ? 'Configured' : 'Not configured' %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="section-title">Provider Configuration</h2>
+      <p class="section-description">Configure API keys and endpoints for each provider. Enable providers to add them to the fallback chain.</p>
+
+      <% %w[openai openrouter anthropic gemini deepseek qwen zai ollama].each do |provider_name| %>
+        <% provider_cfg = @captain_providers.dig('providers', provider_name) || {} %>
+        <% is_enabled = provider_cfg['enabled'] %>
+        <div class="provider-card <%= 'disabled' unless is_enabled %>" id="provider-card-<%= provider_name %>">
+          <div class="provider-card-header">
+            <div class="provider-name"><%= provider_name.humanize %></div>
+            <div class="provider-toggle">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox"
+                       name="captain[providers][<%= provider_name %>][enabled]"
+                       value="1"
+                       <%= 'checked' if is_enabled %>
+                       onchange="toggleProvider('<%= provider_name %>', this.checked)">
+                <span class="text-sm">Enabled</span>
+              </label>
+            </div>
+          </div>
+          <div class="provider-fields">
+            <div>
+              <div class="field-label">API Key</div>
+              <input type="password"
+                     class="field-input"
+                     name="captain[providers][<%= provider_name %>][api_key]"
+                     value="<%= provider_cfg['api_key'] %>"
+                     placeholder="Enter API key...">
+            </div>
+            <div>
+              <div class="field-label">API Base URL</div>
+              <input type="text"
+                     class="field-input"
+                     name="captain[providers][<%= provider_name %>][api_base]"
+                     value="<%= provider_cfg['api_base'] %>"
+                     placeholder="<%= Llm::Config::DEFAULT_ENDPOINTS[provider_name] || 'https://api.example.com' %>">
+            </div>
+          </div>
+          <% if provider_name == 'openrouter' %>
+            <div class="provider-fields mt-3">
+              <div>
+                <div class="field-label">HTTP Referer (optional)</div>
+                <input type="text"
+                       class="field-input"
+                       name="captain[providers][openrouter][settings][http_referer]"
+                       value="<%= provider_cfg.dig('settings', 'http_referer') %>"
+                       placeholder="https://yoursite.com">
+              </div>
+              <div>
+                <div class="field-label">X-OpenRouter-Title (optional)</div>
+                <input type="text"
+                       class="field-input"
+                       name="captain[providers][openrouter][settings][title]"
+                       value="<%= provider_cfg.dig('settings', 'title') %>"
+                       placeholder="My App">
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="section-title">Fallback Chain</h2>
+      <p class="section-description">Drag to reorder providers for automatic fallback when the primary fails.</p>
+      <div id="fallback-chain" class="flex flex-wrap gap-2">
+        <% (@captain_providers['fallback_order'] || []).each do |provider| %>
+          <div class="px-3 py-2 bg-slate-100 rounded-lg flex items-center gap-2 fallback-item" data-provider="<%= provider %>">
+            <span><%= provider.humanize %></span>
+            <button type="button" onclick="removeFromFallback('<%= provider %>')" class="text-slate-400 hover:text-slate-600">&times;</button>
+          </div>
+        <% end %>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">Enabled providers will be automatically added to fallback if not in chain.</p>
+    </div>
+
+    <div class="embedding-section">
+      <h2 class="section-title">Embedding Configuration</h2>
+      <p class="section-description">Configure embedding model for vector search. Can use a different provider than chat.</p>
+      <% embedding = @captain_providers['embedding'] || {} %>
+      <div class="provider-fields">
+        <div>
+          <div class="field-label">Provider</div>
+          <select class="field-input" name="captain[embedding][provider]">
+            <% %w[openai openrouter deepseek qwen zai ollama].each do |p| %>
+              <option value="<%= p %>" <%= 'selected' if embedding['provider'] == p %>><%= p.humanize %></option>
+            <% end %>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Model</div>
+          <input type="text"
+                 class="field-input"
+                 name="captain[embedding][model]"
+                 value="<%= embedding['model'] %>"
+                 placeholder="text-embedding-3-small">
+        </div>
+        <div>
+          <div class="field-label">API Key (optional, uses provider key if empty)</div>
+          <input type="password"
+                 class="field-input"
+                 name="captain[embedding][api_key]"
+                 value="<%= embedding['api_key'] %>"
+                 placeholder="Leave empty to use provider key">
+        </div>
+        <div>
+          <div class="field-label">API Base (optional)</div>
+          <input type="text"
+                 class="field-input"
+                 name="captain[embedding][api_base]"
+                 value="<%= embedding['api_base'] %>"
+                 placeholder="Leave empty to use provider base">
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 mb-8">
+      <h2 class="section-title">Additional Settings</h2>
+      <div class="provider-fields full-width">
+        <div>
+          <div class="field-label">FireCrawl API Key (optional)</div>
+          <input type="password"
+                 class="field-input"
+                 name="captain[firecrawl_api_key]"
+                 value="<%= @firecrawl_key %>"
+                 placeholder="For web scraping in Captain knowledge base">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Save Configuration", class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer" %>
+    </div>
+  <% end %>
+</section>
+
+<% content_for :javascript do %>
+<script>
+function selectPrimaryProvider(provider) {
+  document.getElementById('primary_provider_input').value = provider;
+  document.querySelectorAll('.primary-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.provider === provider);
+  });
+}
+
+function toggleProvider(provider, enabled) {
+  const card = document.getElementById('provider-card-' + provider);
+  card.classList.toggle('disabled', !enabled);
+
+  const fallbackInput = document.getElementById('fallback_order_input');
+  let fallback = fallbackInput.value.split(',').filter(p => p && p !== provider);
+
+  if (enabled && provider !== document.getElementById('primary_provider_input').value) {
+    fallback.push(provider);
+  }
+
+  fallbackInput.value = fallback.join(',');
+  updateFallbackDisplay();
+}
+
+function removeFromFallback(provider) {
+  const fallbackInput = document.getElementById('fallback_order_input');
+  let fallback = fallbackInput.value.split(',').filter(p => p && p !== provider);
+  fallbackInput.value = fallback.join(',');
+  updateFallbackDisplay();
+}
+
+function updateFallbackDisplay() {
+  const container = document.getElementById('fallback-chain');
+  const fallback = document.getElementById('fallback_order_input').value.split(',').filter(p => p);
+
+  container.innerHTML = fallback.map(provider => `
+    <div class="px-3 py-2 bg-slate-100 rounded-lg flex items-center gap-2 fallback-item" data-provider="${provider}">
+      <span>${provider.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+      <button type="button" onclick="removeFromFallback('${provider}')" class="text-slate-400 hover:text-slate-600">&times;</button>
+    </div>
+  `).join('');
+}
+</script>
+<% end %>

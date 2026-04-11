@@ -187,20 +187,25 @@
 # End of Microsoft Email Channel Config
 
 # MARK: Captain Config
-- name: CAPTAIN_HOST
-  display_title: 'API Host / Provider'
-  description: 'Select the API host. OpenRouter proxies all models. Other hosts show only their own models.'
+- name: CAPTAIN_PROVIDERS
+  display_title: 'LLM Providers Configuration'
+  description: 'JSON configuration for LLM providers, fallback chain, and embedding settings.'
   locked: false
+  type: code
+- name: CAPTAIN_HOST
+  display_title: 'API Host / Provider (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS. Select the API host. OpenRouter proxies all models.'
+  locked: true
   type: select
   options:
-    openrouter: "OpenRouter (all models)"
-    openai: "OpenAI"
-    deepseek: "DeepSeek"
-    bigmodel.cn: "BigModel.cn (Z.AI)"
+    openrouter: 'OpenRouter (all models)'
+    openai: 'OpenAI'
+    deepseek: 'DeepSeek'
+    bigmodel.cn: 'BigModel.cn (Z.AI)'
 - name: CAPTAIN_OPEN_AI_API_KEY
-  display_title: 'OpenAI API Key'
-  description: 'The API key used to authenticate requests to OpenAI services for Captain AI.'
-  locked: false
+  display_title: 'OpenAI API Key (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
   type: secret
 - name: CAPTAIN_OPEN_AI_MODEL
   display_title: 'Default Captain Model'
@@ -209,119 +214,111 @@
   type: select
   options:
     gpt-4.1:
-      label: "GPT-4.1 — Flagship OpenAI, max quality"
+      label: 'GPT-4.1 — Flagship OpenAI, max quality'
       hosts: [openai, openrouter]
     gpt-4.1-mini:
-      label: "GPT-4.1 Mini — Best price/quality balance"
+      label: 'GPT-4.1 Mini — Best price/quality balance'
       hosts: [openai, openrouter]
     gpt-4.1-nano:
-      label: "GPT-4.1 Nano — Fastest and cheapest"
+      label: 'GPT-4.1 Nano — Fastest and cheapest'
       hosts: [openai, openrouter]
     gpt-5.1:
-      label: "GPT-5.1 — Latest OpenAI flagship"
+      label: 'GPT-5.1 — Latest OpenAI flagship'
       hosts: [openai, openrouter]
     gpt-5-mini:
-      label: "GPT-5 Mini — Fast and smart"
+      label: 'GPT-5 Mini — Fast and smart'
       hosts: [openai, openrouter]
     gpt-5-nano:
-      label: "GPT-5 Nano — Ultra-fast"
+      label: 'GPT-5 Nano — Ultra-fast'
       hosts: [openai, openrouter]
     gpt-5.2:
-      label: "GPT-5.2 — Latest GPT-5"
+      label: 'GPT-5.2 — Latest GPT-5'
       hosts: [openai, openrouter]
     glm-5:
-      label: "GLM-5 — Z.AI flagship (BigModel)"
+      label: 'GLM-5 — Z.AI flagship (BigModel)'
       hosts: [bigmodel.cn, openrouter]
     glm-4.7:
-      label: "GLM-4.7 — Z.AI mid-range"
+      label: 'GLM-4.7 — Z.AI mid-range'
       hosts: [bigmodel.cn, openrouter]
     glm-4.6:
-      label: "GLM-4.6 — Z.AI lightweight"
+      label: 'GLM-4.6 — Z.AI lightweight'
       hosts: [bigmodel.cn, openrouter]
     google/gemma-4-26b-a4b-it:
-      label: "Gemma 4 26B — Google open-source"
+      label: 'Gemma 4 26B — Google open-source'
       hosts: [openrouter]
     deepseek/deepseek-v3.2:
-      label: "DeepSeek V3.2 — via OpenRouter"
+      label: 'DeepSeek V3.2 — via OpenRouter'
       hosts: [openrouter]
     deepseek-chat:
-      label: "DeepSeek Chat — Direct DeepSeek API"
+      label: 'DeepSeek Chat — Direct DeepSeek API'
       hosts: [deepseek]
     deepseek-reasoner:
-      label: "DeepSeek Reasoner — Chain of thought"
+      label: 'DeepSeek Reasoner — Chain of thought'
       hosts: [deepseek]
     qwen/qwen3.6-plus:free:
-      label: "Qwen 3.6 Plus — Free (OpenRouter)"
+      label: 'Qwen 3.6 Plus — Free (OpenRouter)'
       hosts: [openrouter]
 - name: CAPTAIN_OPEN_AI_ENDPOINT
-  display_title: 'OpenAI API Endpoint (optional)'
-  description: >-
-    Base URL for Captain chat/completions (OpenAI-compatible). For OpenRouter use https://openrouter.ai/api/v1
-    (or https://openrouter.ai — /v1 is appended automatically). Embeddings use the same URL unless
-    CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT is set. If OpenRouter returns "No successful provider responses" for embeddings,
-    set CAPTAIN_EMBEDDING_MODEL to a model OpenRouter routes (e.g. text-embedding-ada-002) or point embeddings at direct OpenAI.
-  locked: false
+  display_title: 'OpenAI API Endpoint (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
 - name: CAPTAIN_EMBEDDING_MODEL
-  display_title: 'Embedding Model'
-  description: 'Model for FAQ/document vector search. All models work with 1024 dimensions (pgvector).'
-  locked: false
+  display_title: 'Embedding Model (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
   type: select
   options:
-    baai/bge-m3: "BGE-M3 — Universal, hybrid search (Dense+Sparse), $0.01/1M"
-    perplexity/pplx-embed-v1-0.6b: "PPLX-v1 (0.6B) — Late Chunking, long docs, $0.02/1M"
-    perplexity/pplx-embed-v1-4b: "PPLX-v1 (4B) — Max intelligence, tech docs, $0.03/1M"
-    qwen/qwen3-embedding-8b: "Qwen3 Embedding 8B — SOTA 2026, ru/zh, $0.07/1M"
-    cohere/embed-multilingual-v4.0: "Cohere Embed v4.0 — Premium, multimodal, $0.10/1M"
-    jinaai/jina-embeddings-v3: "Jina v5 Small — Extremely fast, $0.015/1M"
-    openai/text-embedding-3-small: "OpenAI text-embedding-3-small — Most popular, $0.02/1M"
-    zhipu/embedding-3: "Zhipu Embedding-3 — Chinese flagship, $0.07/1M"
+    baai/bge-m3: 'BGE-M3 — Universal, hybrid search (Dense+Sparse), $0.01/1M'
+    perplexity/pplx-embed-v1-0.6b: 'PPLX-v1 (0.6B) — Late Chunking, long docs, $0.02/1M'
+    perplexity/pplx-embed-v1-4b: 'PPLX-v1 (4B) — Max intelligence, tech docs, $0.03/1M'
+    qwen/qwen3-embedding-8b: 'Qwen3 Embedding 8B — SOTA 2026, ru/zh, $0.07/1M'
+    cohere/embed-multilingual-v4.0: 'Cohere Embed v4.0 — Premium, multimodal, $0.10/1M'
+    jinaai/jina-embeddings-v3: 'Jina v5 Small — Extremely fast, $0.015/1M'
+    openai/text-embedding-3-small: 'OpenAI text-embedding-3-small — Most popular, $0.02/1M'
+    zhipu/embedding-3: 'Zhipu Embedding-3 — Chinese flagship, $0.07/1M'
 - name: CAPTAIN_EMBEDDING_OPEN_AI_API_KEY
-  display_title: 'Captain embeddings API key (optional)'
-  description: >-
-    If set, embedding requests use this key instead of CAPTAIN_OPEN_AI_API_KEY. Use when chat runs on OpenRouter but
-    embeddings should call OpenAI (or another provider) with a different key.
-  locked: false
+  display_title: 'Captain embeddings API key (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
   type: secret
 - name: CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT
-  display_title: 'Captain embeddings API endpoint (optional)'
-  description: >-
-    If set, embedding requests use this base URL instead of CAPTAIN_OPEN_AI_ENDPOINT. Example: https://api.openai.com
-    for direct OpenAI while CAPTAIN_OPEN_AI_ENDPOINT points at OpenRouter.
-  locked: false
+  display_title: 'Captain embeddings API endpoint (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
 - name: CAPTAIN_OPENROUTER_HTTP_REFERER
-  display_title: 'OpenRouter HTTP-Referer (optional)'
-  description: 'Sent on OpenRouter requests when CAPTAIN_OPEN_AI_ENDPOINT is openrouter.ai. Defaults to BRAND_URL or a generic URL.'
-  locked: false
+  display_title: 'OpenRouter HTTP-Referer (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
 - name: CAPTAIN_OPENROUTER_TITLE
-  display_title: 'OpenRouter X-OpenRouter-Title (optional)'
-  description: 'Application title header for OpenRouter. Defaults to INSTALLATION_NAME or Chatwoot.'
-  locked: false
+  display_title: 'OpenRouter X-OpenRouter-Title (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
 - name: CAPTAIN_DEEPSEEK_API_KEY
-  display_title: 'DeepSeek API Key'
-  description: 'The API key for DeepSeek services in Captain AI.'
-  locked: false
+  display_title: 'DeepSeek API Key (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
   type: secret
 - name: CAPTAIN_DEEPSEEK_ENDPOINT
-  display_title: 'DeepSeek API Endpoint (optional)'
-  description: 'The DeepSeek endpoint for Captain AI. Default: https://api.deepseek.com/'
-  locked: false
+  display_title: 'DeepSeek API Endpoint (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
 - name: CAPTAIN_QWEN_API_KEY
-  display_title: 'Qwen API Key'
-  description: 'The API key for Qwen services in Captain AI.'
-  locked: false
+  display_title: 'Qwen API Key (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
   type: secret
 - name: CAPTAIN_QWEN_ENDPOINT
-  display_title: 'Qwen API Endpoint (optional)'
-  description: 'The Qwen endpoint for Captain AI. Default: https://dashscope.aliyuncs.com/compatible-mode/'
-  locked: false
+  display_title: 'Qwen API Endpoint (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
 - name: CAPTAIN_OLLAMA_ENDPOINT
-  display_title: 'Ollama API Endpoint'
-  description: 'The Ollama endpoint for embedding. Example: http://localhost:11434'
-  locked: false
+  display_title: 'Ollama API Endpoint (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
 - name: CAPTAIN_OLLAMA_API_KEY
-  display_title: 'Ollama API Key (optional)'
-  description: 'The API key for Ollama, if your instance requires authentication'
-  locked: false
+  display_title: 'Ollama API Key (Deprecated)'
+  description: 'Deprecated: Managed via CAPTAIN_PROVIDERS.'
+  locked: true
   type: secret
 - name: CAPTAIN_CONTEXT_GENERATION_MODEL
   display_title: 'Context Generation Model (optional)'

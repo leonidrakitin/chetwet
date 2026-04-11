@@ -29,8 +29,6 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def generate_response(message_history: [])
-    Llm::Config.initialize!
-
     message_to_process, context = run_payload(message_history)
     Rails.logger.info(
       '[Captain DEBUG TMP] AgentRunnerService#generate_response start ' \

@@ -75,6 +75,29 @@ const getCreditLabel = model => {
   });
 };
 
+const groupedModels = computed(() => {
+  const groups = {};
+  availableModels.value.forEach(model => {
+    const provider = model.provider;
+    if (!groups[provider]) {
+      groups[provider] = [];
+    }
+    groups[provider].push(model);
+  });
+  return groups;
+});
+
+const providerNames = {
+  openai: 'OpenAI',
+  openrouter: 'OpenRouter',
+  anthropic: 'Anthropic',
+  gemini: 'Google',
+  deepseek: 'DeepSeek',
+  qwen: 'Qwen',
+  zai: 'Z.AI',
+  ollama: 'Ollama',
+};
+
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value;
 };
@@ -119,39 +142,49 @@ const selectModel = model => {
       v-if="isOpen"
       class="absolute right-0 top-full mt-1 min-w-64 z-50 max-h-96 [&>ul]:max-h-96 [&>ul]:overflow-y-scroll"
     >
-      <DropdownItem
-        v-for="model in availableModels"
-        :key="model.id"
-        :click="() => selectModel(model)"
-        class="rounded-lg dark:hover:bg-n-solid-3 hover:bg-n-alpha-1"
-        :class="{
-          'dark:bg-n-solid-3 bg-n-alpha-1': selectedModelId === model.id,
-          'pointer-events-none opacity-60': model.coming_soon,
-        }"
-      >
-        <div class="flex gap-2 w-full">
-          <Icon :icon="iconForModel(model)" class="size-4 flex-shrink-0" />
-          <div class="flex flex-col w-full text-left gap-1">
-            <div
-              class="text-sm w-full font-medium leading-none text-n-slate-12 flex items-baseline justify-between"
-            >
-              {{ model.display_name }}
-              <span
-                v-if="model.id === recommendedModelId"
-                class="text-[10px] uppercase text-n-iris-11 border border-1 border-n-iris-10 leading-none rounded-lg px-1 py-0.5"
+      <template v-for="(models, provider) in groupedModels" :key="provider">
+        <div
+          class="px-3 py-1.5 text-xs font-semibold text-n-slate-11 uppercase tracking-wide bg-n-slate-2 dark:bg-n-solid-3 sticky top-0"
+        >
+          {{ providerNames[provider] || provider }}
+        </div>
+        <DropdownItem
+          v-for="model in models"
+          :key="model.id"
+          :click="() => selectModel(model)"
+          class="rounded-lg dark:hover:bg-n-solid-3 hover:bg-n-alpha-1"
+          :class="{
+            'dark:bg-n-solid-3 bg-n-alpha-1': selectedModelId === model.id,
+            'pointer-events-none opacity-60': model.coming_soon,
+          }"
+        >
+          <div class="flex gap-2 w-full">
+            <Icon :icon="iconForModel(model)" class="size-4 flex-shrink-0" />
+            <div class="flex flex-col w-full text-left gap-1">
+              <div
+                class="text-sm w-full font-medium leading-none text-n-slate-12 flex items-baseline justify-between"
               >
-                {{ t('GENERAL.PREFERRED') }}
+                {{ model.display_name }}
+                <span
+                  v-if="model.id === recommendedModelId"
+                  class="text-[10px] uppercase text-n-iris-11 border border-1 border-n-iris-10 leading-none rounded-lg px-1 py-0.5"
+                >
+                  {{ t('GENERAL.PREFERRED') }}
+                </span>
+              </div>
+              <span v-if="model.coming_soon" class="text-xs text-n-slate-11">
+                {{ t('CAPTAIN_SETTINGS.MODEL_CONFIG.COMING_SOON') }}
+              </span>
+              <span
+                v-else-if="isOnChatwootCloud"
+                class="text-xs text-n-slate-11"
+              >
+                {{ getCreditLabel(model) }}
               </span>
             </div>
-            <span v-if="model.coming_soon" class="text-xs text-n-slate-11">
-              {{ t('CAPTAIN_SETTINGS.MODEL_CONFIG.COMING_SOON') }}
-            </span>
-            <span v-else-if="isOnChatwootCloud" class="text-xs text-n-slate-11">
-              {{ getCreditLabel(model) }}
-            </span>
           </div>
-        </div>
-      </DropdownItem>
+        </DropdownItem>
+      </template>
     </DropdownBody>
   </div>
 </template>

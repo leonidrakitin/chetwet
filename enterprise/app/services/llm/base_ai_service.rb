@@ -7,13 +7,12 @@ class Llm::BaseAiService
   attr_reader :model, :temperature
 
   def initialize
-    Llm::Config.initialize!
     setup_model
     setup_temperature
   end
 
   def chat(model: @model, temperature: @temperature)
-    provider = Llm::Config.current_provider
+    provider = Llm::Config.primary_provider
     RubyLLM.chat(model: model, provider: provider, assume_model_exists: true).with_temperature(temperature)
   end
 
@@ -28,7 +27,7 @@ class Llm::BaseAiService
       message: message,
       feature: feature || feature_name,
       model: @model,
-      provider: Llm::Config.current_provider
+      provider: Llm::Config.primary_provider
     ).track(usage_data)
   end
 

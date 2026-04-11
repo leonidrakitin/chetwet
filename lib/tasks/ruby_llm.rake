@@ -3,8 +3,6 @@
 namespace :ruby_llm do
   desc 'Refresh model registry from configured providers and save to storage/ruby_llm_models.json'
   task refresh_models: :environment do
-    Llm::Config.initialize!
-
     puts 'Refreshing models from configured providers...'
     RubyLLM.models.refresh!
 

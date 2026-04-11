@@ -39,18 +39,7 @@ module Enterprise::SuperAdmin::AppConfigsController
   end
 
   def captain_config_options
-    %w[
-      CAPTAIN_HOST
-      CAPTAIN_OPEN_AI_API_KEY
-      CAPTAIN_OPEN_AI_MODEL
-      CAPTAIN_OPEN_AI_ENDPOINT
-      CAPTAIN_EMBEDDING_MODEL
-      CAPTAIN_EMBEDDING_OPEN_AI_API_KEY
-      CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT
-      CAPTAIN_OPENROUTER_HTTP_REFERER
-      CAPTAIN_OPENROUTER_TITLE
-      CAPTAIN_FIRECRAWL_API_KEY
-    ]
+    %w[CAPTAIN_PROVIDERS CAPTAIN_FIRECRAWL_API_KEY]
   end
 
   def saml_config_options

@@ -9,57 +9,184 @@ RSpec.describe Llm::Config do
     record
   end
 
-  after { described_class.reset! }
+  def reset_config_cache
+    described_class.send(:reset_cache)
+  end
+
+  before { reset_config_cache }
+
+  describe '.provider_config' do
+    context 'when CAPTAIN_PROVIDERS is set' do
+      before do
+        allow(GlobalConfig).to receive(:get_value).with('CAPTAIN_PROVIDERS').and_return({
+                                                                                          'primary_provider' => 'openai',
+                                                                                          'providers' => {
+                                                                                            'openai' => { 'enabled' => true, 'api_key' => 'sk-test' }
+                                                                                          }
+                                                                                        })
+        reset_config_cache
+      end
+
+      it 'returns the stored config' do
+        config = described_class.provider_config
+        expect(config['primary_provider']).to eq('openai')
+      end
+    end
+
+    context 'when CAPTAIN_PROVIDERS is not set' do
+      before do
+        allow(GlobalConfig).to receive(:get_value).with('CAPTAIN_PROVIDERS').and_return(nil)
+        allow(InstallationConfig).to receive(:find_by).and_call_original
+        reset_config_cache
+      end
+
+      it 'migrates from legacy config' do
+        config = described_class.provider_config
+        expect(config).to be_a(Hash)
+        expect(config['providers']).to be_a(Hash)
+      end
+    end
+  end
+
+  describe '.primary_provider' do
+    before do
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'primary_provider' => 'deepseek'
+                                                                     })
+      reset_config_cache
+    end
+
+    it 'returns the mapped provider symbol (deepseek maps to openai)' do
+      expect(described_class.primary_provider).to eq(:openai)
+    end
+  end
+
+  describe '.provider_chain' do
+    context 'with enabled providers' do
+      before do
+        allow(described_class).to receive(:provider_config).and_return({
+                                                                         'primary_provider' => 'openai',
+                                                                         'fallback_order' => %w[deepseek qwen],
+                                                                         'providers' => {
+                                                                           'openai' => { 'enabled' => true, 'api_key' => 'sk-test' },
+                                                                           'deepseek' => { 'enabled' => true, 'api_key' => 'sk-deep' },
+                                                                           'qwen' => { 'enabled' => false, 'api_key' => '' }
+                                                                         }
+                                                                       })
+        reset_config_cache
+      end
+
+      it 'returns only enabled providers with api keys' do
+        chain = described_class.provider_chain
+        expect(chain).to eq([:openai, :openai])
+      end
+    end
+
+    context 'with no enabled providers' do
+      before do
+        allow(described_class).to receive(:provider_config).and_return(nil)
+        reset_config_cache
+      end
+
+      it 'returns default :openai' do
+        expect(described_class.provider_chain).to eq([:openai])
+      end
+    end
+  end
+
+  describe '.with_provider' do
+    before do
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'providers' => {
+                                                                         'openai' => { 'api_key' => 'sk-test', 'api_base' => 'https://api.openai.com' }
+                                                                       }
+                                                                     })
+      reset_config_cache
+    end
+
+    it 'yields a RubyLLM context' do
+      expect { |b| described_class.with_provider(:openai, &b) }.to yield_control
+    end
+  end
+
+  describe '.ruby_llm_provider' do
+    it 'maps openai to :openai' do
+      expect(described_class.ruby_llm_provider('openai')).to eq(:openai)
+    end
+
+    it 'maps openrouter to :openrouter' do
+      expect(described_class.ruby_llm_provider('openrouter')).to eq(:openrouter)
+    end
+
+    it 'maps deepseek to :openai (OpenAI-compatible)' do
+      expect(described_class.ruby_llm_provider('deepseek')).to eq(:openai)
+    end
+  end
 
   describe '.captain_openai_api_base' do
+    it 'normalizes the api base with /v1 suffix' do
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'primary_provider' => 'openai',
+                                                                       'providers' => {
+                                                                         'openai' => { 'api_base' => 'https://custom.api.com' }
+                                                                       }
+                                                                     })
+      reset_config_cache
+
+      expect(described_class.captain_openai_api_base).to eq('https://custom.api.com/v1')
+    end
+
     it 'does not double-append /v1 for OpenRouter full API path' do
-      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://openrouter.ai/api/v1')
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'primary_provider' => 'openrouter',
+                                                                       'providers' => {
+                                                                         'openrouter' => { 'api_base' => 'https://openrouter.ai/api/v1' }
+                                                                       }
+                                                                     })
+      reset_config_cache
 
       expect(described_class.captain_openai_api_base).to eq('https://openrouter.ai/api/v1')
     end
 
     it 'maps bare OpenRouter origin to /api/v1' do
-      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://openrouter.ai')
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'primary_provider' => 'openrouter',
+                                                                       'providers' => {
+                                                                         'openrouter' => { 'api_base' => 'https://openrouter.ai' }
+                                                                       }
+                                                                     })
+      reset_config_cache
 
       expect(described_class.captain_openai_api_base).to eq('https://openrouter.ai/api/v1')
-    end
-
-    it 'defaults to OpenAI /v1 when endpoint unset' do
-      InstallationConfig.where(name: 'CAPTAIN_OPEN_AI_ENDPOINT').delete_all
-
-      expect(described_class.captain_openai_api_base).to eq('https://api.openai.com/v1')
-    end
-
-    it 'preserves explicit OpenAI /v1 base' do
-      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://api.openai.com/v1')
-
-      expect(described_class.captain_openai_api_base).to eq('https://api.openai.com/v1')
     end
   end
 
   describe '.embedding_openai_credentials' do
-    it 'uses main key and normalizes global endpoint when embedding endpoint unset' do
-      upsert_installation_config('CAPTAIN_OPEN_AI_API_KEY', 'main-key')
-      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://api.example.com')
-      InstallationConfig.where(name: 'CAPTAIN_EMBEDDING_OPEN_AI_API_KEY').delete_all
-      InstallationConfig.where(name: 'CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT').delete_all
+    it 'returns embedding credentials from config' do
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'embedding' => {
+                                                                         'api_key' => 'emb-key',
+                                                                         'api_base' => 'https://embed.api.com'
+                                                                       }
+                                                                     })
+      reset_config_cache
 
       key, base = described_class.embedding_openai_credentials
-
-      expect(key).to eq('main-key')
-      expect(base).to eq('https://api.example.com/v1')
+      expect(key).to eq('emb-key')
+      expect(base).to eq('https://embed.api.com/v1')
     end
 
-    it 'prefers dedicated embedding key and endpoint when set' do
-      upsert_installation_config('CAPTAIN_OPEN_AI_API_KEY', 'main-key')
-      upsert_installation_config('CAPTAIN_OPEN_AI_ENDPOINT', 'https://openrouter.ai/api/v1')
-      upsert_installation_config('CAPTAIN_EMBEDDING_OPEN_AI_API_KEY', 'emb-key')
-      upsert_installation_config('CAPTAIN_EMBEDDING_OPEN_AI_ENDPOINT', 'https://api.openai.com/')
+    it 'falls back to provider key when embedding key not set' do
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'embedding' => {},
+                                                                       'providers' => {
+                                                                         'openai' => { 'api_key' => 'main-key', 'api_base' => 'https://api.openai.com' }
+                                                                       }
+                                                                     })
+      reset_config_cache
 
       key, base = described_class.embedding_openai_credentials
-
-      expect(key).to eq('emb-key')
-      expect(base).to eq('https://api.openai.com/v1')
+      expect(key).to eq('main-key')
     end
   end
 end

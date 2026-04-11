@@ -1,3 +1,39 @@
+# == Schema Information
+#
+# Table name: llm_usages
+#
+#  id                    :bigint           not null, primary key
+#  cache_creation_tokens :integer
+#  cache_read_tokens     :integer
+#  completion_tokens     :integer          default(0), not null
+#  cost_usd              :decimal(10, 6)   default(0.0), not null
+#  feature               :string           not null
+#  metadata              :jsonb
+#  model                 :string           not null
+#  prompt_tokens         :integer          default(0), not null
+#  provider              :string           not null
+#  total_tokens          :integer          default(0), not null
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  account_id            :bigint           not null
+#  conversation_id       :bigint
+#  message_id            :bigint
+#
+# Indexes
+#
+#  index_llm_usages_on_account_id                      (account_id)
+#  index_llm_usages_on_account_id_and_created_at       (account_id,created_at)
+#  index_llm_usages_on_account_id_and_feature          (account_id,feature)
+#  index_llm_usages_on_conversation_id                 (conversation_id)
+#  index_llm_usages_on_conversation_id_and_created_at  (conversation_id,created_at)
+#  index_llm_usages_on_message_id                      (message_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (account_id => accounts.id)
+#  fk_rails_...  (conversation_id => conversations.id)
+#  fk_rails_...  (message_id => messages.id)
+#
 class LlmUsage < ApplicationRecord
   belongs_to :account
   belongs_to :conversation, optional: true

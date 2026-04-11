@@ -2,17 +2,9 @@ class Captain::BaseTaskService
   include Integrations::LlmInstrumentation
   include Captain::ToolInstrumentation
 
-  # gpt-4o-mini supports 128,000 tokens
-  # 1 token is approx 4 characters
-  # sticking with 120000 to be safe
-  # 120000 * 4 = 480,000 characters (rounding off downwards to 400,000 to be safe)
   TOKEN_LIMIT = 400_000
   GPT_MODEL = Llm::Config::DEFAULT_MODEL
 
-  # Prepend enterprise module to subclasses when they're defined.
-  # This ensures the enterprise perform wrapper is applied even when
-  # subclasses define their own perform method, since prepend puts
-  # the module before the class in the ancestor chain.
   def self.inherited(subclass)
     super
     subclass.prepend_mod_with('Captain::BaseTaskService')
@@ -35,8 +27,6 @@ class Captain::BaseTaskService
   end
 
   def make_api_call(model:, messages:, schema: nil, tools: [])
-    # Community edition prerequisite checks
-    # Enterprise module handles these with more specific error messages (cloud vs self-hosted)
     return { error: I18n.t('captain.disabled'), error_code: 403 } unless captain_tasks_enabled?
     return { error: I18n.t('captain.api_key_missing'), error_code: 401 } unless api_key_configured?
 
@@ -53,8 +43,8 @@ class Captain::BaseTaskService
   end
 
   def execute_ruby_llm_request(model:, messages:, schema: nil, tools: [])
-    Llm::Config.with_api_key(api_key, api_base: api_base) do |context|
-      chat = build_chat(context, model: model, messages: messages, schema: schema, tools: tools)
+    Llm::FallbackExecutor.execute do |context, provider_key|
+      chat = build_chat(context, model: model, messages: messages, schema: schema, tools: tools, provider: provider_key)
 
       conversation_messages = messages.reject { |m| m[:role] == 'system' }
       return { error: 'No conversation messages provided', error_code: 400, request_messages: messages } if conversation_messages.empty?
@@ -62,13 +52,16 @@ class Captain::BaseTaskService
       add_messages_if_needed(chat, conversation_messages)
       build_ruby_llm_response(chat.ask(conversation_messages.last[:content]), messages)
     end
+  rescue Llm::FallbackExecutor::AllProvidersFailedError => e
+    ChatwootExceptionTracker.new(e, account: account).capture_exception
+    { error: e.message, request_messages: messages }
   rescue StandardError => e
     ChatwootExceptionTracker.new(e, account: account).capture_exception
     { error: e.message, request_messages: messages }
   end
 
-  def build_chat(context, model:, messages:, schema: nil, tools: [])
-    provider = Llm::Config.current_provider
+  def build_chat(context, model:, messages:, schema: nil, tools: [], provider: nil)
+    provider ||= Llm::Config.primary_provider
     chat = context.chat(model: model, provider: provider, assume_model_exists: true)
     system_msg = messages.find { |m| m[:role] == 'system' }
     chat.with_instructions(system_msg[:content]) if system_msg
@@ -158,16 +151,16 @@ class Captain::BaseTaskService
   end
 
   def system_api_key
-    @system_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+    cfg = Llm::Config.provider_config
+    primary = cfg&.dig('primary_provider') || 'openai'
+    cfg&.dig('providers', primary, 'api_key')
   end
 
   def prompt_from_file(file_name)
     Rails.root.join('lib/integrations/openai/openai_prompts', "#{file_name}.liquid").read
   end
 
-  # Follow-up context for client-side refinement
   def build_follow_up_context?
-    # FollowUpService should return its own updated context
     !is_a?(Captain::FollowUpService)
   end
 
@@ -182,7 +175,6 @@ class Captain::BaseTaskService
   end
 
   def extract_original_context(messages)
-    # Get the most recent user message for follow-up context
     user_msg = messages.reverse.find { |m| m[:role] == 'user' }
     user_msg ? user_msg[:content] : nil
   end

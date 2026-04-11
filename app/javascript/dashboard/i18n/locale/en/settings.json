@@ -445,7 +445,13 @@
     },
     "MANAGED_IN_SUPER_ADMIN": {
       "TITLE": "Account-level configuration",
-      "DESCRIPTION": "Default AI models for editor, assistant, and co-pilot are set in Super Admin under Accounts → your account → Edit (Captain AI model configuration). You can adjust the message buffer for each assistant next to response temperature in that assistant’s settings."
+      "DESCRIPTION": "Default AI models for editor, assistant, and co-pilot are set in Super Admin under Accounts → your account → Edit (Captain AI model configuration). You can adjust the message buffer for each assistant next to response temperature in that assistant's settings."
+    },
+    "PROVIDER_STATUS": {
+      "TITLE": "Enabled Providers",
+      "DESCRIPTION": "LLM providers configured for this installation. Primary provider is highlighted.",
+      "NO_PROVIDERS": "No providers configured. Contact your administrator.",
+      "PRIMARY": "(Primary)"
     },
     "FEATURES": {
       "TITLE": "Features",

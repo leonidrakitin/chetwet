@@ -1,10 +1,6 @@
 class Internal::AccountAnalysis::ContentEvaluatorService
   include Integrations::LlmInstrumentation
 
-  def initialize
-    Llm::Config.initialize!
-  end
-
   def evaluate(content)
     return default_evaluation if content.blank?
 

@@ -7,7 +7,6 @@ class Captain::Llm::EmbeddingService
   EMBEDDING_RETRY_DELAY = 0.25
 
   def initialize(account_id: nil)
-    Llm::Config.initialize!
     @account_id = account_id
     @embedding_model = InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_MODEL')&.value.presence || LlmConstants::DEFAULT_EMBEDDING_MODEL
   end
@@ -30,8 +29,7 @@ class Captain::Llm::EmbeddingService
   private
 
   def embed_with_retry(content, model)
-    provider = Llm::Config.current_provider
-    context = build_embedding_context(provider)
+    context, provider, _embedding_model = Llm::Config.embedding_context
 
     attempts = 0
     begin
@@ -44,18 +42,6 @@ class Captain::Llm::EmbeddingService
       Rails.logger.warn("[Captain][EmbeddingService] transient error, retrying (#{attempts}/#{EMBEDDING_MAX_RETRIES}): #{e.message}")
       sleep(EMBEDDING_RETRY_DELAY * attempts)
       retry
-    end
-  end
-
-  def build_embedding_context(provider)
-    key, base = Llm::Config.embedding_openai_credentials
-    RubyLLM.context do |config|
-      if provider == :openrouter
-        config.openrouter_api_key = key
-      else
-        config.openai_api_key = key
-        config.openai_api_base = base
-      end
     end
   end
 

@@ -63,5 +63,30 @@ module Llm::Models
       end
       cfg.merge(models: filtered)
     end
+
+    def available_models(provider_config: nil)
+      return models if provider_config.blank?
+
+      providers_hash = provider_config['providers'] || {}
+      disabled = provider_config['disabled_models'] || []
+
+      enabled_providers = providers_hash.select { |_, v| v.is_a?(Hash) && v['enabled'] == true }.keys
+
+      models.select do |model_id, cfg|
+        next false if disabled.include?(model_id.to_s)
+
+        model_provider = cfg['provider']
+        model_hosts = cfg['hosts']
+
+        next true if model_hosts.nil?
+        next true if model_hosts.any? { |h| enabled_providers.include?(h) }
+
+        enabled_providers.include?(model_provider)
+      end
+    end
+
+    def ruby_llm_provider_for(chatwoot_provider)
+      Llm::Config.ruby_llm_provider(chatwoot_provider)
+    end
   end
 end
