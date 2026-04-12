@@ -62,7 +62,30 @@ module Captain::Assistant::AutonomyPolicyHelper
     return false if output.blank?
 
     response_text = output.is_a?(Hash) ? (output['response'] || output[:response]).to_s : output.to_s
+
+    if strict_knowledge_mode?
+      faq_policy = extract_faq_policy(result)
+      if faq_policy == 'no_match' && response_text != 'conversation_handoff'
+        Rails.logger.info(
+          '[Captain] AutonomyPolicy: rejecting answer - no_match policy ' \
+          "in #{@assistant.knowledge_mode} mode"
+        )
+        return false
+      end
+    end
+
     response_text.present?
+  end
+
+  def strict_knowledge_mode?
+    %w[strict ultra_strict].include?(@assistant.knowledge_mode)
+  end
+
+  def extract_faq_policy(result)
+    return nil unless result.respond_to?(:context)
+
+    last_lookup = result.context&.dig(:state, :orchestration, :last_faq_lookup)
+    last_lookup&.dig(:policy) if last_lookup.is_a?(Hash)
   end
 
   def log_captain_debug_tmp_run_outcome(result, label:)

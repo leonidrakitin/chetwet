@@ -651,6 +651,15 @@
           "EMPTY_STATE": "No operators found with connected Telegram",
           "HELP": "Only operators with a connected Telegram are listed here."
         },
+        "KNOWLEDGE_MODE": {
+          "LABEL": "Knowledge Strictness",
+          "DESCRIPTION": "Controls how strictly the assistant relies on the knowledge base. Stricter modes require higher confidence matches before answering.",
+          "OPTIONS": {
+            "BALANCED": "Balanced — moderate confidence required (default)",
+            "STRICT": "Strict — high confidence required, escalate if unsure",
+            "ULTRA_STRICT": "Ultra Strict — very high confidence only"
+          }
+        },
         "TONE": {
           "LABEL": "Response Tone",
           "OPTIONS": {

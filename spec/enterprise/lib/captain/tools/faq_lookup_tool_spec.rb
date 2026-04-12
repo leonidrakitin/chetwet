@@ -7,10 +7,8 @@ RSpec.describe Captain::Tools::FaqLookupTool, type: :model do
   let(:tool_context) { Struct.new(:state).new({}) }
 
   before do
-    # Create installation config for OpenAI API key to avoid errors
     create(:installation_config, name: 'CAPTAIN_OPEN_AI_API_KEY', value: 'test-key')
 
-    # Mock embedding service to avoid actual API calls
     embedding_service = instance_double(Captain::Llm::EmbeddingService)
     allow(Captain::Llm::EmbeddingService).to receive(:new).and_return(embedding_service)
     allow(embedding_service).to receive(:get_embedding).and_return(Array.new(1024, 0.1))
@@ -32,124 +30,143 @@ RSpec.describe Captain::Tools::FaqLookupTool, type: :model do
   end
 
   describe '#perform' do
-    context 'when FAQs exist' do
-      let(:document) { create(:captain_document, assistant: assistant) }
-      let!(:response1) do
-        create(:captain_assistant_response,
-               assistant: assistant,
-               question: 'How to reset password?',
-               answer: 'Click on forgot password link',
-               documentable: document,
-               status: 'approved')
-      end
-      let!(:response2) do
-        create(:captain_assistant_response,
-               assistant: assistant,
-               question: 'How to change email?',
-               answer: 'Go to settings and update email',
-               status: 'approved')
-      end
-
+    context 'when FAQs exist with high confidence' do
       before do
-        # Mock nearest_neighbors to return our test responses
-        allow(Captain::AssistantResponse).to receive(:nearest_neighbors).and_return(
-          Captain::AssistantResponse.where(id: [response1.id, response2.id])
+        mock_search_result = instance_double(Captain::Knowledge::SearchResult)
+        allow(mock_search_result).to receive(:confidence).and_return(0.85)
+        allow(mock_search_result).to receive(:content).and_return(
+          "\nQuestion: How to reset password?\nAnswer: Click on forgot password link\n"
         )
+        allow(mock_search_result).to receive(:source_link).and_return(nil)
+        allow(mock_search_result).to receive(:requires_operator?).and_return(false)
+
+        search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
+        allow(Captain::Knowledge::UnifiedSearchService).to receive(:new).and_return(search_service)
+        allow(search_service).to receive(:search).and_return([mock_search_result])
       end
 
-      it 'searches FAQs and returns formatted responses' do
+      it 'searches FAQs and returns policy answer with answer_draft' do
         result = tool.perform(tool_context, query: 'password reset')
 
-        expect(result).to include('Question: How to reset password?')
-        expect(result).to include('Answer: Click on forgot password link')
-        expect(result).to include('Question: How to change email?')
-        expect(result).to include('Answer: Go to settings and update email')
-      end
-
-      it 'includes source link when document has external_link' do
-        document.update!(external_link: 'https://help.example.com/password')
-
-        result = tool.perform(tool_context, query: 'password')
-
-        expect(result).to include('Source: https://help.example.com/password')
+        expect(result).to be_a(Hash)
+        expect(result[:policy]).to eq('answer')
+        expect(result[:confidence]).to eq(0.85)
+        expect(result[:answer_draft]).to include('Question: How to reset password?')
+        expect(result[:answer_draft]).to include('Answer: Click on forgot password link')
       end
 
       it 'logs tool usage for search' do
         expect(tool).to receive(:log_tool_usage).with('searching', { query: 'password reset' })
-        expect(tool).to receive(:log_tool_usage).with('found_results', { query: 'password reset', count: 2 })
 
         tool.perform(tool_context, query: 'password reset')
       end
     end
 
+    context 'when FAQs exist with source link' do
+      before do
+        mock_search_result = instance_double(Captain::Knowledge::SearchResult)
+        allow(mock_search_result).to receive(:confidence).and_return(0.85)
+        allow(mock_search_result).to receive(:content).and_return(
+          "\nQuestion: How to reset password?\nAnswer: Click on forgot password link\n"
+        )
+        allow(mock_search_result).to receive(:source_link).and_return('https://help.example.com/password')
+        allow(mock_search_result).to receive(:requires_operator?).and_return(false)
+
+        search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
+        allow(Captain::Knowledge::UnifiedSearchService).to receive(:new).and_return(search_service)
+        allow(search_service).to receive(:search).and_return([mock_search_result])
+      end
+
+      it 'includes source link in sources' do
+        result = tool.perform(tool_context, query: 'password')
+
+        expect(result[:sources]).to include('https://help.example.com/password')
+      end
+    end
+
     context 'when no FAQs found' do
       before do
-        # Return empty result set
-        allow(Captain::AssistantResponse).to receive(:nearest_neighbors).and_return(Captain::AssistantResponse.none)
+        search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
+        allow(Captain::Knowledge::UnifiedSearchService).to receive(:new).with(assistant: assistant).and_return(search_service)
+        allow(search_service).to receive(:search).with('nonexistent topic').and_return([])
       end
 
-      it 'returns no results message' do
+      it 'returns no_match policy' do
         result = tool.perform(tool_context, query: 'nonexistent topic')
-        expect(result).to eq('No relevant FAQs found for: nonexistent topic')
+
+        expect(result).to be_a(Hash)
+        expect(result[:policy]).to eq('no_match')
+        expect(result[:confidence]).to eq(0.0)
+        expect(result[:answer_draft]).to be_nil
       end
 
-      it 'logs tool usage for no results' do
+      it 'logs tool usage for search' do
         expect(tool).to receive(:log_tool_usage).with('searching', { query: 'nonexistent topic' })
-        expect(tool).to receive(:log_tool_usage).with('no_results', { query: 'nonexistent topic' })
 
         tool.perform(tool_context, query: 'nonexistent topic')
       end
     end
 
     context 'with blank query' do
-      it 'handles empty query' do
-        # Return empty result set
-        allow(Captain::AssistantResponse).to receive(:nearest_neighbors).and_return(Captain::AssistantResponse.none)
+      before do
+        search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
+        allow(Captain::Knowledge::UnifiedSearchService).to receive(:new).with(assistant: assistant).and_return(search_service)
+        allow(search_service).to receive(:search).with('').and_return([])
+      end
 
+      it 'returns no_match policy' do
         result = tool.perform(tool_context, query: '')
-        expect(result).to eq('No relevant FAQs found for: ')
+
+        expect(result[:policy]).to eq('no_match')
       end
     end
 
-    context 'when chunk retrieval mode is enabled for assistant' do
-      let(:document) do
-        create(
-          :captain_document,
-          assistant: assistant,
-          account: account,
-          chunking_status: :ready,
-          status: :available,
-          external_link: 'https://help.example.com/pricing',
-          name: 'Pricing'
-        )
-      end
-      let(:chunk) do
-        create(
-          :captain_document_chunk,
-          document: document,
-          assistant: assistant,
-          account: account,
-          content: 'Business plan starts at $19.',
-          context: 'Pricing page details'
-        )
-      end
-      let(:chunk_search_service) { instance_double(Captain::Documents::HybridChunkSearchService) }
-
+    context 'when FAQ requires operator clarification' do
       before do
-        assistant.update!(config: (assistant.config || {}).merge('feature_document_faq_generation' => false))
-        InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_DOCUMENT_CHUNKING_ENABLED').update!(value: 'true')
-        allow(Captain::Documents::HybridChunkSearchService).to receive(:new).with(assistant: assistant).and_return(chunk_search_service)
-        allow(chunk_search_service).to receive(:search).with('pricing').and_return([chunk])
-        allow(Captain::AssistantResponse).to receive(:nearest_neighbors).and_return(Captain::AssistantResponse.none)
+        mock_search_result = instance_double(Captain::Knowledge::SearchResult)
+        allow(mock_search_result).to receive(:confidence).and_return(0.85)
+        allow(mock_search_result).to receive(:content).and_return(
+          "\nQuestion: How to cancel subscription?\nAnswer: Contact support\n[REQUIRES_OPERATOR_CLARIFICATION]\n"
+        )
+        allow(mock_search_result).to receive(:source_link).and_return(nil)
+        allow(mock_search_result).to receive(:requires_operator?).and_return(true)
+
+        search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
+        allow(Captain::Knowledge::UnifiedSearchService).to receive(:new).and_return(search_service)
+        allow(search_service).to receive(:search).and_return([mock_search_result])
       end
 
-      it 'returns chunk content for knowledge lookup' do
+      it 'returns escalate policy' do
+        result = tool.perform(tool_context, query: 'cancel')
+
+        expect(result[:policy]).to eq('escalate')
+        expect(result[:requires_operator]).to be true
+      end
+    end
+
+    context 'when chunk results exist' do
+      before do
+        mock_search_result = instance_double(Captain::Knowledge::SearchResult)
+        allow(mock_search_result).to receive(:confidence).and_return(0.75)
+        allow(mock_search_result).to receive(:content).and_return(
+          "\nArticle: Pricing\nContext: Pricing page details\nContent: Business plan starts at $19.\n" \
+          "Source: https://help.example.com/pricing\n"
+        )
+        allow(mock_search_result).to receive(:source_link).and_return('https://help.example.com/pricing')
+        allow(mock_search_result).to receive(:requires_operator?).and_return(false)
+
+        search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
+        allow(Captain::Knowledge::UnifiedSearchService).to receive(:new).and_return(search_service)
+        allow(search_service).to receive(:search).and_return([mock_search_result])
+      end
+
+      it 'returns chunk content in answer_draft' do
         result = tool.perform(tool_context, query: 'pricing')
 
-        expect(result).to include('Article: Pricing')
-        expect(result).to include('Context: Pricing page details')
-        expect(result).to include('Content: Business plan starts at $19.')
-        expect(result).to include('Source: https://help.example.com/pricing')
+        expect(result[:answer_draft]).to include('Article: Pricing')
+        expect(result[:answer_draft]).to include('Context: Pricing page details')
+        expect(result[:answer_draft]).to include('Content: Business plan starts at $19.')
+        expect(result[:sources]).to include('https://help.example.com/pricing')
       end
     end
   end

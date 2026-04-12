@@ -77,6 +77,7 @@ const initialState = {
   instructions: '',
   temperature: 1,
   decisionMakers: [],
+  knowledgeMode: 'balanced',
 };
 
 const state = reactive({ ...initialState });
@@ -107,6 +108,7 @@ const updateStateFromAssistant = assistant => {
   state.instructions = config.instructions ?? '';
   state.temperature = config.temperature || 1;
   state.decisionMakers = config.decision_maker_ids || [];
+  state.knowledgeMode = config.knowledge_mode || 'balanced';
 };
 
 const handleSystemMessagesUpdate = async () => {
@@ -131,6 +133,7 @@ const handleSystemMessagesUpdate = async () => {
       resolution_message: state.resolutionMessage,
       temperature: state.temperature || 1,
       decision_maker_ids: state.decisionMakers,
+      knowledge_mode: state.knowledgeMode,
     },
   };
 
@@ -192,7 +195,7 @@ watch(
       class="z-0"
     />
 
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
       <div class="flex flex-col gap-2">
         <label class="text-sm font-medium text-n-slate-12">
           {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.LABEL') }}
@@ -237,6 +240,31 @@ watch(
         </div>
         <p class="text-sm text-n-slate-11 italic">
           {{ t('CAPTAIN.ASSISTANTS.FORM.MESSAGE_BUFFER.DESCRIPTION') }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.LABEL') }}
+        </label>
+        <select
+          v-model="state.knowledgeMode"
+          class="w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-blue-11 focus:outline-none"
+        >
+          <option value="balanced">
+            {{ t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.OPTIONS.BALANCED') }}
+          </option>
+          <option value="strict">
+            {{ t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.OPTIONS.STRICT') }}
+          </option>
+          <option value="ultra_strict">
+            {{
+              t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.OPTIONS.ULTRA_STRICT')
+            }}
+          </option>
+        </select>
+        <p class="text-sm text-n-slate-11 italic">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.DESCRIPTION') }}
         </p>
       </div>
     </div>

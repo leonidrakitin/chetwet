@@ -42,11 +42,13 @@ class Captain::Assistant < ApplicationRecord
                  :feature_contact_attributes, :product_name,
                  :autonomy_max_retries, :faq_auto_answer_threshold, :faq_suggest_threshold,
                  :autonomy_self_check_enabled, :autonomy_return_to_scenario,
-                 :disabled_built_in_tools
+                 :disabled_built_in_tools,
+                 :knowledge_mode, :knowledge_answer_threshold
 
   validates :name, presence: true
   validates :description, presence: true
   validates :account_id, presence: true
+  validates :knowledge_mode, inclusion: { in: %w[balanced strict ultra_strict], allow_nil: true }
 
   scope :ordered, -> { order(created_at: :desc) }
 
@@ -123,6 +125,7 @@ class Captain::Assistant < ApplicationRecord
       name: name,
       description: description,
       product_name: config['product_name'] || 'this product',
+      knowledge_mode: knowledge_mode,
       scenarios: enabled.map do |scenario|
         { title: scenario.title, key: scenario.handoff_key, description: scenario.description }
       end,
