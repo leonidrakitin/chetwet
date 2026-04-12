@@ -17,6 +17,8 @@ import {
 
 import { useCopilotReply } from 'dashboard/composables/useCopilotReply';
 import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
+import { useAlert } from 'dashboard/composables';
+import { useI18n } from 'vue-i18n';
 
 import ContactSelector from './ContactSelector.vue';
 import InboxSelector from './InboxSelector.vue';
@@ -57,6 +59,7 @@ const emit = defineEmits([
 const DEFAULT_FORMATTING = 'Context::Default';
 
 const copilot = useCopilotReply();
+const { t } = useI18n();
 
 const showContactsDropdown = ref(false);
 const showInboxesDropdown = ref(false);
@@ -342,9 +345,13 @@ const shouldShowMessageEditor = computed(() => {
 
 const isCopilotActive = computed(() => copilot.isActive?.value ?? false);
 
-const onSubmitCopilotReply = () => {
-  const acceptedMessage = copilot.accept();
-  state.message = acceptedMessage;
+const onSubmitCopilotReply = async () => {
+  try {
+    const acceptedMessage = await copilot.accept();
+    state.message = acceptedMessage;
+  } catch (error) {
+    useAlert(t('CONVERSATION.APPROVAL_DRAFT.RESOLUTION_FAILED'));
+  }
 };
 
 useKeyboardEvents({

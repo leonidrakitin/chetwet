@@ -7,8 +7,8 @@ import {
   CAPTAIN_ERROR_TYPES,
   CAPTAIN_GENERATION_FAILURE_REASONS,
 } from 'dashboard/composables/captain/constants';
+import approvalRequestsApi from 'dashboard/api/captain/approvalRequests';
 
-// Actions that map to REWRITE events (with operation attribute)
 const REWRITE_ACTIONS = [
   'improve',
   'fix_spelling_grammar',
@@ -22,33 +22,20 @@ const REWRITE_ACTIONS = [
   'simplify',
 ];
 
-/**
- * Gets the event key suffix based on action type.
- * @param {string} action - The action type
- * @returns {string} The event key prefix (REWRITE, SUMMARIZE, or REPLY_SUGGESTION)
- */
 function getEventPrefix(action) {
   if (action === 'summarize') return 'SUMMARIZE';
   if (action === 'reply_suggestion') return 'REPLY_SUGGESTION';
+  if (action === 'approval_draft') return 'APPROVAL_DRAFT';
   return 'REWRITE';
 }
 
-/**
- * Builds the analytics payload based on action type.
- * @param {string} action - The action type
- * @param {number} conversationId - The conversation ID
- * @param {number} [followUpCount] - Optional follow-up count
- * @returns {Object} The payload object
- */
 function buildPayload(action, conversationId, followUpCount = undefined) {
   const payload = { conversationId };
 
-  // Add operation for rewrite actions
   if (REWRITE_ACTIONS.includes(action)) {
     payload.operation = action;
   }
 
-  // Add followUpCount if provided
   if (followUpCount !== undefined) {
     payload.followUpCount = followUpCount;
   }
@@ -70,12 +57,6 @@ function trackGenerationFailure({
   });
 }
 
-/**
- * Composable for managing Copilot reply generation state and actions.
- * Extracts copilot-related logic from ReplyBox for cleaner code organization.
- *
- * @returns {Object} Copilot reply state and methods
- */
 export function useCopilotReply() {
   const { processEvent, followUp, currentChat } = useCaptain();
   const { updateUISettings } = useUISettings();
@@ -87,10 +68,11 @@ export function useCopilotReply() {
   const followUpContext = ref(null);
   const abortController = ref(null);
 
-  // Tracking state
   const currentAction = ref(null);
   const followUpCount = ref(0);
   const trackedConversationId = ref(null);
+
+  const approvalRequestContext = ref(null);
 
   const conversationId = computed(() => currentChat.value?.id);
 
@@ -102,12 +84,11 @@ export function useCopilotReply() {
     isActive.value ? 'copilot' : 'rich'
   );
 
-  /**
-   * Resets all copilot editor state and cancels any ongoing generation.
-   * @param {boolean} [trackDismiss=true] - Whether to track dismiss event
-   */
+  const isApprovalDraftMode = computed(
+    () => approvalRequestContext.value !== null
+  );
+
   function reset(trackDismiss = true) {
-    // Track dismiss event if there was content and we're not accepting
     if (trackDismiss && generatedContent.value && currentAction.value) {
       const eventKey = `${getEventPrefix(currentAction.value)}_DISMISSED`;
       useTrack(
@@ -132,27 +113,17 @@ export function useCopilotReply() {
     currentAction.value = null;
     followUpCount.value = 0;
     trackedConversationId.value = null;
+    approvalRequestContext.value = null;
   }
 
-  /**
-   * Toggles the copilot editor visibility.
-   */
   function toggleEditor() {
     showEditor.value = !showEditor.value;
   }
 
-  /**
-   * Marks content as ready (called after transition completes).
-   */
   function setContentReady() {
     isContentReady.value = true;
   }
 
-  /**
-   * Executes a copilot action (e.g., improve, fix grammar).
-   * @param {string} action - The action type
-   * @param {string} data - The content to process
-   */
   async function execute(action, data) {
     if (action === 'ask_copilot') {
       updateUISettings({
@@ -162,7 +133,6 @@ export function useCopilotReply() {
       return;
     }
 
-    // Reset without tracking dismiss (starting new action)
     reset(false);
     const requestController = new AbortController();
     abortController.value = requestController;
@@ -193,7 +163,6 @@ export function useCopilotReply() {
       followUpContext.value = newContext;
       if (content) {
         showEditor.value = true;
-        // Track "Used" event on successful generation
         const eventKey = `${getEventPrefix(action)}_USED`;
         useTrack(
           CAPTAIN_EVENTS[eventKey],
@@ -237,10 +206,73 @@ export function useCopilotReply() {
     }
   }
 
-  /**
-   * Sends a follow-up message to refine the current generated content.
-   * @param {string} message - The follow-up message from the user
-   */
+  async function startApprovalDraft(approvalRequestId, selectedIndex) {
+    reset(false);
+
+    const requestController = new AbortController();
+    abortController.value = requestController;
+    isGenerating.value = true;
+    isContentReady.value = false;
+    currentAction.value = 'approval_draft';
+    followUpCount.value = 0;
+    trackedConversationId.value = conversationId.value;
+
+    approvalRequestContext.value = {
+      approvalRequestId,
+      selectedIndex,
+    };
+
+    try {
+      const { data } = await approvalRequestsApi.generateDraft(
+        approvalRequestId,
+        { selectedOptionIndex: selectedIndex }
+      );
+
+      if (requestController.signal.aborted) return;
+
+      const draft = data.draft || '';
+      const newFollowUpContext = data.follow_up_context || null;
+
+      generatedContent.value = draft;
+      followUpContext.value = newFollowUpContext;
+
+      if (draft) {
+        showEditor.value = true;
+        useTrack(
+          CAPTAIN_EVENTS.APPROVAL_DRAFT_USED,
+          buildPayload('approval_draft', trackedConversationId.value)
+        );
+      } else {
+        trackGenerationFailure({
+          action: 'approval_draft',
+          conversationId: trackedConversationId.value,
+          stage: 'initial',
+          reason: CAPTAIN_GENERATION_FAILURE_REASONS.EMPTY_RESPONSE,
+        });
+      }
+      isGenerating.value = false;
+    } catch (error) {
+      if (
+        requestController.signal.aborted ||
+        error?.name === CAPTAIN_ERROR_TYPES.ABORT_ERROR ||
+        error?.name === CAPTAIN_ERROR_TYPES.CANCELED_ERROR
+      ) {
+        return;
+      }
+      trackGenerationFailure({
+        action: 'approval_draft',
+        conversationId: trackedConversationId.value,
+        stage: 'initial',
+        reason: error?.name || CAPTAIN_GENERATION_FAILURE_REASONS.EXCEPTION,
+      });
+      isGenerating.value = false;
+    } finally {
+      if (abortController.value === requestController) {
+        abortController.value = null;
+      }
+    }
+  }
+
   async function sendFollowUp(message) {
     if (!followUpContext.value || !message.trim()) return;
 
@@ -249,7 +281,6 @@ export function useCopilotReply() {
     isGenerating.value = true;
     isContentReady.value = false;
 
-    // Track follow-up sent event
     useTrack(CAPTAIN_EVENTS.FOLLOW_UP_SENT, {
       conversationId: trackedConversationId.value,
     });
@@ -319,17 +350,37 @@ export function useCopilotReply() {
     }
   }
 
-  /**
-   * Accepts the generated content and returns it.
-   * Note: Formatting is automatically stripped by the Editor component's
-   * createState function based on the channel's schema.
-   * @returns {string} The content ready for the editor
-   */
-  function accept() {
+  async function accept() {
     const content = generatedContent.value;
 
-    // Track "Applied" event
-    if (currentAction.value) {
+    if (approvalRequestContext.value) {
+      try {
+        await approvalRequestsApi.resolve(
+          approvalRequestContext.value.approvalRequestId,
+          {
+            selectedOptionIndex: approvalRequestContext.value.selectedIndex,
+            customResponse: content,
+          }
+        );
+
+        useTrack(
+          CAPTAIN_EVENTS.APPROVAL_DRAFT_APPLIED,
+          buildPayload(
+            'approval_draft',
+            trackedConversationId.value,
+            followUpCount.value
+          )
+        );
+      } catch (error) {
+        trackGenerationFailure({
+          action: 'approval_draft',
+          conversationId: trackedConversationId.value,
+          stage: 'resolution',
+          reason: error?.name || CAPTAIN_GENERATION_FAILURE_REASONS.EXCEPTION,
+        });
+        throw error;
+      }
+    } else if (currentAction.value) {
       const eventKey = `${getEventPrefix(currentAction.value)}_APPLIED`;
       useTrack(
         CAPTAIN_EVENTS[eventKey],
@@ -341,13 +392,13 @@ export function useCopilotReply() {
       );
     }
 
-    // Reset state without tracking dismiss
     showEditor.value = false;
     generatedContent.value = '';
     followUpContext.value = null;
     currentAction.value = null;
     followUpCount.value = 0;
     trackedConversationId.value = null;
+    approvalRequestContext.value = null;
 
     return content;
   }
@@ -358,15 +409,18 @@ export function useCopilotReply() {
     isContentReady,
     generatedContent,
     followUpContext,
+    approvalRequestContext,
 
     isActive,
     isButtonDisabled,
     editorTransitionKey,
+    isApprovalDraftMode,
 
     reset,
     toggleEditor,
     setContentReady,
     execute,
+    startApprovalDraft,
     sendFollowUp,
     accept,
   };

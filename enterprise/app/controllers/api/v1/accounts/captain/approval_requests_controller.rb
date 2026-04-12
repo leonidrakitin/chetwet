@@ -39,10 +39,14 @@ class Api::V1::Accounts::Captain::ApprovalRequestsController < Api::V1::Accounts
     @request = Current.account.captain_approval_requests.find(params[:id])
     option_index = params[:selected_option_index].to_i
 
-    draft = ApprovalBot::DraftResponseService.new(@request, option_index).generate
+    result = ApprovalBot::DraftResponseService.new(@request, option_index).generate
 
-    if draft.present?
-      render json: { draft: draft, option_index: option_index }
+    if result.present? && result[:message].present?
+      render json: {
+        draft: result[:message],
+        option_index: option_index,
+        follow_up_context: result[:follow_up_context]
+      }
     else
       option = @request.options[option_index]&.with_indifferent_access
       render json: { draft: option&.dig(:label) || '', option_index: option_index }

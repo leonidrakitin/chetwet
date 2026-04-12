@@ -6,7 +6,6 @@ import { CONTENT_TYPES } from '../constants.js';
 import { useMessageContext } from '../provider.js';
 import { useInbox } from 'dashboard/composables/useInbox';
 import Button from 'dashboard/components-next/button/Button.vue';
-import approvalRequestsApi from 'dashboard/api/captain/approvalRequests';
 import { emitter } from 'shared/helpers/mitt';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
 
@@ -14,10 +13,8 @@ const { content, contentAttributes, contentType } = useMessageContext();
 const { t } = useI18n();
 const { isAWebWidgetInbox } = useInbox();
 
-const isResolving = ref(false);
-const isGeneratingDraft = ref(false);
-const generatedDraft = ref('');
 const selectedIndex = ref(null);
+const isPendingConfirmation = ref(false);
 
 const rawContentAttributes = computed(() => contentAttributes.value ?? {});
 
@@ -71,7 +68,10 @@ const approvalOptionItems = computed(() => {
 });
 
 const showsApprovalButtons = computed(
-  () => approvalRequestId.value != null && !formValues.value.length
+  () =>
+    approvalRequestId.value != null &&
+    !formValues.value.length &&
+    !isPendingConfirmation.value
 );
 
 const isInputSelectWithSelection = computed(
@@ -80,51 +80,29 @@ const isInputSelectWithSelection = computed(
     formValues.value.length > 0
 );
 
-const hasDraft = computed(() => generatedDraft.value.length > 0);
+const selectedOptionLabel = computed(() => {
+  if (selectedIndex.value == null) return null;
+  return (
+    approvalOptionItems.value[selectedIndex.value]?.title ||
+    approvalOptionItems.value[selectedIndex.value]?.label
+  );
+});
 
-const onOptionSelect = async index => {
-  if (isGeneratingDraft.value) return;
-  isGeneratingDraft.value = true;
+const onOptionSelect = index => {
+  if (isPendingConfirmation.value) return;
+
   selectedIndex.value = index;
-  generatedDraft.value = '';
-  try {
-    const { data } = await approvalRequestsApi.generateDraft(
-      approvalRequestId.value,
-      { selectedOptionIndex: index }
-    );
-    generatedDraft.value = data.draft || '';
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to generate draft', error);
-  } finally {
-    isGeneratingDraft.value = false;
-  }
-};
+  isPendingConfirmation.value = true;
 
-const onInsertDraft = () => {
-  emitter.emit(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, generatedDraft.value);
-};
+  const selectedLabel =
+    approvalOptionItems.value[index]?.title ||
+    approvalOptionItems.value[index]?.label;
 
-const onConfirmDraft = async () => {
-  if (isResolving.value) return;
-  isResolving.value = true;
-  try {
-    await approvalRequestsApi.resolve(approvalRequestId.value, {
-      selectedOptionIndex: selectedIndex.value,
-      customResponse: generatedDraft.value,
-    });
-    generatedDraft.value = '';
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to resolve approval request', error);
-  } finally {
-    isResolving.value = false;
-  }
-};
-
-const onSuggestOwn = () => {
-  generatedDraft.value = '';
-  selectedIndex.value = null;
+  emitter.emit(BUS_EVENTS.APPROVAL_REQUEST_SELECTED, {
+    approvalRequestId: approvalRequestId.value,
+    selectedIndex: index,
+    selectedLabel,
+  });
 };
 </script>
 
@@ -152,34 +130,17 @@ const onSuggestOwn = () => {
         </dd>
       </template>
     </dl>
-    <div v-else-if="hasDraft" class="mt-4 flex flex-col gap-2">
-      <div
-        class="rounded-md bg-n-alpha-2 px-3 py-2 text-sm text-n-slate-12 whitespace-pre-wrap"
-      >
-        {{ generatedDraft }}
+    <div v-else-if="isPendingConfirmation" class="mt-4">
+      <div class="text-xs text-n-slate-10 mb-1">
+        {{ t('CONVERSATION.APPROVAL_DRAFT.SELECTED_OPTION') }}
       </div>
-      <div class="flex gap-2">
-        <Button
-          :label="t('CONVERSATION.APPROVAL_DRAFT.INSERT')"
-          size="sm"
-          variant="faded"
-          color-scheme="primary"
-          @click="onInsertDraft"
-        />
-        <Button
-          :label="t('CONVERSATION.APPROVAL_DRAFT.CONFIRM')"
-          size="sm"
-          variant="faded"
-          color-scheme="success"
-          :is-loading="isResolving"
-          @click="onConfirmDraft"
-        />
-        <Button
-          :label="t('CONVERSATION.APPROVAL_DRAFT.SUGGEST_OWN')"
-          size="sm"
-          variant="faded"
-          @click="onSuggestOwn"
-        />
+      <div
+        class="rounded-md bg-n-iris-3 px-3 py-2 text-sm font-medium text-n-iris-11"
+      >
+        {{ selectedOptionLabel }}
+      </div>
+      <div class="text-xs text-n-slate-9 mt-2">
+        {{ t('CONVERSATION.APPROVAL_DRAFT.EDIT_IN_REPLY_BOX') }}
       </div>
     </div>
     <div v-else-if="showsApprovalButtons" class="flex flex-col gap-2 mt-4">
@@ -189,7 +150,6 @@ const onSuggestOwn = () => {
         :label="item.title || item.label"
         size="sm"
         variant="faded"
-        :is-loading="isGeneratingDraft"
         @click="onOptionSelect(index)"
       />
     </div>

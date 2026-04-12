@@ -11,8 +11,7 @@ class ApprovalBot::DraftResponseService < Captain::BaseTaskService
     option = @request.options[@option_index]&.with_indifferent_access
     return nil unless option
 
-    result = perform_with_option(option)
-    result&.dig(:message).presence
+    perform_with_option(option)
   end
 
   private

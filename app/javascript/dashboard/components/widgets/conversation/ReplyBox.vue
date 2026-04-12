@@ -529,6 +529,10 @@ export default {
     );
     emitter.on(BUS_EVENTS.INSERT_INTO_NORMAL_EDITOR, this.addIntoEditor);
     emitter.on(CMD_AI_ASSIST, this.executeCopilotAction);
+    emitter.on(
+      BUS_EVENTS.APPROVAL_REQUEST_SELECTED,
+      this.onApprovalRequestSelected
+    );
   },
   unmounted() {
     document.removeEventListener('paste', this.onPaste);
@@ -540,6 +544,10 @@ export default {
       this.onNewConversationModalActive
     );
     emitter.off(CMD_AI_ASSIST, this.executeCopilotAction);
+    emitter.off(
+      BUS_EVENTS.APPROVAL_REQUEST_SELECTED,
+      this.onApprovalRequestSelected
+    );
   },
   methods: {
     getDraftKey(
@@ -968,6 +976,9 @@ export default {
     executeCopilotAction(action, data) {
       this.copilot.execute(action, data);
     },
+    onApprovalRequestSelected({ approvalRequestId, selectedIndex }) {
+      this.copilot.startApprovalDraft(approvalRequestId, selectedIndex);
+    },
     clearMessage() {
       this.message = '';
       this.clearCopilotAcceptedMessage();
@@ -1246,10 +1257,14 @@ export default {
     togglePopout() {
       this.$emit('update:popOutReplyBox', !this.popOutReplyBox);
     },
-    onSubmitCopilotReply() {
-      const acceptedMessage = this.copilot.accept();
-      this.message = acceptedMessage;
-      this.setCopilotAcceptedMessage(acceptedMessage);
+    async onSubmitCopilotReply() {
+      try {
+        const acceptedMessage = await this.copilot.accept();
+        this.message = acceptedMessage;
+        this.setCopilotAcceptedMessage(acceptedMessage);
+      } catch (error) {
+        useAlert(this.$t('CONVERSATION.APPROVAL_DRAFT.RESOLUTION_FAILED'));
+      }
     },
   },
 };

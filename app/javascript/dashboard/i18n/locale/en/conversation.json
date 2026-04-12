@@ -70,7 +70,10 @@
     "APPROVAL_DRAFT": {
       "INSERT": "Suggest reply",
       "CONFIRM": "Send & resolve",
-      "SUGGEST_OWN": "Write your own"
+      "SUGGEST_OWN": "Write your own",
+      "SELECTED_OPTION": "Selected option:",
+      "EDIT_IN_REPLY_BOX": "Edit and send your reply in the input box below",
+      "RESOLUTION_FAILED": "Failed to resolve approval request. Please try again."
     },
     "RATING_TITLE": "Rating",
     "FEEDBACK_TITLE": "Feedback",

@@ -97,6 +97,11 @@ export const CAPTAIN_EVENTS = Object.freeze({
   REPLY_SUGGESTION_APPLIED: 'Captain: Reply suggestion applied',
   REPLY_SUGGESTION_DISMISSED: 'Captain: Reply suggestion dismissed',
 
+  // Approval draft events
+  APPROVAL_DRAFT_USED: 'Captain: Approval draft used',
+  APPROVAL_DRAFT_APPLIED: 'Captain: Approval draft applied',
+  APPROVAL_DRAFT_DISMISSED: 'Captain: Approval draft dismissed',
+
   // Follow-up events
   FOLLOW_UP_SENT: 'Captain: Follow-up sent',
 
