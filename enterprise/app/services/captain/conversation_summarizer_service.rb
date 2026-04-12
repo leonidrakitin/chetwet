@@ -50,6 +50,7 @@ class Captain::ConversationSummarizerService
       current_intent: data['current_intent'].to_s,
       active_scenarios: data['active_scenarios'] || [],
       key_facts: data['key_facts'] || [],
+      detected_language: data['detected_language'],
       recent_messages: (data['recent_messages'] || []).map(&:symbolize_keys)
     }
   rescue JSON::ParserError
@@ -75,11 +76,16 @@ class Captain::ConversationSummarizerService
       current_intent: parsed['current_intent'].to_s,
       active_scenarios: Array(parsed['active_scenarios']),
       key_facts: Array(parsed['key_facts']),
+      detected_language: current_detected_language,
       recent_messages: recent_messages
     }
     cache_value = result.merge(recent_messages: recent_serializable).transform_keys(&:to_s).to_json
     Redis::Alfred.setex(cache_key, cache_value, CACHE_TTL_SECONDS)
     result
+  end
+
+  def current_detected_language
+    @conversation.additional_attributes.dig('assistant_runtime', 'detected_language')
   end
 
   def summarizer_prompt(conversation_text)

@@ -174,12 +174,17 @@ class Captain::Assistant::AgentRunnerService
       account_id: @assistant.account_id,
       assistant_id: @assistant.id,
       assistant_config: @assistant.config,
-      orchestration: runtime_state_service&.state || {}
+      orchestration: runtime_state_service&.state || {},
+      detected_language: runtime_state_service&.state&.dig('detected_language') || fallback_language
     }
     state[:source] = @source if @source.present?
 
     build_conversation_state(state) if @conversation
     state
+  end
+
+  def fallback_language
+    @assistant.account.locale&.split('_')&.first || 'en'
   end
 
   def build_conversation_state(state)

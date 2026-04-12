@@ -38,15 +38,16 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def generate_response_with_v2
-    message_history = build_message_history_for_v2
+    message_history = collect_previous_messages
+    detect_and_persist_language(message_history)
+    message_history = build_message_history_for_v2(message_history)
     @response = Captain::Assistant::AgentRunnerService.new(assistant: @assistant, conversation: @conversation).generate_response(
       message_history: message_history
     )
     process_response
   end
 
-  def build_message_history_for_v2
-    messages = collect_previous_messages
+  def build_message_history_for_v2(messages)
     return messages if messages.size < Captain::ConversationSummarizerService::THRESHOLD
 
     summarizer = Captain::ConversationSummarizerService.new(conversation: @conversation, message_history: messages)
@@ -62,6 +63,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     parts << "Current intent: #{summary_result[:current_intent]}" if summary_result[:current_intent].present?
     parts << "Active scenarios (consider handoff): #{summary_result[:active_scenarios].join(', ')}" if summary_result[:active_scenarios]&.any?
     parts << "Key facts: #{summary_result[:key_facts].join('; ')}" if summary_result[:key_facts]&.any?
+    parts << "Detected language: #{summary_result[:detected_language]}" if summary_result[:detected_language].present?
     parts.join("\n")
   end
 
@@ -178,5 +180,33 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   def conversation_pending?
     status = Conversation.uncached { Conversation.where(id: @conversation.id).pick(:status) }
     status == 'pending' || status == Conversation.statuses[:pending]
+  end
+
+  def detect_and_persist_language(message_history)
+    last_user_msg = message_history.reverse.find { |msg| msg[:role] == 'user' }
+    return if last_user_msg.blank?
+
+    text = extract_text_from_content(last_user_msg[:content])
+    return if text.blank?
+
+    detected = Captain::Llm::DetectLanguageService.new(
+      account: @assistant.account,
+      message_text: text
+    ).call
+
+    runtime_state_service.update_state(detected_language: detected)
+    detected
+  end
+
+  def extract_text_from_content(content)
+    return content.to_s if content.is_a?(String)
+    return content[:response] || content['response'] || content.to_s if content.is_a?(Hash)
+    return content.filter_map { |part| part[:text] || part['text'] }.join(' ') if content.is_a?(Array)
+
+    content.to_s
+  end
+
+  def runtime_state_service
+    @runtime_state_service ||= Captain::RuntimeStateService.new(@conversation)
   end
 end

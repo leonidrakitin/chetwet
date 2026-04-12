@@ -24,7 +24,8 @@ module Concerns::Agentable
         orchestration_state: state[:orchestration] || {},
         orchestration_state_json: (state[:orchestration] || {}).to_json,
         handoff_summary: context.context.dig(:last_handoff, :summary),
-        handoff_reason: context.context.dig(:last_handoff, :reason)
+        handoff_reason: context.context.dig(:last_handoff, :reason),
+        detected_language: state[:detected_language]
       )
       enhanced_context[:conversation_length] = context.context[:conversation_length] if context.context.key?(:conversation_length)
       enhanced_context[:routing_hint] = context.context[:routing_hint] if context.context.key?(:routing_hint)
