@@ -145,7 +145,7 @@ class Captain::Assistant::AgentRunnerService
 
   def build_fallback_tool_context
     state = build_state
-    run_context = Agents::RunContext.new(state: state)
+    run_context = Agents::RunContext.new({ state: state })
     Agents::ToolContext.new(run_context: run_context)
   end
 
