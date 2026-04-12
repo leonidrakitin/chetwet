@@ -12,10 +12,9 @@ class Vk::SendAttachmentsService
       attachment_ids << id if id.present?
     end
 
-    return attachment_ids.last if attachment_ids.one?
-    return attachment_ids.last if attachment_ids.many?
+    return nil unless attachment_ids.last
 
-    nil
+    { message_id: attachment_ids.last[:message_id], random_id: attachment_ids.last[:random_id] }
   end
 
   private
@@ -184,10 +183,11 @@ class Vk::SendAttachmentsService
   end
 
   def send_message_with_attachment(attachment_str)
+    random_id = SecureRandom.random_number(2**31)
     body = {
       peer_id: channel.peer_id(message),
       attachment: attachment_str,
-      random_id: SecureRandom.random_number(2**31),
+      random_id: random_id,
       access_token: channel.access_token,
       v: '5.199'
     }
@@ -197,7 +197,10 @@ class Vk::SendAttachmentsService
     response = HTTParty.post("#{channel.vk_api_url}/messages.send", body: body)
 
     channel.process_error(message, response)
-    response.parsed_response['response'] if response.success?
+    return nil unless response.success?
+
+    message_id = response.parsed_response['response']
+    { message_id: message_id, random_id: random_id }
   end
 
   def channel

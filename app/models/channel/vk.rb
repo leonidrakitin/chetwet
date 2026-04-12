@@ -150,10 +150,11 @@ class Channel::Vk < ApplicationRecord
   end
 
   def send_message(message)
+    random_id = SecureRandom.random_number(2**31)
     body = {
       peer_id: peer_id(message),
       message: message.outgoing_content,
-      random_id: SecureRandom.random_number(2**31)
+      random_id: random_id
     }
     body[:reply_to] = reply_to_message_id(message) if reply_to_message_id(message)
 
@@ -163,7 +164,10 @@ class Channel::Vk < ApplicationRecord
     )
 
     process_error(message, response)
-    response.parsed_response['response'] if response.success?
+    return nil unless response.success?
+
+    message_id = response.parsed_response['response']
+    { message_id: message_id, random_id: random_id }
   end
 
   private

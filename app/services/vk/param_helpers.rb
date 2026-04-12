@@ -35,4 +35,8 @@ module Vk::ParamHelpers
 
     {}
   end
+
+  def vk_params_random_id
+    message_params[:random_id]
+  end
 end

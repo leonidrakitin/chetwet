@@ -10,6 +10,8 @@ class Vk::OutgoingMessageSyncService
     return unless message_params?
     return if duplicate_message?
 
+    return if vk_params_random_id.present? && update_message_by_random_id
+
     set_contact
     set_conversation
     return unless @conversation
@@ -29,9 +31,21 @@ class Vk::OutgoingMessageSyncService
     inbox.messages.exists?(source_id: vk_params_message_id.to_s)
   end
 
-  # When we send from Chatwoot, VK sends message_reply webhook. It can arrive before
-  # SendReplyJob updates our message with source_id, causing a duplicate. Find our
-  # pending message and update it instead of creating a new one.
+  def update_message_by_random_id
+    pending = find_message_by_random_id
+    return false unless pending
+
+    pending.update!(source_id: vk_params_message_id.to_s)
+    Rails.logger.info "[VK] Updated message #{pending.id} with source_id via random_id deduplication"
+    true
+  end
+
+  def find_message_by_random_id
+    inbox.messages.outgoing
+         .where("external_source_ids->>'vk_random_id' = ?", vk_params_random_id.to_s)
+         .first
+  end
+
   def update_pending_chatwoot_message
     pending = find_pending_chatwoot_message
     return false unless pending
