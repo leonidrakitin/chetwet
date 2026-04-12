@@ -537,17 +537,15 @@ defineExpose({ insertAtCursor, focus });
       @click="handleEditorClick"
     />
 
-    <!-- Variable suggestion dropdown (teleported to body to avoid overflow clipping) -->
-    <Teleport to="body">
-      <VariableSuggestionDropdown
-        v-if="showSuggestions"
-        :search-term="suggestionSearch"
-        :top="suggestionTop"
-        :left="suggestionLeft"
-        :selected-idx="selectedIdx"
-        class="fixed"
-        @select="onVariableSelect"
-      />
-    </Teleport>
+    <!-- Variable suggestion dropdown -->
+    <VariableSuggestionDropdown
+      v-if="showSuggestions"
+      :search-term="suggestionSearch"
+      :top="suggestionTop"
+      :left="suggestionLeft"
+      :selected-idx="selectedIdx"
+      class="fixed z-50"
+      @select="onVariableSelect"
+    />
   </div>
 </template>
