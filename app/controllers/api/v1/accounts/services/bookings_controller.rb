@@ -4,6 +4,19 @@ class Api::V1::Accounts::Services::BookingsController < Api::V1::Accounts::Servi
   before_action :fetch_booking, only: %i[show update destroy confirm cancel]
   before_action :check_authorization
 
+  def calendar
+    @schedule = current_account.service_schedule
+    @providers = current_account.service_providers.active.ordered
+
+    start_date = parse_date(params[:start_date]) || Date.current
+    end_date = parse_date(params[:end_date]) || (start_date + 6.days)
+
+    @bookings = fetch_calendar_bookings(start_date, end_date, params[:provider_id])
+    @date_range = start_date..end_date
+
+    render 'api/v1/accounts/services/calendar'
+  end
+
   def index
     @bookings = current_account.service_bookings.includes(:contact, :service_provider, :services)
     @bookings = filter_bookings(@bookings)
@@ -88,7 +101,7 @@ class Api::V1::Accounts::Services::BookingsController < Api::V1::Accounts::Servi
 
   def update_params
     params.require(:booking).permit(
-      :scheduled_at, :customer_notes, :internal_notes,
+      :scheduled_at, :service_provider_id, :customer_notes, :internal_notes,
       :status, preferences: {}
     )
   end
@@ -98,6 +111,20 @@ class Api::V1::Accounts::Services::BookingsController < Api::V1::Accounts::Servi
     bookings = bookings.for_contact(params[:contact_id]) if params[:contact_id].present?
     bookings = bookings.on_date(params[:date]) if params[:date].present?
     bookings = bookings.where(status: params[:status]) if params[:status].present?
+    bookings.order(:scheduled_at)
+  end
+
+  def parse_date(date_string)
+    Date.parse(date_string) if date_string.present?
+  rescue Date::Error
+    nil
+  end
+
+  def fetch_calendar_bookings(start_date, end_date, provider_id)
+    bookings = current_account.service_bookings
+                              .includes(:contact, :service_provider, :services, :service_booking_items)
+                              .where(scheduled_at: start_date.beginning_of_day..end_date.end_of_day)
+    bookings = bookings.for_provider(provider_id) if provider_id.present?
     bookings.order(:scheduled_at)
   end
 end

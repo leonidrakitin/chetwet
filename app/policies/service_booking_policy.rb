@@ -29,6 +29,10 @@ class ServiceBookingPolicy < ApplicationPolicy
     index?
   end
 
+  def calendar?
+    index?
+  end
+
   def confirm?
     @account_user.administrator? || @account_user.agent?
   end

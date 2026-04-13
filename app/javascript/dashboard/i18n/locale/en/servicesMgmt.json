@@ -19,7 +19,8 @@
     },
     "TABS": {
       "PROVIDERS": "Providers",
-      "SERVICES": "Services"
+      "SERVICES": "Services",
+      "SCHEDULE": "Schedule"
     },
     "LIST": {
       "404": "No providers or services found. Create your first one!"
@@ -117,6 +118,59 @@
         "YES": "Yes, Delete",
         "NO": "No, Keep"
       }
+    }
+  },
+  "SCHEDULE": {
+    "HEADER": "Schedule",
+    "DESCRIPTION": "View and manage bookings calendar",
+    "LOADING": "Loading calendar...",
+    "TODAY": "Today",
+    "DAY": "Day",
+    "WEEK": "Week",
+    "PROVIDER": "Provider",
+    "HOLIDAY": "Holiday",
+    "NOT_WORKING_DAY": "Non-working day",
+    "FIRST_BOOKING": "First",
+    "NO_CONTACT": "Unknown",
+    "FETCH_ERROR": "Failed to load calendar data",
+    "BOOKING_MOVED": "Booking moved successfully",
+    "MOVE_ERROR": "Failed to move booking",
+    "STATUS": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "MODAL": {
+      "CREATE_TITLE": "New Booking",
+      "EDIT_TITLE": "Edit Booking",
+      "PROVIDER": "Provider",
+      "DATE_TIME": "Date & Time",
+      "CONTACT": "Contact",
+      "SEARCH_CONTACT": "Search contact...",
+      "SERVICES": "Services",
+      "CUSTOMER_NOTES": "Customer Notes",
+      "INTERNAL_NOTES": "Internal Notes",
+      "CANCEL": "Cancel",
+      "SAVE": "Save",
+      "CREATE_SUCCESS": "Booking created successfully",
+      "UPDATE_SUCCESS": "Booking updated successfully",
+      "ERROR": "Failed to save booking"
+    }
+  },
+  "BOOKINGS": {
+    "UPCOMING": "Upcoming",
+    "PAST": "Past",
+    "NO_BOOKINGS": "No bookings",
+    "FETCH_ERROR": "Failed to load bookings",
+    "CANCEL": "Cancel",
+    "CANCELLED_VIA_SIDEBAR": "Cancelled via sidebar",
+    "NO_SERVICE": "No service",
+    "STATUS": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
     }
   }
 }

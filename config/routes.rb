@@ -419,6 +419,7 @@ Rails.application.routes.draw do
               collection do
                 get :available_slots
                 get :upcoming
+                get :calendar
               end
               member do
                 post :confirm

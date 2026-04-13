@@ -2,6 +2,7 @@ import { frontendURL } from '../../../../helper/URLHelper';
 
 import SettingsWrapper from '../SettingsWrapper.vue';
 import ServicesIndex from './Index.vue';
+import ScheduleIndex from './schedule/Index.vue';
 
 export default {
   routes: [
@@ -26,6 +27,14 @@ export default {
             permissions: ['administrator', 'agent'],
           },
           component: ServicesIndex,
+        },
+        {
+          path: 'schedule',
+          name: 'services_schedule',
+          meta: {
+            permissions: ['administrator', 'agent'],
+          },
+          component: ScheduleIndex,
         },
       ],
     },

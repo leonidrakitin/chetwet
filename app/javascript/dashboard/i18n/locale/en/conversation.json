@@ -374,7 +374,8 @@
       "MACROS": "Macros",
       "LINEAR_ISSUES": "Linked Linear Issues",
       "SHOPIFY_ORDERS": "Shopify Orders",
-      "YCLIENTS_APPOINTMENTS": "YClients Appointments"
+      "YCLIENTS_APPOINTMENTS": "YClients Appointments",
+      "SERVICE_BOOKINGS": "Service Bookings"
     },
     "YCLIENTS": {
       "NO_APPOINTMENTS": "No appointments found",

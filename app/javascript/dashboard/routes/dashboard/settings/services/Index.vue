@@ -17,10 +17,13 @@ import {
   BaseTableRow,
   BaseTableCell,
 } from 'dashboard/components-next/table';
+import { useRoute, useRouter } from 'vue-router';
 
 const getters = useStoreGetters();
 const store = useStore();
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 
 const loading = ref({});
 const activeTab = ref('providers');
@@ -114,6 +117,13 @@ const switchTab = tab => {
   searchQuery.value = '';
 };
 
+const goToSchedule = () => {
+  router.push({
+    name: 'services_schedule',
+    params: { accountId: route.params.accountId },
+  });
+};
+
 const tableHeaders = computed(() => {
   if (activeTab.value === 'providers') {
     return [
@@ -194,6 +204,14 @@ onBeforeMount(() => {
           slate
           size="sm"
           @click="switchTab('services')"
+        />
+        <Button
+          :label="$t('SERVICES_MGMT.TABS.SCHEDULE')"
+          icon="i-lucide-calendar"
+          faded
+          slate
+          size="sm"
+          @click="goToSchedule"
         />
       </div>
 

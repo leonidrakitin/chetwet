@@ -2,6 +2,7 @@ import types from '../mutation-types';
 import ProvidersAPI from '../../api/providers';
 import ServicesAPI from '../../api/servicesApi';
 import BookingsAPI from '../../api/bookings';
+import ScheduleAPI from '../../api/schedule';
 
 const createSetMutation = key => (state, data) => {
   state[key] = data;
@@ -27,6 +28,9 @@ export const state = {
   providers: [],
   services: [],
   bookings: [],
+  schedule: null,
+  calendarBookings: [],
+  calendarProviders: [],
   uiFlags: {
     isFetchingProviders: false,
     isFetchingServices: false,
@@ -38,6 +42,10 @@ export const state = {
     isUpdatingService: false,
     isDeletingProvider: false,
     isDeletingService: false,
+    isFetchingCalendar: false,
+    isFetchingSchedule: false,
+    isUpdatingSchedule: false,
+    isUpdatingBooking: false,
   },
 };
 
@@ -55,6 +63,9 @@ export const getters = {
   getBookingById: _state => id => {
     return _state.bookings.find(record => record.id === Number(id)) || {};
   },
+  getSchedule: _state => _state.schedule,
+  getCalendarBookings: _state => _state.calendarBookings,
+  getCalendarProviders: _state => _state.calendarProviders,
 };
 
 export const actions = {
@@ -194,6 +205,78 @@ export const actions = {
       throw new Error(error);
     }
   },
+
+  updateBooking: async ({ commit }, { id, ...data }) => {
+    commit(types.SET_SERVICE_BOOKING_UI_FLAG, { isUpdatingBooking: true });
+    try {
+      const response = await BookingsAPI.update(id, data);
+      commit(types.EDIT_SERVICE_BOOKING, response.data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    } finally {
+      commit(types.SET_SERVICE_BOOKING_UI_FLAG, { isUpdatingBooking: false });
+    }
+  },
+
+  // Schedule
+  fetchSchedule: async ({ commit }) => {
+    commit(types.SET_CALENDAR_UI_FLAG, { isFetchingSchedule: true });
+    try {
+      const response = await ScheduleAPI.show();
+      commit(types.SET_SERVICE_SCHEDULE, response.data);
+      return response.data;
+    } catch (error) {
+      if (error.response?.status !== 404) {
+        throw new Error(error);
+      }
+      return null;
+    } finally {
+      commit(types.SET_CALENDAR_UI_FLAG, { isFetchingSchedule: false });
+    }
+  },
+
+  updateSchedule: async ({ commit }, data) => {
+    commit(types.SET_CALENDAR_UI_FLAG, { isUpdatingSchedule: true });
+    try {
+      const response = await ScheduleAPI.update({ schedule: data });
+      commit(types.SET_SERVICE_SCHEDULE, response.data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    } finally {
+      commit(types.SET_CALENDAR_UI_FLAG, { isUpdatingSchedule: false });
+    }
+  },
+
+  createSchedule: async ({ commit }, data) => {
+    commit(types.SET_CALENDAR_UI_FLAG, { isUpdatingSchedule: true });
+    try {
+      const response = await ScheduleAPI.create({ schedule: data });
+      commit(types.SET_SERVICE_SCHEDULE, response.data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    } finally {
+      commit(types.SET_CALENDAR_UI_FLAG, { isUpdatingSchedule: false });
+    }
+  },
+
+  // Calendar
+  fetchCalendar: async ({ commit }, params = {}) => {
+    commit(types.SET_CALENDAR_UI_FLAG, { isFetchingCalendar: true });
+    try {
+      const response = await BookingsAPI.getCalendar(params);
+      commit(types.SET_CALENDAR_BOOKINGS, response.data.bookings || []);
+      commit(types.SET_CALENDAR_PROVIDERS, response.data.providers || []);
+      commit(types.SET_SERVICE_SCHEDULE, response.data.schedule);
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    } finally {
+      commit(types.SET_CALENDAR_UI_FLAG, { isFetchingCalendar: false });
+    }
+  },
 };
 
 export const mutations = {
@@ -221,6 +304,13 @@ export const mutations = {
   [types.ADD_SERVICE_BOOKING]: createCreateMutation('bookings'),
   [types.EDIT_SERVICE_BOOKING]: createUpdateMutation('bookings'),
   [types.DELETE_SERVICE_BOOKING]: createDestroyMutation('bookings'),
+
+  [types.SET_SERVICE_SCHEDULE]: createSetMutation('schedule'),
+  [types.SET_CALENDAR_BOOKINGS]: createSetMutation('calendarBookings'),
+  [types.SET_CALENDAR_PROVIDERS]: createSetMutation('calendarProviders'),
+  [types.SET_CALENDAR_UI_FLAG](_state, data) {
+    _state.uiFlags = { ..._state.uiFlags, ...data };
+  },
 };
 
 export default {

@@ -2,7 +2,7 @@
 
 class ServiceProviderPolicy < ApplicationPolicy
   def index?
-    @account_user.administrator? || @account_user.agent?
+    @account_user&.administrator? || @account_user&.agent?
   end
 
   def show?
@@ -10,15 +10,15 @@ class ServiceProviderPolicy < ApplicationPolicy
   end
 
   def create?
-    @account_user.administrator?
+    @account_user&.administrator?
   end
 
   def update?
-    @account_user.administrator?
+    @account_user&.administrator?
   end
 
   def destroy?
-    @account_user.administrator?
+    @account_user&.administrator?
   end
 
   private

@@ -15,12 +15,20 @@ class BookingsAPI extends ApiClient {
     return axios.get(`${this.url}/upcoming`);
   }
 
+  getCalendar(params) {
+    return axios.get(`${this.url}/calendar`, { params });
+  }
+
   confirm(id) {
     return axios.post(`${this.url}/${id}/confirm`);
   }
 
   cancel(id, reason) {
     return axios.post(`${this.url}/${id}/cancel`, { reason });
+  }
+
+  update(id, data) {
+    return axios.patch(`${this.url}/${id}`, data);
   }
 }
 

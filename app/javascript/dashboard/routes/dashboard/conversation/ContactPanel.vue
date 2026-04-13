@@ -21,6 +21,7 @@ import Draggable from 'vuedraggable';
 import MacrosList from './Macros/List.vue';
 import ShopifyOrdersList from 'dashboard/components/widgets/conversation/ShopifyOrdersList.vue';
 import YclientsAppointmentsList from 'dashboard/components/widgets/conversation/yclients/YclientsAppointmentsList.vue';
+import BookingsList from 'dashboard/components/widgets/conversation/bookings/BookingsList.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import LinearIssuesList from 'dashboard/components/widgets/conversation/linear/IssuesList.vue';
 import LinearSetupCTA from 'dashboard/components/widgets/conversation/linear/LinearSetupCTA.vue';
@@ -314,6 +315,18 @@ onMounted(() => {
                 :integration-enabled="isYclientsEnabled"
                 :settings-path="`/app/accounts/${accountId}/settings/integrations`"
               />
+            </AccordionItem>
+          </div>
+          <div v-else-if="element.name === 'service_bookings'">
+            <AccordionItem
+              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.SERVICE_BOOKINGS')"
+              :is-open="isContactSidebarItemOpen('is_service_bookings_open')"
+              compact
+              @toggle="
+                value => toggleSidebarUIState('is_service_bookings_open', value)
+              "
+            >
+              <BookingsList :contact-id="contactId" />
             </AccordionItem>
           </div>
           <div v-else-if="element.name === 'contact_notes'">
