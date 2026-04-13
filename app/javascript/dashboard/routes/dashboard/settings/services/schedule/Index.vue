@@ -9,8 +9,8 @@ import DayView from './components/DayView.vue';
 import WeekView from './components/WeekView.vue';
 import BookingModal from './components/BookingModal.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
-import SettingsLayout from '../SettingsLayout.vue';
-import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
+import SettingsLayout from '../../SettingsLayout.vue';
+import BaseSettingsHeader from '../../components/BaseSettingsHeader.vue';
 
 const store = useStore();
 const { t } = useI18n();
