@@ -20,7 +20,6 @@ const emit = defineEmits(['close', 'saved']);
 
 const { t } = useI18n();
 const store = useStore();
-const { show: showAlert } = useAlert();
 
 const isEditing = computed(() => !!props.booking);
 const form = ref({
@@ -110,13 +109,13 @@ const handleSubmit = async () => {
           booking: bookingData,
         });
 
-    showAlert(
+    useAlert(
       t(`SCHEDULE.MODAL.${isEditing.value ? 'UPDATE' : 'CREATE'}_SUCCESS`)
     );
     emit('saved', result);
     emit('close');
   } catch (error) {
-    showAlert(error.message || t('SCHEDULE.MODAL.ERROR'));
+    useAlert(error.message || t('SCHEDULE.MODAL.ERROR'));
   } finally {
     isSubmitting.value = false;
   }
@@ -230,7 +229,7 @@ const isServiceSelected = serviceId =>
                 @click="selectContact(contact)"
               >
                 {{ contact.name }}
-                <span v-if="contact.phone_number" class="text-n-slate-10">
+                <span vпопр-if="contact.phone_number" class="text-n-slate-10">
                   {{ ' · ' }}{{ contact.phone_number }}
                 </span>
               </button>

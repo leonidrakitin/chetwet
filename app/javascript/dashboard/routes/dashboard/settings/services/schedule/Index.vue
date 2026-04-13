@@ -14,7 +14,6 @@ import BaseSettingsHeader from '../../components/BaseSettingsHeader.vue';
 
 const store = useStore();
 const { t } = useI18n();
-const { show: showAlert } = useAlert();
 
 const currentDate = ref(new Date());
 const viewMode = ref('day');
@@ -62,7 +61,7 @@ const fetchCalendarData = async () => {
         viewMode.value === 'week' ? selectedProviderId.value : undefined,
     });
   } catch (error) {
-    showAlert(error.message || t('SCHEDULE.FETCH_ERROR'));
+    useAlert(error.message || t('SCHEDULE.FETCH_ERROR'));
   }
 };
 
@@ -122,9 +121,9 @@ const handleBookingMove = async ({
       },
     });
     await fetchCalendarData();
-    showAlert(t('SCHEDULE.BOOKING_MOVED'));
+    useAlert(t('SCHEDULE.BOOKING_MOVED'));
   } catch (error) {
-    showAlert(error.message || t('SCHEDULE.MOVE_ERROR'));
+    useAlert(error.message || t('SCHEDULE.MOVE_ERROR'));
   }
 };
 
