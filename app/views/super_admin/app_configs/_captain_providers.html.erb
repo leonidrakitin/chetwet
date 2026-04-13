@@ -187,16 +187,27 @@
 
     <div class="mb-8">
       <h2 class="section-title">Fallback Chain</h2>
-      <p class="section-description">Drag to reorder providers for automatic fallback when the primary fails.</p>
-      <div id="fallback-chain" class="flex flex-wrap gap-2">
-        <% (@captain_providers['fallback_order'] || []).each do |provider| %>
-          <div class="px-3 py-2 bg-slate-100 rounded-lg flex items-center gap-2 fallback-item" data-provider="<%= provider %>">
-            <span><%= provider.humanize %></span>
-            <button type="button" onclick="removeFromFallback('<%= provider %>')" class="text-slate-400 hover:text-slate-600">&times;</button>
+      <p class="section-description">Order of providers for automatic fallback when the primary fails. First provider in the list will be used first.</p>
+      <div id="fallback-chain" class="flex flex-col gap-2 mb-3">
+        <% (@captain_providers['fallback_order'] || []).each_with_index do |provider, index| %>
+          <div class="px-3 py-2 bg-slate-100 rounded-lg flex items-center justify-between fallback-item" data-provider="<%= provider %>">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm font-mono"><%= index + 1 %>.</span>
+              <span><%= provider.humanize %></span>
+            </div>
+            <button type="button" onclick="removeFromFallback('<%= provider %>')" class="text-slate-400 hover:text-red-500 transition-colors text-lg leading-none">&times;</button>
           </div>
         <% end %>
       </div>
-      <p class="text-xs text-slate-500 mt-2">Enabled providers will be automatically added to fallback if not in chain.</p>
+      <div class="flex items-center gap-2">
+        <select id="fallback-provider-select" class="field-input flex-1">
+          <option value="">Select provider to add...</option>
+        </select>
+        <button type="button" onclick="addToFallbackChain()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1">
+          <span class="text-lg">+</span> Add
+        </button>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">Only enabled and configured providers that are not primary can be added.</p>
     </div>
 
     <div class="embedding-section">
@@ -266,21 +277,13 @@ function selectPrimaryProvider(provider) {
   document.querySelectorAll('.primary-option').forEach(el => {
     el.classList.toggle('selected', el.dataset.provider === provider);
   });
+  updateFallbackDropdown();
 }
 
 function toggleProvider(provider, enabled) {
   const card = document.getElementById('provider-card-' + provider);
   card.classList.toggle('disabled', !enabled);
-
-  const fallbackInput = document.getElementById('fallback_order_input');
-  let fallback = fallbackInput.value.split(',').filter(p => p && p !== provider);
-
-  if (enabled && provider !== document.getElementById('primary_provider_input').value) {
-    fallback.push(provider);
-  }
-
-  fallbackInput.value = fallback.join(',');
-  updateFallbackDisplay();
+  updateFallbackDropdown();
 }
 
 function removeFromFallback(provider) {
@@ -288,18 +291,66 @@ function removeFromFallback(provider) {
   let fallback = fallbackInput.value.split(',').filter(p => p && p !== provider);
   fallbackInput.value = fallback.join(',');
   updateFallbackDisplay();
+  updateFallbackDropdown();
+}
+
+function addToFallbackChain() {
+  const select = document.getElementById('fallback-provider-select');
+  const provider = select.value;
+  if (!provider) return;
+
+  const fallbackInput = document.getElementById('fallback_order_input');
+  let fallback = fallbackInput.value.split(',').filter(p => p);
+  if (!fallback.includes(provider)) {
+    fallback.push(provider);
+    fallbackInput.value = fallback.join(',');
+    updateFallbackDisplay();
+    updateFallbackDropdown();
+  }
+  select.value = '';
 }
 
 function updateFallbackDisplay() {
   const container = document.getElementById('fallback-chain');
   const fallback = document.getElementById('fallback_order_input').value.split(',').filter(p => p);
 
-  container.innerHTML = fallback.map(provider => `
-    <div class="px-3 py-2 bg-slate-100 rounded-lg flex items-center gap-2 fallback-item" data-provider="${provider}">
-      <span>${provider.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-      <button type="button" onclick="removeFromFallback('${provider}')" class="text-slate-400 hover:text-slate-600">&times;</button>
-    </div>
-  `).join('');
+  if (fallback.length === 0) {
+    container.innerHTML = '<p class="text-slate-400 text-sm italic">No fallback providers configured</p>';
+  } else {
+    container.innerHTML = fallback.map((provider, index) => `
+      <div class="px-3 py-2 bg-slate-100 rounded-lg flex items-center justify-between fallback-item" data-provider="${provider}">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400 text-sm font-mono">${index + 1}.</span>
+          <span>${provider.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+        </div>
+        <button type="button" onclick="removeFromFallback('${provider}')" class="text-slate-400 hover:text-red-500 transition-colors text-lg leading-none">&times;</button>
+      </div>
+    `).join('');
+  }
 }
+
+function updateFallbackDropdown() {
+  const select = document.getElementById('fallback-provider-select');
+  const primaryProvider = document.getElementById('primary_provider_input').value;
+  const fallback = document.getElementById('fallback_order_input').value.split(',').filter(p => p);
+  
+  const allProviders = ['openai', 'openrouter', 'anthropic', 'gemini', 'deepseek', 'qwen', 'zai', 'ollama'];
+  
+  const availableProviders = allProviders.filter(provider => {
+    const checkbox = document.querySelector(`input[name="captain[providers][${provider}][enabled]"]`);
+    const isEnabled = checkbox && checkbox.checked;
+    const isInFallback = fallback.includes(provider);
+    const isPrimary = provider === primaryProvider;
+    return isEnabled && !isInFallback && !isPrimary;
+  });
+  
+  select.innerHTML = '<option value="">Select provider to add...</option>' +
+    availableProviders.map(p => `<option value="${p}">${p.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateFallbackDisplay();
+  updateFallbackDropdown();
+});
 </script>
 <% end %>
