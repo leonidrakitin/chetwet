@@ -48,6 +48,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def build_message_history_for_v2(messages)
+    messages = deduplicate_consecutive_assistant_messages(messages)
     return messages if messages.size < Captain::ConversationSummarizerService::THRESHOLD
 
     summarizer = Captain::ConversationSummarizerService.new(conversation: @conversation, message_history: messages)
@@ -56,6 +57,25 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
     summary_system_msg = format_summary_context_for_orchestrator(summary_result)
     [{ role: :system, content: summary_system_msg }] + summary_result[:recent_messages]
+  end
+
+  def deduplicate_consecutive_assistant_messages(messages)
+    deduped = []
+
+    messages.each do |message|
+      previous = deduped.last
+      if previous.present? &&
+         previous[:role].to_s == 'assistant' &&
+         message[:role].to_s == 'assistant' &&
+         previous[:content] == message[:content] &&
+         previous[:agent_name].to_s == message[:agent_name].to_s
+        next
+      end
+
+      deduped << message
+    end
+
+    deduped
   end
 
   def format_summary_context_for_orchestrator(summary_result)

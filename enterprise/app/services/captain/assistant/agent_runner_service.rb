@@ -106,6 +106,7 @@ class Captain::Assistant::AgentRunnerService
     output = result.output
     response = output.is_a?(Hash) ? output.with_indifferent_access : { 'response' => output.to_s, 'reasoning' => 'Processed by agent' }
     response['agent_name'] = result.context&.dig(:current_agent)
+    response['response'] = normalize_repeated_response_text(response['response'])
     normalize_escalation_response!(response)
     text = response['response'].to_s
     Rails.logger.info(
@@ -115,6 +116,31 @@ class Captain::Assistant::AgentRunnerService
       "faq_lookup_called=#{result.context&.dig(:captain_v2_faq_lookup_called)}"
     )
     response
+  end
+
+  def normalize_repeated_response_text(raw_text)
+    text = raw_text.to_s
+    return text if text.blank?
+
+    stripped = text.strip
+    collapsed = collapse_exact_repeated_halves(stripped)
+    return collapsed unless collapsed == stripped
+
+    collapse_repeated_phrase_with_space(stripped)
+  end
+
+  def collapse_exact_repeated_halves(text)
+    return text unless text.length.even?
+
+    half_length = text.length / 2
+    first_half = text[0...half_length]
+    second_half = text[half_length..]
+    first_half == second_half ? first_half : text
+  end
+
+  def collapse_repeated_phrase_with_space(text)
+    match = text.match(/\A(.+?)\s+\1\z/m)
+    match ? match[1] : text
   end
 
   def normalize_escalation_response!(response)

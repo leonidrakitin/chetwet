@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_12_101053) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_13_203137) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1353,6 +1353,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_12_101053) do
     t.index ["user_id"], name: "index_portals_members_on_user_id"
   end
 
+  create_table "provider_schedules", force: :cascade do |t|
+    t.bigint "service_provider_id", null: false
+    t.jsonb "working_hours"
+    t.jsonb "breaks"
+    t.jsonb "holidays"
+    t.string "timezone", default: "UTC", null: false
+    t.boolean "inherit_account_schedule", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["service_provider_id"], name: "index_provider_schedules_on_service_provider_id", unique: true
+  end
+
   create_table "related_categories", force: :cascade do |t|
     t.bigint "category_id"
     t.bigint "related_category_id"
@@ -1722,6 +1734,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_12_101053) do
   add_foreign_key "notification_templates", "accounts"
   add_foreign_key "notification_templates", "inboxes"
   add_foreign_key "notification_templates", "yclients_integrations"
+  add_foreign_key "provider_schedules", "service_providers"
   add_foreign_key "service_booking_items", "service_bookings"
   add_foreign_key "service_booking_items", "services"
   add_foreign_key "service_bookings", "accounts"

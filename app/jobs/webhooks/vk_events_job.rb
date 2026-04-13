@@ -2,6 +2,7 @@
 
 class Webhooks::VkEventsJob < ApplicationJob
   queue_as :default
+  EVENT_IDEMPOTENCY_TTL = 15.minutes
 
   EVENT_HANDLERS = {
     'message_new' => :handle_message_new,
@@ -15,6 +16,7 @@ class Webhooks::VkEventsJob < ApplicationJob
   def perform(params = {})
     params = params.with_indifferent_access
     return if params[:type] == 'confirmation'
+    return if duplicate_event?(params)
 
     group_id = params[:group_id]&.to_s
     Rails.logger.info "[VK] Processing event type=#{params[:type]} for group_id=#{group_id}"
@@ -65,6 +67,26 @@ class Webhooks::VkEventsJob < ApplicationJob
     Rails.logger.error "[VK] Event processing error: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
     raise
+  end
+
+  def duplicate_event?(params)
+    event_id = params[:event_id].to_s
+    return false if event_id.blank?
+
+    event_key = [
+      'vk:event',
+      params[:group_id].to_s,
+      params[:type].to_s,
+      event_id
+    ].join(':')
+
+    is_new_event = Rails.cache.write(event_key, true, expires_in: EVENT_IDEMPOTENCY_TTL, unless_exist: true)
+    return false if is_new_event
+
+    Rails.logger.info(
+      "[VK] Duplicate event skipped for group_id=#{params[:group_id]} type=#{params[:type]} event_id=#{event_id}"
+    )
+    true
   end
 
   def event_object(params)

@@ -3,11 +3,21 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
-import { format, startOfWeek, endOfWeek } from 'date-fns';
+import {
+  format,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+} from 'date-fns';
 import ScheduleHeader from './components/ScheduleHeader.vue';
 import DayView from './components/DayView.vue';
 import WeekView from './components/WeekView.vue';
+import MonthView from './components/MonthView.vue';
+import AgendaView from './components/AgendaView.vue';
 import BookingModal from './components/BookingModal.vue';
+import BulkActionsBar from './components/BulkActionsBar.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import SettingsLayout from '../../SettingsLayout.vue';
 import BaseSettingsHeader from '../../components/BaseSettingsHeader.vue';
@@ -22,6 +32,7 @@ const showBookingModal = ref(false);
 const selectedBooking = ref(null);
 const initialProviderId = ref(null);
 const initialTime = ref(null);
+const selectedBookingIds = ref(new Set());
 
 const schedule = computed(() => store.getters['services/getSchedule']);
 const calendarBookings = computed(
@@ -41,6 +52,22 @@ const activeProviders = computed(() => {
   return calendarProviders.value.filter(p => p.active);
 });
 
+const selectedBookings = computed(() => {
+  return calendarBookings.value.filter(b => selectedBookingIds.value.has(b.id));
+});
+
+const toggleBookingSelection = booking => {
+  if (selectedBookingIds.value.has(booking.id)) {
+    selectedBookingIds.value.delete(booking.id);
+  } else {
+    selectedBookingIds.value.add(booking.id);
+  }
+};
+
+const clearSelection = () => {
+  selectedBookingIds.value.clear();
+};
+
 const fetchCalendarData = async () => {
   let startDate;
   let endDate;
@@ -48,9 +75,15 @@ const fetchCalendarData = async () => {
   if (viewMode.value === 'day') {
     startDate = currentDate.value;
     endDate = currentDate.value;
-  } else {
+  } else if (viewMode.value === 'week') {
     startDate = startOfWeek(currentDate.value, { weekStartsOn: 1 });
     endDate = endOfWeek(currentDate.value, { weekStartsOn: 1 });
+  } else if (viewMode.value === 'month') {
+    startDate = startOfMonth(currentDate.value);
+    endDate = endOfMonth(currentDate.value);
+  } else {
+    startDate = currentDate.value;
+    endDate = addMonths(currentDate.value, 1);
   }
 
   try {
@@ -73,6 +106,7 @@ const fetchServices = async () => {
 
 watch([currentDate, viewMode, selectedProviderId], () => {
   fetchCalendarData();
+  clearSelection();
 });
 
 watch(viewMode, newMode => {
@@ -131,6 +165,11 @@ const handleBookingSaved = () => {
   fetchCalendarData();
 };
 
+const handleDateSelect = date => {
+  currentDate.value = date;
+  viewMode.value = 'day';
+};
+
 const closeModal = () => {
   showBookingModal.value = false;
   selectedBooking.value = null;
@@ -170,13 +209,15 @@ const closeModal = () => {
             :providers="activeProviders"
             :bookings="calendarBookings"
             :schedule="schedule"
+            :selected-booking-ids="selectedBookingIds"
             @booking-click="handleBookingClick"
             @slot-click="handleSlotClick"
             @booking-move="handleBookingMove"
+            @toggle-selection="toggleBookingSelection"
           />
 
           <WeekView
-            v-else
+            v-else-if="viewMode === 'week'"
             :date="currentDate"
             :provider-id="selectedProviderId"
             :bookings="calendarBookings"
@@ -184,6 +225,21 @@ const closeModal = () => {
             @booking-click="handleBookingClick"
             @slot-click="handleSlotClick"
             @booking-move="handleBookingMove"
+          />
+
+          <MonthView
+            v-else-if="viewMode === 'month'"
+            :date="currentDate"
+            :bookings="calendarBookings"
+            :schedule="schedule"
+            @date-select="handleDateSelect"
+            @booking-click="handleBookingClick"
+          />
+
+          <AgendaView
+            v-else-if="viewMode === 'agenda'"
+            :bookings="calendarBookings"
+            @booking-click="handleBookingClick"
           />
         </div>
       </div>
@@ -199,5 +255,12 @@ const closeModal = () => {
     :services="services"
     @close="closeModal"
     @saved="handleBookingSaved"
+  />
+
+  <BulkActionsBar
+    :selected-bookings="selectedBookings"
+    :providers="activeProviders"
+    @clear-selection="clearSelection"
+    @completed="fetchCalendarData"
   />
 </template>

@@ -413,7 +413,9 @@ Rails.application.routes.draw do
             post 'yclients_marketplace/payment/refund/:payment_id', to: 'yclients_marketplace#refund'
           end
           namespace :services do
-            resources :providers
+            resources :providers do
+              resource :schedule, only: %i[show create update destroy], controller: 'provider_schedules'
+            end
             resources :services
             resources :bookings do
               collection do
@@ -427,6 +429,7 @@ Rails.application.routes.draw do
               end
             end
             resource :schedule, only: [:show, :create, :update], controller: 'schedule'
+            resources :reports, only: [:index]
           end
           resources :working_hours, only: [:update]
 

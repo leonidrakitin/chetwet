@@ -3,6 +3,7 @@ import ProvidersAPI from '../../api/providers';
 import ServicesAPI from '../../api/servicesApi';
 import BookingsAPI from '../../api/bookings';
 import ScheduleAPI from '../../api/schedule';
+import ProviderScheduleAPI from '../../api/providerSchedule';
 
 const createSetMutation = key => (state, data) => {
   state[key] = data;
@@ -254,6 +255,56 @@ export const actions = {
     try {
       const response = await ScheduleAPI.create({ schedule: data });
       commit(types.SET_SERVICE_SCHEDULE, response.data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    } finally {
+      commit(types.SET_CALENDAR_UI_FLAG, { isUpdatingSchedule: false });
+    }
+  },
+
+  // Provider Schedule
+  fetchProviderSchedule: async ({ commit }, providerId) => {
+    commit(types.SET_CALENDAR_UI_FLAG, { isFetchingSchedule: true });
+    try {
+      const response = await ProviderScheduleAPI.getSchedule(providerId);
+      return response.data;
+    } catch (error) {
+      if (error.response?.status !== 404) {
+        throw new Error(error);
+      }
+      return null;
+    } finally {
+      commit(types.SET_CALENDAR_UI_FLAG, { isFetchingSchedule: false });
+    }
+  },
+
+  updateProviderSchedule: async (
+    { commit, state: moduleState },
+    { providerId, data }
+  ) => {
+    commit(types.SET_CALENDAR_UI_FLAG, { isUpdatingSchedule: true });
+    try {
+      const existingSchedule = moduleState.providers.find(
+        p => p.id === providerId
+      )?.provider_schedule;
+      let response;
+      if (existingSchedule) {
+        response = await ProviderScheduleAPI.updateSchedule(providerId, data);
+      } else {
+        response = await ProviderScheduleAPI.createSchedule(providerId, data);
+      }
+      const providerIndex = moduleState.providers.findIndex(
+        p => p.id === providerId
+      );
+      if (providerIndex !== -1) {
+        const updatedProviders = [...moduleState.providers];
+        updatedProviders[providerIndex] = {
+          ...updatedProviders[providerIndex],
+          provider_schedule: response.data,
+        };
+        commit(types.SET_SERVICE_PROVIDERS, updatedProviders);
+      }
       return response.data;
     } catch (error) {
       throw new Error(error);

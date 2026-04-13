@@ -17,6 +17,7 @@ class Vk::OutgoingMessageSyncService
     return unless @conversation
 
     return if update_pending_chatwoot_message
+    return if update_recent_chatwoot_message_fallback
 
     create_outgoing_message
   rescue StandardError => e
@@ -28,7 +29,9 @@ class Vk::OutgoingMessageSyncService
   private
 
   def duplicate_message?
-    inbox.messages.exists?(source_id: vk_params_message_id.to_s)
+    exists = inbox.messages.exists?(source_id: vk_params_message_id.to_s)
+    Rails.logger.info "[VK] Skip outgoing sync: source_id=#{vk_params_message_id} already exists" if exists
+    exists
   end
 
   def update_message_by_random_id
@@ -50,7 +53,8 @@ class Vk::OutgoingMessageSyncService
     pending = find_pending_chatwoot_message
     return false unless pending
 
-    pending.update!(source_id: vk_params_message_id.to_s)
+    update_message_source_from_vk!(pending)
+    Rails.logger.info "[VK] Updated message #{pending.id} via pending message deduplication"
     true
   end
 
@@ -63,6 +67,33 @@ class Vk::OutgoingMessageSyncService
                  .where('created_at > ?', 2.minutes.ago)
                  .order(created_at: :desc)
                  .first
+  end
+
+  def update_recent_chatwoot_message_fallback
+    pending = find_recent_inbox_message_without_source
+    return false unless pending
+
+    update_message_source_from_vk!(pending)
+    Rails.logger.info "[VK] Updated message #{pending.id} via inbox-level fallback deduplication"
+    true
+  end
+
+  def find_recent_inbox_message_without_source
+    inbox.messages.outgoing
+         .where(source_id: [nil, ''])
+         .where(content: vk_params_message_content)
+         .where(sender_type: %w[User Captain::Assistant])
+         .where('created_at > ?', 2.minutes.ago)
+         .order(created_at: :desc)
+         .first
+  end
+
+  def update_message_source_from_vk!(message)
+    attrs = { source_id: vk_params_message_id.to_s }
+    if vk_params_random_id.present?
+      attrs[:external_source_ids] = (message.external_source_ids || {}).merge('vk_random_id' => vk_params_random_id.to_s)
+    end
+    message.update!(attrs)
   end
 
   def set_contact
@@ -120,7 +151,9 @@ class Vk::OutgoingMessageSyncService
       status: :delivered,
       sender: nil,
       source_id: vk_params_message_id.to_s,
-      content_attributes: { external_echo: true }.merge(vk_params_content_attributes)
+      # Like Telegram::IncomingMessageService (business outgoing): no external_echo.
+      # Otherwise human_response? treats the sync as a human reply and opens Captain + auto-assign.
+      content_attributes: vk_params_content_attributes
     )
 
     process_message_attachments

@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
-class ServiceSchedulePolicy < ApplicationPolicy
+class ProviderSchedulePolicy < ApplicationPolicy
   def show?
     @account_user.administrator? || @account_user.agent?
   end
 
-  def index?
-    @account_user.administrator? || @account_user.agent?
+  def create?
+    @account_user.administrator?
   end
 
   def update?
+    @account_user.administrator?
+  end
+
+  def destroy?
     @account_user.administrator?
   end
 end

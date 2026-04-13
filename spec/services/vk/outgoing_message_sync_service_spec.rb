@@ -80,14 +80,14 @@ RSpec.describe Vk::OutgoingMessageSyncService do
         }
       end
 
-      it 'creates a new message with external_echo flag' do
+      it 'creates a new message without external_echo (Telegram-style: avoid Captain human_reply path)' do
         expect do
           described_class.new(inbox: inbox, params: webhook_params).perform
         end.to change(Message, :count).by(1)
 
         message = Message.last
         expect(message.source_id).to eq('108')
-        expect(message.content_attributes['external_echo']).to be true
+        expect(message.content_attributes['external_echo']).to be_blank
         expect(message.status).to eq('delivered')
       end
     end
