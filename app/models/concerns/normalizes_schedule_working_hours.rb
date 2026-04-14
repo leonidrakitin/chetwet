@@ -3,6 +3,12 @@
 module NormalizesScheduleWorkingHours
   extend ActiveSupport::Concern
 
+  def normalized_working_hours
+    days = self.class.const_defined?(:DAYS_OF_WEEK) ? self.class::DAYS_OF_WEEK : %w[monday tuesday wednesday thursday friday saturday sunday]
+    raw = working_hours.is_a?(String) ? (parse_json_day_config(working_hours) || {}) : (working_hours || {})
+    days.index_with { |day| normalize_day_config(raw[day.to_s.downcase]) }
+  end
+
   private
 
   def normalize_day_config(day_config)

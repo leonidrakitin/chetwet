@@ -5,20 +5,26 @@ class Api::V1::Accounts::Services::ScheduleController < Api::V1::Accounts::Servi
   before_action :check_authorization
 
   def show
-    render json: @schedule
+    render_schedule
   end
 
   def create
     @schedule = current_account.create_service_schedule!(schedule_params)
-    render json: @schedule, status: :created
+    render_schedule(status: :created)
   end
 
   def update
     @schedule.update!(schedule_params)
-    render json: @schedule
+    render_schedule
   end
 
   private
+
+  def render_schedule(status: :ok)
+    return render(json: nil, status: status) if @schedule.nil?
+
+    render partial: 'api/v1/accounts/services/schedule', formats: [:json], locals: { schedule: @schedule }, status: status
+  end
 
   def fetch_schedule
     @schedule = current_account.service_schedule

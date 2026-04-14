@@ -6,17 +6,17 @@ class Api::V1::Accounts::Services::ProviderSchedulesController < Api::V1::Accoun
   before_action :check_authorization
 
   def show
-    render json: @schedule
+    render_schedule
   end
 
   def create
     @schedule = @provider.create_provider_schedule!(schedule_params)
-    render json: @schedule, status: :created
+    render_schedule(status: :created)
   end
 
   def update
     @schedule.update!(schedule_params)
-    render json: @schedule
+    render_schedule
   end
 
   def destroy
@@ -25,6 +25,10 @@ class Api::V1::Accounts::Services::ProviderSchedulesController < Api::V1::Accoun
   end
 
   private
+
+  def render_schedule(status: :ok)
+    render partial: 'api/v1/accounts/services/provider_schedule', formats: [:json], locals: { provider_schedule: @schedule }, status: status
+  end
 
   def fetch_provider
     @provider = current_account.service_providers.find(params[:provider_id])
