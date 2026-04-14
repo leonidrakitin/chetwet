@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Vk::SendAttachmentsService
-  pattr_initialize [:message!]
+  pattr_initialize [:message!, :random_id!]
 
   def perform
     return nil unless channel.peer_id(message).present?
@@ -12,9 +12,9 @@ class Vk::SendAttachmentsService
       attachment_ids << id if id.present?
     end
 
-    return nil unless attachment_ids.last
+    return nil if attachment_ids.empty?
 
-    { message_id: attachment_ids.last[:message_id], random_id: attachment_ids.last[:random_id] }
+    send_message_with_attachment(attachment_ids.join(','))
   end
 
   private
@@ -45,7 +45,7 @@ class Vk::SendAttachmentsService
     photo_data = save_messages_photo(upload_result)
     return unless photo_data
 
-    send_message_with_attachment("photo#{photo_data['owner_id']}_#{photo_data['id']}")
+    "photo#{photo_data['owner_id']}_#{photo_data['id']}"
   end
 
   def upload_and_send_doc(attachment)
@@ -72,7 +72,7 @@ class Vk::SendAttachmentsService
     doc = doc_data.dig('response', 'doc') || doc_data.dig('response', 0) || doc_data['doc']
     return unless doc
 
-    send_message_with_attachment("doc#{doc['owner_id']}_#{doc['id']}")
+    "doc#{doc['owner_id']}_#{doc['id']}"
   end
 
   def get_photo_upload_server
@@ -183,7 +183,6 @@ class Vk::SendAttachmentsService
   end
 
   def send_message_with_attachment(attachment_str)
-    random_id = SecureRandom.random_number(2**31)
     body = {
       peer_id: channel.peer_id(message),
       attachment: attachment_str,

@@ -65,16 +65,16 @@ class Channel::Vk < ApplicationRecord
     'https://api.vk.com/method'
   end
 
-  def send_message_on_vk(message)
+  def send_message_on_vk(message, random_id:)
     refresh_token_if_needed!
     if peer_id(message).blank?
       Rails.logger.warn "[VK] Cannot send: peer_id missing for conversation #{message.conversation_id}"
       return nil
     end
 
-    return Vk::SendAttachmentsService.new(message: message).perform if message.attachments.present?
+    return Vk::SendAttachmentsService.new(message: message, random_id: random_id).perform if message.attachments.present?
 
-    send_message(message) if message.outgoing_content.present?
+    send_message(message, random_id: random_id) if message.outgoing_content.present?
   end
 
   def get_vk_user_info(user_id)
@@ -149,8 +149,7 @@ class Channel::Vk < ApplicationRecord
     )
   end
 
-  def send_message(message)
-    random_id = SecureRandom.random_number(2**31)
+  def send_message(message, random_id:)
     body = {
       peer_id: peer_id(message),
       message: message.outgoing_content,

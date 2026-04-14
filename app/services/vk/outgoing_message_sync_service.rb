@@ -10,13 +10,11 @@ class Vk::OutgoingMessageSyncService
 
   def perform
     return unless message_params?
-    return if deduplicate_before_conversation
+    return if deduplicate_outgoing_echo
 
     set_contact
     set_conversation
     return unless @conversation
-
-    return if deduplicate_with_conversation
 
     create_outgoing_message
   rescue StandardError => e
@@ -27,23 +25,11 @@ class Vk::OutgoingMessageSyncService
 
   private
 
-  def deduplicate_before_conversation
+  def deduplicate_outgoing_echo
     Vk::OutgoingMessageDeduplicator.new(
       inbox: inbox,
-      conversation: nil,
       vk_message_id: vk_params_message_id,
-      vk_random_id: vk_params_random_id,
-      content: vk_params_message_content
-    ).perform
-  end
-
-  def deduplicate_with_conversation
-    Vk::OutgoingMessageDeduplicator.new(
-      inbox: inbox,
-      conversation: @conversation,
-      vk_message_id: vk_params_message_id,
-      vk_random_id: vk_params_random_id,
-      content: vk_params_message_content
+      vk_random_id: vk_params_random_id
     ).perform
   end
 

@@ -6,6 +6,7 @@ RSpec.describe Vk::OutgoingMessageSyncService do
   let!(:account) { create(:account) }
   let!(:channel_vk) { create(:channel_vk, account: account) }
   let!(:inbox) { channel_vk.inbox }
+  let!(:agent) { create(:user, account: account) }
   let!(:contact) { create(:contact, account: account) }
   let!(:contact_inbox) { create(:contact_inbox, contact: contact, inbox: inbox, source_id: '17213748') }
   let!(:conversation) do
@@ -22,7 +23,7 @@ RSpec.describe Vk::OutgoingMessageSyncService do
   end
 
   describe '#perform' do
-    context 'when message has random_id from Chatwoot' do
+    context 'when webhook matches a Chatwoot message by pre-persisted vk_random_id' do
       let!(:existing_message) do
         create(
           :message,
@@ -66,6 +67,42 @@ RSpec.describe Vk::OutgoingMessageSyncService do
       end
     end
 
+    context 'when API response already stored the VK message id in source_id' do
+      let!(:existing_message) do
+        create(
+          :message,
+          :outgoing,
+          conversation: conversation,
+          account: account,
+          inbox: inbox,
+          content: 'Привет из Chatwoot',
+          external_source_ids: { 'vk_random_id' => '351822384' },
+          source_id: '107'
+        )
+      end
+
+      let(:webhook_params) do
+        {
+          date: 1_775_977_275,
+          from_id: -225_520_986,
+          id: 107,
+          out: 1,
+          conversation_message_id: 65,
+          text: 'Привет из Chatwoot',
+          peer_id: 17_213_748,
+          random_id: 351_822_384
+        }
+      end
+
+      it 'treats the webhook as a duplicate and does not create a new record' do
+        expect do
+          described_class.new(inbox: inbox, params: webhook_params).perform
+        end.not_to change(Message, :count)
+
+        expect(existing_message.reload.source_id).to eq('107')
+      end
+    end
+
     context 'when message is sent from VK admin interface (no random_id match)' do
       let(:webhook_params) do
         {
@@ -89,6 +126,43 @@ RSpec.describe Vk::OutgoingMessageSyncService do
         expect(message.source_id).to eq('108')
         expect(message.content_attributes['external_echo']).to be_blank
         expect(message.status).to eq('delivered')
+      end
+    end
+
+    context 'when a similar unsynced Chatwoot message exists but has no vk_random_id' do
+      let!(:existing_message) do
+        create(
+          :message,
+          :outgoing,
+          conversation: conversation,
+          account: account,
+          inbox: inbox,
+          sender: agent,
+          content: "Сообщение   из\nVK  админки",
+          source_id: nil
+        )
+      end
+
+      let(:webhook_params) do
+        {
+          date: 1_775_977_275,
+          from_id: -225_520_986,
+          id: 109,
+          out: 1,
+          conversation_message_id: 67,
+          text: 'Сообщение из VK админки',
+          peer_id: 17_213_748,
+          random_id: 0
+        }
+      end
+
+      it 'creates a separate native VK message instead of guessing by content' do
+        expect do
+          described_class.new(inbox: inbox, params: webhook_params).perform
+        end.to change(Message, :count).by(1)
+
+        expect(existing_message.reload.source_id).to be_nil
+        expect(Message.last.source_id).to eq('109')
       end
     end
 
