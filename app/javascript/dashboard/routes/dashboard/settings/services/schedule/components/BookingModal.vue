@@ -22,6 +22,7 @@ const { t } = useI18n();
 const store = useStore();
 
 const isEditing = computed(() => !!props.booking);
+const STATUS_OPTIONS = ['pending', 'confirmed', 'completed', 'cancelled'];
 const form = ref({
   service_provider_id: null,
   scheduled_at: '',
@@ -29,13 +30,18 @@ const form = ref({
   customer_notes: '',
   internal_notes: '',
   service_ids: [],
+  status: 'pending',
+  cancellation_reason: '',
 });
+const initialStatus = ref('pending');
 const contactSearch = ref('');
 const contactResults = ref([]);
 const isSearchingContacts = ref(false);
 const selectedContact = ref(null);
 const selectedServices = ref([]);
 const isSubmitting = ref(false);
+const isDeleting = ref(false);
+const showDeleteConfirm = ref(false);
 
 const initForm = () => {
   if (props.booking) {
@@ -49,7 +55,10 @@ const initForm = () => {
       customer_notes: props.booking.customer_notes || '',
       internal_notes: props.booking.internal_notes || '',
       service_ids: props.booking.services?.map(s => s.id) || [],
+      status: props.booking.status || 'pending',
+      cancellation_reason: props.booking.cancellation_reason || '',
     };
+    initialStatus.value = props.booking.status || 'pending';
     selectedContact.value = props.booking.contact;
     selectedServices.value = props.booking.services || [];
   } else {
@@ -62,12 +71,16 @@ const initForm = () => {
       customer_notes: '',
       internal_notes: '',
       service_ids: [],
+      status: 'pending',
+      cancellation_reason: '',
     };
+    initialStatus.value = 'pending';
     selectedContact.value = null;
     selectedServices.value = [];
   }
   contactSearch.value = '';
   contactResults.value = [];
+  showDeleteConfirm.value = false;
 };
 
 watch(
@@ -82,6 +95,26 @@ const title = computed(() =>
     ? t('SCHEDULE.MODAL.EDIT_TITLE')
     : t('SCHEDULE.MODAL.CREATE_TITLE')
 );
+
+const handleStatusChange = async () => {
+  if (!isEditing.value) return;
+  const newStatus = form.value.status;
+  if (newStatus === initialStatus.value) return;
+  if (newStatus === 'cancelled') {
+    await store.dispatch('services/cancelBooking', {
+      id: props.booking.id,
+      reason: form.value.cancellation_reason,
+    });
+  } else if (newStatus === 'confirmed') {
+    await store.dispatch('services/confirmBooking', { id: props.booking.id });
+  } else {
+    await store.dispatch('services/updateBooking', {
+      id: props.booking.id,
+      booking: { status: newStatus },
+    });
+  }
+  initialStatus.value = newStatus;
+};
 
 const handleSubmit = async () => {
   isSubmitting.value = true;
@@ -100,14 +133,18 @@ const handleSubmit = async () => {
       ),
     };
 
-    const result = isEditing.value
-      ? await store.dispatch('services/updateBooking', {
-          id: props.booking.id,
-          booking: bookingData,
-        })
-      : await store.dispatch('services/createBooking', {
-          booking: bookingData,
-        });
+    let result;
+    if (isEditing.value) {
+      result = await store.dispatch('services/updateBooking', {
+        id: props.booking.id,
+        booking: bookingData,
+      });
+      await handleStatusChange();
+    } else {
+      result = await store.dispatch('services/createBooking', {
+        booking: bookingData,
+      });
+    }
 
     useAlert(
       t(`SCHEDULE.MODAL.${isEditing.value ? 'UPDATE' : 'CREATE'}_SUCCESS`)
@@ -118,6 +155,22 @@ const handleSubmit = async () => {
     useAlert(error.message || t('SCHEDULE.MODAL.ERROR'));
   } finally {
     isSubmitting.value = false;
+  }
+};
+
+const handleDelete = async () => {
+  if (!isEditing.value) return;
+  isDeleting.value = true;
+  try {
+    await store.dispatch('services/deleteBooking', { id: props.booking.id });
+    useAlert(t('SCHEDULE.MODAL.DELETE_SUCCESS'));
+    emit('saved');
+    emit('close');
+  } catch (error) {
+    useAlert(error.message || t('SCHEDULE.MODAL.ERROR'));
+  } finally {
+    isDeleting.value = false;
+    showDeleteConfirm.value = false;
   }
 };
 
@@ -229,7 +282,7 @@ const isServiceSelected = serviceId =>
                 @click="selectContact(contact)"
               >
                 {{ contact.name }}
-                <span vпопр-if="contact.phone_number" class="text-n-slate-10">
+                <span v-if="contact.phone_number" class="text-n-slate-10">
                   {{ ' · ' }}{{ contact.phone_number }}
                 </span>
               </button>
@@ -282,21 +335,90 @@ const isServiceSelected = serviceId =>
             class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
           />
         </div>
+
+        <div v-if="isEditing">
+          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+            t('SCHEDULE.MODAL.STATUS')
+          }}</label>
+          <select
+            v-model="form.status"
+            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+          >
+            <option
+              v-for="status in STATUS_OPTIONS"
+              :key="status"
+              :value="status"
+            >
+              {{ t(`SCHEDULE.STATUS.${status.toUpperCase()}`) }}
+            </option>
+          </select>
+        </div>
+
+        <div v-if="isEditing && form.status === 'cancelled'">
+          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+            t('SCHEDULE.MODAL.CANCEL_REASON')
+          }}</label>
+          <textarea
+            v-model="form.cancellation_reason"
+            rows="2"
+            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+          />
+        </div>
       </div>
     </template>
 
+    <template #footer>
+      <div class="flex justify-between gap-2">
+        <Button
+          v-if="isEditing"
+          :label="t('SCHEDULE.MODAL.DELETE')"
+          icon="i-lucide-trash-2"
+          ruby
+          faded
+          :is-loading="isDeleting"
+          @click="showDeleteConfirm = true"
+        />
+        <span v-else />
+        <div class="flex gap-2">
+          <Button
+            :label="t('SCHEDULE.MODAL.CANCEL')"
+            faded
+            slate
+            @click="handleCancel"
+          />
+          <Button
+            :label="t('SCHEDULE.MODAL.SAVE')"
+            :is-loading="isSubmitting"
+            @click="handleSubmit"
+          />
+        </div>
+      </div>
+    </template>
+  </Dialog>
+
+  <Dialog
+    :show="showDeleteConfirm"
+    :title="t('SCHEDULE.MODAL.DELETE')"
+    @close="showDeleteConfirm = false"
+  >
+    <template #body>
+      <p class="text-sm text-n-slate-11">
+        {{ t('SCHEDULE.MODAL.DELETE_CONFIRM') }}
+      </p>
+    </template>
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
           :label="t('SCHEDULE.MODAL.CANCEL')"
           faded
           slate
-          @click="handleCancel"
+          @click="showDeleteConfirm = false"
         />
         <Button
-          :label="t('SCHEDULE.MODAL.SAVE')"
-          :is-loading="isSubmitting"
-          @click="handleSubmit"
+          :label="t('SCHEDULE.MODAL.DELETE')"
+          ruby
+          :is-loading="isDeleting"
+          @click="handleDelete"
         />
       </div>
     </template>

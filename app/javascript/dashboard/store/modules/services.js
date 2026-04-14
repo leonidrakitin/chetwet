@@ -202,6 +202,26 @@ export const actions = {
     try {
       const response = await BookingsAPI.cancel(id, reason);
       commit(types.EDIT_SERVICE_BOOKING, response.data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+
+  confirmBooking: async ({ commit }, { id }) => {
+    try {
+      const response = await BookingsAPI.confirm(id);
+      commit(types.EDIT_SERVICE_BOOKING, response.data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+
+  deleteBooking: async ({ commit }, { id }) => {
+    try {
+      await BookingsAPI.delete(id);
+      commit(types.DELETE_SERVICE_BOOKING, id);
     } catch (error) {
       throw new Error(error);
     }

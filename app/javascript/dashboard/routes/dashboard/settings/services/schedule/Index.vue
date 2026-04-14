@@ -134,6 +134,36 @@ const handleSlotClick = ({ providerId, time }) => {
   showBookingModal.value = true;
 };
 
+const roundUpToSlot = (date, intervalMinutes) => {
+  const interval = Math.max(Number(intervalMinutes) || 30, 5);
+  const result = new Date(date);
+  result.setSeconds(0, 0);
+  const remainder = result.getMinutes() % interval;
+  if (remainder !== 0) {
+    result.setMinutes(result.getMinutes() + (interval - remainder));
+  }
+  return result;
+};
+
+const handleAddBooking = () => {
+  selectedBooking.value = null;
+  initialProviderId.value =
+    selectedProviderId.value || activeProviders.value[0]?.id || null;
+  const base = new Date(currentDate.value);
+  const now = new Date();
+  const isToday = base.toDateString() === now.toDateString();
+  if (isToday && now > base) {
+    base.setHours(now.getHours(), now.getMinutes(), 0, 0);
+  } else {
+    base.setHours(9, 0, 0, 0);
+  }
+  initialTime.value = roundUpToSlot(
+    base,
+    schedule.value?.slot_interval_minutes
+  );
+  showBookingModal.value = true;
+};
+
 const handleBookingClick = booking => {
   selectedBooking.value = booking;
   initialProviderId.value = null;
@@ -198,6 +228,7 @@ const closeModal = () => {
           v-model:view-mode="viewMode"
           v-model:selected-provider-id="selectedProviderId"
           :providers="activeProviders"
+          @add-booking="handleAddBooking"
         />
 
         <div class="flex-1 overflow-hidden">

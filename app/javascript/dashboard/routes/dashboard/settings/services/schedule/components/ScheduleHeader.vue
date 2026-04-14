@@ -39,6 +39,7 @@ const emit = defineEmits([
   'update:currentDate',
   'update:viewMode',
   'update:selectedProviderId',
+  'addBooking',
 ]);
 
 const { t } = useI18n();
@@ -201,6 +202,13 @@ const isCurrentToday = computed(() => {
           {{ t('SCHEDULE.AGENDA') }}
         </button>
       </div>
+
+      <Button
+        icon="i-lucide-plus"
+        :label="t('SCHEDULE.MODAL.ADD_BUTTON')"
+        sm
+        @click="emit('addBooking')"
+      />
 
       <Button
         icon="i-lucide-settings"

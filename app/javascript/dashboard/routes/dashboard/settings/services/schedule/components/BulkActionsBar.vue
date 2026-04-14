@@ -18,8 +18,10 @@ const store = useStore();
 
 const showConfirmDialog = ref(false);
 const showCancelDialog = ref(false);
+const showCompleteDialog = ref(false);
 const showReassignDialog = ref(false);
 const selectedProviderId = ref(null);
+const cancelReason = ref('');
 const isProcessing = ref(false);
 
 const selectedCount = computed(() => props.selectedBookings.length);
@@ -65,7 +67,10 @@ const handleCancel = async () => {
   try {
     await Promise.all(
       props.selectedBookings.map(booking =>
-        store.dispatch('services/cancelBooking', { id: booking.id })
+        store.dispatch('services/cancelBooking', {
+          id: booking.id,
+          reason: cancelReason.value,
+        })
       )
     );
     useAlert(t('SCHEDULE.BULK.SUCCESS'));
@@ -76,6 +81,29 @@ const handleCancel = async () => {
   } finally {
     isProcessing.value = false;
     showCancelDialog.value = false;
+    cancelReason.value = '';
+  }
+};
+
+const handleComplete = async () => {
+  isProcessing.value = true;
+  try {
+    await Promise.all(
+      props.selectedBookings.map(booking =>
+        store.dispatch('services/updateBooking', {
+          id: booking.id,
+          booking: { status: 'completed' },
+        })
+      )
+    );
+    useAlert(t('SCHEDULE.BULK.SUCCESS'));
+    emit('completed');
+    emit('clearSelection');
+  } catch (error) {
+    useAlert(error.message || t('SCHEDULE.BULK.ERROR'));
+  } finally {
+    isProcessing.value = false;
+    showCompleteDialog.value = false;
   }
 };
 
@@ -128,8 +156,15 @@ const handleReassign = async () => {
           @click="openConfirmDialog"
         />
         <Button
+          :label="t('SCHEDULE.BULK.COMPLETE')"
+          faded
+          sm
+          @click="showCompleteDialog = true"
+        />
+        <Button
           :label="t('SCHEDULE.BULK.CANCEL')"
           faded
+          ruby
           sm
           @click="openCancelDialog"
         />
@@ -176,8 +211,44 @@ const handleReassign = async () => {
     @close="showCancelDialog = false"
   >
     <template #body>
-      <p class="text-sm text-n-slate-11">
+      <p class="text-sm text-n-slate-11 mb-3">
         {{ t('SCHEDULE.BULK.CANCEL_PROMPT', { count: selectedCount }) }}
+      </p>
+      <label class="block text-sm font-medium text-n-slate-12 mb-1">
+        {{ t('SCHEDULE.MODAL.CANCEL_REASON') }}
+      </label>
+      <textarea
+        v-model="cancelReason"
+        rows="2"
+        class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+      />
+    </template>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <Button
+          :label="t('SCHEDULE.MODAL.CANCEL')"
+          faded
+          slate
+          @click="showCancelDialog = false"
+        />
+        <Button
+          :label="t('SCHEDULE.BULK.CANCEL')"
+          ruby
+          :is-loading="isProcessing"
+          @click="handleCancel"
+        />
+      </div>
+    </template>
+  </Dialog>
+
+  <Dialog
+    :show="showCompleteDialog"
+    :title="t('SCHEDULE.BULK.COMPLETE_SELECTED')"
+    @close="showCompleteDialog = false"
+  >
+    <template #body>
+      <p class="text-sm text-n-slate-11">
+        {{ t('SCHEDULE.BULK.COMPLETE_PROMPT', { count: selectedCount }) }}
       </p>
     </template>
     <template #footer>
@@ -185,12 +256,13 @@ const handleReassign = async () => {
         <Button
           :label="t('SCHEDULE.MODAL.CANCEL')"
           faded
-          @click="showCancelDialog = false"
+          slate
+          @click="showCompleteDialog = false"
         />
         <Button
-          :label="t('SCHEDULE.BULK.CANCEL')"
+          :label="t('SCHEDULE.BULK.COMPLETE')"
           :is-loading="isProcessing"
-          @click="handleCancel"
+          @click="handleComplete"
         />
       </div>
     </template>
