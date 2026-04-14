@@ -34,6 +34,7 @@
 #  index_messages_on_conversation_id                    (conversation_id)
 #  index_messages_on_created_at                         (created_at)
 #  index_messages_on_inbox_id                           (inbox_id)
+#  index_messages_on_inbox_id_and_source_id             (inbox_id,source_id) UNIQUE WHERE (source_id IS NOT NULL)
 #  index_messages_on_sender_type_and_sender_id          (sender_type,sender_id)
 #  index_messages_on_source_id                          (source_id)
 #  index_messages_on_vk_random_id                       (((external_source_ids ->> 'vk_random_id'::text))) WHERE ((external_source_ids ->> 'vk_random_id'::text) IS NOT NULL)

@@ -95,6 +95,9 @@ class Vk::OutgoingMessageSyncService
 
     process_message_attachments
     @message.save!
+  rescue ActiveRecord::RecordNotUnique
+    # Race with SendOnVkService echo: outgoing message with this source_id was just persisted.
+    Rails.logger.info "[VK] Skip outgoing sync on unique violation: source_id=#{vk_params_message_id}"
   end
 
   def process_message_attachments

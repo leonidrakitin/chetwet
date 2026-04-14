@@ -4,15 +4,15 @@
 #
 # Table name: provider_schedules
 #
-#  id                         :bigint           not null, primary key
-#  breaks                     :jsonb
-#  holidays                   :jsonb
-#  inherit_account_schedule   :boolean          default(TRUE), not null
-#  timezone                   :string           default("UTC"), not null
-#  working_hours              :jsonb
-#  created_at                 :datetime         not null
-#  updated_at                 :datetime         not null
-#  service_provider_id        :bigint           not null
+#  id                       :bigint           not null, primary key
+#  breaks                   :jsonb
+#  holidays                 :jsonb
+#  inherit_account_schedule :boolean          default(TRUE), not null
+#  timezone                 :string           default("UTC"), not null
+#  working_hours            :jsonb
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  service_provider_id      :bigint           not null
 #
 # Indexes
 #
