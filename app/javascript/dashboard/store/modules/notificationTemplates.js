@@ -106,6 +106,7 @@ export const actions = {
       },
     });
     commit('ADD_TEMPLATE', response.data);
+    return response.data;
   },
   async update({ commit }, template) {
     const response = await NotificationTemplatesAPI.update(template.id, {

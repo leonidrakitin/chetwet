@@ -58,6 +58,8 @@
     },
     "VARIABLES_HINT": "Available variables: {client_name}, {service_name}, {branch_name}, {master_name}, {price}, {date}, {time}",
     "SECTIONS": {
+      "BASICS": "Template details",
+      "BASICS_HINT": "Define the template name, type, and integration context.",
       "TRIGGER": "Trigger Settings",
       "AUDIENCE": "Audience",
       "LIMITS": "Limits & Restrictions",
@@ -79,6 +81,11 @@
       "INBOX": {
         "LABEL": "Inbox",
         "PLACEHOLDER": "Select inbox"
+      },
+      "INBOX_FILTER": {
+        "LABEL": "Limit to inbox",
+        "PLACEHOLDER": "All inboxes",
+        "HINT": "Only conversations in this inbox will receive the message."
       },
       "YCLIENTS_INTEGRATION": {
         "LABEL": "Yclients salon",
@@ -269,7 +276,20 @@
       "TYPE_TEMPLATE": "Go to template",
       "URL": "URL",
       "TEMPLATE": "Select template...",
+      "CREATE_TEMPLATE": "Create template",
       "MAX_REACHED": "Maximum 3 buttons"
+    },
+    "QUICK_CREATE": {
+      "TITLE": "Quick template",
+      "DESCRIPTION": "Create a simple template and attach it to this button.",
+      "NAME_LABEL": "Template name",
+      "NAME_PLACEHOLDER": "Follow-up reminder",
+      "MESSAGE_LABEL": "Message text",
+      "MESSAGE_PLACEHOLDER": "Thanks for your visit! We will remind you about the next appointment.",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Create template",
+      "SUCCESS": "Template created. Select it to continue.",
+      "ERROR": "Could not create template."
     },
     "CASCADE": {
       "TITLE": "Delivery cascade",

@@ -243,6 +243,9 @@ const handleSave = async () => {
 onMounted(() => {
   store.dispatch('campaigns/get');
   store.dispatch('customViews/get', { filter_type: 'contact' });
+  if (!allTemplates.value.length) {
+    store.dispatch('notificationTemplates/get');
+  }
   if (!availableInboxes.value.length) {
     store.dispatch('inboxes/get');
   }
@@ -318,109 +321,103 @@ onMounted(() => {
         </div>
 
         <div class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem]">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
-                <span class="text-n-ruby-9">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
+          <div
+            class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex flex-col gap-1">
+                <p class="text-sm font-semibold text-n-slate-12">
+                  {{ t('CAMPAIGNS.SECTIONS.BASICS') }}
+                </p>
+                <p class="text-xs text-n-slate-9">
+                  {{ t('CAMPAIGNS.SECTIONS.BASICS_HINT') }}
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
+                  <span class="text-n-ruby-9">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
+                  </span>
+                </label>
+                <input
+                  v-model="form.name"
+                  type="text"
+                  :placeholder="
+                    t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')
+                  "
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+                  @input="nameError = ''"
+                />
+                <span v-if="nameError" class="text-xs text-n-ruby-11">
+                  {{ nameError }}
                 </span>
-              </label>
-              <input
-                v-model="form.name"
-                type="text"
-                :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
-                @input="nameError = ''"
-              />
-              <span v-if="nameError" class="text-xs text-n-ruby-11">
-                {{ nameError }}
-              </span>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{ t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.LABEL') }}
+                </label>
+                <input
+                  v-model="form.description"
+                  type="text"
+                  :placeholder="
+                    t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.PLACEHOLDER')
+                  "
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+                />
+              </div>
             </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.LABEL') }}
-              </label>
-              <select
-                v-model="form.inboxId"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              >
-                <option value="">
-                  {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.PLACEHOLDER') }}
-                </option>
-                <option
-                  v-for="inbox in availableInboxes"
-                  :key="inbox.id"
-                  :value="inbox.id"
-                >
-                  {{ inbox.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.LABEL') }}
-            </label>
-            <input
-              v-model="form.description"
-              type="text"
-              :placeholder="
-                t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.PLACEHOLDER')
-              "
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div v-if="yclientsEnabled" class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{
-                  t('NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.LABEL')
-                }}
-              </label>
-              <select
-                v-model="form.yclientsIntegrationId"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              >
-                <option value="">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div v-if="yclientsEnabled" class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
                   {{
-                    t(
-                      'NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.PLACEHOLDER'
-                    )
+                    t('NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.LABEL')
                   }}
-                </option>
-                <option
-                  v-for="integration in yclientsIntegrations"
-                  :key="integration.id"
-                  :value="integration.id"
+                </label>
+                <select
+                  v-model="form.yclientsIntegrationId"
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
                 >
-                  {{
-                    t(
-                      'NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.OPTION',
-                      {
-                        salonId: integration.salon_id,
-                      }
-                    )
-                  }}
-                </option>
-              </select>
-            </div>
+                  <option value="">
+                    {{
+                      t(
+                        'NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.PLACEHOLDER'
+                      )
+                    }}
+                  </option>
+                  <option
+                    v-for="integration in yclientsIntegrations"
+                    :key="integration.id"
+                    :value="integration.id"
+                  >
+                    {{
+                      t(
+                        'NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.OPTION',
+                        { salonId: integration.salon_id }
+                      )
+                    }}
+                  </option>
+                </select>
+              </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
-                {{ t('CAMPAIGNS.SCHEDULED_AT') }}
-              </label>
-              <input
-                v-model="form.scheduledAt"
-                type="datetime-local"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-              />
-              <span class="text-xs text-n-slate-9">
-                {{ t('CAMPAIGNS.SCHEDULED_AT_HINT') }}
-              </span>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{ t('CAMPAIGNS.SCHEDULED_AT') }}
+                </label>
+                <input
+                  v-model="form.scheduledAt"
+                  type="datetime-local"
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                />
+                <span class="text-xs text-n-slate-9">
+                  {{ t('CAMPAIGNS.SCHEDULED_AT_HINT') }}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -428,6 +425,17 @@ onMounted(() => {
           <div
             class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
           >
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex flex-col gap-1">
+                <p class="text-sm font-semibold text-n-slate-12">
+                  {{ t('CAMPAIGNS.SECTIONS.AUDIENCE') }}
+                </p>
+                <p class="text-xs text-n-slate-9">
+                  {{ t('CAMPAIGNS.SECTIONS.AUDIENCE_HINT') }}
+                </p>
+              </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-medium text-n-slate-12">
@@ -448,6 +456,32 @@ onMounted(() => {
                     {{ segment.name }}
                   </option>
                 </select>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-n-slate-12">
+                  {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX_FILTER.LABEL') }}
+                </label>
+                <select
+                  v-model="form.inboxId"
+                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                >
+                  <option value="">
+                    {{
+                      t('NOTIFICATION_TEMPLATES.FORM.INBOX_FILTER.PLACEHOLDER')
+                    }}
+                  </option>
+                  <option
+                    v-for="inbox in availableInboxes"
+                    :key="inbox.id"
+                    :value="inbox.id"
+                  >
+                    {{ inbox.name }}
+                  </option>
+                </select>
+                <span class="text-xs text-n-slate-9">
+                  {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX_FILTER.HINT') }}
+                </span>
               </div>
 
               <div class="flex flex-col gap-1">
@@ -564,15 +598,19 @@ onMounted(() => {
           </div>
 
           <!-- Messages -->
-          <div class="flex flex-col gap-3">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
-            </label>
+          <div
+            class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-n-slate-12">
+                {{ t('CAMPAIGNS.SECTIONS.MESSAGES') }}
+              </p>
+            </div>
 
             <div
               v-for="(block, idx) in form.messages"
               :key="idx"
-              class="flex flex-col gap-2 rounded-xl border border-n-weak bg-n-alpha-1 p-3"
+              class="flex flex-col gap-2 rounded-xl border border-n-weak bg-n-solid-1 p-3"
             >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-0.5">
@@ -636,13 +674,13 @@ onMounted(() => {
               <span class="i-lucide-plus size-3.5" />
               {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.ADD_MESSAGE') }}
             </button>
-          </div>
 
-          <div class="flex items-center gap-3">
-            <Switch v-model="form.enabled" />
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('NOTIFICATION_TEMPLATES.FORM.ENABLED.LABEL') }}
-            </label>
+            <div class="flex items-center gap-3 pt-2 border-t border-n-weak">
+              <Switch v-model="form.enabled" />
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('NOTIFICATION_TEMPLATES.FORM.ENABLED.LABEL') }}
+              </label>
+            </div>
           </div>
         </div>
 

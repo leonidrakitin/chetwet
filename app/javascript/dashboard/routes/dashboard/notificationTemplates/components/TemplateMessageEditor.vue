@@ -64,7 +64,12 @@ const createVariableSpan = key => {
 
 // === Model → DOM ===
 const escapeHtml = str =>
-  str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 const modelToHtml = text => {
   if (!text) return '';
@@ -80,11 +85,15 @@ const modelToHtml = text => {
       parts.push('<br>');
     } else {
       const key = match[1];
-      const style = getVariableStyle(key);
-      const title = escapeHtml(getTitle(key));
-      parts.push(
-        `<span data-type="variable" data-var="${key}" contenteditable="false" class="inline rounded px-0.5 font-medium align-baseline cursor-pointer" style="${style}" title="${title}">@${key}</span>`
-      );
+      if (!VARIABLE_KEYS.includes(key)) {
+        parts.push(escapeHtml(match[0]));
+      } else {
+        const style = getVariableStyle(key);
+        const title = escapeHtml(getTitle(key));
+        parts.push(
+          `<span data-type="variable" data-var="${key}" contenteditable="false" class="inline rounded px-0.5 font-medium align-baseline cursor-pointer" style="${style}" title="${title}">@${key}</span>`
+        );
+      }
     }
     lastIndex = match.index + match[0].length;
     match = regex.exec(text);

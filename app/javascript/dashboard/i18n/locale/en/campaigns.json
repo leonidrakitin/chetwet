@@ -8,6 +8,13 @@
     "SCHEDULED_AT_HINT": "Leave empty to send immediately",
     "SEGMENT_LABEL": "Segment",
     "SEGMENT_PLACEHOLDER": "All contacts (no segment filter)",
+    "SECTIONS": {
+      "BASICS": "Campaign details",
+      "BASICS_HINT": "Set the campaign name, schedule, and integration context.",
+      "AUDIENCE": "Audience & filters",
+      "AUDIENCE_HINT": "Limit recipients by segment, tags, or inbox.",
+      "MESSAGES": "Messages"
+    },
     "PREVIEW_AUDIENCE": "Preview recipients",
     "PREVIEW_ERROR": "Failed to load audience preview",
     "AUDIENCE_COUNT": "{count} recipients",

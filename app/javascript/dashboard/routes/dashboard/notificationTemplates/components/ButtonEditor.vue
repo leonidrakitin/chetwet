@@ -1,6 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useStore } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
+import Modal from 'dashboard/components/Modal.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   modelValue: {
@@ -20,6 +24,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const { t } = useI18n();
+const store = useStore();
 
 const MAX_BUTTONS = 3;
 
@@ -28,6 +33,14 @@ const newButtonLabel = ref('');
 const newButtonType = ref('url');
 const newButtonUrl = ref('');
 const newButtonTemplateId = ref('');
+const showQuickCreate = ref(false);
+const isQuickCreating = ref(false);
+const quickTemplateName = ref('');
+const quickTemplateMessage = ref('');
+
+const canQuickCreate = computed(
+  () => quickTemplateName.value.trim() && quickTemplateMessage.value.trim()
+);
 
 let nextIdCounter = 1;
 const genId = () => {
@@ -48,6 +61,41 @@ const removeButton = id => {
 const getTemplateName = templateId => {
   const tmpl = props.templates.find(tmpl2 => tmpl2.id === Number(templateId));
   return tmpl?.name ?? String(templateId);
+};
+
+const resetQuickCreateForm = () => {
+  quickTemplateName.value = '';
+  quickTemplateMessage.value = '';
+};
+
+const closeQuickCreate = () => {
+  showQuickCreate.value = false;
+  resetQuickCreateForm();
+};
+
+const createQuickTemplate = async () => {
+  if (!canQuickCreate.value || isQuickCreating.value) return;
+  isQuickCreating.value = true;
+  try {
+    const template = await store.dispatch('notificationTemplates/create', {
+      name: quickTemplateName.value.trim(),
+      messages: [
+        {
+          text: quickTemplateMessage.value.trim(),
+          attachments: [],
+          buttons: [],
+        },
+      ],
+      enabled: true,
+    });
+    newButtonTemplateId.value = template?.id ?? '';
+    useAlert(t('NOTIFICATION_TEMPLATES.QUICK_CREATE.SUCCESS'));
+    closeQuickCreate();
+  } catch {
+    useAlert(t('NOTIFICATION_TEMPLATES.QUICK_CREATE.ERROR'));
+  } finally {
+    isQuickCreating.value = false;
+  }
 };
 
 const addButton = () => {
@@ -175,6 +223,15 @@ const addButton = () => {
         </option>
       </select>
 
+      <button
+        v-if="newButtonType === 'template'"
+        type="button"
+        class="self-start text-xs text-n-brand hover:text-n-brand/80 transition-colors"
+        @click="showQuickCreate = true"
+      >
+        {{ t('NOTIFICATION_TEMPLATES.BUTTONS.CREATE_TEMPLATE') }}
+      </button>
+
       <div class="flex gap-2">
         <button
           type="button"
@@ -193,4 +250,59 @@ const addButton = () => {
       </div>
     </div>
   </div>
+
+  <Modal v-model:show="showQuickCreate" :on-close="closeQuickCreate">
+    <div class="flex flex-col gap-4 p-6">
+      <div class="flex flex-col gap-1">
+        <p class="text-base font-semibold text-n-slate-12">
+          {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.TITLE') }}
+        </p>
+        <p class="text-sm text-n-slate-10">
+          {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.DESCRIPTION') }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.NAME_LABEL') }}
+        </label>
+        <input
+          v-model="quickTemplateName"
+          type="text"
+          :placeholder="
+            t('NOTIFICATION_TEMPLATES.QUICK_CREATE.NAME_PLACEHOLDER')
+          "
+          class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.MESSAGE_LABEL') }}
+        </label>
+        <textarea
+          v-model="quickTemplateMessage"
+          :placeholder="
+            t('NOTIFICATION_TEMPLATES.QUICK_CREATE.MESSAGE_PLACEHOLDER')
+          "
+          class="min-h-[6rem] w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 py-2 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+        />
+      </div>
+
+      <div class="flex items-center justify-end gap-2">
+        <Button
+          variant="faded"
+          color="slate"
+          :label="t('NOTIFICATION_TEMPLATES.QUICK_CREATE.CANCEL')"
+          @click="closeQuickCreate"
+        />
+        <Button
+          :label="t('NOTIFICATION_TEMPLATES.QUICK_CREATE.SUBMIT')"
+          :is-loading="isQuickCreating"
+          :disabled="!canQuickCreate"
+          @click="createQuickTemplate"
+        />
+      </div>
+    </div>
+  </Modal>
 </template>
