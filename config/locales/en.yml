@@ -355,6 +355,10 @@ en:
       name: 'Booking Manager'
       short_description: 'Manage schedules, providers, and services from one place.'
       description: 'Booking Manager lets you organize schedules, providers, and services so your team can manage bookings in one place.'
+    vk_market:
+      name: 'VK Market'
+      short_description: 'Access products from your VK community market.'
+      description: 'Connect VK Market to let Captain tools list and search products from your VK community market.'
     dyte:
       name: 'Dyte'
       short_description: 'Start video/voice calls with customers directly from EstBot.'

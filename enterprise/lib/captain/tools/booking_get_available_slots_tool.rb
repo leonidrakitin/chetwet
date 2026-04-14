@@ -1,18 +1,16 @@
 # frozen_string_literal: true
 
-require_relative 'base_tool'
-
-class Captain::Tools::BookingGetAvailableSlotsTool < Captain::Tools::BaseTool
+class Captain::Tools::BookingGetAvailableSlotsTool < Captain::Tools::BookingBaseTool
   description 'Get available time slots for booking on a specific date'
   param :provider_id, type: 'string', desc: 'Service provider ID (required)'
   param :service_ids, type: 'string', desc: 'Comma-separated service IDs (required)'
   param :date, type: 'string', desc: 'Date in YYYY-MM-DD format (required)'
 
   def perform(_tool_context, provider_id:, service_ids:, date:)
-    return error_result('Account has no schedule configured') unless @account.service_schedule
+    return error_result('Account has no schedule configured') unless account.service_schedule
 
     slots = Booking::AvailabilityService.new(
-      account: @account,
+      account: account,
       provider_id: provider_id,
       service_ids: service_ids,
       date: date

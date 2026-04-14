@@ -37,7 +37,7 @@ const ICON_MAP = {
   'shopping-bag': 'i-lucide-shopping-bag',
 };
 
-const BUILT_IN_CATEGORY_ORDER = ['core', 'vk_market', 'yclients'];
+const BUILT_IN_CATEGORY_ORDER = ['core', 'vk_market', 'yclients', 'booking'];
 const CAPTAIN_FEATURE_ICON_MAP = {
   label_suggestion: 'i-lucide-tag',
   help_center_search: 'i-lucide-search',
@@ -58,6 +58,11 @@ const BUILT_IN_CATEGORY_SECTION_META = {
     icon: 'i-lucide-calendar',
     iconColor: 'text-n-teal-11',
     bgColor: 'bg-n-teal-3',
+  },
+  booking: {
+    icon: 'i-lucide-calendar',
+    iconColor: 'text-n-amber-11',
+    bgColor: 'bg-n-amber-3',
   },
 };
 

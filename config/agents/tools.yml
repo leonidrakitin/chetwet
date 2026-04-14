@@ -3,7 +3,7 @@
 # title: Human-readable tool name for frontend display (fallback when i18n missing)
 # description: Brief description (fallback when i18n missing)
 # icon: Icon name for frontend display (frontend icon system)
-# category: UI grouping on assistant tools page (core | vk_market | yclients)
+# category: UI grouping on assistant tools page (core | vk_market | yclients | booking)
 #######################################################
 
 - id: add_contact_note
@@ -154,4 +154,16 @@
   category: booking
   title: 'Booking: Cancel Appointment'
   description: 'Cancel an existing booking'
+  icon: 'calendar'
+
+- id: booking_list_appointments
+  category: booking
+  title: 'Booking: List Appointments'
+  description: 'List upcoming or past appointments for the contact'
+  icon: 'calendar'
+
+- id: booking_update_appointment
+  category: booking
+  title: 'Booking: Update Appointment'
+  description: 'Reschedule or update an existing booking'
   icon: 'calendar'

@@ -61,6 +61,7 @@ class Captain::Assistant < ApplicationRecord
   def available_agent_tools
     disabled_ids = disabled_built_in_tools || []
     tools = self.class.built_in_agent_tools.reject { |t| disabled_ids.include?(t[:id]) }
+    tools = tools.select { |tool| tool_active_for_assistant?(tool[:id]) }
 
     custom_tools = account.captain_custom_tools.enabled.map(&:to_tool_metadata)
     tools.concat(custom_tools)
@@ -70,7 +71,9 @@ class Captain::Assistant < ApplicationRecord
 
   def built_in_tools_with_status
     disabled_ids = disabled_built_in_tools || []
-    self.class.built_in_agent_tools.map do |tool|
+    self.class.built_in_agent_tools.filter_map do |tool|
+      next unless tool_active_for_assistant?(tool[:id])
+
       tool.merge(enabled: disabled_ids.exclude?(tool[:id]))
     end
   end
@@ -150,5 +153,16 @@ class Captain::Assistant < ApplicationRecord
 
   def default_avatar_url
     "#{ENV.fetch('FRONTEND_URL', nil)}/assets/images/dashboard/captain/logo.svg"
+  end
+
+  def tool_active_for_assistant?(tool_id)
+    tool_class = self.class.resolve_tool_class(tool_id)
+    return false unless tool_class
+
+    tool = tool_class.new(self)
+    tool.active?
+  rescue StandardError => e
+    Rails.logger.warn("[Captain] Failed to initialize tool #{tool_id}: #{e.message}")
+    false
   end
 end

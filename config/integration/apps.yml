@@ -29,6 +29,12 @@ booking_manager:
   hook_type: account
   allow_multiple_hooks: false
   settings_form_schema: []
+vk_market:
+  id: vk_market
+  logo: vk_market.svg
+  i18n_key: vk_market
+  hook_type: account
+  allow_multiple_hooks: false
 openai:
   id: openai
   logo: openai.png

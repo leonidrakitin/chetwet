@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base_tool'
-
-class Captain::Tools::BookingBookAppointmentTool < Captain::Tools::BaseTool
+class Captain::Tools::BookingBookAppointmentTool < Captain::Tools::BookingBaseTool
   description 'Book an appointment for the contact. Supports multiple services in one booking.'
   param :provider_id, type: 'string', desc: 'Service provider ID (required)'
   param :service_ids, type: 'string', desc: 'Comma-separated service IDs - multiple services supported (required)'
@@ -10,12 +8,13 @@ class Captain::Tools::BookingBookAppointmentTool < Captain::Tools::BaseTool
   param :customer_notes, type: 'string', desc: 'Optional notes from customer', required: false
   param :preferences, type: 'object', desc: 'Optional preferences (e.g., {"stylist_preference": "male"})', required: false
 
-  def perform(_tool_context, provider_id:, service_ids:, datetime:, customer_notes: nil, preferences: nil) # rubocop:disable Metrics/ParameterLists
-    return error_result('No contact associated with this conversation') unless @contact
+  def perform(tool_context, provider_id:, service_ids:, datetime:, customer_notes: nil, preferences: nil) # rubocop:disable Metrics/ParameterLists
+    contact = contact_for(tool_context)
+    return error_result('No contact associated with this conversation') unless contact
 
     booking = Booking::BookingService.new(
-      account: @account,
-      contact: @contact,
+      account: account,
+      contact: contact,
       params: build_params(provider_id, service_ids, datetime, customer_notes, preferences)
     ).book
 

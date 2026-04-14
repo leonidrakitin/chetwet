@@ -1,20 +1,18 @@
 # frozen_string_literal: true
 
-require_relative 'base_tool'
-
-class Captain::Tools::BookingGetProvidersTool < Captain::Tools::BaseTool
+class Captain::Tools::BookingGetProvidersTool < Captain::Tools::BookingBaseTool
   description 'Get list of available service providers (staff members) for booking'
 
   def perform(_tool_context, **)
-    providers = @account.service_providers.active.ordered
+    providers = account.service_providers.active.ordered
 
     return format_result('No providers found') if providers.empty?
 
-    data = providers.map do |p|
+    data = providers.map do |provider|
       {
-        id: p.id,
-        name: p.name,
-        description: p.description
+        id: provider.id,
+        name: provider.name,
+        description: provider.description
       }
     end
 

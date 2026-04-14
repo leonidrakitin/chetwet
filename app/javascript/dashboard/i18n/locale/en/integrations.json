@@ -979,6 +979,10 @@
         "yclients": {
           "TITLE": "Yclients",
           "DESCRIPTION": "Bookings, clients, and salon data in Yclients"
+        },
+        "booking": {
+          "TITLE": "Booking Manager",
+          "DESCRIPTION": "Services, providers, and appointments managed in Booking Manager"
         }
       },
       "TOOLS": {
@@ -1033,6 +1037,34 @@
         "yclients_update_visit_status": {
           "TITLE": "Yclients: Update Visit Status",
           "DESCRIPTION": "Update attendance status of a Yclients appointment"
+        },
+        "booking_get_services": {
+          "TITLE": "Booking: Services",
+          "DESCRIPTION": "Get list of available services for booking"
+        },
+        "booking_get_providers": {
+          "TITLE": "Booking: Providers",
+          "DESCRIPTION": "Get list of available service providers (staff)"
+        },
+        "booking_get_available_slots": {
+          "TITLE": "Booking: Available Slots",
+          "DESCRIPTION": "Get available time slots for booking on a specific date"
+        },
+        "booking_book_appointment": {
+          "TITLE": "Booking: Book Appointment",
+          "DESCRIPTION": "Book an appointment for the contact"
+        },
+        "booking_cancel_appointment": {
+          "TITLE": "Booking: Cancel Appointment",
+          "DESCRIPTION": "Cancel an existing booking"
+        },
+        "booking_list_appointments": {
+          "TITLE": "Booking: List Appointments",
+          "DESCRIPTION": "List upcoming or past appointments for the contact"
+        },
+        "booking_update_appointment": {
+          "TITLE": "Booking: Update Appointment",
+          "DESCRIPTION": "Reschedule or update an existing booking"
         },
         "ask_human": {
           "TITLE": "Ask Human",

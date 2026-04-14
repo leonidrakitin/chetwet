@@ -4,7 +4,7 @@ class Captain::Tools::VkMarketBaseTool < Captain::Tools::BasePublicTool
   VK_API_VERSION = '5.199'
 
   def active?
-    assistant_account.inboxes.joins(:channel_vk).exists?
+    assistant_account.hooks.exists?(app_id: 'vk_market', status: :enabled)
   end
 
   private
