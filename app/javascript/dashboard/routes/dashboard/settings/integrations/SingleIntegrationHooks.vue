@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { computed, defineProps, defineEmits } from 'vue';
 import { useIntegrationHook } from 'dashboard/composables/useIntegrationHook';
 import { useBranding } from 'shared/composables/useBranding';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -18,6 +18,39 @@ const { integration, hasConnectedHooks } = useIntegrationHook(
 );
 
 const { replaceInstallationName } = useBranding();
+
+const buildLogoPath = logoValue => {
+  if (!logoValue) return '';
+  if (
+    logoValue.startsWith('http') ||
+    logoValue.startsWith('data:') ||
+    logoValue.startsWith('/')
+  ) {
+    return logoValue;
+  }
+  return `/dashboard/images/integrations/${logoValue}`;
+};
+
+const buildDarkLogoFallback = logoValue => {
+  const match = logoValue.match(/^(.*)(\.[^.]+)$/);
+  if (match) {
+    return `${match[1]}-dark${match[2]}`;
+  }
+  return `${logoValue}-dark`;
+};
+
+const logoPath = computed(() => {
+  if (integration.value.logo) return buildLogoPath(integration.value.logo);
+  return `/dashboard/images/integrations/${props.integrationId}.png`;
+});
+
+const logoDarkPath = computed(() => {
+  if (integration.value.logo_dark)
+    return buildLogoPath(integration.value.logo_dark);
+  if (integration.value.logo)
+    return buildLogoPath(buildDarkLogoFallback(integration.value.logo));
+  return `/dashboard/images/integrations/${props.integrationId}-dark.png`;
+});
 </script>
 
 <template>
@@ -27,11 +60,11 @@ const { replaceInstallationName } = useBranding();
     <div class="flex items-center justify-center">
       <div class="flex h-16 w-16 items-center justify-center">
         <img
-          :src="`/dashboard/images/integrations/${integrationId}.png`"
+          :src="logoPath"
           class="max-w-full rounded-md border border-n-weak shadow-sm block dark:hidden bg-n-alpha-3 dark:bg-n-alpha-2"
         />
         <img
-          :src="`/dashboard/images/integrations/${integrationId}-dark.png`"
+          :src="logoDarkPath"
           class="max-w-full rounded-md border border-n-weak shadow-sm hidden dark:block bg-n-alpha-3 dark:bg-n-alpha-2"
         />
       </div>

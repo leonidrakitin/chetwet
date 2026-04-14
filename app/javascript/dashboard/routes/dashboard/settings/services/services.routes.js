@@ -18,12 +18,30 @@ export default {
             permissions: ['administrator', 'agent'],
           },
           redirect: to => {
-            return { name: 'services_list', params: to.params };
+            return { name: 'services_providers', params: to.params };
           },
         },
         {
           path: 'list',
           name: 'services_list',
+          meta: {
+            permissions: ['administrator', 'agent'],
+          },
+          redirect: to => {
+            return { name: 'services_providers', params: to.params };
+          },
+        },
+        {
+          path: 'providers',
+          name: 'services_providers',
+          meta: {
+            permissions: ['administrator', 'agent'],
+          },
+          component: ServicesIndex,
+        },
+        {
+          path: 'services',
+          name: 'services_services',
           meta: {
             permissions: ['administrator', 'agent'],
           },

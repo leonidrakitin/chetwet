@@ -1,6 +1,6 @@
 <script setup>
 import { useAlert } from 'dashboard/composables';
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStoreGetters, useStore } from 'dashboard/composables/store';
 import { picoSearch } from '@scmmishra/pico-search';
@@ -112,10 +112,39 @@ const confirmDeletion = () => {
   deleteItem();
 };
 
+const tabRouteMap = {
+  providers: 'services_providers',
+  services: 'services_services',
+};
+const routeTabMap = {
+  services_providers: 'providers',
+  services_services: 'services',
+  services_list: 'providers',
+};
+
 const switchTab = tab => {
-  activeTab.value = tab;
+  const routeName = tabRouteMap[tab];
+  if (!routeName) return;
+  if (route.name === routeName) {
+    activeTab.value = tab;
+    searchQuery.value = '';
+    return;
+  }
+  router.push({
+    name: routeName,
+    params: { accountId: route.params.accountId },
+  });
   searchQuery.value = '';
 };
+
+watch(
+  () => route.name,
+  routeName => {
+    const nextTab = routeTabMap[routeName] || 'providers';
+    activeTab.value = nextTab;
+  },
+  { immediate: true }
+);
 
 const goToSchedule = () => {
   router.push({

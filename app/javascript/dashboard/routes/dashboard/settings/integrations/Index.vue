@@ -63,6 +63,7 @@ onMounted(() => {
             :id="item.id"
             :key="item.id"
             :logo="item.logo"
+            :logo-dark="item.logo_dark"
             :name="item.name"
             :description="item.description"
             :enabled="item.enabled"

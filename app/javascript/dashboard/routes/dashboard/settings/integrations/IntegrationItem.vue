@@ -13,6 +13,14 @@ const props = defineProps({
     type: [String, Number],
     required: true,
   },
+  logo: {
+    type: String,
+    default: '',
+  },
+  logoDark: {
+    type: String,
+    default: '',
+  },
   name: {
     type: String,
     default: '',
@@ -43,6 +51,37 @@ const integrationStatusColor = computed(() =>
   props.enabled ? 'teal' : 'slate'
 );
 
+const buildLogoPath = logoValue => {
+  if (!logoValue) return '';
+  if (
+    logoValue.startsWith('http') ||
+    logoValue.startsWith('data:') ||
+    logoValue.startsWith('/')
+  ) {
+    return logoValue;
+  }
+  return `/dashboard/images/integrations/${logoValue}`;
+};
+
+const buildDarkLogoFallback = logoValue => {
+  const match = logoValue.match(/^(.*)(\.[^.]+)$/);
+  if (match) {
+    return `${match[1]}-dark${match[2]}`;
+  }
+  return `${logoValue}-dark`;
+};
+
+const logoPath = computed(() => {
+  if (props.logo) return buildLogoPath(props.logo);
+  return `/dashboard/images/integrations/${props.id}.png`;
+});
+
+const logoDarkPath = computed(() => {
+  if (props.logoDark) return buildLogoPath(props.logoDark);
+  if (props.logo) return buildLogoPath(buildDarkLogoFallback(props.logo));
+  return `/dashboard/images/integrations/${props.id}-dark.png`;
+});
+
 const actionURL = computed(() =>
   frontendURL(`accounts/${accountId.value}/settings/integrations/${props.id}`)
 );
@@ -55,11 +94,11 @@ const actionURL = computed(() =>
     <div class="flex items-start justify-between">
       <div class="flex h-12 w-12 mb-2">
         <img
-          :src="`/dashboard/images/integrations/${id}.png`"
+          :src="logoPath"
           class="max-w-full rounded-md border border-n-weak shadow-sm block dark:hidden bg-n-alpha-3 dark:bg-n-alpha-2"
         />
         <img
-          :src="`/dashboard/images/integrations/${id}-dark.png`"
+          :src="logoDarkPath"
           class="max-w-full rounded-md border border-n-weak shadow-sm hidden dark:block bg-n-alpha-3 dark:bg-n-alpha-2"
         />
       </div>

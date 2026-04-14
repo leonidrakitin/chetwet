@@ -168,6 +168,7 @@ const contactCustomViews = useMapGetter('customViews/getContactCustomViews');
 const conversationCustomViews = useMapGetter(
   'customViews/getConversationCustomViews'
 );
+const integrations = useMapGetter('integrations/getAppIntegrations');
 
 onMounted(() => {
   store.dispatch('labels/get');
@@ -177,6 +178,7 @@ onMounted(() => {
   store.dispatch('attributes/get');
   store.dispatch('customViews/get', 'conversation');
   store.dispatch('customViews/get', 'contact');
+  store.dispatch('integrations/get');
 });
 
 const sortedInboxes = computed(() =>
@@ -229,8 +231,41 @@ const newReportRoutes = () => [
 ];
 
 const reportRoutes = computed(() => newReportRoutes());
+const isBookingManagerEnabled = computed(() =>
+  integrations.value.some(
+    integration => integration.id === 'booking_manager' && integration.enabled
+  )
+);
 
 const menuItems = computed(() => {
+  const scheduleGroup = isBookingManagerEnabled.value
+    ? {
+        name: 'Schedule',
+        label: t('SIDEBAR.SCHEDULE'),
+        icon: 'i-lucide-calendar-clock',
+        children: [
+          {
+            name: 'Schedule Calendar',
+            label: t('SIDEBAR.SCHEDULE_CALENDAR'),
+            to: accountScopedRoute('services_schedule'),
+            activeOn: ['services_schedule', 'services_schedule_settings'],
+          },
+          {
+            name: 'Schedule Providers',
+            label: t('SIDEBAR.SCHEDULE_PROVIDERS'),
+            to: accountScopedRoute('services_providers'),
+            activeOn: ['services_providers', 'services_list'],
+          },
+          {
+            name: 'Schedule Services',
+            label: t('SIDEBAR.SCHEDULE_SERVICES'),
+            to: accountScopedRoute('services_services'),
+            activeOn: ['services_services'],
+          },
+        ],
+      }
+    : null;
+
   return [
     {
       name: 'Conversation',
@@ -415,6 +450,7 @@ const menuItems = computed(() => {
         },
       ],
     },
+    ...(scheduleGroup ? [scheduleGroup] : []),
     {
       name: 'Reports',
       label: t('SIDEBAR.REPORTS'),
@@ -661,12 +697,6 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.INTEGRATIONS'),
           icon: 'i-lucide-blocks',
           to: accountScopedRoute('settings_applications'),
-        },
-        {
-          name: 'Settings Services',
-          label: t('SIDEBAR.SERVICES'),
-          icon: 'i-lucide-calendar-clock',
-          to: accountScopedRoute('services_list'),
         },
         {
           name: 'Settings Audit Logs',
