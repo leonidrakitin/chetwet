@@ -41,13 +41,12 @@ class Api::V1::Accounts::Services::ReportsController < Api::V1::Accounts::Servic
   end
 
   def peak_hours(start_date, end_date)
-    bookings = current_account.service_bookings
-                              .where(scheduled_at: start_date.beginning_of_day..end_date.end_of_day)
-                              .active_bookings
-
-    hour_counts = bookings.group_by do |booking|
-      booking.scheduled_at.hour
-    end.transform_values(&:count)
+    hour_counts = current_account.service_bookings
+                                 .where(scheduled_at: start_date.beginning_of_day..end_date.end_of_day)
+                                 .active_bookings
+                                 .group('EXTRACT(HOUR FROM scheduled_at)')
+                                 .count
+                                 .transform_keys(&:to_i)
 
     (6..22).map do |hour|
       {
@@ -59,22 +58,33 @@ class Api::V1::Accounts::Services::ReportsController < Api::V1::Accounts::Servic
   end
 
   def service_popularity(start_date, end_date)
-    services = current_account.services.active.map do |service|
-      booking_items = service.service_booking_items
-                             .joins(:service_booking)
-                             .where(service_bookings: { scheduled_at: start_date.beginning_of_day..end_date.end_of_day })
-                             .where.not(service_bookings: { status: 'cancelled' })
+    booking_items = service_popularity_scope(start_date, end_date)
+    counts_by_service = booking_items.group(:service_id).count
+    revenue_by_service = booking_items.group(:service_id).sum(:price)
 
-      {
-        id: service.id,
-        name: service.name,
-        duration_minutes: service.duration_minutes,
-        price: service.price,
-        booking_count: booking_items.count,
-        revenue: booking_items.count * (service.price || 0)
-      }
+    entries = current_account.services.active.map do |service|
+      service_popularity_entry(service, counts_by_service, revenue_by_service)
     end
-    services.sort_by { |s| -s[:booking_count] }
+    entries.sort_by { |s| -s[:booking_count] }
+  end
+
+  def service_popularity_scope(start_date, end_date)
+    range = start_date.beginning_of_day..end_date.end_of_day
+    ServiceBookingItem
+      .joins(:service_booking)
+      .where(service_bookings: { scheduled_at: range, account_id: current_account.id })
+      .where.not(service_bookings: { status: 'cancelled' })
+  end
+
+  def service_popularity_entry(service, counts_by_service, revenue_by_service)
+    {
+      id: service.id,
+      name: service.name,
+      duration_minutes: service.duration_minutes,
+      price: service.price,
+      booking_count: counts_by_service[service.id] || 0,
+      revenue: revenue_by_service[service.id] || 0
+    }
   end
 
   def booking_stats(start_date, end_date)

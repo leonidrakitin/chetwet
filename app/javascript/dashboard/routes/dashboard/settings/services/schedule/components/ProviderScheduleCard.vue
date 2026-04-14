@@ -6,6 +6,7 @@ import BreaksManager from './BreaksManager.vue';
 import HolidaysManager from './HolidaysManager.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ProviderScheduleAPI from 'dashboard/api/providerSchedule';
+import { TIMEZONES } from '../constants';
 
 const props = defineProps({
   provider: { type: Object, required: true },
@@ -16,14 +17,6 @@ const props = defineProps({
 const emit = defineEmits(['update']);
 
 const { t } = useI18n();
-
-const TIMEZONES = [
-  'UTC',
-  'Europe/Moscow',
-  'Europe/Kiev',
-  'Europe/London',
-  'America/New_York',
-];
 
 const isExpanded = ref(false);
 const isLoadingSchedule = ref(false);

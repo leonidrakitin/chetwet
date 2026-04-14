@@ -6,18 +6,17 @@ class Vk::OutgoingMessageSyncService
   include ::Vk::ParamHelpers
   pattr_initialize [:inbox!, :params!]
 
+  AUDIO_ATTACHMENT_TYPES = %w[audio audio_message].freeze
+
   def perform
     return unless message_params?
-    return if duplicate_message?
-
-    return if vk_params_random_id.present? && update_message_by_random_id
+    return if deduplicate_before_conversation
 
     set_contact
     set_conversation
     return unless @conversation
 
-    return if update_pending_chatwoot_message
-    return if update_recent_chatwoot_message_fallback
+    return if deduplicate_with_conversation
 
     create_outgoing_message
   rescue StandardError => e
@@ -28,72 +27,24 @@ class Vk::OutgoingMessageSyncService
 
   private
 
-  def duplicate_message?
-    exists = inbox.messages.exists?(source_id: vk_params_message_id.to_s)
-    Rails.logger.info "[VK] Skip outgoing sync: source_id=#{vk_params_message_id} already exists" if exists
-    exists
+  def deduplicate_before_conversation
+    Vk::OutgoingMessageDeduplicator.new(
+      inbox: inbox,
+      conversation: nil,
+      vk_message_id: vk_params_message_id,
+      vk_random_id: vk_params_random_id,
+      content: vk_params_message_content
+    ).perform
   end
 
-  def update_message_by_random_id
-    pending = find_message_by_random_id
-    return false unless pending
-
-    pending.update!(source_id: vk_params_message_id.to_s)
-    Rails.logger.info "[VK] Updated message #{pending.id} with source_id via random_id deduplication"
-    true
-  end
-
-  def find_message_by_random_id
-    inbox.messages.outgoing
-         .where("external_source_ids->>'vk_random_id' = ?", vk_params_random_id.to_s)
-         .first
-  end
-
-  def update_pending_chatwoot_message
-    pending = find_pending_chatwoot_message
-    return false unless pending
-
-    update_message_source_from_vk!(pending)
-    Rails.logger.info "[VK] Updated message #{pending.id} via pending message deduplication"
-    true
-  end
-
-  def find_pending_chatwoot_message
-    return unless @conversation
-
-    @conversation.messages.outgoing
-                 .where(source_id: [nil, ''])
-                 .where(content: vk_params_message_content)
-                 .where('created_at > ?', 2.minutes.ago)
-                 .order(created_at: :desc)
-                 .first
-  end
-
-  def update_recent_chatwoot_message_fallback
-    pending = find_recent_inbox_message_without_source
-    return false unless pending
-
-    update_message_source_from_vk!(pending)
-    Rails.logger.info "[VK] Updated message #{pending.id} via inbox-level fallback deduplication"
-    true
-  end
-
-  def find_recent_inbox_message_without_source
-    inbox.messages.outgoing
-         .where(source_id: [nil, ''])
-         .where(content: vk_params_message_content)
-         .where(sender_type: %w[User Captain::Assistant])
-         .where('created_at > ?', 2.minutes.ago)
-         .order(created_at: :desc)
-         .first
-  end
-
-  def update_message_source_from_vk!(message)
-    attrs = { source_id: vk_params_message_id.to_s }
-    if vk_params_random_id.present?
-      attrs[:external_source_ids] = (message.external_source_ids || {}).merge('vk_random_id' => vk_params_random_id.to_s)
-    end
-    message.update!(attrs)
+  def deduplicate_with_conversation
+    Vk::OutgoingMessageDeduplicator.new(
+      inbox: inbox,
+      conversation: @conversation,
+      vk_message_id: vk_params_message_id,
+      vk_random_id: vk_params_random_id,
+      content: vk_params_message_content
+    ).perform
   end
 
   def set_contact
@@ -166,7 +117,7 @@ class Vk::OutgoingMessageSyncService
 
       attach_photo(attachment) if attachment['type'] == 'photo'
       attach_doc(attachment) if attachment['type'] == 'doc'
-      attach_audio(attachment) if %w[audio audio_message].include?(attachment['type'])
+      attach_audio(attachment) if AUDIO_ATTACHMENT_TYPES.include?(attachment['type'])
       attach_market(attachment) if attachment['type'] == 'market'
     end
   end

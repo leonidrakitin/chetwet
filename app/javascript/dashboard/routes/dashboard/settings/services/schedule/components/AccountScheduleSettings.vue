@@ -5,6 +5,7 @@ import WorkingHoursEditor from '../components/WorkingHoursEditor.vue';
 import BreaksManager from '../components/BreaksManager.vue';
 import HolidaysManager from '../components/HolidaysManager.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import { TIMEZONES, SLOT_INTERVALS } from '../constants';
 
 const props = defineProps({
   schedule: { type: Object, default: null },
@@ -14,18 +15,6 @@ const props = defineProps({
 const emit = defineEmits(['update']);
 
 const { t } = useI18n();
-
-const TIMEZONES = [
-  'UTC',
-  'Europe/Moscow',
-  'Europe/Kiev',
-  'Europe/London',
-  'America/New_York',
-  'America/Los_Angeles',
-  'Asia/Tokyo',
-];
-
-const SLOT_INTERVALS = [15, 30, 45, 60];
 
 const form = ref({
   timezone: 'UTC',

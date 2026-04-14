@@ -74,6 +74,16 @@ const getStatusColor = status => {
   };
   return colors[status] || 'border-l-gray-400';
 };
+
+const STATUS_LABEL_KEYS = {
+  pending: 'SCHEDULE.STATUS.PENDING',
+  confirmed: 'SCHEDULE.STATUS.CONFIRMED',
+  completed: 'SCHEDULE.STATUS.COMPLETED',
+  cancelled: 'SCHEDULE.STATUS.CANCELLED',
+};
+
+const statusLabel = status =>
+  t(STATUS_LABEL_KEYS[status] || 'SCHEDULE.STATUS.PENDING');
 </script>
 
 <template>
@@ -120,7 +130,7 @@ const getStatusColor = status => {
                       'bg-red-100 text-red-800': booking.status === 'cancelled',
                     }"
                   >
-                    {{ t(`SCHEDULE.STATUS.${booking.status.toUpperCase()}`) }}
+                    {{ statusLabel(booking.status) }}
                   </span>
                 </div>
                 <p class="text-sm text-n-slate-12 mt-1">
@@ -128,8 +138,11 @@ const getStatusColor = status => {
                 </p>
                 <p class="text-xs text-n-slate-10 mt-0.5">
                   {{ booking.service_provider?.name || '' }}
-                  <span v-if="booking.services?.length">
-                    • {{ booking.services.map(s => s.name).join(', ') }}
+                  <span
+                    v-if="booking.services?.length"
+                    class="before:content-['•'] before:mr-1"
+                  >
+                    {{ booking.services.map(s => s.name).join(', ') }}
                   </span>
                 </p>
               </div>
@@ -174,7 +187,7 @@ const getStatusColor = status => {
                 'bg-green-100 text-green-800': booking.status === 'completed',
               }"
             >
-              {{ t(`SCHEDULE.STATUS.${booking.status.toUpperCase()}`) }}
+              {{ statusLabel(booking.status) }}
             </span>
           </div>
         </div>
