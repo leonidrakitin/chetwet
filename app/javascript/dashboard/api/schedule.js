@@ -1,3 +1,4 @@
+/* global axios */
 import ApiClient from './ApiClient';
 
 class ScheduleAPI extends ApiClient {
@@ -6,15 +7,11 @@ class ScheduleAPI extends ApiClient {
   }
 
   show() {
-    return this.get();
+    return axios.get(this.url);
   }
 
   update(data) {
-    return this.patch(data);
-  }
-
-  create(data) {
-    return this.post(data);
+    return axios.patch(this.url, data);
   }
 }
 

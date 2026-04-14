@@ -191,7 +191,7 @@ const closeModal = () => {
 
     <template #body>
       <div
-        class="flex flex-col h-[calc(100vh-200px)] bg-n-solid-1 rounded-lg border border-n-weak"
+        class="flex flex-col h-[calc(100vh-120px)] bg-n-solid-1 rounded-lg border border-n-weak"
       >
         <ScheduleHeader
           v-model:current-date="currentDate"

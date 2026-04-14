@@ -64,18 +64,21 @@ const isHoliday = day => {
   return props.schedule.holidays.some(h => h.date === dateStr);
 };
 
-const isWorkingDay = day => {
+const DAY_NAMES = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+];
+
+const isDayExplicitlyDisabled = day => {
   if (!day || !props.schedule?.working_hours) return false;
-  const dayName = [
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-  ][getDay(day)];
-  return props.schedule.working_hours[dayName]?.enabled ?? false;
+  return (
+    props.schedule.working_hours[DAY_NAMES[getDay(day)]]?.enabled === false
+  );
 };
 
 const handleDayClick = day => {
@@ -165,7 +168,7 @@ const getStatusColor = status => {
               {{ t('SCHEDULE.HOLIDAY') }}
             </div>
             <div
-              v-else-if="!isWorkingDay(day) && isSameMonth(day, date)"
+              v-else-if="isSameMonth(day, date) && isDayExplicitlyDisabled(day)"
               class="text-xs text-n-slate-10 mt-auto"
             >
               {{ t('SCHEDULE.NOT_WORKING_DAY') }}

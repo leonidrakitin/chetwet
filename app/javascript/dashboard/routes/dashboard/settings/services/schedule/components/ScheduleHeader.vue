@@ -115,9 +115,8 @@ const isCurrentToday = computed(() => {
         <Button
           v-if="viewMode !== 'agenda'"
           :label="t('SCHEDULE.TODAY')"
-          :faded="!isCurrentToday"
-          :class="{ 'bg-n-brand text-white': isCurrentToday }"
-          slate
+          :variant="isCurrentToday ? 'solid' : 'faded'"
+          :color="isCurrentToday ? 'blue' : 'slate'"
           sm
           @click="goToToday"
         />

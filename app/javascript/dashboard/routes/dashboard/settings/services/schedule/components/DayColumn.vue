@@ -81,20 +81,20 @@ const handleDragOver = e => {
 </script>
 
 <template>
-  <div class="flex-1 min-w-[100px] border-r border-n-weak last:border-r-0">
+  <div class="flex-1 min-w-[140px] border-r border-n-weak last:border-r-0">
     <div
       class="h-12 px-2 flex flex-col items-center justify-center border-b border-n-weak"
-      :class="{ 'bg-n-brand-1': isTodayDate }"
+      :class="isTodayDate ? 'bg-n-brand' : ''"
     >
       <span
         class="text-xs font-medium uppercase"
-        :class="isTodayDate ? 'text-n-brand-11' : 'text-n-slate-10'"
+        :class="isTodayDate ? 'text-white/90' : 'text-n-slate-10'"
       >
         {{ dayName }}
       </span>
       <span
         class="text-sm font-semibold"
-        :class="isTodayDate ? 'text-n-brand' : 'text-n-slate-12'"
+        :class="isTodayDate ? 'text-white' : 'text-n-slate-12'"
       >
         {{ dayNumber }}
       </span>
