@@ -72,9 +72,10 @@ export function usePolicy() {
     if (!checkPermissions(perms)) return false;
     if (!checkInstallationType(installation)) return false;
 
-    // Unlock mode: show all when PREMIUM_FEATURES is empty (self-hosted dev)
+    // Unlock mode: no premium paywall when PREMIUM_FEATURES is empty (self-hosted).
+    // Routes that declare a featureFlag still respect account-level toggles.
     if (PREMIUM_FEATURES.length === 0 && !isOnChatwootCloud.value) {
-      return true;
+      return flag ? isFeatureFlagEnabled(flag) : true;
     }
 
     if (isACustomBrandedInstance.value) {
