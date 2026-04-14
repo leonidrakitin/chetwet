@@ -23,6 +23,8 @@
 #  fk_rails_...  (service_provider_id => service_providers.id)
 #
 class ProviderSchedule < ApplicationRecord
+  include NormalizesScheduleWorkingHours
+
   belongs_to :service_provider
 
   validates :timezone, presence: true
@@ -32,7 +34,7 @@ class ProviderSchedule < ApplicationRecord
   before_validation :set_default_working_hours, on: :create
 
   def working_hours_for(day)
-    (working_hours || {})[day.to_s.downcase] || { 'enabled' => false, 'slots' => [] }
+    normalize_day_config((working_hours || {})[day.to_s.downcase])
   end
 
   def enabled_days

@@ -23,6 +23,8 @@
 #  fk_rails_...  (account_id => accounts.id)
 #
 class ServiceSchedule < ApplicationRecord
+  include NormalizesScheduleWorkingHours
+
   belongs_to :account
 
   validates :timezone, presence: true
@@ -33,7 +35,7 @@ class ServiceSchedule < ApplicationRecord
   before_validation :set_default_working_hours, on: :create
 
   def working_hours_for(day)
-    working_hours[day.to_s.downcase] || { 'enabled' => false, 'slots' => [] }
+    normalize_day_config((working_hours || {})[day.to_s.downcase])
   end
 
   def enabled_days
@@ -41,7 +43,11 @@ class ServiceSchedule < ApplicationRecord
   end
 
   def holiday?(date)
-    holidays.any? { |h| h['date'] == date.to_s }
+    (holidays || []).any? { |h| h['date'] == date.to_s }
+  end
+
+  def breaks
+    self[:breaks] || []
   end
 
   def tz

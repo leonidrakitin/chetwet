@@ -10,9 +10,8 @@ class Booking::ScheduleCalculator
     return [] unless @schedule
 
     day_name = day_name_from_wday(@date.wday)
-    day_config = @schedule.working_hours[day_name]
+    day_config = @schedule.working_hours_for(day_name)
 
-    return [] unless day_config
     return [] unless day_config['enabled']
 
     slots = []

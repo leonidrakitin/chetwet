@@ -125,9 +125,9 @@ class Api::V1::Accounts::Services::ReportsController < Api::V1::Accounts::Servic
     return 0 if schedule.holiday?(date)
 
     day_name = DAYS_OF_WEEK[date.wday]
-    day_config = schedule.working_hours[day_name]
+    day_config = schedule.working_hours_for(day_name)
 
-    return 0 unless day_config&.dig('enabled')
+    return 0 unless day_config['enabled']
 
     day_config['slots'].sum do |slot|
       calculate_slot_minutes(slot)
