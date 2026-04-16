@@ -679,6 +679,15 @@
           "EXAMPLE_OFF": "Your order has been shipped and will arrive in 2–3 business days.",
           "EXAMPLE_ON": "Your order has been shipped 📦 and will arrive in 2–3 business days 🎉"
         },
+        "ALLOWED_EMOJIS": {
+          "LABEL": "Allowed emojis",
+          "DESCRIPTION": "When Use Emojis is on, leave this empty to allow any emoji, or add up to 10 emojis the assistant may use (only these will appear in replies).",
+          "PLACEHOLDER": "Paste or type emojis",
+          "ADD": "Add",
+          "MAX_REACHED": "You can add at most 10 emojis.",
+          "REMOVE_ARIA": "Remove emoji",
+          "DISABLED_HINT": "Turn on Use Emojis to configure allowed emojis."
+        },
         "FEATURES": {
           "TITLE": "Features",
           "ALLOW_CONVERSATION_FAQS": "Generate FAQs from resolved conversations",

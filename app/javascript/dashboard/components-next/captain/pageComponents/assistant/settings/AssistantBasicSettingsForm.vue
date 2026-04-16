@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, watch } from 'vue';
+import { reactive, computed, watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useVuelidate } from '@vuelidate/core';
 import { required, minLength } from '@vuelidate/validators';
@@ -17,6 +17,8 @@ const props = defineProps({
 
 const emit = defineEmits(['submit']);
 
+const MAX_ALLOWED_EMOJIS = 10;
+
 const { t } = useI18n();
 
 const TONE_OPTIONS = ['formal', 'neutral', 'friendly'];
@@ -27,9 +29,12 @@ const initialState = {
   productName: '',
   tone: 'neutral',
   emojify: false,
+  allowedEmojis: [],
 };
 
 const state = reactive({ ...initialState });
+const emojiDraft = ref('');
+const maxEmojiHint = ref(false);
 
 const validationRules = {
   name: { required, minLength: minLength(1) },
@@ -49,13 +54,55 @@ const formErrors = computed(() => ({
   productName: getErrorMessage('productName'),
 }));
 
+const segmentGraphemes = str => {
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    return [
+      ...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(str),
+    ].map(seg => seg.segment);
+  }
+  return Array.from(str);
+};
+
+const isEmojiGrapheme = g => {
+  if (!g || !g.trim()) return false;
+  return /\p{Extended_Pictographic}/u.test(g);
+};
+
 const updateStateFromAssistant = assistant => {
   const { config = {} } = assistant;
   state.name = assistant.name;
   state.description = assistant.description;
   state.productName = config.product_name;
   state.tone = config.tone || 'neutral';
-  state.emojify = config.emojify || false;
+  state.emojify = !!config.emojify;
+  state.allowedEmojis = Array.isArray(config.allowed_emojis)
+    ? [...config.allowed_emojis]
+    : [];
+};
+
+const addEmojisFromDraft = () => {
+  maxEmojiHint.value = false;
+  const raw = emojiDraft.value.trim();
+  if (!raw) return;
+
+  const segments = segmentGraphemes(raw).filter(isEmojiGrapheme);
+  const next = [...state.allowedEmojis];
+
+  segments.forEach(s => {
+    if (next.length >= MAX_ALLOWED_EMOJIS) {
+      maxEmojiHint.value = true;
+      return;
+    }
+    if (!next.includes(s)) next.push(s);
+  });
+
+  state.allowedEmojis = next;
+  emojiDraft.value = '';
+};
+
+const removeAllowedEmoji = index => {
+  state.allowedEmojis.splice(index, 1);
+  maxEmojiHint.value = false;
 };
 
 const handleBasicInfoUpdate = async () => {
@@ -74,6 +121,7 @@ const handleBasicInfoUpdate = async () => {
       product_name: state.productName,
       tone: state.tone,
       emojify: state.emojify,
+      allowed_emojis: state.emojify ? state.allowedEmojis : [],
     },
   };
 
@@ -191,6 +239,57 @@ watch(
           <span class="i-lucide-check shrink-0 size-3.5 text-n-teal-10" />
           {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.EXAMPLE_ON') }}
         </div>
+      </div>
+
+      <div class="flex flex-col gap-2 pl-7 border-t border-n-weak pt-4 mt-1">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.LABEL') }}
+        </label>
+        <p class="text-sm text-n-slate-11">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.DESCRIPTION') }}
+        </p>
+        <p v-if="!state.emojify" class="text-sm text-n-slate-10">
+          {{ t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.DISABLED_HINT') }}
+        </p>
+        <template v-else>
+          <div class="flex flex-wrap gap-2 min-h-9">
+            <span
+              v-for="(emoji, index) in state.allowedEmojis"
+              :key="`${emoji}-${index}`"
+              class="inline-flex items-center gap-1 rounded-lg border border-n-weak bg-n-alpha-1 px-2 py-1 text-lg leading-none"
+            >
+              <span aria-hidden="true">{{ emoji }}</span>
+              <button
+                type="button"
+                class="text-n-slate-10 hover:text-n-slate-12 p-0.5 rounded"
+                :aria-label="
+                  t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.REMOVE_ARIA')
+                "
+                @click="removeAllowedEmoji(index)"
+              >
+                <span class="i-lucide-x size-3.5" />
+              </button>
+            </span>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2 sm:items-end">
+            <Input
+              v-model="emojiDraft"
+              class="flex-1"
+              :placeholder="
+                t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.PLACEHOLDER')
+              "
+              @keydown.enter.prevent="addEmojisFromDraft"
+            />
+            <Button
+              :label="t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.ADD')"
+              :disabled="state.allowedEmojis.length >= MAX_ALLOWED_EMOJIS"
+              @click="addEmojisFromDraft"
+            />
+          </div>
+          <p v-if="maxEmojiHint" class="text-sm text-n-amber-11">
+            {{ t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.MAX_REACHED') }}
+          </p>
+        </template>
       </div>
     </div>
 

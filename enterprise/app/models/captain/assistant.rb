@@ -50,6 +50,8 @@ class Captain::Assistant < ApplicationRecord
   validates :account_id, presence: true
   validates :knowledge_mode, inclusion: { in: %w[balanced strict ultra_strict], allow_nil: true }
 
+  before_validation :sanitize_assistant_config_attributes
+
   scope :ordered, -> { order(created_at: :desc) }
 
   scope :for_account, ->(account_id) { where(account_id: account_id) }
@@ -106,6 +108,10 @@ class Captain::Assistant < ApplicationRecord
 
   private
 
+  def sanitize_assistant_config_attributes
+    self.config = Captain::AssistantPromptExtras.sanitize_config_hash(config || {})
+  end
+
   def agent_name
     name.parameterize(separator: '_')
   end
@@ -124,6 +130,8 @@ class Captain::Assistant < ApplicationRecord
       "- #{scenario.title}: #{scenario.description}, use handoff_to_#{key} tool"
     end
 
+    tone_emoji_guidelines = Captain::AssistantPromptExtras.response_guideline_extras_for_config(config)
+
     {
       name: name,
       description: description,
@@ -134,7 +142,7 @@ class Captain::Assistant < ApplicationRecord
       end,
       scenarios_list: scenario_entries.join("\n"),
       system_tools_list: build_system_tools_list(enabled),
-      response_guidelines: response_guidelines || [],
+      response_guidelines: tone_emoji_guidelines + (response_guidelines || []),
       guardrails: guardrails || []
     }
   end
