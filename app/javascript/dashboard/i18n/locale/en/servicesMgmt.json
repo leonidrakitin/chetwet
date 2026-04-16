@@ -144,7 +144,9 @@
       "PENDING": "Pending",
       "CONFIRMED": "Confirmed",
       "COMPLETED": "Completed",
-      "CANCELLED": "Cancelled"
+      "CANCELLED": "Cancelled",
+      "ARRIVED": "Arrived",
+      "NO_SHOW": "No-show"
     },
     "SETTINGS": {
       "HEADER": "Schedule Settings",
@@ -201,7 +203,9 @@
       "PENDING": "Pending",
       "CONFIRMED": "Confirmed",
       "COMPLETED": "Completed",
-      "CANCELLED": "Cancelled"
+      "CANCELLED": "Cancelled",
+      "ARRIVED": "Arrived",
+      "NO_SHOW": "No-show"
     },
     "BULK": {
       "SELECT_ALL": "Select all",

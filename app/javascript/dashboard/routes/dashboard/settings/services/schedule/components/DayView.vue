@@ -46,13 +46,13 @@ const handleBookingMove = ({ bookingId, newProviderId, newTime }) => {
 </script>
 
 <template>
-  <div class="flex flex-1 overflow-hidden">
-    <TimeAxis :hours-range="hoursRange" :slot-interval="slotInterval" />
+  <div class="flex flex-1 overflow-auto">
+    <div class="flex min-w-full">
+      <TimeAxis :hours-range="hoursRange" :slot-interval="slotInterval" />
 
-    <div class="flex flex-1 overflow-x-auto">
       <div
         v-if="!isEnabledDay || isHoliday"
-        class="flex-1 flex items-center justify-center"
+        class="flex-1 flex items-center justify-center min-h-[200px]"
       >
         <div class="text-center text-n-slate-11">
           <p class="text-lg font-medium">

@@ -28,8 +28,10 @@ const { t } = useI18n();
 const statusColors = {
   pending: 'bg-n-amber-5 border-n-amber-9',
   confirmed: 'bg-n-blue-5 border-n-blue-9',
+  arrived: 'bg-n-teal-5 border-n-teal-9',
   completed: 'bg-n-teal-5 border-n-teal-9',
   cancelled: 'bg-n-ruby-5 border-n-ruby-9',
+  no_show: 'bg-n-ruby-5 border-n-ruby-9',
 };
 
 const cardPosition = computed(() => {

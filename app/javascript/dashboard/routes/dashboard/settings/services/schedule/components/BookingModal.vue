@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -22,7 +22,16 @@ const { t } = useI18n();
 const store = useStore();
 
 const isEditing = computed(() => !!props.booking);
-const STATUS_OPTIONS = ['pending', 'confirmed', 'completed', 'cancelled'];
+const STATUS_OPTIONS = [
+  'pending',
+  'confirmed',
+  'arrived',
+  'no_show',
+  'completed',
+  'cancelled',
+];
+const dialogRef = ref(null);
+const deleteDialogRef = ref(null);
 const form = ref({
   service_provider_id: null,
   scheduled_at: '',
@@ -41,7 +50,6 @@ const selectedContact = ref(null);
 const selectedServices = ref([]);
 const isSubmitting = ref(false);
 const isDeleting = ref(false);
-const showDeleteConfirm = ref(false);
 
 const initForm = () => {
   if (props.booking) {
@@ -80,15 +88,30 @@ const initForm = () => {
   }
   contactSearch.value = '';
   contactResults.value = [];
-  showDeleteConfirm.value = false;
 };
+
+const openDeleteConfirm = () => deleteDialogRef.value?.open();
+const closeDeleteConfirm = () => deleteDialogRef.value?.close();
 
 watch(
   () => props.show,
-  newShow => {
-    if (newShow) initForm();
+  async newShow => {
+    if (newShow) {
+      initForm();
+      await nextTick();
+      dialogRef.value?.open();
+    } else {
+      dialogRef.value?.close();
+    }
   }
 );
+
+onMounted(() => {
+  if (props.show) {
+    initForm();
+    dialogRef.value?.open();
+  }
+});
 
 const title = computed(() =>
   isEditing.value
@@ -170,7 +193,7 @@ const handleDelete = async () => {
     useAlert(error.message || t('SCHEDULE.MODAL.ERROR'));
   } finally {
     isDeleting.value = false;
-    showDeleteConfirm.value = false;
+    closeDeleteConfirm();
   }
 };
 
@@ -210,162 +233,160 @@ const isServiceSelected = serviceId =>
 </script>
 
 <template>
-  <Dialog :show="show" :title="title" @close="handleCancel">
-    <template #body>
-      <div class="flex flex-col gap-4">
-        <div>
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.PROVIDER')
-          }}</label>
-          <select
-            v-model="form.service_provider_id"
-            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+  <Dialog ref="dialogRef" :title="title" width="lg" @close="handleCancel">
+    <div class="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
+      <div>
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.PROVIDER')
+        }}</label>
+        <select
+          v-model="form.service_provider_id"
+          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+        >
+          <option
+            v-for="provider in providers"
+            :key="provider.id"
+            :value="provider.id"
           >
-            <option
-              v-for="provider in providers"
-              :key="provider.id"
-              :value="provider.id"
-            >
-              {{ provider.name }}
-            </option>
-          </select>
-        </div>
+            {{ provider.name }}
+          </option>
+        </select>
+      </div>
 
-        <div>
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.DATE_TIME')
-          }}</label>
+      <div>
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.DATE_TIME')
+        }}</label>
+        <input
+          v-model="form.scheduled_at"
+          type="datetime-local"
+          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.CONTACT')
+        }}</label>
+        <div
+          v-if="selectedContact"
+          class="flex items-center gap-2 px-3 py-2 bg-n-solid-2 rounded-md"
+        >
+          <span class="text-sm text-n-slate-12">{{
+            selectedContact.name
+          }}</span>
+          <button
+            class="text-n-slate-10 hover:text-n-slate-12"
+            @click="
+              selectedContact = null;
+              form.contact_id = null;
+            "
+          >
+            {{ '×' }}
+          </button>
+        </div>
+        <div v-else class="relative">
           <input
-            v-model="form.scheduled_at"
-            type="datetime-local"
+            v-model="contactSearch"
+            type="text"
+            :placeholder="t('SCHEDULE.MODAL.SEARCH_CONTACT')"
             class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+            @input="searchContacts($event.target.value)"
           />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.CONTACT')
-          }}</label>
           <div
-            v-if="selectedContact"
-            class="flex items-center gap-2 px-3 py-2 bg-n-solid-2 rounded-md"
+            v-if="contactResults.length"
+            class="absolute z-10 w-full mt-1 bg-n-solid-1 border border-n-weak rounded-md shadow-lg max-h-40 overflow-y-auto"
           >
-            <span class="text-sm text-n-slate-12">{{
-              selectedContact.name
-            }}</span>
             <button
-              class="text-n-slate-10 hover:text-n-slate-12"
-              @click="
-                selectedContact = null;
-                form.contact_id = null;
-              "
+              v-for="contact in contactResults"
+              :key="contact.id"
+              class="w-full px-3 py-2 text-left text-sm hover:bg-n-solid-2"
+              @click="selectContact(contact)"
             >
-              {{ '×' }}
-            </button>
-          </div>
-          <div v-else class="relative">
-            <input
-              v-model="contactSearch"
-              type="text"
-              :placeholder="t('SCHEDULE.MODAL.SEARCH_CONTACT')"
-              class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
-              @input="searchContacts($event.target.value)"
-            />
-            <div
-              v-if="contactResults.length"
-              class="absolute z-10 w-full mt-1 bg-n-solid-1 border border-n-weak rounded-md shadow-lg max-h-40 overflow-y-auto"
-            >
-              <button
-                v-for="contact in contactResults"
-                :key="contact.id"
-                class="w-full px-3 py-2 text-left text-sm hover:bg-n-solid-2"
-                @click="selectContact(contact)"
-              >
-                {{ contact.name }}
-                <span v-if="contact.phone_number" class="text-n-slate-10">
-                  {{ ' · ' }}{{ contact.phone_number }}
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.SERVICES')
-          }}</label>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="service in services"
-              :key="service.id"
-              class="px-3 py-1.5 text-sm rounded-md border transition-colors"
-              :class="
-                isServiceSelected(service.id)
-                  ? 'bg-n-brand border-n-brand text-white'
-                  : 'bg-n-solid-1 border-n-weak text-n-slate-12 hover:border-n-brand'
-              "
-              @click="toggleService(service)"
-            >
-              {{ service.name }}
-              <span class="text-xs opacity-70">
-                {{ service.duration_minutes }}{{ t('SCHEDULE.MODAL.MIN') }}
+              {{ contact.name }}
+              <span v-if="contact.phone_number" class="text-n-slate-10">
+                {{ ' · ' }}{{ contact.phone_number }}
               </span>
             </button>
           </div>
         </div>
+      </div>
 
-        <div>
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.CUSTOMER_NOTES')
-          }}</label>
-          <textarea
-            v-model="form.customer_notes"
-            rows="2"
-            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.INTERNAL_NOTES')
-          }}</label>
-          <textarea
-            v-model="form.internal_notes"
-            rows="2"
-            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
-          />
-        </div>
-
-        <div v-if="isEditing">
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.STATUS')
-          }}</label>
-          <select
-            v-model="form.status"
-            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+      <div>
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.SERVICES')
+        }}</label>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="service in services"
+            :key="service.id"
+            class="px-3 py-1.5 text-sm rounded-md border transition-colors"
+            :class="
+              isServiceSelected(service.id)
+                ? 'bg-n-brand border-n-brand text-white'
+                : 'bg-n-solid-1 border-n-weak text-n-slate-12 hover:border-n-brand'
+            "
+            @click="toggleService(service)"
           >
-            <option
-              v-for="status in STATUS_OPTIONS"
-              :key="status"
-              :value="status"
-            >
-              {{ t(`SCHEDULE.STATUS.${status.toUpperCase()}`) }}
-            </option>
-          </select>
-        </div>
-
-        <div v-if="isEditing && form.status === 'cancelled'">
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-            t('SCHEDULE.MODAL.CANCEL_REASON')
-          }}</label>
-          <textarea
-            v-model="form.cancellation_reason"
-            rows="2"
-            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
-          />
+            {{ service.name }}
+            <span class="text-xs opacity-70">
+              {{ service.duration_minutes }}{{ t('SCHEDULE.MODAL.MIN') }}
+            </span>
+          </button>
         </div>
       </div>
-    </template>
+
+      <div>
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.CUSTOMER_NOTES')
+        }}</label>
+        <textarea
+          v-model="form.customer_notes"
+          rows="2"
+          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.INTERNAL_NOTES')
+        }}</label>
+        <textarea
+          v-model="form.internal_notes"
+          rows="2"
+          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+        />
+      </div>
+
+      <div v-if="isEditing">
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.STATUS')
+        }}</label>
+        <select
+          v-model="form.status"
+          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+        >
+          <option
+            v-for="status in STATUS_OPTIONS"
+            :key="status"
+            :value="status"
+          >
+            {{ t(`SCHEDULE.STATUS.${status.toUpperCase()}`) }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="isEditing && form.status === 'cancelled'">
+        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+          t('SCHEDULE.MODAL.CANCEL_REASON')
+        }}</label>
+        <textarea
+          v-model="form.cancellation_reason"
+          rows="2"
+          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+        />
+      </div>
+    </div>
 
     <template #footer>
       <div class="flex justify-between gap-2">
@@ -376,7 +397,7 @@ const isServiceSelected = serviceId =>
           ruby
           faded
           :is-loading="isDeleting"
-          @click="showDeleteConfirm = true"
+          @click="openDeleteConfirm"
         />
         <span v-else />
         <div class="flex gap-2">
@@ -397,22 +418,21 @@ const isServiceSelected = serviceId =>
   </Dialog>
 
   <Dialog
-    :show="showDeleteConfirm"
+    ref="deleteDialogRef"
     :title="t('SCHEDULE.MODAL.DELETE')"
-    @close="showDeleteConfirm = false"
+    width="md"
+    @close="closeDeleteConfirm"
   >
-    <template #body>
-      <p class="text-sm text-n-slate-11">
-        {{ t('SCHEDULE.MODAL.DELETE_CONFIRM') }}
-      </p>
-    </template>
+    <p class="text-sm text-n-slate-11">
+      {{ t('SCHEDULE.MODAL.DELETE_CONFIRM') }}
+    </p>
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
           :label="t('SCHEDULE.MODAL.CANCEL')"
           faded
           slate
-          @click="showDeleteConfirm = false"
+          @click="closeDeleteConfirm"
         />
         <Button
           :label="t('SCHEDULE.MODAL.DELETE')"
