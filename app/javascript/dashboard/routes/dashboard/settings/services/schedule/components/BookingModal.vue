@@ -6,6 +6,7 @@ import { useAlert } from 'dashboard/composables';
 import { format } from 'date-fns';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import ContactAPI from 'dashboard/api/contacts';
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -199,15 +200,35 @@ const handleDelete = async () => {
 
 const handleCancel = () => emit('close');
 
+const contactInputRef = ref(null);
+const dropdownStyle = ref({});
+
+const updateDropdownPosition = () => {
+  if (!contactInputRef.value) return;
+  const rect = contactInputRef.value.getBoundingClientRect();
+  dropdownStyle.value = {
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+  };
+};
+
+let searchAbortController = null;
 const searchContacts = async query => {
   if (!query || query.length < 2) {
     contactResults.value = [];
     return;
   }
+  if (searchAbortController) searchAbortController.abort();
+  searchAbortController = new AbortController();
   isSearchingContacts.value = true;
   try {
-    const response = await store.dispatch('contacts/search', query);
-    contactResults.value = response.data || [];
+    const { data } = await ContactAPI.search(query, 1, 'name', '', {
+      signal: searchAbortController.signal,
+    });
+    contactResults.value = data.payload || [];
+    await nextTick();
+    updateDropdownPosition();
   } catch {
     contactResults.value = [];
   } finally {
@@ -285,30 +306,37 @@ const isServiceSelected = serviceId =>
             {{ '×' }}
           </button>
         </div>
-        <div v-else class="relative">
+        <div v-else>
           <input
+            ref="contactInputRef"
             v-model="contactSearch"
             type="text"
             :placeholder="t('SCHEDULE.MODAL.SEARCH_CONTACT')"
             class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
             @input="searchContacts($event.target.value)"
           />
-          <div
-            v-if="contactResults.length"
-            class="absolute z-10 w-full mt-1 bg-n-solid-1 border border-n-weak rounded-md shadow-lg max-h-40 overflow-y-auto"
-          >
-            <button
-              v-for="contact in contactResults"
-              :key="contact.id"
-              class="w-full px-3 py-2 text-left text-sm hover:bg-n-solid-2"
-              @click="selectContact(contact)"
+          <Teleport to="body">
+            <div
+              v-if="contactResults.length"
+              class="fixed z-[9999] bg-n-solid-1 border border-n-weak rounded-md shadow-lg max-h-40 overflow-y-auto"
+              :style="dropdownStyle"
             >
-              {{ contact.name }}
-              <span v-if="contact.phone_number" class="text-n-slate-10">
-                {{ ' · ' }}{{ contact.phone_number }}
-              </span>
-            </button>
-          </div>
+              <button
+                v-for="contact in contactResults"
+                :key="contact.id"
+                class="w-full px-3 py-2 text-left text-sm hover:bg-n-solid-2 text-n-slate-12"
+                @click="selectContact(contact)"
+              >
+                {{ contact.name }}
+                <span v-if="contact.phone_number" class="text-n-slate-10">
+                  {{ ' · ' }}{{ contact.phone_number }}
+                </span>
+                <span v-if="contact.email" class="text-n-slate-10">
+                  {{ ' · ' }}{{ contact.email }}
+                </span>
+              </button>
+            </div>
+          </Teleport>
         </div>
       </div>
 
