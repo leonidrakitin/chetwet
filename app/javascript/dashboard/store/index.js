@@ -49,6 +49,7 @@ import teams from './modules/teams';
 import userNotificationSettings from './modules/userNotificationSettings';
 import webhooks from './modules/webhooks';
 import captainAssistants from './captain/assistant';
+import captainAssistantTemplates from './captain/assistantTemplates';
 import captainDocuments from './captain/document';
 import captainResponses from './captain/response';
 import captainInboxes from './captain/inboxes';
@@ -116,6 +117,7 @@ export default createStore({
     userNotificationSettings,
     webhooks,
     captainAssistants,
+    captainAssistantTemplates,
     captainDocuments,
     captainResponses,
     captainInboxes,

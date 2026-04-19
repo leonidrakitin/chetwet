@@ -595,6 +595,37 @@
         "SUCCESS_MESSAGE": "The assistant has been successfully created",
         "ERROR_MESSAGE": "There was an error creating the assistant, please try again."
       },
+      "TEMPLATES": {
+        "ADD_FROM_TEMPLATE": "Create from template",
+        "TITLE": "Choose a template",
+        "DESCRIPTION": "Pick an industry preset to start with scenarios, FAQs and policies already tuned for your business.",
+        "SUCCESS_MESSAGE": "The assistant has been created from the template",
+        "ERROR_MESSAGE": "Could not create an assistant from the template, please try again.",
+        "SCENARIOS_COUNT": "{count} scenario | {count} scenarios",
+        "FAQ_COUNT": "{count} FAQ | {count} FAQs",
+        "SECTIONS": {
+          "SCENARIOS": "Included scenarios",
+          "DOCUMENTS_HINT": "Suggested documents to upload afterwards"
+        },
+        "FORM": {
+          "PRODUCT_NAME": {
+            "LABEL": "Product / business name",
+            "PLACEHOLDER": "e.g. Cafe Aurora"
+          },
+          "LOCALE": {
+            "LABEL": "Content language",
+            "HINT": "Seed FAQ and assistant name will be created in this language.",
+            "OPTIONS": {
+              "RU": "Russian",
+              "EN": "English"
+            }
+          }
+        },
+        "BUTTONS": {
+          "BACK": "Back to templates",
+          "CREATE": "Create assistant"
+        }
+      },
       "FORM": {
         "UPDATE": "Update",
         "SECTIONS": {

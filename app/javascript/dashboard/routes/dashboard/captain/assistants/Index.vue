@@ -8,6 +8,7 @@ import { useAccount } from 'dashboard/composables/useAccount';
 import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
 import CaptainPaywall from 'dashboard/components-next/captain/pageComponents/Paywall.vue';
 import CreateAssistantDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateAssistantDialog.vue';
+import CreateFromTemplateDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateFromTemplateDialog.vue';
 import AssistantPageEmptyState from 'dashboard/components-next/captain/pageComponents/emptyStates/AssistantPageEmptyState.vue';
 import FeatureSpotlightPopover from 'dashboard/components-next/feature-spotlight/FeatureSpotlightPopover.vue';
 
@@ -19,11 +20,16 @@ const isFetching = computed(() => uiFlags.value.fetchingList);
 
 const selectedAssistant = ref(null);
 const createAssistantDialog = ref(null);
+const createFromTemplateDialog = ref(null);
 const router = useRouter();
 
 const handleCreate = () => {
   dialogType.value = 'create';
   nextTick(() => createAssistantDialog.value.dialogRef.open());
+};
+
+const handleCreateFromTemplate = () => {
+  nextTick(() => createFromTemplateDialog.value.open());
 };
 
 const handleCreateClose = () => {
@@ -66,7 +72,10 @@ const handleAfterCreate = newAssistant => {
       />
     </template>
     <template #emptyState>
-      <AssistantPageEmptyState @click="handleCreate" />
+      <AssistantPageEmptyState
+        @click="handleCreate"
+        @create-from-template="handleCreateFromTemplate"
+      />
     </template>
 
     <template #paywall>
@@ -79,6 +88,10 @@ const handleAfterCreate = newAssistant => {
       :type="dialogType"
       :selected-assistant="selectedAssistant"
       @close="handleCreateClose"
+      @created="handleAfterCreate"
+    />
+    <CreateFromTemplateDialog
+      ref="createFromTemplateDialog"
       @created="handleAfterCreate"
     />
   </PageLayout>
