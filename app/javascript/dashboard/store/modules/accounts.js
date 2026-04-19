@@ -55,6 +55,9 @@ export const getters = {
 
 export const actions = {
   get: async ({ commit }) => {
+    if (!AccountAPI.accountIdFromRoute) {
+      return;
+    }
     commit(types.default.SET_ACCOUNT_UI_FLAG, { isFetchingItem: true });
     try {
       const response = await AccountAPI.get();

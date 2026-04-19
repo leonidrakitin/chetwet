@@ -1,9 +1,13 @@
 <script setup>
-import { ref, computed, markRaw, onMounted } from 'vue';
+import { ref, computed, markRaw, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import { useAccount } from 'dashboard/composables/useAccount';
+import {
+  setAccountScopedPathOverride,
+  clearAccountScopedPathOverride,
+} from 'dashboard/api/ApiClient';
 import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import AgentsAPI from 'dashboard/api/agents';
@@ -42,8 +46,20 @@ const GREETING_STEP_INDEX = 4;
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 const store = useStore();
-const { accountId, currentAccount, updateAccount } = useAccount();
+const { updateAccount } = useAccount();
+
+const currentUser = computed(() => store.getters.getCurrentUser);
+
+const effectiveAccountId = computed(() => {
+  const fromRoute = Number(route.params.accountId);
+  if (!Number.isNaN(fromRoute) && fromRoute > 0) {
+    return fromRoute;
+  }
+  const user = currentUser.value;
+  return user?.account_id || user?.accounts?.[0]?.id || null;
+});
 
 const currentStep = ref(0);
 const slideDirection = ref('forward');
@@ -65,15 +81,33 @@ const showBackButton = computed(
 );
 const stepProgress = computed(() => `${currentStep.value + 1} / ${totalSteps}`);
 
-onMounted(async () => {
+async function loadAccountAndRestoreStep() {
+  const id = effectiveAccountId.value;
+  if (!id) return;
+  setAccountScopedPathOverride(String(id));
   await store.dispatch('accounts/get');
-  const savedStep = currentAccount.value?.custom_attributes?.onboarding_step;
+  const account = store.getters['accounts/getAccount'](id);
+  const savedStep = account?.custom_attributes?.onboarding_step;
   if (savedStep) {
     const idx = STEP_KEYS.indexOf(savedStep);
     if (idx >= 0) {
       currentStep.value = idx;
     }
   }
+}
+
+watch(
+  effectiveAccountId,
+  async (id, prev) => {
+    if (!id) return;
+    if (prev != null && id === prev) return;
+    await loadAccountAndRestoreStep();
+  },
+  { immediate: true }
+);
+
+onUnmounted(() => {
+  clearAccountScopedPathOverride();
 });
 
 async function saveOnboardingStep(stepKey) {
@@ -373,7 +407,7 @@ function handleFinish() {
   saveOnboardingStep('complete');
   router.push({
     name: 'home',
-    params: { accountId: accountId.value },
+    params: { accountId: effectiveAccountId.value },
   });
 }
 
