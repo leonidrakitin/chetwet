@@ -295,6 +295,7 @@
       "TITLE": "Delivery cascade",
       "DESCRIPTION": "Set the order in which channels are tried when sending a notification. If delivery via the first channel fails, the next one in the chain is used.",
       "ADD_CHANNEL": "Add channel",
+      "LOADING": "Loading cascade settings",
       "EMPTY_CHAIN": "No channels added yet. Add at least one channel to build the cascade.",
       "HOW_IT_WORKS": "The system will attempt to send the message through each channel in order. If the client is not reachable on the first channel, the next one is tried automatically.",
       "SAVE": "Save settings",

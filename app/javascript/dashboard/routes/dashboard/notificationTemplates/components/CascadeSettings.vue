@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Draggable from 'vuedraggable';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import { getInboxIconByType } from 'dashboard/helper/inbox';
 
 const { t } = useI18n();
@@ -14,24 +15,43 @@ const allInboxes = computed(() => store.getters['inboxes/getInboxes']);
 const uiFlags = computed(
   () => store.getters['notificationTemplates/getUIFlags']
 );
+const inboxesUiFlags = computed(() => store.getters['inboxes/getUIFlags']);
 const savedSettings = computed(
   () => store.getters['notificationTemplates/getCascadeSettings']
 );
 
+/** False until onMounted finishes dispatching — avoids empty-state flash before fetches start. */
+const hasStartedCascadeBootstrap = ref(false);
+
+const showCascadeLoading = computed(() => {
+  if (!hasStartedCascadeBootstrap.value) return true;
+  return uiFlags.value.isFetchingCascade || inboxesUiFlags.value.isFetching;
+});
+
 const marketingChain = ref([]);
 const serviceChain = ref([]);
+
+/** When true, do not replace local chains from store (avoids wiping edits when inboxes load/update). */
+const chainsEditedLocally = ref(false);
 
 const buildChain = (ids, inboxes) => {
   const byId = Object.fromEntries(inboxes.map(i => [i.id, i]));
   return ids.filter(id => byId[id]).map(id => byId[id]);
 };
 
+const hydrateChainsFromStore = () => {
+  const inboxes = allInboxes.value;
+  const settings = savedSettings.value;
+  if (!inboxes.length) return;
+  marketingChain.value = buildChain(settings.marketing || [], inboxes);
+  serviceChain.value = buildChain(settings.service || [], inboxes);
+};
+
 watch(
   [savedSettings, allInboxes],
-  ([settings, inboxes]) => {
-    if (!inboxes.length) return;
-    marketingChain.value = buildChain(settings.marketing || [], inboxes);
-    serviceChain.value = buildChain(settings.service || [], inboxes);
+  () => {
+    if (!allInboxes.value.length || chainsEditedLocally.value) return;
+    hydrateChainsFromStore();
   },
   { immediate: true }
 );
@@ -50,11 +70,17 @@ const showMarketingPicker = ref(false);
 const showServicePicker = ref(false);
 
 const addToChain = (chain, inbox) => {
+  chainsEditedLocally.value = true;
   chain.push(inbox);
 };
 
 const removeFromChain = (chain, index) => {
+  chainsEditedLocally.value = true;
   chain.splice(index, 1);
+};
+
+const onReorderChains = () => {
+  chainsEditedLocally.value = true;
 };
 
 const handleSave = async () => {
@@ -63,6 +89,9 @@ const handleSave = async () => {
       marketing: marketingChain.value.map(i => i.id),
       service: serviceChain.value.map(i => i.id),
     });
+    chainsEditedLocally.value = false;
+    await nextTick();
+    hydrateChainsFromStore();
     useAlert(t('NOTIFICATION_TEMPLATES.CASCADE.SAVE_SUCCESS'));
   } catch {
     useAlert(t('NOTIFICATION_TEMPLATES.CASCADE.SAVE_ERROR'));
@@ -73,7 +102,11 @@ const inboxIcon = inbox =>
   getInboxIconByType(inbox.channel_type, inbox.medium, 'outline');
 
 onMounted(() => {
+  if (!allInboxes.value.length) {
+    store.dispatch('inboxes/get');
+  }
   store.dispatch('notificationTemplates/fetchCascadeSettings');
+  hasStartedCascadeBootstrap.value = true;
 });
 </script>
 
@@ -150,7 +183,16 @@ onMounted(() => {
 
         <!-- Chain list -->
         <div class="px-5 py-4">
-          <div v-if="marketingChain.length === 0" class="py-6 text-center">
+          <div
+            v-if="showCascadeLoading"
+            class="py-10 flex flex-col items-center justify-center gap-2 text-n-slate-9"
+          >
+            <Spinner :size="20" />
+            <span class="sr-only">{{
+              t('NOTIFICATION_TEMPLATES.CASCADE.LOADING')
+            }}</span>
+          </div>
+          <div v-else-if="marketingChain.length === 0" class="py-6 text-center">
             <p class="text-sm text-n-slate-9">
               {{ t('NOTIFICATION_TEMPLATES.CASCADE.EMPTY_CHAIN') }}
             </p>
@@ -164,6 +206,7 @@ onMounted(() => {
             ghost-class="opacity-40"
             animation="150"
             class="flex flex-col gap-2"
+            @end="onReorderChains"
           >
             <template #item="{ element, index }">
               <div
@@ -212,7 +255,7 @@ onMounted(() => {
           </Draggable>
 
           <!-- Add channel -->
-          <div class="mt-3 relative">
+          <div v-if="!showCascadeLoading" class="mt-3 relative">
             <Button
               variant="ghost"
               size="sm"
@@ -279,7 +322,16 @@ onMounted(() => {
 
         <!-- Chain list -->
         <div class="px-5 py-4">
-          <div v-if="serviceChain.length === 0" class="py-6 text-center">
+          <div
+            v-if="showCascadeLoading"
+            class="py-10 flex flex-col items-center justify-center gap-2 text-n-slate-9"
+          >
+            <Spinner :size="20" />
+            <span class="sr-only">{{
+              t('NOTIFICATION_TEMPLATES.CASCADE.LOADING')
+            }}</span>
+          </div>
+          <div v-else-if="serviceChain.length === 0" class="py-6 text-center">
             <p class="text-sm text-n-slate-9">
               {{ t('NOTIFICATION_TEMPLATES.CASCADE.EMPTY_CHAIN') }}
             </p>
@@ -293,6 +345,7 @@ onMounted(() => {
             ghost-class="opacity-40"
             animation="150"
             class="flex flex-col gap-2"
+            @end="onReorderChains"
           >
             <template #item="{ element, index }">
               <div
@@ -329,7 +382,7 @@ onMounted(() => {
             </template>
           </Draggable>
 
-          <div class="mt-3 relative">
+          <div v-if="!showCascadeLoading" class="mt-3 relative">
             <Button
               variant="ghost"
               size="sm"
@@ -378,6 +431,7 @@ onMounted(() => {
       <Button
         icon="i-lucide-check"
         :is-loading="uiFlags.isSavingCascade"
+        :disabled="showCascadeLoading"
         :label="t('NOTIFICATION_TEMPLATES.CASCADE.SAVE')"
         @click="handleSave"
       />
