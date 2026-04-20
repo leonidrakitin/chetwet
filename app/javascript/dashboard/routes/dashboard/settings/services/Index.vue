@@ -65,6 +65,42 @@ const hideAddServicePopup = () => {
   showAddServicePopup.value = false;
 };
 
+watch(
+  () => uiFlags.value.isCreatingProvider,
+  (isCreatingNow, wasCreatingBefore) => {
+    if (wasCreatingBefore && !isCreatingNow && showAddProviderPopup.value) {
+      hideAddProviderPopup();
+    }
+  }
+);
+
+watch(
+  () => uiFlags.value.isCreatingService,
+  (isCreatingNow, wasCreatingBefore) => {
+    if (wasCreatingBefore && !isCreatingNow && showAddServicePopup.value) {
+      hideAddServicePopup();
+    }
+  }
+);
+
+watch(
+  () => providers.value.length,
+  (nextCount, previousCount) => {
+    if (showAddProviderPopup.value && nextCount > previousCount) {
+      hideAddProviderPopup();
+    }
+  }
+);
+
+watch(
+  () => services.value.length,
+  (nextCount, previousCount) => {
+    if (showAddServicePopup.value && nextCount > previousCount) {
+      hideAddServicePopup();
+    }
+  }
+);
+
 const openEditProviderPopup = item => {
   selectedItem.value = item;
   showEditProviderPopup.value = true;
@@ -336,6 +372,7 @@ onBeforeMount(() => {
     >
       <AddProvider
         :on-success="hideAddProviderPopup"
+        @success="hideAddProviderPopup"
         @close="hideAddProviderPopup"
       />
     </woot-modal>
@@ -347,6 +384,7 @@ onBeforeMount(() => {
     >
       <AddService
         :on-success="hideAddServicePopup"
+        @success="hideAddServicePopup"
         @close="hideAddServicePopup"
       />
     </woot-modal>

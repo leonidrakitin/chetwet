@@ -11,7 +11,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 const props = defineProps({
   onSuccess: { type: Function, default: null },
 });
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'success']);
 const store = useStore();
 const { t } = useI18n();
 
@@ -53,6 +53,7 @@ const createService = async () => {
     if (typeof props.onSuccess === 'function') {
       props.onSuccess();
     }
+    emit('success');
     onClose();
   } catch (error) {
     const errorMessage =
