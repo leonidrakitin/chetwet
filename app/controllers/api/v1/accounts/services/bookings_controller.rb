@@ -36,6 +36,8 @@ class Api::V1::Accounts::Services::BookingsController < Api::V1::Accounts::Servi
     render json: @booking, status: :created
   rescue Booking::ConflictChecker::ConflictError => e
     render json: { error: e.message }, status: :conflict
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   def update

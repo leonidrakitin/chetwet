@@ -8,6 +8,9 @@ import { required, minLength } from '@vuelidate/validators';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
 
+const props = defineProps({
+  onSuccess: { type: Function, default: null },
+});
 const emit = defineEmits(['close']);
 const store = useStore();
 const { t } = useI18n();
@@ -40,6 +43,9 @@ const createProvider = async () => {
       active: active.value,
     });
     useAlert(t('SERVICES_MGMT.PROVIDERS.ADD.API.SUCCESS_MESSAGE'));
+    if (typeof props.onSuccess === 'function') {
+      props.onSuccess();
+    }
     onClose();
   } catch (error) {
     const errorMessage =

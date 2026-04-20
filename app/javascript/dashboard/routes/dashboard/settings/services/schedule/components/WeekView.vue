@@ -44,10 +44,10 @@ const handleBookingMove = ({ bookingId, newTime }) => {
 </script>
 
 <template>
-  <div class="flex flex-1 overflow-hidden">
+  <div class="flex flex-1 min-h-0 overflow-auto">
     <TimeAxis :hours-range="hoursRange" :slot-interval="slotInterval" />
 
-    <div class="flex flex-1 overflow-x-auto">
+    <div class="flex flex-1 min-w-max">
       <DayColumn
         v-for="day in weekDays"
         :key="day.toISOString()"

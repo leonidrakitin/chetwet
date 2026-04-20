@@ -51,6 +51,14 @@ const selectedContact = ref(null);
 const selectedServices = ref([]);
 const isSubmitting = ref(false);
 const isDeleting = ref(false);
+const hasRequiredFields = computed(() => {
+  return (
+    !!form.value.service_provider_id &&
+    !!form.value.scheduled_at &&
+    !!form.value.contact_id &&
+    selectedServices.value.length > 0
+  );
+});
 
 const initForm = () => {
   if (props.booking) {
@@ -141,6 +149,9 @@ const handleStatusChange = async () => {
 };
 
 const handleSubmit = async () => {
+  if (!hasRequiredFields.value) {
+    return;
+  }
   isSubmitting.value = true;
   try {
     const bookingData = {
@@ -438,6 +449,7 @@ const isServiceSelected = serviceId =>
           <Button
             :label="t('SCHEDULE.MODAL.SAVE')"
             :is-loading="isSubmitting"
+            :disabled="!hasRequiredFields"
             @click="handleSubmit"
           />
         </div>

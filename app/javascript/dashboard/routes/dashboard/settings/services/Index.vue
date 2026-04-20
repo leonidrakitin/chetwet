@@ -332,15 +332,23 @@ onBeforeMount(() => {
     <woot-modal
       v-model:show="showAddProviderPopup"
       :on-close="hideAddProviderPopup"
+      @close="hideAddProviderPopup"
     >
-      <AddProvider @close="hideAddProviderPopup" />
+      <AddProvider
+        :on-success="hideAddProviderPopup"
+        @close="hideAddProviderPopup"
+      />
     </woot-modal>
 
     <woot-modal
       v-model:show="showAddServicePopup"
       :on-close="hideAddServicePopup"
+      @close="hideAddServicePopup"
     >
-      <AddService @close="hideAddServicePopup" />
+      <AddService
+        :on-success="hideAddServicePopup"
+        @close="hideAddServicePopup"
+      />
     </woot-modal>
 
     <woot-modal

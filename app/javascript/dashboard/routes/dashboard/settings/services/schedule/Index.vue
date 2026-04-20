@@ -221,7 +221,7 @@ const closeModal = () => {
 
     <template #body>
       <div
-        class="flex flex-col h-[calc(100vh-120px)] bg-n-solid-1 rounded-lg border border-n-weak"
+        class="flex flex-col min-h-0 h-full bg-n-solid-1 rounded-lg border border-n-weak"
       >
         <ScheduleHeader
           v-model:current-date="currentDate"
@@ -231,7 +231,7 @@ const closeModal = () => {
           @add-booking="handleAddBooking"
         />
 
-        <div class="flex-1 overflow-hidden">
+        <div class="flex-1 min-h-0 overflow-auto">
           <Spinner v-if="isLoading" class="m-auto" />
 
           <DayView

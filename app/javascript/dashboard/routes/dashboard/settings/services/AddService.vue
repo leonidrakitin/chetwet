@@ -8,6 +8,9 @@ import { required, minLength, minValue } from '@vuelidate/validators';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
 
+const props = defineProps({
+  onSuccess: { type: Function, default: null },
+});
 const emit = defineEmits(['close']);
 const store = useStore();
 const { t } = useI18n();
@@ -47,6 +50,9 @@ const createService = async () => {
       active: active.value,
     });
     useAlert(t('SERVICES_MGMT.SERVICES.ADD.API.SUCCESS_MESSAGE'));
+    if (typeof props.onSuccess === 'function') {
+      props.onSuccess();
+    }
     onClose();
   } catch (error) {
     const errorMessage =
