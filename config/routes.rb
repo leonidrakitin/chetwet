@@ -95,6 +95,7 @@ Rails.application.routes.draw do
             end
             resources :bulk_migrations, only: [:index, :create, :show]
             resources :documents, only: [:index, :show, :create, :destroy]
+            resource :insights, only: [:show]
             resource :tasks, only: [], controller: 'tasks' do
               post :rewrite
               post :summarize
