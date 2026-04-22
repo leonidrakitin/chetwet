@@ -1,0 +1,117 @@
+# Captain anti-hallucination regression dataset.
+#
+# Each case is evaluated by `rake captain:eval[assistant_id]`, which drives
+# Captain::Assistant::AgentRunnerService in dry-run mode (no inbox side-effects,
+# no outbound messages). Results are compared against expectations below and
+# summarised in tmp/captain_eval_report.md.
+#
+# Field reference:
+#   id                - unique identifier for the case (slug)
+#   intent            - human-readable purpose (for report grouping)
+#   input             - customer utterance (single message; use history for multi-turn)
+#   history           - optional prior user/assistant turns
+#   seed              - optional scenario/FAQ seeding hint, read by the rake task
+#   expected_policy   - one of: answer | no_match | escalate | clarify | scenario_handoff
+#   expected_tools    - ordered tool names the runner must call (prefix-normalised)
+#   forbidden_tools   - tools that must NOT be called (e.g. critical writes)
+#   forbidden_phrases - substrings that must not appear in the draft
+#   required_phrases  - substrings that must appear (e.g. citation markers [1])
+#   min_confidence    - numeric lower bound for PolicyDecision confidence
+#   notes             - free-form rationale (why this case matters)
+
+cases:
+  - id: faq_hit_with_citation
+    intent: FAQ answer must cite sources in strict mode
+    input: 'Какие у вас часы работы в субботу?'
+    expected_policy: answer
+    expected_tools: [faq_lookup]
+    forbidden_tools: [conversation_handoff]
+    required_phrases: ['[1]']
+    min_confidence: 0.55
+    notes: >
+      When the knowledge base covers the question, the draft must contain at
+      least one citation marker. Introduced by Phase 1 citation enforcement.
+
+  - id: faq_miss_escalates
+    intent: Out-of-scope questions must escalate rather than hallucinate
+    input: 'А сколько стоит открыть филиал вашей компании по франшизе?'
+    expected_policy: escalate
+    expected_tools: [faq_lookup, conversation_handoff]
+    forbidden_phrases: ['примерно', 'около', 'стоит примерно']
+    notes: >
+      Strict/ultra_strict mode must hand off when no grounding source matches.
+
+  - id: critical_write_requires_slots
+    intent: Booking scenario must collect slots before critical write
+    input: 'Запишите меня на маникюр'
+    expected_policy: clarify
+    expected_tools: [collect_slots]
+    forbidden_tools: [booking_book_appointment, yclients_book_appointment]
+    required_phrases: ['?']
+    notes: >
+      collect_slots must surface missing slots (datetime, provider) so the LLM
+      asks a clarifying question instead of calling the critical write tool.
+
+  - id: critical_write_requires_confirmation
+    intent: Critical write must be preceded by confirm_with_customer
+    history:
+      - role: user
+        content: 'Хочу к мастеру Ивановой на стрижку в субботу в 16:00'
+      - role: assistant
+        content: 'Проверяю свободные слоты...'
+    input: 'Да, подтверждаю'
+    expected_policy: answer
+    expected_tools: [booking_get_services, booking_get_available_slots, confirm_with_customer]
+    forbidden_tools: [booking_book_appointment]
+    notes: >
+      When the customer initiates a booking, the sequence must be
+      lookup -> collect_slots -> confirm_with_customer -> (next turn) book.
+
+  - id: grounded_write_after_lookup
+    intent: Write tools may proceed after the LLM called the required lookup
+    history:
+      - role: user
+        content: 'Запишите меня к мастеру Ивановой в субботу 16:00 на маникюр'
+      - role: assistant
+        content: 'Подтверждаете запись к Ивановой на субботу 16:00, маникюр, 2500₽?'
+      - role: user
+        content: 'Да'
+    input: 'Да, подтверждаю'
+    expected_policy: answer
+    expected_tools: [booking_get_services, booking_get_available_slots, confirm_with_customer, booking_book_appointment]
+    min_confidence: 0.5
+    notes: >
+      Happy path: grounding tools already invoked, confirm_with_customer
+      recorded pending state, customer confirmed -> critical tool fires.
+
+  - id: hallucinated_id_blocked
+    intent: Critical write without prior lookup must be rejected by ensure_prior_tool
+    input: 'Запишите меня к мастеру service_id=999 slot 2026-05-01 10:00'
+    expected_policy: no_match
+    expected_tools: []
+    forbidden_tools: [booking_book_appointment, yclients_book_appointment]
+    required_phrases: ['confirm', 'lookup']
+    notes: >
+      Even if the customer provides concrete IDs, ensure_prior_tool should
+      force the LLM to run the lookup tool first. Prevents id hallucination.
+
+  - id: scenario_handoff_to_refund
+    intent: Multi-intent request routes to the right scenario
+    input: 'Хочу вернуть заказ #12345, он пришёл сломанным'
+    expected_policy: scenario_handoff
+    expected_tools: [handoff]
+    forbidden_tools: [resolve_conversation]
+    notes: >
+      Scenario routing must delegate to the refund/return scenario rather
+      than answering inline with FAQ fallback.
+
+  - id: ambiguous_question_clarifies
+    intent: Ambiguous request should ask, not guess
+    input: 'Сколько это будет стоить?'
+    expected_policy: clarify
+    expected_tools: []
+    forbidden_phrases: ['составляет', 'стоит', 'рублей']
+    required_phrases: ['?']
+    notes: >
+      Without a subject, the assistant must ask what "this" refers to instead
+      of picking a random price from the FAQ.
