@@ -74,6 +74,7 @@ defineExpose({ dialogRef });
 <template>
   <Dialog
     ref="dialogRef"
+    width="md"
     :title="$t(`${i18nKey}.TITLE`)"
     :description="$t('CAPTAIN.RESPONSES.FORM_DESCRIPTION')"
     :show-cancel-button="false"

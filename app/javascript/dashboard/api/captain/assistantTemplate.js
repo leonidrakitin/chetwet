@@ -10,14 +10,32 @@ class CaptainAssistantTemplate extends ApiClient {
     return axios.get(this.url, { params: { locale } });
   }
 
-  createAssistant({ templateId, productName, locale, name }) {
+  createAssistant({ templateId, productName, locale, name, adapted_data }) {
+    const templatePayload = {
+      template_id: templateId,
+      product_name: productName,
+      locale,
+      name,
+    };
+    if (adapted_data) {
+      templatePayload.adapted_data = adapted_data;
+    }
     return axios.post(`${this.url}/create_assistant`, {
-      template: {
-        template_id: templateId,
-        product_name: productName,
-        locale,
-        name,
-      },
+      template: templatePayload,
+    });
+  }
+
+  getClarifyingQuestions({ templateId, locale }) {
+    return axios.get(`${this.url}/clarifying_questions`, {
+      params: { template_id: templateId, locale },
+    });
+  }
+
+  adapt({ templateId, clarifications, locale }) {
+    return axios.post(`${this.url}/adapt`, {
+      template_id: templateId,
+      locale,
+      clarifications,
     });
   }
 }

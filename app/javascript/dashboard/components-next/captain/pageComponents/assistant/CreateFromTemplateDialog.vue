@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
-import { useUISettings } from 'dashboard/composables/useUISettings';
-import { useAccount } from 'dashboard/composables/useAccount';
 
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
+import Input from 'dashboard/components-next/input/Input.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
@@ -14,22 +14,16 @@ const emit = defineEmits(['close', 'created']);
 
 const { t, locale: i18nLocale } = useI18n();
 const store = useStore();
-const { updateUISettings } = useUISettings();
-const { currentAccount } = useAccount();
 
 const dialogRef = ref(null);
-const creatingKey = ref(null);
+const selectedTemplate = ref(null);
+const form = reactive({ productName: '', locale: 'ru' });
 
 const templates = useMapGetter('captainAssistantTemplates/getRecords');
-const templateUiFlags = useMapGetter('captainAssistantTemplates/getUIFlags');
-const assistantUiFlags = useMapGetter('captainAssistants/getUIFlags');
+const uiFlags = useMapGetter('captainAssistantTemplates/getUIFlags');
 
-const isFetching = computed(() => templateUiFlags.value.fetchingList);
-const isCreating = computed(
-  () =>
-    templateUiFlags.value.creatingAssistant ||
-    assistantUiFlags.value.creatingItem
-);
+const isFetching = computed(() => uiFlags.value.fetchingList);
+const isCreating = computed(() => uiFlags.value.creatingAssistant);
 
 const industryIcons = {
   restaurant: 'i-lucide-utensils',
@@ -46,53 +40,48 @@ const resolvedLocale = computed(() =>
 );
 
 const loadTemplates = () => {
-  store.dispatch('captainAssistantTemplates/list', {
-    locale: resolvedLocale.value,
-  });
+  const locale = resolvedLocale.value;
+  form.locale = locale;
+  store.dispatch('captainAssistantTemplates/list', { locale });
 };
 
-const transitionToCopilot = async assistant => {
-  if (!assistant?.id) return;
-  await store.dispatch('captainAssistants/get');
-  await updateUISettings({
-    preferred_captain_assistant_id: assistant.id,
-    is_copilot_panel_open: true,
-    is_contact_sidebar_open: false,
-  });
+const handleSelect = template => {
+  selectedTemplate.value = template;
+  form.productName = template.product_name_placeholder || '';
 };
 
-const handleCreateFromTemplate = async template => {
-  if (isCreating.value) return;
-  creatingKey.value = template.id;
+const handleBack = () => {
+  selectedTemplate.value = null;
+};
+
+const canSubmit = computed(
+  () => selectedTemplate.value && form.productName.trim().length > 0
+);
+
+const handleCreate = async () => {
+  if (!canSubmit.value) return;
   try {
     const assistant = await store.dispatch(
       'captainAssistantTemplates/createAssistant',
       {
-        templateId: template.id,
-        productName:
-          template.product_name_placeholder ||
-          currentAccount.value?.name ||
-          template.name,
-        locale: resolvedLocale.value,
+        templateId: selectedTemplate.value.id,
+        productName: form.productName.trim(),
+        locale: form.locale,
       }
     );
     useAlert(t('CAPTAIN.ASSISTANTS.TEMPLATES.SUCCESS_MESSAGE'));
-    await transitionToCopilot(assistant);
     emit('created', assistant);
     dialogRef.value.close();
   } catch (error) {
     useAlert(error?.message || t('CAPTAIN.ASSISTANTS.TEMPLATES.ERROR_MESSAGE'));
-  } finally {
-    creatingKey.value = null;
   }
 };
 
 const handleCreateEmpty = async () => {
   if (isCreating.value) return;
-  creatingKey.value = 'empty';
   try {
     const defaultName = t('CAPTAIN.ASSISTANTS.TEMPLATES.EMPTY.DEFAULT_NAME');
-    const productName = currentAccount.value?.name || defaultName;
+    const productName = defaultName;
     const assistant = await store.dispatch('captainAssistants/create', {
       name: defaultName,
       description: t('CAPTAIN.ASSISTANTS.TEMPLATES.EMPTY.DEFAULT_DESCRIPTION'),
@@ -104,19 +93,29 @@ const handleCreateEmpty = async () => {
       },
     });
     useAlert(t('CAPTAIN.ASSISTANTS.CREATE.SUCCESS_MESSAGE'));
-    await transitionToCopilot(assistant);
     emit('created', assistant);
     dialogRef.value.close();
   } catch (error) {
     useAlert(error?.message || t('CAPTAIN.ASSISTANTS.CREATE.ERROR_MESSAGE'));
-  } finally {
-    creatingKey.value = null;
   }
 };
 
 const handleClose = () => emit('close');
 
+watch(
+  () => i18nLocale.value,
+  newLocale => {
+    const locale = newLocale?.startsWith('ru') ? 'ru' : 'en';
+    if (form.locale !== locale) {
+      form.locale = locale;
+      store.dispatch('captainAssistantTemplates/list', { locale });
+    }
+  }
+);
+
 const open = () => {
+  selectedTemplate.value = null;
+  form.productName = '';
   loadTemplates();
   dialogRef.value.open();
 };
@@ -129,8 +128,16 @@ defineExpose({ open, dialogRef });
     ref="dialogRef"
     type="edit"
     width="3xl"
-    :title="t('CAPTAIN.ASSISTANTS.TEMPLATES.TITLE')"
-    :description="t('CAPTAIN.ASSISTANTS.TEMPLATES.DESCRIPTION')"
+    :title="
+      selectedTemplate
+        ? selectedTemplate.name
+        : t('CAPTAIN.ASSISTANTS.TEMPLATES.TITLE')
+    "
+    :description="
+      selectedTemplate
+        ? selectedTemplate.description
+        : t('CAPTAIN.ASSISTANTS.TEMPLATES.DESCRIPTION')
+    "
     :show-cancel-button="false"
     :show-confirm-button="false"
     overflow-y-auto
@@ -143,24 +150,23 @@ defineExpose({ open, dialogRef });
       <Spinner />
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div
+      v-else-if="!selectedTemplate"
+      class="grid grid-cols-1 md:grid-cols-2 gap-3"
+    >
       <button
         v-for="template in templates"
         :key="template.id"
         type="button"
         class="flex flex-col gap-2 p-4 text-start border border-n-weak rounded-xl bg-n-surface-1 hover:border-n-blue-9 hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         :disabled="isCreating"
-        @click="handleCreateFromTemplate(template)"
+        @click="handleSelect(template)"
       >
         <div class="flex items-center gap-2">
           <Icon :icon="templateIcon(template)" class="size-5 text-n-blue-11" />
           <span class="text-sm font-medium text-n-slate-12">
             {{ template.name }}
           </span>
-          <Spinner
-            v-if="creatingKey === template.id"
-            class="ltr:ml-auto rtl:mr-auto size-4"
-          />
         </div>
         <p class="text-xs text-n-slate-11 line-clamp-3">
           {{ template.description }}
@@ -196,10 +202,6 @@ defineExpose({ open, dialogRef });
           <span class="text-sm font-medium text-n-slate-12">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.EMPTY.TITLE') }}
           </span>
-          <Spinner
-            v-if="creatingKey === 'empty'"
-            class="ltr:ml-auto rtl:mr-auto size-4"
-          />
         </div>
         <p class="text-xs text-n-slate-11 line-clamp-3">
           {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.EMPTY.DESCRIPTION') }}
@@ -207,6 +209,110 @@ defineExpose({ open, dialogRef });
       </button>
     </div>
 
-    <template #footer />
+    <div v-else class="flex flex-col gap-5">
+      <section>
+        <h4
+          class="text-xs font-medium uppercase text-n-slate-11 mb-2 tracking-wide"
+        >
+          {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.SECTIONS.SCENARIOS') }}
+        </h4>
+        <ul class="flex flex-col gap-2">
+          <li
+            v-for="scenario in selectedTemplate.scenarios"
+            :key="scenario.key"
+            class="p-3 border border-n-weak rounded-lg bg-n-alpha-1"
+          >
+            <div class="text-sm font-medium text-n-slate-12">
+              {{ scenario.title }}
+            </div>
+            <div class="text-xs text-n-slate-11 mt-0.5">
+              {{ scenario.description }}
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section
+        v-if="selectedTemplate.documents_seed.length"
+        class="flex flex-col gap-2"
+      >
+        <h4 class="text-xs font-medium uppercase text-n-slate-11 tracking-wide">
+          {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.SECTIONS.DOCUMENTS_HINT') }}
+        </h4>
+        <ul class="flex flex-col gap-1 list-disc pl-5">
+          <li
+            v-for="(doc, index) in selectedTemplate.documents_seed"
+            :key="`doc-${index}`"
+            class="text-xs text-n-slate-11"
+          >
+            <span class="font-medium text-n-slate-12">{{ doc.title }}</span>
+            <span v-if="doc.hint" class="block">{{ doc.hint }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="flex flex-col gap-3">
+        <Input
+          v-model="form.productName"
+          :label="t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.PRODUCT_NAME.LABEL')"
+          :placeholder="
+            t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.PRODUCT_NAME.PLACEHOLDER')
+          "
+        />
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.LABEL') }}
+          </label>
+          <select
+            v-model="form.locale"
+            class="appearance-none rounded-lg border-0 outline-1 outline -outline-offset-1 outline-n-weak bg-n-surface-1 py-2 px-3 text-sm"
+          >
+            <option value="ru">
+              {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.OPTIONS.RU') }}
+            </option>
+            <option value="en">
+              {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.OPTIONS.EN') }}
+            </option>
+          </select>
+          <p class="text-xs text-n-slate-11">
+            {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.HINT') }}
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <template #footer>
+      <div
+        v-if="selectedTemplate"
+        class="flex items-center justify-between w-full gap-3"
+      >
+        <Button
+          type="button"
+          variant="faded"
+          color="slate"
+          :label="t('CAPTAIN.ASSISTANTS.TEMPLATES.BUTTONS.BACK')"
+          class="w-full"
+          @click="handleBack"
+        />
+        <Button
+          type="button"
+          :label="t('CAPTAIN.ASSISTANTS.TEMPLATES.BUTTONS.CREATE')"
+          class="w-full"
+          :is-loading="isCreating"
+          :disabled="!canSubmit || isCreating"
+          @click="handleCreate"
+        />
+      </div>
+      <div v-else class="flex justify-end">
+        <Button
+          type="button"
+          :label="t('CAPTAIN.ASSISTANTS.TEMPLATES.BUTTONS.CANCEL')"
+          class="w-full md:w-auto"
+          variant="faded"
+          color="slate"
+          @click="handleClose"
+        />
+      </div>
+    </template>
   </Dialog>
 </template>

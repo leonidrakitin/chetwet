@@ -1,8 +1,9 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import Icon from '../icon/Icon.vue';
+import ConfigureAssistantFromTemplate from './ConfigureAssistantFromTemplate.vue';
 
 defineProps({
   hasAssistants: {
@@ -11,9 +12,11 @@ defineProps({
   },
 });
 
-const emit = defineEmits(['useSuggestion']);
+const emit = defineEmits(['useSuggestion', 'createAssistant']);
 const { t } = useI18n();
 const route = useRoute();
+
+const configureAssistantDialogRef = ref(null);
 
 const routePromptMap = {
   conversations: [
@@ -128,6 +131,10 @@ const promptOptions = computed(() => {
 const handleSuggestion = opt => {
   emit('useSuggestion', t(opt.prompt));
 };
+
+const handleCreated = assistant => {
+  emit('createAssistant', assistant);
+};
 </script>
 
 <template>
@@ -147,17 +154,26 @@ const handleSuggestion = opt => {
       <p class="text-sm text-n-slate-11 leading-6">
         {{ $t('CAPTAIN.ASSISTANTS.NO_ASSISTANTS_AVAILABLE') }}
       </p>
-      <router-link
-        :to="{
-          name: 'captain_assistants_create_index',
-          params: {
-            accountId: route.params.accountId,
-          },
-        }"
-        class="text-n-slate-11 underline hover:text-n-slate-12"
-      >
-        {{ $t('CAPTAIN.ASSISTANTS.ADD_NEW') }}
-      </router-link>
+      <div class="flex flex-col gap-2">
+        <button
+          type="button"
+          class="w-full px-3 py-2 rounded-md border border-n-blue-9 bg-n-blue-6 text-white hover:bg-n-blue-7 transition-colors text-sm font-medium"
+          @click="configureAssistantDialogRef?.open()"
+        >
+          {{ $t('CAPTAIN.ASSISTANTS.ADD_NEW') }}
+        </button>
+        <router-link
+          :to="{
+            name: 'captain_assistants_create_index',
+            params: {
+              accountId: route.params.accountId,
+            },
+          }"
+          class="text-n-slate-11 underline hover:text-n-slate-12 text-sm"
+        >
+          {{ $t('CAPTAIN.ASSISTANTS.CREATE_EMPTY') }}
+        </router-link>
+      </div>
     </div>
     <div v-else class="w-full space-y-2">
       <span class="text-xs text-n-slate-10 block">
@@ -175,5 +191,10 @@ const handleSuggestion = opt => {
         </button>
       </div>
     </div>
+
+    <ConfigureAssistantFromTemplate
+      ref="configureAssistantDialogRef"
+      @created="handleCreated"
+    />
   </div>
 </template>

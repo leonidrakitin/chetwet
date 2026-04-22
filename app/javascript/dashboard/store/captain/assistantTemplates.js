@@ -34,6 +34,18 @@ const actions = {
       commit('SET_UI_FLAG', { creatingAssistant: false });
     }
   },
+  async createAssistantWithAdaptedData({ commit }, payload) {
+    commit('SET_UI_FLAG', { creatingAssistant: true });
+    try {
+      const response =
+        await CaptainAssistantTemplateAPI.createAssistantWithAdaptedData(
+          payload
+        );
+      return response.data;
+    } finally {
+      commit('SET_UI_FLAG', { creatingAssistant: false });
+    }
+  },
 };
 
 const mutations = {
