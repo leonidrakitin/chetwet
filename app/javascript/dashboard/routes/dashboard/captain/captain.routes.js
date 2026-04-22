@@ -14,6 +14,7 @@ import DocumentsIndex from './documents/Index.vue';
 import ResponsesIndex from './responses/Index.vue';
 import KnowledgeIndex from './knowledge/Index.vue';
 import ResponsesPendingIndex from './responses/Pending.vue';
+import InsightsIndex from './insights/Index.vue';
 
 const meta = {
   permissions: ['administrator', 'agent'],
@@ -107,6 +108,12 @@ const assistantRoutes = [
     component: AssistantSettingsIndex,
     name: 'captain_assistants_settings_index',
     meta,
+  },
+  {
+    path: frontendURL('accounts/:accountId/captain/:assistantId/insights'),
+    component: InsightsIndex,
+    name: 'captain_assistants_insights_index',
+    meta: metaV2,
   },
   // Settings sub-pages (guardrails and guidelines)
   {

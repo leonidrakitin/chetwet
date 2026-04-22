@@ -38,7 +38,7 @@ const emit = defineEmits([
   'closeMobileSidebar',
 ]);
 
-const { accountScopedRoute, isOnChatwootCloud } = useAccount();
+const { accountScopedRoute, isOnChatwootCloud, route } = useAccount();
 const store = useStore();
 const searchShortcut = useKbd([`$mod`, 'k']);
 const { t } = useI18n();
@@ -231,6 +231,20 @@ const newReportRoutes = () => [
 ];
 
 const reportRoutes = computed(() => newReportRoutes());
+const captainInsightsRoute = computed(() => {
+  const assistantId = route.params.assistantId;
+
+  if (assistantId) {
+    return accountScopedRoute('captain_assistants_insights_index', {
+      assistantId,
+    });
+  }
+
+  return accountScopedRoute('captain_assistants_index', {
+    navigationPath: 'captain_assistants_insights_index',
+  });
+});
+
 const isBookingManagerEnabled = computed(() =>
   integrations.value.some(
     integration => integration.id === 'booking_manager' && integration.enabled
@@ -370,6 +384,12 @@ const menuItems = computed(() => {
           to: accountScopedRoute('captain_assistants_index', {
             navigationPath: 'captain_assistants_playground_index',
           }),
+        },
+        {
+          name: 'Insights',
+          label: t('SIDEBAR.CAPTAIN_INSIGHTS'),
+          activeOn: ['captain_assistants_insights_index'],
+          to: captainInsightsRoute.value,
         },
         {
           name: 'Settings',
