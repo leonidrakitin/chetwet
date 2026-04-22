@@ -46,24 +46,26 @@ class Captain::Knowledge::PolicyDecision
   end
 
   def answer(best)
+    labelled = labelled_sources
     {
       status: 'ok',
       policy: 'answer',
       confidence: best.confidence,
-      answer_draft: build_draft,
-      sources: collect_sources,
+      answer_draft: build_draft(labelled),
+      sources: labelled,
       requires_operator: false,
       query: nil
     }
   end
 
   def escalate(best)
+    labelled = labelled_sources
     {
       status: 'ok',
       policy: 'escalate',
       confidence: best.confidence,
-      answer_draft: build_draft,
-      sources: collect_sources,
+      answer_draft: build_draft(labelled),
+      sources: labelled,
       requires_operator: true,
       query: nil
     }
@@ -81,11 +83,18 @@ class Captain::Knowledge::PolicyDecision
     }
   end
 
-  def build_draft
-    @results.first(3).map(&:content).join("\n")
+  def build_draft(labelled)
+    labelled.map { |src| "[#{src[:label]}] #{src[:content]}" }.join("\n\n")
   end
 
-  def collect_sources
-    @results.filter_map(&:source_link).compact.uniq
+  def labelled_sources
+    @results.first(3).each_with_index.map do |result, index|
+      {
+        label: index + 1,
+        title: result.title,
+        link: result.source_link,
+        content: result.content
+      }
+    end
   end
 end

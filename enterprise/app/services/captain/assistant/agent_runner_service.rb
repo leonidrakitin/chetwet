@@ -108,6 +108,7 @@ class Captain::Assistant::AgentRunnerService
     response['agent_name'] = result.context&.dig(:current_agent)
     response['response'] = normalize_repeated_response_text(response['response'])
     normalize_escalation_response!(response)
+    enforce_citation_grounding!(response, result)
     text = response['response'].to_s
     Rails.logger.info(
       '[Captain DEBUG TMP] process_agent_result ' \
@@ -116,6 +117,22 @@ class Captain::Assistant::AgentRunnerService
       "faq_lookup_called=#{result.context&.dig(:captain_v2_faq_lookup_called)}"
     )
     response
+  end
+
+  def enforce_citation_grounding!(response, result)
+    return unless @assistant
+
+    status = Captain::Assistant::CitationValidator.check(
+      assistant: @assistant,
+      result: result,
+      response_text: response['response']
+    )
+    return if status == :ok
+
+    Rails.logger.info("[Captain] Citation grounding failed: #{status}")
+    response['reasoning'] = "Citation grounding failed: #{status}. Original: #{response['reasoning']}"
+    response['response'] = 'conversation_handoff'
+    invoke_handoff_tool_fallback(response)
   end
 
   def normalize_repeated_response_text(raw_text)
@@ -276,6 +293,7 @@ class Captain::Assistant::AgentRunnerService
         '[Captain DEBUG TMP] on_tool_complete ' \
         "tool_name=#{tool_name.inspect} result_preview=#{preview.truncate(500).inspect}"
       )
+      record_tool_call(tool_name, context_wrapper)
       track_handoff_usage(tool_name, handoff_tool_name, context_wrapper)
       track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
       persist_tool_runtime_state(tool_name, tool_result, context_wrapper)
@@ -293,6 +311,18 @@ class Captain::Assistant::AgentRunnerService
                                                 routing_decision: compute_routing_decision(context_wrapper, result))
     end
     runner
+  end
+
+  TOOL_HISTORY_MAX = 20
+
+  def record_tool_call(tool_name, context_wrapper)
+    return unless context_wrapper&.context
+
+    state = context_wrapper.context[:state] ||= {}
+    orch = state[:orchestration] ||= {}
+    history = Array(orch[:tool_history])
+    history << tool_name.to_s
+    orch[:tool_history] = history.last(TOOL_HISTORY_MAX)
   end
 
   def track_handoff_usage(tool_name, handoff_tool_name, context_wrapper)
@@ -432,8 +462,29 @@ class Captain::Assistant::AgentRunnerService
       last_faq_lookup: orchestration[:last_faq_lookup],
       last_http_tool_result: orchestration[:last_http_tool_result],
       pending_human_interaction: orchestration[:pending_human_interaction] || runtime_state_service.state['pending_human_interaction'],
+      pending_customer_confirm: resolve_pending_customer_confirm(orchestration),
       last_run_completed_at: Time.current.iso8601
     )
+  end
+
+  # rubocop:disable Metrics/PerceivedComplexity
+  def resolve_pending_customer_confirm(orchestration)
+    new_pending = orchestration[:pending_customer_confirm] || orchestration['pending_customer_confirm']
+    return new_pending if new_pending.present?
+
+    stored = runtime_state_service&.state&.dig('pending_customer_confirm')
+    return nil if stored.blank?
+
+    planned_tool = stored.is_a?(Hash) ? (stored['on_confirm_tool'] || stored[:on_confirm_tool]).to_s.downcase : ''
+    return stored if planned_tool.blank?
+
+    planned_invoked?(orchestration, planned_tool) ? nil : stored
+  end
+  # rubocop:enable Metrics/PerceivedComplexity
+
+  def planned_invoked?(orchestration, planned_tool)
+    history = Array(orchestration[:tool_history] || orchestration['tool_history'])
+    history.any? { |name| name.to_s.delete_prefix('captain--tools--').downcase == planned_tool }
   end
 
   def append_private_note(content)

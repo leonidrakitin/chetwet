@@ -31,6 +31,15 @@ module Concerns::Agentable
       enhanced_context[:routing_hint] = context.context[:routing_hint] if context.context.key?(:routing_hint)
       enhanced_context[:routing_plan] = context.context[:routing_plan] if context.context.key?(:routing_plan)
       enhanced_context[:routing_plan_json] = context.context[:routing_plan].to_json if context.context.key?(:routing_plan)
+      if context.context[:pending_customer_confirm].present?
+        enhanced_context[:pending_customer_confirm] = context.context[:pending_customer_confirm]
+        enhanced_context[:pending_customer_confirm_args_json] =
+          context.context[:pending_customer_confirm_args_json] || context.context[:pending_customer_confirm]['on_confirm_args'].to_json
+      end
+      if context.context[:contact_memory].present?
+        enhanced_context[:contact_memory] = context.context[:contact_memory]
+        enhanced_context[:contact_memory_json] = context.context[:contact_memory_json] || context.context[:contact_memory].to_json
+      end
     end
 
     [

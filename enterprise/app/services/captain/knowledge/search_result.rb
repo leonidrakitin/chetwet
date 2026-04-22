@@ -32,6 +32,16 @@ class Captain::Knowledge::SearchResult
     end
   end
 
+  def title
+    case source
+    when 'faq'
+      record.question.to_s.truncate(120)
+    when 'chunk'
+      document = record.document
+      document&.name.presence || document&.external_link.presence || 'Document'
+    end
+  end
+
   def requires_operator?
     source == 'faq' && record.requires_clarification?
   end

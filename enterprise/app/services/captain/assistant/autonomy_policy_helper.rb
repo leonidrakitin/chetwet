@@ -24,7 +24,7 @@ module Captain::Assistant::AutonomyPolicyHelper
       result = runner.run(message, context: context, max_turns: 100)
       context[:autonomy_retry_count] = attempt
       log_captain_debug_tmp_run_outcome(result, label: "attempt_#{attempt}")
-      break if answer_acceptable?(result)
+      break if answer_acceptable?(result, context)
 
       # Stop retrying if the runner itself errored (e.g. LLM API failure) — retries would be identical
       if result.respond_to?(:error) && result.error
@@ -38,7 +38,7 @@ module Captain::Assistant::AutonomyPolicyHelper
       append_retry_hint!(context, attempt + 1, message) if attempt < max_retries
     end
 
-    acceptable = answer_acceptable?(result)
+    acceptable = answer_acceptable?(result, context)
     Rails.logger.info(
       "[Captain DEBUG TMP] AutonomyPolicy: finished acceptable=#{acceptable} " \
       "escalating=#{!acceptable}"
@@ -57,7 +57,7 @@ module Captain::Assistant::AutonomyPolicyHelper
     effective_autonomy_max_retries.positive?
   end
 
-  def answer_acceptable?(result)
+  def answer_acceptable?(result, context = {})
     output = result.output
     return false if output.blank?
 
@@ -72,9 +72,68 @@ module Captain::Assistant::AutonomyPolicyHelper
         )
         return false
       end
+
+      citation_status = Captain::Assistant::CitationValidator.check(
+        assistant: @assistant, result: result, response_text: response_text
+      )
+      if citation_status != :ok
+        Rails.logger.info("[Captain] AutonomyPolicy: rejecting answer — citations #{citation_status}")
+        context[:citation_verification_status] = citation_status
+        return false
+      end
+
+      unless verification_supported?(result, response_text, context)
+        Rails.logger.info('[Captain] AutonomyPolicy: rejecting answer — LLM self-check unsupported')
+        return false
+      end
     end
 
     response_text.present?
+  end
+
+  SELF_CHECK_MIN_LENGTH = 40
+  SELF_CHECK_CACHE_TTL = 24.hours
+
+  def verification_supported?(result, response_text, context)
+    return true unless self_check_enabled?
+    return true if response_text == 'conversation_handoff'
+    return true if Captain::Assistant::CitationValidator.clarifying_question?(response_text)
+    return true if response_text.strip.length < SELF_CHECK_MIN_LENGTH
+
+    lookup = Captain::Assistant::CitationValidator.extract_last_faq_lookup(result)
+    return true if lookup.blank? || lookup[:policy].to_s != 'answer'
+
+    sources = Array(lookup[:sources])
+    return true if sources.empty?
+
+    verdict = cached_verification(response_text, sources)
+    return true unless verdict.is_a?(Hash) && verdict.key?(:supported)
+    return true if verdict[:supported]
+
+    context[:citation_verification_unsupported] = Array(verdict[:unsupported])
+    false
+  rescue StandardError => e
+    Rails.logger.warn("[Captain] AnswerVerification failed open: #{e.class}: #{e.message}")
+    true
+  end
+
+  def self_check_enabled?
+    flag = @assistant.config['autonomy_self_check_enabled']
+    return true if flag.nil? # default on for strict/ultra_strict
+
+    ActiveModel::Type::Boolean.new.cast(flag)
+  end
+
+  def cached_verification(draft, sources)
+    cache_key = "captain:answer_verification:#{Digest::SHA256.hexdigest([draft, sources.to_json].join('|'))}"
+    cached = Rails.cache.read(cache_key)
+    return cached if cached.is_a?(Hash) && cached.key?(:supported)
+
+    verdict = Captain::Llm::AnswerVerificationService.new(
+      account: @assistant.account, draft: draft, sources: sources
+    ).perform
+    Rails.cache.write(cache_key, verdict, expires_in: SELF_CHECK_CACHE_TTL)
+    verdict
   end
 
   def strict_knowledge_mode?
@@ -112,10 +171,24 @@ module Captain::Assistant::AutonomyPolicyHelper
   end
 
   def build_retry_hint(attempt, message, context)
+    unsupported = context[:citation_verification_unsupported]
+    if unsupported.present?
+      list = unsupported.first(5).map { |c| "- #{c}" }.join("\n")
+      context[:citation_verification_unsupported] = nil
+      return <<~HINT.strip
+        Self-check rejected your previous draft because the following claims were not supported by the FAQ sources:
+        #{list}
+        Rewrite the answer using ONLY facts that are explicitly present in the source content. Add `[n]` citations after each factual sentence. If you cannot support a claim with a source, remove it. If nothing remains, escalate to a human.
+      HINT
+    end
+
     case attempt
     when 1
       if context[:captain_v2_faq_lookup_hit]
-        'You already called captain--tools--faq_lookup and received results. If the policy is answer, use the answer_draft in your response. Do not set response to conversation_handoff when you have FAQ content to share.'
+        'You already called captain--tools--faq_lookup and received results. If the policy is answer, use the answer_draft in your response. ' \
+          'Each factual sentence MUST end with a citation marker [n] where n is the label of a source from the tool result. ' \
+          'Do not invent labels. Do not include sentences that are not supported by any source. ' \
+          'Do not set response to conversation_handoff when you have FAQ content to share.'
       elsif context[:captain_v2_faq_lookup_called]
         context[:clarification_sent] = true
         'You already called captain--tools--faq_lookup, but it returned no relevant FAQs. Ask the user one short clarification question or rephrase the query and call captain--tools--faq_lookup again. Do not hand off to a human yet.'
@@ -155,7 +228,20 @@ module Captain::Assistant::AutonomyPolicyHelper
       context[:pending_human_interaction_stale] = snapshot_count.positive? && snapshot_count != @conversation.messages.count
     end
     context[:last_human_response] = state['last_human_response'] if state['last_human_response'].present?
+    if state['pending_customer_confirm'].present?
+      context[:pending_customer_confirm] = state['pending_customer_confirm']
+      context[:pending_customer_confirm_args_json] = state['pending_customer_confirm']['on_confirm_args'].to_json
+    end
+    enrich_context_with_contact_memory!(context)
     Captain::ScenarioResumeService.new(@conversation, state).enrich_context(context)
+  end
+
+  def enrich_context_with_contact_memory!(context)
+    memory = @conversation&.contact&.additional_attributes&.dig('captain_memory')
+    return if memory.blank?
+
+    context[:contact_memory] = memory
+    context[:contact_memory_json] = memory.to_json
   end
 
   def track_faq_usage(tool_name, faq_tool_name, tool_result, context_wrapper)
