@@ -66,6 +66,12 @@
   description: 'Escalate the conversation to a human agent as a last resort'
   icon: 'user-switch'
 
+- id: confirm_with_customer
+  category: core
+  title: 'Confirm with Customer'
+  description: 'Ask the customer for yes/no confirmation before any write/critical action'
+  icon: 'question-circle'
+
 - id: yclients_lookup_client
   category: yclients
   title: 'YClients: Lookup Client'
@@ -107,6 +113,24 @@
   title: 'Notify Staff'
   description: 'Notify a staff member via messenger with optional response'
   icon: 'send'
+
+- id: schedule_follow_up
+  category: core
+  title: 'Schedule Follow-up'
+  description: 'Schedule a follow-up message to the contact after a delay'
+  icon: 'clock'
+
+- id: get_contact_memory
+  category: core
+  title: 'Get Contact Memory'
+  description: 'Read long-term structured memory for the current contact'
+  icon: 'book'
+
+- id: update_contact_memory
+  category: core
+  title: 'Update Contact Memory'
+  description: 'Record or update long-term structured memory for the current contact'
+  icon: 'edit'
 
 - id: vk_market_get_products
   category: vk_market

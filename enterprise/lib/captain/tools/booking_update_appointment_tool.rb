@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Captain::Tools::BookingUpdateAppointmentTool < Captain::Tools::BookingBaseTool
+  risk_level :critical
+
   description 'Update an existing booking (reschedule, change services or provider)'
   param :booking_id, type: 'string', desc: 'Booking ID to update (required)'
   param :provider_id, type: 'string', desc: 'New service provider ID (optional)', required: false
@@ -9,6 +11,7 @@ class Captain::Tools::BookingUpdateAppointmentTool < Captain::Tools::BookingBase
   param :customer_notes, type: 'string', desc: 'Updated customer notes (optional)', required: false
   param :preferences, type: 'object', desc: 'Updated preferences (optional)', required: false
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/MethodLength, Metrics/AbcSize
   def perform( # rubocop:disable Metrics/ParameterLists
     tool_context,
     booking_id:,
@@ -18,6 +21,9 @@ class Captain::Tools::BookingUpdateAppointmentTool < Captain::Tools::BookingBase
     customer_notes: nil,
     preferences: nil
   )
+    grounding_error = ensure_prior_tool(tool_context, :booking_list_appointments)
+    return error_result(grounding_error[:error]) if grounding_error
+
     contact = contact_for(tool_context)
     booking = account.service_bookings.find_by(id: booking_id)
 
@@ -46,4 +52,5 @@ class Captain::Tools::BookingUpdateAppointmentTool < Captain::Tools::BookingBase
   rescue ActiveRecord::RecordInvalid => e
     error_result("Failed to update booking: #{e.message}")
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/MethodLength, Metrics/AbcSize
 end

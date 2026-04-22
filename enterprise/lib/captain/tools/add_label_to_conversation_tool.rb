@@ -1,4 +1,6 @@
 class Captain::Tools::AddLabelToConversationTool < Captain::Tools::BasePublicTool
+  risk_level :write
+
   description 'Add a label to a conversation'
   param :label_name, type: 'string', desc: 'The name of the label to add'
 

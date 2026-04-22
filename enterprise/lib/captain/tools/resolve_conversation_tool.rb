@@ -1,4 +1,6 @@
 class Captain::Tools::ResolveConversationTool < Captain::Tools::BasePublicTool
+  risk_level :write
+
   description 'Resolve a conversation when the issue has been addressed or the conversation should be closed'
   param :reason, type: 'string', desc: 'Brief reason for resolving the conversation', required: true
 

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Captain::Tools::YclientsUpdateVisitStatusTool < Captain::Tools::YclientsBaseTool
+  risk_level :write
+
   description 'Update attendance status of a YClients appointment (visit)'
   param :visit_id, type: 'string', desc: 'Visit ID from the appointment record (required)'
   param :record_id, type: 'string', desc: 'Record ID of the appointment (required)'
@@ -15,6 +17,9 @@ class Captain::Tools::YclientsUpdateVisitStatusTool < Captain::Tools::YclientsBa
   }.freeze
 
   def perform(tool_context, visit_id:, record_id:, attendance:, company_id: nil)
+    grounding_error = ensure_prior_tool(tool_context, :yclients_get_transactions)
+    return grounding_error[:error] if grounding_error
+
     hook = yclients_hook(state: tool_context.state, company_id: company_id)
     return missing_hook_message if hook.blank?
 

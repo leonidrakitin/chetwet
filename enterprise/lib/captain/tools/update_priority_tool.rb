@@ -1,4 +1,6 @@
 class Captain::Tools::UpdatePriorityTool < Captain::Tools::BasePublicTool
+  risk_level :write
+
   description 'Update the priority of a conversation'
   param :priority, type: 'string', desc: 'The priority level: low, medium, high, urgent, or nil to remove priority'
 

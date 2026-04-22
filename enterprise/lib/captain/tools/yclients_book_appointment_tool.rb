@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Captain::Tools::YclientsBookAppointmentTool < Captain::Tools::YclientsBaseTool
+  risk_level :critical
+
   description 'Book an appointment in YClients for the current contact'
   param :company_id, type: 'string', desc: 'Salon/company ID when multiple YClients hooks are connected'
   param :staff_id, type: 'string', desc: 'Staff member ID (required)'
@@ -9,6 +11,9 @@ class Captain::Tools::YclientsBookAppointmentTool < Captain::Tools::YclientsBase
 
   # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
   def perform(tool_context, staff_id:, service_ids:, datetime:, company_id: nil)
+    grounding_error = ensure_prior_tool(tool_context, :yclients_check_availability, :yclients_get_services)
+    return grounding_error if grounding_error
+
     hook = yclients_hook(state: tool_context.state, company_id: company_id)
     return missing_hook_message if hook.blank?
 

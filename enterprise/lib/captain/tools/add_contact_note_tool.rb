@@ -1,4 +1,6 @@
 class Captain::Tools::AddContactNoteTool < Captain::Tools::BasePublicTool
+  risk_level :write
+
   description 'Add a note to a contact profile'
   param :note, type: 'string', desc: 'The note content to add to the contact'
 

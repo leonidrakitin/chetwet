@@ -66,7 +66,9 @@ class Captain::Scenario < ApplicationRecord
       tools: resolved_tools,
       assistant_name: assistant.name.parameterize(separator: '_'),
       response_guidelines: response_guidelines || [],
-      guardrails: guardrails || []
+      guardrails: guardrails || [],
+      required_slots: Array(required_slots),
+      required_slots_json: Array(required_slots).to_json
     }
   end
 
@@ -98,7 +100,9 @@ class Captain::Scenario < ApplicationRecord
   end
 
   def agent_tools
-    orchestration_subagent_tools + resolved_tools.map { |tool| resolve_tool_instance(tool) }
+    base = orchestration_subagent_tools + resolved_tools.map { |tool| resolve_tool_instance(tool) }
+    base << Captain::Tools::CollectSlotsTool.new(assistant, scenario: self) if Array(required_slots).any?
+    base.compact
   end
 
   def resolved_instructions
