@@ -142,13 +142,15 @@ const handleReassign = async () => {
   >
     <div
       v-if="hasSelection"
-      class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-4 py-3 bg-n-solid-1 border border-n-weak rounded-lg shadow-lg"
+      class="fixed left-3 right-3 z-50 flex flex-col gap-3 px-3 py-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:max-w-[min(100vw-2rem,48rem)] sm:flex-row sm:items-center sm:gap-4 sm:px-4 bg-n-solid-1 border border-n-weak rounded-lg shadow-lg bottom-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:bottom-4"
     >
-      <span class="text-sm font-medium text-n-slate-12">
+      <span
+        class="text-sm font-medium text-n-slate-12 text-center sm:text-left"
+      >
         {{ t('SCHEDULE.BULK.SELECTED', { count: selectedCount }) }}
       </span>
 
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center justify-center gap-2">
         <Button
           :label="t('SCHEDULE.BULK.CONFIRM')"
           faded

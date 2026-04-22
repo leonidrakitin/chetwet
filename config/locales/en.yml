@@ -590,3 +590,23 @@ en:
     hint:
       account:
         captain_models: 'Per-feature models for this account. Available options follow the installation CAPTAIN_HOST setting in Super Admin → App Config.'
+  business_context:
+    examples:
+      support:
+        en: 'We provide 24/7 technical support for our SaaS project management platform.'
+        ru: 'Мы предоставляем круглосуточную техподдержку для SaaS-платформы управления проектами.'
+      sales:
+        en: 'We are a B2B sales platform helping companies find and close leads.'
+        ru: 'Мы B2B платформа продаж, помогающая компаниям находить и закрывать сделки.'
+      feedback:
+        en: 'We collect and analyze customer feedback for product improvement.'
+        ru: 'Мы собираем и анализируем отзывы клиентов для улучшения продукта.'
+      internal:
+        en: 'We use this for internal team communication and coordination.'
+        ru: 'Мы используем это для внутренней коммуникации и координации команды.'
+      ecommerce:
+        en: 'We are an online store selling handmade jewelry worldwide.'
+        ru: 'Мы интернет-магазин авторских украшений с доставкой по всему миру.'
+      other:
+        en: 'We help businesses automate their customer communication.'
+        ru: 'Мы помогаем бизнесу автоматизировать общение с клиентами.'

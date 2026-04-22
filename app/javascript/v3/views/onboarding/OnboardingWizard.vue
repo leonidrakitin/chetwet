@@ -17,12 +17,14 @@ import {
 } from 'dashboard/api/ApiClient';
 import WelcomeStep from './steps/WelcomeStep.vue';
 import UseCaseStep from './steps/UseCaseStep.vue';
+import BusinessContextStep from './steps/BusinessContextStep.vue';
 import ChannelsStep from './steps/ChannelsStep.vue';
 import MigrationStep from './steps/MigrationStep.vue';
 import CompleteStep from './steps/CompleteStep.vue';
 
-const CHANNEL_STEP_INDEX = 2;
-const MIGRATION_STEP_INDEX = 3;
+const BUSINESS_CONTEXT_STEP_INDEX = 2;
+const CHANNEL_STEP_INDEX = 3;
+const MIGRATION_STEP_INDEX = 4;
 
 const store = useStore();
 const { t } = useI18n();
@@ -30,6 +32,7 @@ const { t } = useI18n();
 const STEPS = [
   markRaw(WelcomeStep),
   markRaw(UseCaseStep),
+  markRaw(BusinessContextStep),
   markRaw(ChannelsStep),
   markRaw(MigrationStep),
   markRaw(CompleteStep),
@@ -43,6 +46,7 @@ const currentUser = computed(() => store.getters.getCurrentUser);
 const wizardData = reactive({
   displayName: currentUser.value?.display_name || currentUser.value?.name || '',
   useCase: '',
+  businessContext: null,
   channels: [],
 });
 
@@ -54,10 +58,10 @@ const showBackButton = computed(
   () => currentStep.value > 0 && currentStep.value < totalSteps - 1
 );
 const showNextButton = computed(() => {
-  // Welcome, Channels, and Migration use the wizard footer Continue
-  // UseCase auto-advances on click, Complete has its own CTA
   return (
     currentStep.value === 0 ||
+    currentStep.value === 1 ||
+    currentStep.value === BUSINESS_CONTEXT_STEP_INDEX ||
     currentStep.value === CHANNEL_STEP_INDEX ||
     currentStep.value === MIGRATION_STEP_INDEX
   );
@@ -110,12 +114,30 @@ async function finish() {
       displayName: wizardData.displayName,
     });
   }
+  if (wizardData.businessContext) {
+    const accountId =
+      currentUser.value?.account_id || currentUser.value?.accounts?.[0]?.id;
+    if (accountId) {
+      try {
+        await store.dispatch('accounts/update', {
+          id: accountId,
+          business_context: wizardData.businessContext,
+        });
+      } catch (_error) {
+        // Ignore and continue onboarding completion.
+      }
+    }
+  }
   window.location = '/app';
 }
 
 function handleNext() {
   if (currentStep.value === 0) {
     goNext({ displayName: wizardData.displayName });
+  } else if (currentStep.value === 1) {
+    goNext({ useCase: wizardData.useCase });
+  } else if (currentStep.value === BUSINESS_CONTEXT_STEP_INDEX) {
+    goNext({ businessContext: wizardData.businessContext });
   } else if (currentStep.value === CHANNEL_STEP_INDEX) {
     goNext({ channels: wizardData.channels });
   } else if (currentStep.value === MIGRATION_STEP_INDEX) {
@@ -180,6 +202,8 @@ function handleStepUpdate(data) {
             :key="currentStep"
             :initial-name="wizardData.displayName"
             :initial-use-case="wizardData.useCase"
+            :initial-business-type="wizardData.businessContext?.business_type"
+            :initial-description="wizardData.businessContext?.description"
             :initial-channels="wizardData.channels"
             @next="handleStepNext"
             @update="handleStepUpdate"

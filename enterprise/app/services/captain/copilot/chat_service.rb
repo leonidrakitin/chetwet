@@ -74,7 +74,11 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
       Captain::Tools::Copilot::GetArticleService.new(@assistant, user: @user),
       Captain::Tools::Copilot::SearchArticlesService.new(@assistant, user: @user),
       Captain::Tools::Copilot::SearchContactsService.new(@assistant, user: @user),
-      Captain::Tools::Copilot::SearchLinearIssuesService.new(@assistant, user: @user)
+      Captain::Tools::Copilot::SearchLinearIssuesService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::ConfigureAssistantService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::SuggestFaqsService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::AdaptFaqService.new(@assistant, user: @user),
+      Captain::Tools::Copilot::AdaptScenarioService.new(@assistant, user: @user)
     ]
   end
 
@@ -90,12 +94,14 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
   end
 
   def system_message
+    business_context = @account.settings['business_context']
     {
       role: 'system',
       content: Captain::Llm::SystemPromptsService.copilot_response_generator(
         @assistant.config['product_name'],
         tools_summary,
-        @assistant.config
+        @assistant.config,
+        business_context
       )
     }
   end

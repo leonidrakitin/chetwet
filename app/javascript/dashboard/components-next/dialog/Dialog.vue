@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { OnClickOutside } from '@vueuse/components';
+import { onClickOutside } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -105,14 +105,19 @@ const open = () => {
 
 const close = () => {
   if (!isOpen.value) return;
-  emit('close');
-  dialogRef.value?.close();
   isOpen.value = false;
+  dialogRef.value?.close();
+  emit('close');
 };
 
-// Only close if the close event originated from this dialog,
-// not from a child dialog (e.g. ProseMirror prompt) bubbling up.
-const handleDialogClose = e => e.target === dialogRef.value && close();
+// Sync Vue state when the native dialog closes (Esc, programmatic close(), etc.).
+// Skip if we already cleared isOpen in close() to avoid double emit.
+const handleDialogClose = e => {
+  if (e.target !== dialogRef.value) return;
+  if (!isOpen.value) return;
+  isOpen.value = false;
+  emit('close');
+};
 
 // Only close on click-outside if this dialog is the topmost one.
 // If another dialog (e.g. ProseMirror prompt) is open on top, ignore.
@@ -120,6 +125,10 @@ const handleClickOutside = () => {
   const dialogs = document.querySelectorAll('dialog[open]');
   if (dialogs[dialogs.length - 1] === dialogRef.value) close();
 };
+
+onClickOutside(dialogContentRef, () => {
+  handleClickOutside();
+});
 
 const confirm = () => {
   emit('confirm');
@@ -137,44 +146,53 @@ defineExpose({ open, close });
         maxWidthClass,
         positionClass,
         overflowYAuto ? 'overflow-y-auto' : 'overflow-visible',
+        maxHeight && !overflowYAuto
+          ? 'flex flex-col min-h-0 overflow-hidden'
+          : '',
       ]"
       :style="maxHeight ? { maxHeight } : undefined"
-      @cancel.prevent
-      @keydown.esc.stop="close"
-      @close.prevent="handleDialogClose"
+      @close="handleDialogClose"
     >
-      <OnClickOutside @trigger="handleClickOutside">
-        <form
-          ref="dialogContentRef"
-          class="flex flex-col w-full gap-6 p-6 overflow-visible text-start align-middle transition-all duration-300 ease-in-out transform bg-n-alpha-3 backdrop-blur-[100px] shadow-xl rounded-xl min-h-0"
-          :class="maxHeight ? 'flex-1 min-h-0' : 'h-auto'"
-          @submit.prevent="confirm"
-          @click.stop
+      <form
+        ref="dialogContentRef"
+        class="flex flex-col w-full gap-6 p-6 text-start align-middle transition-all duration-300 ease-in-out transform bg-n-alpha-3 backdrop-blur-[100px] shadow-xl rounded-xl min-h-0"
+        :class="
+          maxHeight
+            ? 'flex-1 min-h-0 min-w-0 overflow-x-visible overflow-y-hidden'
+            : 'h-auto min-w-0 overflow-visible'
+        "
+        @submit.prevent="confirm"
+        @click.stop
+      >
+        <div
+          v-if="title || description"
+          class="flex flex-col gap-2 flex-shrink-0"
         >
-          <div
-            v-if="title || description"
-            class="flex flex-col gap-2 flex-shrink-0"
-          >
-            <h3 class="text-base font-medium leading-6 text-n-slate-12">
-              {{ title }}
-            </h3>
-            <slot name="description">
-              <p v-if="description" class="mb-0 text-sm text-n-slate-11">
-                {{ description }}
-              </p>
-            </slot>
-          </div>
-          <div
-            v-if="isOpen"
-            class="flex flex-col min-h-0 overflow-x-hidden"
-            :class="maxHeight ? 'flex-1 overflow-y-auto' : ''"
-          >
-            <slot />
-          </div>
+          <h3 class="text-base font-medium leading-6 text-n-slate-12">
+            {{ title }}
+          </h3>
+          <slot name="description">
+            <p v-if="description" class="mb-0 text-sm text-n-slate-11">
+              {{ description }}
+            </p>
+          </slot>
+        </div>
+        <div
+          v-if="isOpen"
+          class="flex flex-col min-h-0 min-w-0 px-2 py-1.5"
+          :class="
+            maxHeight
+              ? 'flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain'
+              : ''
+          "
+        >
+          <slot />
+        </div>
+        <div class="flex-shrink-0">
           <slot name="footer">
             <div
               v-if="showCancelButton || showConfirmButton"
-              class="flex items-center justify-between w-full gap-3 flex-shrink-0"
+              class="flex items-center justify-between w-full gap-3"
             >
               <Button
                 v-if="showCancelButton"
@@ -196,8 +214,8 @@ defineExpose({ open, close });
               />
             </div>
           </slot>
-        </form>
-      </OnClickOutside>
+        </div>
+      </form>
     </dialog>
   </TeleportWithDirection>
 </template>

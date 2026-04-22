@@ -13,9 +13,9 @@ const route = useRoute();
 
 <template>
   <div
-    class="flex flex-col w-full h-full m-0 pb-8 pt-4 px-6 overflow-auto bg-n-surface-1"
+    class="flex flex-col w-full h-full min-h-0 m-0 pb-8 pt-4 px-3 sm:px-6 overflow-y-auto overflow-x-hidden bg-n-surface-1"
   >
-    <div class="flex items-start w-full max-w-5xl mx-auto">
+    <div class="flex items-start w-full max-w-7xl mx-auto">
       <router-view v-slot="{ Component }">
         <keep-alive v-if="keepAlive">
           <component :is="Component" :key="route.fullPath" />

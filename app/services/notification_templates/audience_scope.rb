@@ -50,16 +50,35 @@ class NotificationTemplates::AudienceScope
   def segment_contact_ids
     return @segment_contact_ids if defined?(@segment_contact_ids)
 
-    segment_id = template.audience['segment_id']
-    @segment_contact_ids = if segment_id.present?
-                             custom_filter = template.account.custom_filters.find_by(id: segment_id, filter_type: :contact)
-                             return nil unless custom_filter
+    @segment_contact_ids = compute_segment_contact_ids
+  end
 
-                             result = ::Contacts::FilterService.new(
-                               template.account, nil, { payload: custom_filter.query }
-                             ).perform
-                             result[:contacts].pluck(:id)
-                           end
+  def compute_segment_contact_ids
+    ids = segment_ids_list
+    return nil if ids.blank?
+
+    per_segment = ids.map { |id| contact_ids_for_segment(id) }.compact
+    return nil if per_segment.empty?
+
+    segment_match_mode == 'all' ? per_segment.reduce(:&) : per_segment.flatten.uniq
+  end
+
+  def segment_ids_list
+    raw = template.audience['segment_ids'] || Array.wrap(template.audience['segment_id'])
+    Array.wrap(raw).map(&:to_i).reject(&:zero?)
+  end
+
+  def segment_match_mode
+    template.audience['segment_match_mode'].to_s == 'all' ? 'all' : 'any'
+  end
+
+  def contact_ids_for_segment(segment_id)
+    custom_filter = template.account.custom_filters.find_by(id: segment_id, filter_type: :contact)
+    return nil unless custom_filter
+
+    ::Contacts::FilterService.new(
+      template.account, nil, { payload: custom_filter.query }
+    ).perform[:contacts].pluck(:id)
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity

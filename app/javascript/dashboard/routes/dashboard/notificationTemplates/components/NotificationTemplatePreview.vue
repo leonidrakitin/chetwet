@@ -107,16 +107,28 @@ const previewBlocks = computed(() =>
   props.messages
     .map(m => {
       const isString = typeof m === 'string';
+      const attachments = isString ? [] : (m.attachments ?? []);
       return {
         html: renderMarkdown(
           isString ? m : (m.text ?? ''),
           props.activeVariable
         ),
-        attachments: isString ? [] : (m.attachments ?? []),
+        photoAttachments: attachments.filter(
+          att => att.type === 'photo' && att.url
+        ),
+        otherAttachments: attachments.filter(
+          att => att.type !== 'photo' || !att.url
+        ),
         buttons: isString ? [] : (m.buttons ?? []),
       };
     })
-    .filter(b => b.html || b.attachments.length || b.buttons.length)
+    .filter(
+      b =>
+        b.html ||
+        b.photoAttachments.length ||
+        b.otherAttachments.length ||
+        b.buttons.length
+    )
 );
 
 const hasContent = computed(() => previewBlocks.value.length > 0);
@@ -144,13 +156,27 @@ const hasContent = computed(() => previewBlocks.value.length > 0);
             v-html="block.html"
           />
 
-          <!-- Attachments -->
+          <!-- Photo attachments (full width) -->
           <div
-            v-if="block.attachments.length"
+            v-if="block.photoAttachments.length"
+            class="flex flex-col gap-1 w-full"
+          >
+            <img
+              v-for="att in block.photoAttachments"
+              :key="att.id"
+              :src="att.url"
+              :alt="att.name"
+              class="w-full rounded-lg object-cover"
+            />
+          </div>
+
+          <!-- Other attachments (compact chips) -->
+          <div
+            v-if="block.otherAttachments.length"
             class="flex flex-wrap gap-1 justify-end"
           >
             <div
-              v-for="att in block.attachments"
+              v-for="att in block.otherAttachments"
               :key="att.id"
               class="flex items-center gap-1 rounded-lg border border-n-weak bg-n-solid-1 px-2 py-1 text-xs text-n-slate-11"
             >

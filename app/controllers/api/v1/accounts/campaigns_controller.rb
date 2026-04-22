@@ -1,6 +1,6 @@
 class Api::V1::Accounts::CampaignsController < Api::V1::Accounts::BaseController
   before_action :check_authorization
-  before_action :fetch_campaign, only: [:show, :update, :destroy, :send_now, :preview_audience]
+  before_action :fetch_campaign, only: [:show, :update, :destroy, :send_now, :preview_audience, :campaign_statistics]
 
   def index
     @campaigns = Current.account.campaigns.includes(:inbox, :yclients_integration).ordered
@@ -39,18 +39,13 @@ class Api::V1::Accounts::CampaignsController < Api::V1::Accounts::BaseController
   end
 
   def statistics
-    raw = Current.account.campaign_deliveries
-                 .group(:campaign_id, :status)
-                 .count
+    period = params[:period] || '30d'
+    render json: { payload: Campaigns::StatisticsService.new(Current.account, period: period).call }
+  end
 
-    stats = {}
-    raw.each do |(campaign_id, status), count|
-      stats[campaign_id] ||= { sent: 0, failed: 0, skipped: 0, replied: 0, total: 0 }
-      stats[campaign_id][status.to_sym] = count
-      stats[campaign_id][:total] += count
-    end
-
-    render json: { payload: stats }
+  def campaign_statistics
+    period = params[:period] || '30d'
+    render json: { payload: Campaigns::StatisticsService.new(Current.account, period: period).for_campaign(@campaign) }
   end
 
   private

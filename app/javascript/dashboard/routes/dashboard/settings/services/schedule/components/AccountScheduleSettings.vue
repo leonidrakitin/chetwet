@@ -83,7 +83,10 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <WorkingHoursEditor v-model="form.working_hours" />
+    <WorkingHoursEditor
+      v-model="form.working_hours"
+      :holidays="form.holidays"
+    />
 
     <BreaksManager v-model="form.breaks" />
 

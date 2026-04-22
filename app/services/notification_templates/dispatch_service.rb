@@ -1,6 +1,8 @@
 class NotificationTemplates::DispatchService
   pattr_initialize [:template!, :conversation, :trigger_type]
 
+  RESCHEDULABLE_REASONS = %w[quiet_hours active_dialog stop_if_replied max_per_day per_contact_gap min_interval].freeze
+
   def call
     target_conversations.each do |target_conversation|
       next unless due_for_dispatch?(target_conversation)
@@ -10,17 +12,45 @@ class NotificationTemplates::DispatchService
         conversation: target_conversation
       ).call
 
-      next unless eligibility[:ok]
-
-      NotificationTemplates::MessageSenderService.new(
-        template: template,
-        conversation: target_conversation,
-        trigger_type: trigger_type
-      ).call
+      if eligibility[:ok]
+        NotificationTemplates::MessageSenderService.new(
+          template: template,
+          conversation: target_conversation,
+          trigger_type: trigger_type
+        ).call
+      elsif RESCHEDULABLE_REASONS.include?(eligibility[:reason])
+        enqueue_scheduled_delivery(target_conversation, eligibility[:reason])
+      end
     end
   end
 
   private
+
+  def enqueue_scheduled_delivery(target_conversation, reason)
+    contact = target_conversation.contact
+    return if existing_scheduled_for?(contact)
+
+    scheduled_for = NotificationTemplates::SchedulerService.new(
+      template: template,
+      contact: contact,
+      account: template.account,
+      reason: reason
+    ).call
+
+    template.deliveries.create!(
+      account: template.account,
+      contact: contact,
+      conversation: target_conversation,
+      status: 'scheduled',
+      trigger_type: trigger_type,
+      scheduled_for: scheduled_for,
+      metadata: { reason: reason }
+    )
+  end
+
+  def existing_scheduled_for?(contact)
+    template.deliveries.where(contact_id: contact.id, status: 'scheduled').exists?
+  end
 
   def target_conversations
     Array.wrap(conversation.presence || NotificationTemplates::AudienceScope.new(template: template).call)
@@ -37,10 +67,10 @@ class NotificationTemplates::DispatchService
     reference_time = reference_time_for(target_conversation)
     return false if reference_time.blank?
 
-    interval_days = template.conditions['interval_days'].to_i
-    return false if interval_days <= 0
+    duration = NotificationTemplates::DurationHelper.interval_duration(template.conditions)
+    return false if duration.nil? || duration <= 0
 
-    reference_time <= interval_days.days.ago
+    reference_time <= duration.ago
   end
 
   def reference_time_for(target_conversation)

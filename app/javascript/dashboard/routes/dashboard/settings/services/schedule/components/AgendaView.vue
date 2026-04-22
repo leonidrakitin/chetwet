@@ -87,7 +87,7 @@ const statusLabel = status =>
 </script>
 
 <template>
-  <div class="flex flex-col h-full overflow-y-auto">
+  <div class="flex flex-col w-full">
     <div
       v-if="upcomingBookings.length === 0"
       class="flex-1 flex items-center justify-center"

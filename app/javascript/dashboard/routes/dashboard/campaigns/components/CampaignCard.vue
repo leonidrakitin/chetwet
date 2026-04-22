@@ -50,7 +50,7 @@ const displayMessage = computed(() => {
     const first = props.campaign.messages[0];
     return typeof first === 'string' ? first : (first.text ?? '');
   }
-  return props.campaign.messageText || '';
+  return props.campaign.messageText || props.campaign.message || '';
 });
 
 const formattedScheduledAt = computed(() => {
@@ -63,6 +63,52 @@ const formattedLastSent = computed(() => {
   if (!props.campaign.last_sent_at) return '';
   const date = new Date(props.campaign.last_sent_at);
   return date.toLocaleString();
+});
+
+const progressPercent = computed(
+  () => props.campaign.delivery_progress_percent || 0
+);
+const audienceCount = computed(() => props.campaign.audience_count || 0);
+const sentCount = computed(() => props.campaign.sent_count || 0);
+const failedCount = computed(() => props.campaign.failed_count || 0);
+const deliveryStatus = computed(
+  () => props.campaign.delivery_status || 'scheduled'
+);
+
+const statusColor = computed(() => {
+  const colors = {
+    scheduled: 'text-n-blue-11 bg-n-blue-3',
+    in_progress: 'text-n-amber-11 bg-n-amber-3',
+    completed: 'text-n-teal-11 bg-n-teal-3',
+  };
+  return colors[deliveryStatus.value] || 'text-n-slate-11 bg-n-slate-3';
+});
+
+const progressColor = computed(() => {
+  if (failedCount.value > 0 && deliveryStatus.value === 'completed') {
+    return 'stroke-n-ruby-9';
+  }
+  const colors = {
+    scheduled: 'stroke-n-blue-9',
+    in_progress: 'stroke-n-amber-9',
+    completed: 'stroke-n-teal-9',
+  };
+  return colors[deliveryStatus.value] || 'stroke-n-slate-9';
+});
+
+const statusLabel = computed(() => {
+  const labels = {
+    scheduled: t('CAMPAIGNS.CARD.STATUS_SCHEDULED'),
+    in_progress: t('CAMPAIGNS.CARD.STATUS_IN_PROGRESS'),
+    completed: t('CAMPAIGNS.CARD.STATUS_COMPLETED'),
+  };
+  return labels[deliveryStatus.value] || deliveryStatus.value;
+});
+
+const circumference = 2 * Math.PI * 14;
+const strokeDashoffset = computed(() => {
+  const progress = progressPercent.value / 100;
+  return circumference * (1 - progress);
 });
 </script>
 
@@ -82,7 +128,7 @@ const formattedLastSent = computed(() => {
           <h3
             class="text-base font-semibold text-n-slate-12 leading-snug truncate"
           >
-            {{ campaign.name }}
+            {{ campaign.name || campaign.title }}
           </h3>
           <span
             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 whitespace-nowrap"
@@ -96,9 +142,69 @@ const formattedLastSent = computed(() => {
         </p>
       </div>
 
-      <div class="flex items-center gap-6 pr-4">
-        <div v-if="campaign.scheduled_at" class="flex flex-col text-right w-36">
-          <span class="text-xs text-n-slate-9 mb-0.5">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
+          <div class="relative size-9 flex-shrink-0">
+            <svg class="size-9 -rotate-90" viewBox="0 0 32 32">
+              <circle
+                cx="16"
+                cy="16"
+                r="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                class="text-n-slate-3"
+              />
+              <circle
+                cx="16"
+                cy="16"
+                r="14"
+                fill="none"
+                :stroke-width="3"
+                :class="progressColor"
+                :stroke-dasharray="circumference"
+                :stroke-dashoffset="strokeDashoffset"
+                stroke-linecap="round"
+                class="transition-all duration-300"
+              />
+            </svg>
+            <span
+              class="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-n-slate-12"
+            >
+              {{
+                t('CAMPAIGNS.CARD.PROGRESS_PERCENT', {
+                  percent: progressPercent,
+                })
+              }}
+            </span>
+          </div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-xs text-n-slate-11 whitespace-nowrap">
+              {{
+                t('CAMPAIGNS.CARD.SENT_OF_TOTAL', {
+                  sent: sentCount,
+                  total: audienceCount,
+                })
+              }}
+            </span>
+            <span v-if="failedCount > 0" class="text-[10px] text-n-ruby-11">
+              {{ t('CAMPAIGNS.CARD.FAILED_COUNT', { count: failedCount }) }}
+            </span>
+          </div>
+        </div>
+
+        <span
+          class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium whitespace-nowrap"
+          :class="statusColor"
+        >
+          {{ statusLabel }}
+        </span>
+
+        <div
+          v-if="campaign.scheduled_at && deliveryStatus === 'scheduled'"
+          class="flex flex-col text-right w-32"
+        >
+          <span class="text-[10px] text-n-slate-9">
             {{ t('CAMPAIGNS.SCHEDULED') }}
           </span>
           <span class="text-xs text-n-slate-11 whitespace-nowrap">
@@ -107,19 +213,17 @@ const formattedLastSent = computed(() => {
         </div>
         <div
           v-else-if="campaign.last_sent_at"
-          class="flex flex-col text-right w-36"
+          class="flex flex-col text-right w-32"
         >
-          <span class="text-xs text-n-slate-9 mb-0.5">
+          <span class="text-[10px] text-n-slate-9">
             {{ t('NOTIFICATION_TEMPLATES.LAST_SENT') }}
           </span>
           <span class="text-xs text-n-slate-11 whitespace-nowrap">
             {{ formattedLastSent }}
           </span>
         </div>
-        <div v-else class="flex items-center justify-end w-36">
+        <div v-else-if="!sentCount" class="flex items-center justify-end w-32">
           <Button
-            variant="smooth"
-            color="brand"
             size="xs"
             icon="i-lucide-send"
             :label="t('CAMPAIGNS.SEND_NOW')"
@@ -129,7 +233,6 @@ const formattedLastSent = computed(() => {
       </div>
     </div>
 
-    <!-- Actions Menu -->
     <OnClickOutside @trigger="closeMenu">
       <div class="relative flex-shrink-0 ml-2">
         <Button

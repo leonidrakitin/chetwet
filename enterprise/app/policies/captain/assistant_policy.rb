@@ -15,6 +15,10 @@ class Captain::AssistantPolicy < ApplicationPolicy
     @account_user.administrator?
   end
 
+  def create_assistant?
+    create?
+  end
+
   def update?
     @account_user.administrator?
   end

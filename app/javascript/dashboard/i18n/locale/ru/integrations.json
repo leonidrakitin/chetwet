@@ -830,6 +830,10 @@
         "yclients": {
           "TITLE": "Yclients",
           "DESCRIPTION": "Записи, клиенты и данные салона в Yclients"
+        },
+        "booking": {
+          "TITLE": "Booking Manager",
+          "DESCRIPTION": "Услуги, специалисты и записи, управляемые в Booking Manager"
         }
       },
       "TOOLS": {
@@ -884,6 +888,42 @@
         "yclients_update_visit_status": {
           "TITLE": "Yclients: статус визита",
           "DESCRIPTION": "Обновить статус посещения (приём/неявка и т.д.)"
+        },
+        "booking_get_services": {
+          "TITLE": "Booking: услуги",
+          "DESCRIPTION": "Получить список доступных услуг для бронирования"
+        },
+        "booking_get_providers": {
+          "TITLE": "Booking: специалисты",
+          "DESCRIPTION": "Получить список доступных специалистов (персонала)"
+        },
+        "booking_get_available_slots": {
+          "TITLE": "Booking: доступные слоты",
+          "DESCRIPTION": "Получить доступные временные слоты для записи на выбранную дату"
+        },
+        "booking_book_appointment": {
+          "TITLE": "Booking: создать запись",
+          "DESCRIPTION": "Создать запись для контакта"
+        },
+        "booking_cancel_appointment": {
+          "TITLE": "Booking: отменить запись",
+          "DESCRIPTION": "Отменить существующую запись"
+        },
+        "booking_list_appointments": {
+          "TITLE": "Booking: список записей",
+          "DESCRIPTION": "Показать предстоящие или прошедшие записи контакта"
+        },
+        "booking_update_appointment": {
+          "TITLE": "Booking: изменить запись",
+          "DESCRIPTION": "Перенести или обновить существующую запись"
+        },
+        "ask_human": {
+          "TITLE": "Спросить оператора",
+          "DESCRIPTION": "Фоновый вопрос или запрос подтверждения у оператора; диалог остаётся у ассистента"
+        },
+        "notify_staff": {
+          "TITLE": "Уведомить сотрудника",
+          "DESCRIPTION": "Отправить уведомление сотруднику в мессенджер с опциональным ответом"
         },
         "vk_market_get_products": {
           "TITLE": "VK Маркет: товары",

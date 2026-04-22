@@ -121,6 +121,15 @@
     }
   },
   "SCHEDULE": {
+    "DAYS": {
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday",
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday"
+    },
     "HEADER": "Schedule",
     "DESCRIPTION": "View and manage bookings calendar",
     "LOADING": "Loading calendar...",
@@ -140,6 +149,10 @@
     "FETCH_ERROR": "Failed to load calendar data",
     "BOOKING_MOVED": "Booking moved successfully",
     "MOVE_ERROR": "Failed to move booking",
+    "HIDDEN_PROVIDERS": {
+      "TOOLTIP": "{count} providers not visible — click to jump",
+      "EMPTY": "All providers visible"
+    },
     "STATUS": {
       "PENDING": "Pending",
       "CONFIRMED": "Confirmed",
@@ -164,7 +177,13 @@
       "BREAKS": "Breaks",
       "HOLIDAYS": "Holidays",
       "DAY_OFF": "Day off",
+      "WORKING": "Working",
+      "HOLIDAY": "Holiday",
       "ADD_SLOT": "Add time slot",
+      "REMOVE_SLOT": "Remove slot",
+      "MAKE_DAY_OFF": "Day off",
+      "MAKE_WORKING_DAY": "Make working",
+      "INVALID_TIME_RANGE": "End time must be after start time",
       "ADD_BREAK": "Add break",
       "NO_BREAKS": "No breaks configured",
       "ADD": "Add",
@@ -183,7 +202,15 @@
       "PROVIDER": "Provider",
       "DATE_TIME": "Date & Time",
       "CONTACT": "Contact",
-      "SEARCH_CONTACT": "Search contact...",
+      "SEARCH_CONTACT": "Name, phone (+7/8/9…) or email",
+      "SEARCH_CONTACT_HINT": "Type at least 2 characters",
+      "SEARCH_CONTACT_EMPTY": "No contacts found",
+      "SEARCH_CONTACT_EMPTY_HINT": "Try a different spelling or phone format",
+      "SEARCH_CONTACT_LOADING": "Searching…",
+      "SEARCH_CONTACT_COUNT": "Found: {count}",
+      "SEARCH_CONTACT_KBD_NAV": "Navigate with arrow keys",
+      "SEARCH_CONTACT_KBD_PICK": "Press Enter to select",
+      "CLEAR_CONTACT": "Clear selected contact",
       "SERVICES": "Services",
       "CUSTOMER_NOTES": "Customer Notes",
       "INTERNAL_NOTES": "Internal Notes",

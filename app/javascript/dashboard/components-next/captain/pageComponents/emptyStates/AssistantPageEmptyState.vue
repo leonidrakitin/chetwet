@@ -6,15 +6,11 @@ import AssistantCard from 'dashboard/components-next/captain/assistant/Assistant
 import FeatureSpotlight from 'dashboard/components-next/feature-spotlight/FeatureSpotlight.vue';
 import { assistantsList } from 'dashboard/components-next/captain/pageComponents/emptyStates/captainEmptyStateContent.js';
 
-const emit = defineEmits(['click', 'createFromTemplate']);
+const emit = defineEmits(['click']);
 const { isOnChatwootCloud } = useAccount();
 
 const onClick = () => {
   emit('click');
-};
-
-const onCreateFromTemplate = () => {
-  emit('createFromTemplate');
 };
 </script>
 
@@ -46,20 +42,11 @@ const onCreateFromTemplate = () => {
       </div>
     </template>
     <template #actions>
-      <div class="flex items-center gap-2">
-        <Button
-          :label="$t('CAPTAIN.ASSISTANTS.TEMPLATES.ADD_FROM_TEMPLATE')"
-          icon="i-lucide-sparkles"
-          variant="faded"
-          color="slate"
-          @click="onCreateFromTemplate"
-        />
-        <Button
-          :label="$t('CAPTAIN.ASSISTANTS.ADD_NEW')"
-          icon="i-lucide-plus"
-          @click="onClick"
-        />
-      </div>
+      <Button
+        :label="$t('CAPTAIN.ASSISTANTS.ADD_NEW')"
+        icon="i-lucide-plus"
+        @click="onClick"
+      />
     </template>
   </EmptyStateLayout>
 </template>

@@ -23,7 +23,7 @@ const timeSlots = computed(() => {
 </script>
 
 <template>
-  <div class="flex-shrink-0 w-16 border-r border-n-weak">
+  <div class="flex-shrink-0 w-12 sm:w-16 border-r border-n-weak">
     <div class="h-12 border-b border-n-weak" />
     <div class="relative">
       <div

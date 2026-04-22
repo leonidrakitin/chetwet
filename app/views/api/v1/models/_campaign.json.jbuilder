@@ -13,6 +13,11 @@ json.last_sent_at resource.last_sent_at&.iso8601
 json.scheduled_at resource.scheduled_at&.iso8601
 json.inbox_id resource.inbox_id
 json.yclients_integration_id resource.yclients_integration_id
+json.audience_count resource.audience_count
+json.sent_count resource.sent_count
+json.failed_count resource.failed_count
+json.delivery_status resource.delivery_status
+json.delivery_progress_percent resource.delivery_progress_percent
 
 if resource.inbox.present?
   json.inbox do

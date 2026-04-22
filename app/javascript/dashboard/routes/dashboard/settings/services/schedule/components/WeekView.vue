@@ -44,7 +44,9 @@ const handleBookingMove = ({ bookingId, newTime }) => {
 </script>
 
 <template>
-  <div class="flex flex-1 min-h-0 overflow-auto">
+  <div
+    class="flex w-full min-w-0 overflow-x-auto overflow-y-visible [scrollbar-gutter:stable]"
+  >
     <TimeAxis :hours-range="hoursRange" :slot-interval="slotInterval" />
 
     <div class="flex flex-1 min-w-max">

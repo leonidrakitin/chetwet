@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
@@ -10,6 +10,7 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import CampaignCard from './components/CampaignCard.vue';
+import StatisticsTab from './components/StatisticsTab.vue';
 import NotificationTemplatePreview from '../notificationTemplates/components/NotificationTemplatePreview.vue';
 
 const { t } = useI18n();
@@ -20,23 +21,26 @@ const store = useStore();
 const uiFlags = computed(() => store.getters['campaigns/getUIFlags']);
 const allCampaigns = computed(() => store.getters['campaigns/getCampaigns']);
 const inboxes = computed(() => store.getters['inboxes/getInboxes']);
+const isStatisticsTab = computed(() => route.name === 'campaigns_statistics');
 
 const searchQuery = ref('');
 const inboxFilter = ref('');
 
 const filteredCampaigns = computed(() => {
-  let campaigns = allCampaigns.value;
+  let campaigns = Array.isArray(allCampaigns.value) ? allCampaigns.value : [];
 
   if (inboxFilter.value) {
-    campaigns = campaigns.filter(c => c.inbox_id === inboxFilter.value);
+    campaigns = campaigns.filter(
+      c => String(c.inbox_id) === String(inboxFilter.value)
+    );
   }
 
   const q = searchQuery.value.trim().toLowerCase();
   if (q) {
     campaigns = campaigns.filter(
       c =>
-        c.name.toLowerCase().includes(q) ||
-        (c.messageText ?? '').toLowerCase().includes(q)
+        (c.name ?? c.title ?? '').toLowerCase().includes(q) ||
+        (c.messageText ?? c.message ?? '').toLowerCase().includes(q)
     );
   }
   return campaigns;
@@ -118,8 +122,20 @@ const confirmSendNow = async () => {
   }
 };
 
+watch(
+  () => route.name,
+  routeName => {
+    if (routeName === 'campaigns_statistics') {
+      store.dispatch('campaigns/fetchStatistics');
+    }
+  }
+);
+
 onMounted(() => {
   store.dispatch('campaigns/get');
+  if (route.name === 'campaigns_statistics') {
+    store.dispatch('campaigns/fetchStatistics');
+  }
   if (!inboxes.value.length) {
     store.dispatch('inboxes/get');
   }
@@ -141,13 +157,17 @@ onMounted(() => {
           <h1 class="text-lg font-semibold text-n-slate-12 truncate">
             {{ t('CAMPAIGNS.HEADER') }}
           </h1>
-          <span class="text-sm font-normal text-n-slate-9">
+          <span
+            v-if="!isStatisticsTab"
+            class="text-sm font-normal text-n-slate-9"
+          >
             {{ filteredCampaigns.length }}
           </span>
         </div>
 
         <!-- Controls row -->
         <div
+          v-if="!isStatisticsTab"
           class="flex items-center flex-col sm:flex-row flex-shrink-0 gap-3 w-full sm:w-auto"
         >
           <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -200,13 +220,16 @@ onMounted(() => {
 
     <!-- Content -->
     <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 md:px-6 md:py-4">
-      <!-- Loading -->
+      <!-- Loading (list tab only; statistics tab handles its own loading and must not be unmounted by campaigns/get) -->
       <div
-        v-if="uiFlags.isFetching"
+        v-if="uiFlags.isFetching && !isStatisticsTab"
         class="flex justify-center items-center py-10 text-n-slate-11"
       >
         <Spinner />
       </div>
+
+      <!-- Statistics tab -->
+      <StatisticsTab v-else-if="isStatisticsTab" />
 
       <!-- Empty state -->
       <div

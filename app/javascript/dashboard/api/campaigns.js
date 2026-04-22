@@ -7,8 +7,16 @@ class CampaignsAPI extends ApiClient {
     super('campaigns', { accountScoped: true });
   }
 
-  statistics() {
-    return axios.get(`${this.url}/statistics`);
+  statistics(period = '30d') {
+    return axios.get(`${this.url}/statistics`, {
+      params: { period },
+    });
+  }
+
+  campaignStatistics(id, period = '30d') {
+    return axios.get(`${this.url}/${id}/statistics`, {
+      params: { period },
+    });
   }
 
   sendNow(id) {

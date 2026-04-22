@@ -3,7 +3,9 @@
 # Table name: campaign_deliveries
 #
 #  id              :bigint           not null, primary key
+#  delivered_at    :datetime
 #  metadata        :jsonb
+#  replied_at      :datetime
 #  sent_at         :datetime
 #  status          :string           not null
 #  trigger_type    :string
@@ -17,7 +19,9 @@
 # Indexes
 #
 #  index_campaign_deliveries_on_account_id                  (account_id)
+#  index_campaign_deliveries_on_account_id_and_sent_at      (account_id,sent_at)
 #  index_campaign_deliveries_on_campaign_id                 (campaign_id)
+#  index_campaign_deliveries_on_campaign_id_and_sent_at     (campaign_id,sent_at)
 #  index_campaign_deliveries_on_campaign_id_and_status      (campaign_id,status)
 #  index_campaign_deliveries_on_contact_id                  (contact_id)
 #  index_campaign_deliveries_on_contact_id_and_campaign_id  (contact_id,campaign_id)
@@ -31,7 +35,7 @@
 #  fk_rails_...  (conversation_id => conversations.id)
 #
 class CampaignDelivery < ApplicationRecord
-  belongs_to :campaign
+  belongs_to :campaign, counter_cache: false
   belongs_to :account
   belongs_to :contact, optional: true
   belongs_to :conversation, optional: true
@@ -39,4 +43,15 @@ class CampaignDelivery < ApplicationRecord
   STATUSES = %w[sent failed skipped replied].freeze
 
   validates :status, presence: true, inclusion: { in: STATUSES }
+
+  after_commit :update_campaign_counters
+
+  private
+
+  def update_campaign_counters
+    campaign.update_columns(
+      sent_count: campaign.deliveries.where(status: 'sent').count,
+      failed_count: campaign.deliveries.where(status: 'failed').count
+    )
+  end
 end

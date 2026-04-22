@@ -123,6 +123,17 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "You can receive emails in your custom domain now."
       }
     },
+    "BUSINESS_CONTEXT": {
+      "TITLE": "Business Context",
+      "DESCRIPTION": "This information helps Captain AI understand your business and provide better assistance",
+      "BUSINESS_TYPE_LABEL": "Business type",
+      "BUSINESS_TYPE_PLACEHOLDER": "Select a business type",
+      "DESCRIPTION_LABEL": "Business description",
+      "DESCRIPTION_PLACEHOLDER": "Describe your business in 1-2 sentences...",
+      "UPDATE_BUTTON": "Update Business Context",
+      "SUCCESS": "Business context updated successfully",
+      "ERROR": "Failed to update business context"
+    },
     "UPDATE_CHATWOOT": "An update {latestChatwootVersion} for Chatwoot is available. Please update your instance.",
     "LEARN_MORE": "Learn more",
     "PAYMENT_PENDING": "Your payment is pending. Please update your payment information to continue using Chatwoot",

@@ -26,6 +26,7 @@ import security from './security/security.routes';
 import conversationWorkflow from './conversationWorkflow/conversationWorkflow.routes';
 import captain from './captain/captain.routes';
 import services from './services/services.routes';
+import notifications from './notifications/notifications.routes';
 
 export default {
   routes: [
@@ -67,5 +68,6 @@ export default {
     ...conversationWorkflow.routes,
     ...captain.routes,
     ...services.routes,
+    ...notifications.routes,
   ],
 };

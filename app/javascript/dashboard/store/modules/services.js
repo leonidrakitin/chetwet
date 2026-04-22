@@ -4,6 +4,7 @@ import ServicesAPI from '../../api/servicesApi';
 import BookingsAPI from '../../api/bookings';
 import ScheduleAPI from '../../api/schedule';
 import ProviderScheduleAPI from '../../api/providerSchedule';
+import { throwErrorMessage } from '../utils/api';
 
 const createSetMutation = key => (state, data) => {
   state[key] = data;
@@ -179,7 +180,7 @@ export const actions = {
       const response = await BookingsAPI.get(params);
       commit(types.SET_SERVICE_BOOKINGS, response.data);
     } catch (error) {
-      throw new Error(error);
+      throwErrorMessage(error);
     } finally {
       commit(types.SET_SERVICE_BOOKING_UI_FLAG, { isFetchingBookings: false });
     }
@@ -192,7 +193,8 @@ export const actions = {
       commit(types.ADD_SERVICE_BOOKING, response.data);
       return response.data;
     } catch (error) {
-      throw new Error(error);
+      throwErrorMessage(error);
+      return null;
     } finally {
       commit(types.SET_SERVICE_BOOKING_UI_FLAG, { isCreatingBooking: false });
     }
@@ -204,7 +206,8 @@ export const actions = {
       commit(types.EDIT_SERVICE_BOOKING, response.data);
       return response.data;
     } catch (error) {
-      throw new Error(error);
+      throwErrorMessage(error);
+      return null;
     }
   },
 
@@ -214,7 +217,8 @@ export const actions = {
       commit(types.EDIT_SERVICE_BOOKING, response.data);
       return response.data;
     } catch (error) {
-      throw new Error(error);
+      throwErrorMessage(error);
+      return null;
     }
   },
 
@@ -223,7 +227,7 @@ export const actions = {
       await BookingsAPI.delete(id);
       commit(types.DELETE_SERVICE_BOOKING, id);
     } catch (error) {
-      throw new Error(error);
+      throwErrorMessage(error);
     }
   },
 
@@ -234,7 +238,8 @@ export const actions = {
       commit(types.EDIT_SERVICE_BOOKING, response.data);
       return response.data;
     } catch (error) {
-      throw new Error(error);
+      throwErrorMessage(error);
+      return null;
     } finally {
       commit(types.SET_SERVICE_BOOKING_UI_FLAG, { isUpdatingBooking: false });
     }

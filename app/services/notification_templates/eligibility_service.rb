@@ -11,6 +11,7 @@ class NotificationTemplates::EligibilityService
     return failure('active_dialog') if skip_if_has_active_dialog? && active_dialog?
     return failure('stop_if_replied') if stop_if_replied? && replied_after_last_delivery?
     return failure('max_per_day') if max_per_day_reached?
+    return failure('per_contact_gap') if per_contact_gap_violated?
     return failure('min_interval') if min_interval_not_elapsed?
 
     success
@@ -25,6 +26,16 @@ class NotificationTemplates::EligibilityService
 
   def failure(reason)
     { ok: false, reason: reason }
+  end
+
+  def bypass_global?
+    template.limits['bypass_global_limits'] == true
+  end
+
+  def effective_limits
+    return {} if bypass_global?
+
+    template.account.notification_delivery_limits || {}
   end
 
   def deliveries_scope
@@ -59,7 +70,7 @@ class NotificationTemplates::EligibilityService
   end
 
   def max_per_day_reached?
-    max_per_day = template.limits['max_per_day'].to_i
+    max_per_day = effective_limits['max_per_day'].to_i
     return false if max_per_day <= 0
 
     start_of_day = Time.current.beginning_of_day
@@ -70,23 +81,30 @@ class NotificationTemplates::EligibilityService
             .count >= max_per_day
   end
 
-  def min_interval_not_elapsed?
-    min_interval_hours = effective_min_interval_hours
-    return false if min_interval_hours <= 0 || last_delivery.blank?
+  def per_contact_gap_violated?
+    gap_minutes = effective_limits['per_contact_gap_minutes'].to_i
+    return false if gap_minutes <= 0
 
-    last_delivery.sent_at > min_interval_hours.hours.ago
+    template.account.notification_template_deliveries
+            .where(status: %w[sent replied failed])
+            .where(contact_id: conversation.contact_id)
+            .where('sent_at > ?', gap_minutes.minutes.ago)
+            .exists?
   end
 
-  def effective_min_interval_hours
-    template.limits['min_interval_hours'].to_i
+  def min_interval_not_elapsed?
+    seconds = NotificationTemplates::DurationHelper.min_interval_duration(template.limits)
+    return false if seconds.blank? || seconds <= 0 || last_delivery.blank?
+
+    last_delivery.sent_at > seconds.seconds.ago
   end
 
   def stop_if_replied?
-    template.limits['stop_if_replied'] == true
+    effective_limits['stop_if_replied'] == true
   end
 
   def skip_if_has_active_dialog?
-    template.limits['skip_if_has_active_dialog'] == true
+    effective_limits['skip_if_has_active_dialog'] == true
   end
 
   def active_dialog?

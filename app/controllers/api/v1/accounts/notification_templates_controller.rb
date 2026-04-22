@@ -47,6 +47,16 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
     render :index
   end
 
+  DELIVERY_LIMITS_DEFAULTS = {
+    'max_per_day' => 3,
+    'stop_if_replied' => true,
+    'skip_if_has_active_dialog' => true,
+    'stop_if_replied_retry_minutes' => 60,
+    'per_contact_gap_minutes' => 30,
+    'quiet_hours_from' => '22:00',
+    'quiet_hours_to' => '08:00'
+  }.freeze
+
   def cascade_settings
     render json: { payload: (Current.account.cascade_settings || { 'marketing' => [], 'service' => [] }) }
   end
@@ -54,6 +64,15 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
   def update_cascade_settings
     Current.account.update!(cascade_settings: cascade_settings_params.to_h)
     render json: { payload: Current.account.cascade_settings }
+  end
+
+  def delivery_limits
+    render json: { payload: DELIVERY_LIMITS_DEFAULTS.merge(Current.account.notification_delivery_limits || {}) }
+  end
+
+  def update_delivery_limits
+    Current.account.update!(notification_delivery_limits: delivery_limits_params.to_h)
+    render json: { payload: DELIVERY_LIMITS_DEFAULTS.merge(Current.account.notification_delivery_limits || {}) }
   end
 
   def send_now
@@ -97,7 +116,7 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
       :last_sent_at, :next_send_at,
       schedule: {},
       conditions: {},
-      audience: { tags: [], exclude_tags: [], segment_id: nil },
+      audience: { tags: [], exclude_tags: [], segment_ids: [], segment_match_mode: nil, require_mailing_consent: nil },
       limits: {},
       metadata: {},
       messages: [:text, { attachments: [:id, :type, :name, :url], buttons: [:id, :label, :type, :url, :templateId] }]
@@ -112,5 +131,13 @@ class Api::V1::Accounts::NotificationTemplatesController < Api::V1::Accounts::Ba
 
   def cascade_settings_params
     params.require(:cascade_settings).permit(marketing: [], service: [])
+  end
+
+  def delivery_limits_params
+    params.require(:notification_delivery_limits).permit(
+      :max_per_day, :stop_if_replied, :skip_if_has_active_dialog,
+      :stop_if_replied_retry_minutes, :per_contact_gap_minutes,
+      :quiet_hours_from, :quiet_hours_to
+    )
   end
 end

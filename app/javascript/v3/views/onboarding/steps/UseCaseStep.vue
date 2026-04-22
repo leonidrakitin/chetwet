@@ -7,7 +7,7 @@ const props = defineProps({
   initialUseCase: { type: String, default: '' },
 });
 
-const emit = defineEmits(['next']);
+const emit = defineEmits(['update']);
 const { t } = useI18n();
 
 const selected = ref(props.initialUseCase);
@@ -47,7 +47,7 @@ const USE_CASES = [
 
 function select(id) {
   selected.value = id;
-  emit('next', { useCase: id });
+  emit('update', { useCase: id });
 }
 </script>
 

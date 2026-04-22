@@ -7,6 +7,15 @@ export const state = {
     yclientsIntegrations: [],
   },
   cascadeSettings: { marketing: [], service: [] },
+  deliveryLimits: {
+    max_per_day: 3,
+    stop_if_replied: true,
+    skip_if_has_active_dialog: true,
+    stop_if_replied_retry_minutes: 60,
+    per_contact_gap_minutes: 30,
+    quiet_hours_from: '22:00',
+    quiet_hours_to: '08:00',
+  },
   statistics: {},
   uiFlags: {
     isFetching: false,
@@ -15,6 +24,8 @@ export const state = {
     isDeleting: false,
     isFetchingCascade: false,
     isSavingCascade: false,
+    isFetchingDeliveryLimits: false,
+    isSavingDeliveryLimits: false,
     isFetchingStatistics: false,
   },
 };
@@ -36,6 +47,9 @@ export const getters = {
   },
   getCascadeSettings(_state) {
     return _state.cascadeSettings;
+  },
+  getDeliveryLimits(_state) {
+    return _state.deliveryLimits;
   },
   getStatistics(_state) {
     return _state.statistics;
@@ -69,6 +83,9 @@ export const mutations = {
   },
   SET_CASCADE_SETTINGS(_state, settings) {
     _state.cascadeSettings = settings || { marketing: [], service: [] };
+  },
+  SET_DELIVERY_LIMITS(_state, limits) {
+    _state.deliveryLimits = { ..._state.deliveryLimits, ...(limits || {}) };
   },
   SET_STATISTICS(_state, statistics) {
     _state.statistics = statistics || {};
@@ -154,6 +171,25 @@ export const actions = {
       commit('SET_CASCADE_SETTINGS', response.data.payload);
     } finally {
       commit('SET_UI_FLAG', { isSavingCascade: false });
+    }
+  },
+  async fetchDeliveryLimits({ commit }) {
+    commit('SET_UI_FLAG', { isFetchingDeliveryLimits: true });
+    try {
+      const response = await NotificationTemplatesAPI.deliveryLimits();
+      commit('SET_DELIVERY_LIMITS', response.data.payload);
+    } finally {
+      commit('SET_UI_FLAG', { isFetchingDeliveryLimits: false });
+    }
+  },
+  async saveDeliveryLimits({ commit }, limits) {
+    commit('SET_UI_FLAG', { isSavingDeliveryLimits: true });
+    try {
+      const response =
+        await NotificationTemplatesAPI.updateDeliveryLimits(limits);
+      commit('SET_DELIVERY_LIMITS', response.data.payload);
+    } finally {
+      commit('SET_UI_FLAG', { isSavingDeliveryLimits: false });
     }
   },
   async sendNow({ commit }, id) {

@@ -104,7 +104,7 @@ const getStatusColor = status => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col w-full">
     <div class="grid grid-cols-7 border-b border-n-weak">
       <div
         v-for="day in DAYS_OF_WEEK"

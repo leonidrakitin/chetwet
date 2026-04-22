@@ -597,33 +597,17 @@
       },
       "TEMPLATES": {
         "ADD_FROM_TEMPLATE": "Create from template",
-        "TITLE": "Choose a template",
-        "DESCRIPTION": "Pick an industry preset to start with scenarios, FAQs and policies already tuned for your business.",
+        "TITLE": "Choose how to start",
+        "DESCRIPTION": "Pick an industry preset to start with scenarios, FAQs and policies already tuned for your business, or create an empty assistant and set it up in Copilot.",
         "SUCCESS_MESSAGE": "The assistant has been created from the template",
         "ERROR_MESSAGE": "Could not create an assistant from the template, please try again.",
         "SCENARIOS_COUNT": "{count} scenario | {count} scenarios",
         "FAQ_COUNT": "{count} FAQ | {count} FAQs",
-        "SECTIONS": {
-          "SCENARIOS": "Included scenarios",
-          "DOCUMENTS_HINT": "Suggested documents to upload afterwards"
-        },
-        "FORM": {
-          "PRODUCT_NAME": {
-            "LABEL": "Product / business name",
-            "PLACEHOLDER": "e.g. Cafe Aurora"
-          },
-          "LOCALE": {
-            "LABEL": "Content language",
-            "HINT": "Seed FAQ and assistant name will be created in this language.",
-            "OPTIONS": {
-              "RU": "Russian",
-              "EN": "English"
-            }
-          }
-        },
-        "BUTTONS": {
-          "BACK": "Back to templates",
-          "CREATE": "Create assistant"
+        "EMPTY": {
+          "TITLE": "Empty assistant",
+          "DESCRIPTION": "Start from scratch and shape the assistant directly in Copilot.",
+          "DEFAULT_NAME": "New assistant",
+          "DEFAULT_DESCRIPTION": "Assistant created from scratch. Configure it in Copilot."
         }
       },
       "FORM": {

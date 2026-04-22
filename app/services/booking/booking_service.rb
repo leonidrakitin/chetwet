@@ -70,7 +70,7 @@ class Booking::BookingService
   end
 
   def check_conflicts
-    ConflictChecker.new(@booking).check!
+    Booking::ConflictChecker.new(@booking).check!
   end
 
   def service_ids

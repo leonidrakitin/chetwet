@@ -5,10 +5,8 @@
     "NEW_TEMPLATE": "New Template",
     "TABS": {
       "ALL": "All",
-      "EVENT": "On Event",
-      "TIME": "By Time",
-      "INTERVAL": "Interval",
-      "CASCADE": "Delivery",
+      "MARKETING": "Marketing",
+      "SERVICE": "Service",
       "STATISTICS": "Statistics"
     },
     "EVENTS": {
@@ -290,6 +288,76 @@
       "SUBMIT": "Create template",
       "SUCCESS": "Template created. Select it to continue.",
       "ERROR": "Could not create template."
+    },
+    "NOTIFICATIONS_SETTINGS": {
+      "TITLE": "Notifications",
+      "DESCRIPTION": "Global notification delivery settings",
+      "SAVE": "Save settings",
+      "SAVE_SUCCESS": "Notification settings saved.",
+      "SAVE_ERROR": "Could not save notification settings.",
+      "QUIET_HOURS": {
+        "TITLE": "Quiet hours",
+        "DESCRIPTION": "Time window when notifications will not be sent",
+        "FROM": "From",
+        "TO": "To"
+      },
+      "LIMITS": {
+        "TITLE": "Delivery limits",
+        "DESCRIPTION": "Account-wide restrictions applied to all notification templates",
+        "MAX_PER_DAY": {
+          "LABEL": "Max per day per contact",
+          "PLACEHOLDER": "No limit",
+          "HELP": "Maximum number of notifications a contact can receive per day"
+        },
+        "PER_CONTACT_GAP": {
+          "LABEL": "Minimum gap between messages (minutes)",
+          "PLACEHOLDER": "0",
+          "HELP": "Minimum time between two notifications to the same contact"
+        },
+        "STOP_IF_REPLIED": {
+          "LABEL": "Stop if contact replied",
+          "HELP": "Pause notifications if the contact sent a message recently"
+        },
+        "STOP_IF_REPLIED_RETRY_MINUTES": {
+          "LABEL": "Retry delay (minutes)",
+          "PLACEHOLDER": "15",
+          "HELP": "Time to wait after a reply before retrying"
+        },
+        "SKIP_IF_HAS_ACTIVE_DIALOG": {
+          "LABEL": "Skip if active conversation exists",
+          "HELP": "Do not send if there is an open conversation with the contact"
+        }
+      }
+    },
+    "DELIVERY_LIMITS": {
+      "TITLE": "Global delivery limits",
+      "DESCRIPTION": "Account-wide restrictions applied to all notification templates",
+      "MAX_PER_DAY": {
+        "LABEL": "Max per day per contact",
+        "PLACEHOLDER": "No limit",
+        "HELP": "Maximum number of notifications a contact can receive per day"
+      },
+      "PER_CONTACT_GAP": {
+        "LABEL": "Minimum gap between messages (minutes)",
+        "PLACEHOLDER": "0",
+        "HELP": "Minimum time between two notifications to the same contact"
+      },
+      "STOP_IF_REPLIED": {
+        "LABEL": "Stop if contact replied",
+        "HELP": "Pause notifications if the contact sent a message recently"
+      },
+      "STOP_IF_REPLIED_RETRY_MINUTES": {
+        "LABEL": "Retry delay (minutes)",
+        "PLACEHOLDER": "15",
+        "HELP": "Time to wait after a reply before retrying"
+      },
+      "SKIP_IF_HAS_ACTIVE_DIALOG": {
+        "LABEL": "Skip if active conversation exists",
+        "HELP": "Do not send if there is an open conversation with the contact"
+      },
+      "SAVE": "Save limits",
+      "SAVE_SUCCESS": "Delivery limits saved.",
+      "SAVE_ERROR": "Could not save delivery limits."
     },
     "CASCADE": {
       "TITLE": "Delivery cascade",

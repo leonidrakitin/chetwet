@@ -68,7 +68,9 @@ const handleDragOver = e => {
 </script>
 
 <template>
-  <div class="flex-1 min-w-[120px] border-r border-n-weak last:border-r-0">
+  <div
+    class="shrink-0 w-[calc((100vw-3rem)/2)] sm:w-auto sm:flex-1 sm:min-w-[120px] border-r border-n-weak last:border-r-0"
+  >
     <div
       class="h-12 px-2 flex items-center justify-center border-b border-n-weak bg-n-solid-1"
     >

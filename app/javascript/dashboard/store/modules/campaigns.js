@@ -7,12 +7,17 @@ export const state = {
     yclientsIntegrations: [],
   },
   statistics: {},
+  statisticsSummary: {},
+  timeSeries: {},
+  scheduledCampaigns: [],
+  campaignStatistics: {},
   uiFlags: {
     isFetching: false,
     isCreating: false,
     isUpdating: false,
     isDeleting: false,
     isFetchingStatistics: false,
+    isFetchingTimeSeries: false,
   },
 };
 
@@ -28,6 +33,18 @@ export const getters = {
   },
   getStatistics(_state) {
     return _state.statistics;
+  },
+  getStatisticsSummary(_state) {
+    return _state.statisticsSummary;
+  },
+  getTimeSeries(_state) {
+    return _state.timeSeries;
+  },
+  getScheduledCampaigns(_state) {
+    return _state.scheduledCampaigns;
+  },
+  getCampaignStatistics(_state) {
+    return _state.campaignStatistics;
   },
 };
 
@@ -56,6 +73,21 @@ export const mutations = {
   SET_STATISTICS(_state, statistics) {
     _state.statistics = statistics || {};
   },
+  SET_STATISTICS_SUMMARY(_state, summary) {
+    _state.statisticsSummary = summary || {};
+  },
+  SET_TIME_SERIES(_state, timeSeries) {
+    _state.timeSeries = timeSeries || {};
+  },
+  SET_SCHEDULED_CAMPAIGNS(_state, scheduled) {
+    _state.scheduledCampaigns = scheduled || [];
+  },
+  SET_CAMPAIGN_STATISTICS(_state, campaignId, statistics) {
+    _state.campaignStatistics = {
+      ..._state.campaignStatistics,
+      [campaignId]: statistics,
+    };
+  },
   SET_UI_FLAG(_state, data) {
     _state.uiFlags = { ..._state.uiFlags, ...data };
   },
@@ -70,7 +102,19 @@ export const actions = {
     });
     try {
       const response = await CampaignsAPI.get();
-      commit('SET_CAMPAIGNS', response.data.payload || []);
+      const payload = response.data?.payload ?? response.data ?? [];
+      const campaigns = Array.isArray(payload) ? payload : [];
+      const normalizedCampaigns = campaigns.map(campaign => ({
+        ...campaign,
+        name: campaign.name ?? campaign.title ?? '',
+        messageText:
+          campaign.messageText ??
+          campaign.message ??
+          campaign.messages?.[0]?.text ??
+          '',
+        inbox_id: campaign.inbox_id ?? campaign.inbox?.id ?? null,
+      }));
+      commit('SET_CAMPAIGNS', normalizedCampaigns);
       commit('SET_META', {
         yclientsEnabled: response.data.meta?.yclients_enabled || false,
         yclientsIntegrations: response.data.meta?.yclients_integrations || [],
@@ -103,11 +147,24 @@ export const actions = {
     const response = await CampaignsAPI.previewAudience(id);
     return response.data;
   },
-  async fetchStatistics({ commit }) {
+  async fetchStatistics({ commit }, period = '30d') {
     commit('SET_UI_FLAG', { isFetchingStatistics: true });
     try {
-      const response = await CampaignsAPI.statistics();
-      commit('SET_STATISTICS', response.data.payload);
+      const response = await CampaignsAPI.statistics(period);
+      const payload = response.data.payload || {};
+      commit('SET_STATISTICS', payload.by_campaign || {});
+      commit('SET_STATISTICS_SUMMARY', payload.summary || {});
+      commit('SET_TIME_SERIES', payload.time_series || {});
+      commit('SET_SCHEDULED_CAMPAIGNS', payload.scheduled || []);
+    } finally {
+      commit('SET_UI_FLAG', { isFetchingStatistics: false });
+    }
+  },
+  async fetchCampaignStatistics({ commit }, { id, period = '30d' }) {
+    commit('SET_UI_FLAG', { isFetchingStatistics: true });
+    try {
+      const response = await CampaignsAPI.campaignStatistics(id, period);
+      commit('SET_CAMPAIGN_STATISTICS', id, response.data.payload || {});
     } finally {
       commit('SET_UI_FLAG', { isFetchingStatistics: false });
     }

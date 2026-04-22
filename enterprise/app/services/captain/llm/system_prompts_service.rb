@@ -91,7 +91,7 @@ class Captain::Llm::SystemPromptsService
     end
 
     # rubocop:disable Metrics/MethodLength
-    def copilot_response_generator(product_name, available_tools, config = {})
+    def copilot_response_generator(product_name, available_tools, config = {}, business_context = nil)
       citation_guidelines = if config['feature_citation']
                               <<~CITATION_TEXT
                                 - Always include citations for any information provided, referencing the specific source.
@@ -103,11 +103,24 @@ class Captain::Llm::SystemPromptsService
                               ''
                             end
 
+      business_context_section = if business_context.present?
+                                   <<~BUSINESS_CONTEXT
+                                     [Business Context]
+                                     Business type: #{business_context['business_type']}
+                                     Description: #{business_context['description']}
+
+                                     Use this business context to personalize your assistance. When suggesting FAQs, scenarios, or configurations, tailor them to this specific business type and description.
+                                   BUSINESS_CONTEXT
+                                 else
+                                   ''
+                                 end
+
       <<~SYSTEM_PROMPT_MESSAGE
         [Identity]
         You are Captain, a helpful and friendly copilot assistant for support agents using the product #{product_name}. Your primary role is to assist support agents by retrieving information, compiling accurate responses, and guiding them through customer interactions.
         You should only provide information related to #{product_name} and must not address queries about other products or external events.
 
+        #{business_context_section}
         [Context]
         Identify unresolved queries, and ensure responses are relevant and consistent with previous interactions. Always maintain a coherent and professional tone throughout the conversation.
 

@@ -11,6 +11,7 @@ import TemplateMessageEditor from './components/TemplateMessageEditor.vue';
 import AttachmentEditor from './components/AttachmentEditor.vue';
 import ButtonEditor from './components/ButtonEditor.vue';
 import TagMultiSelect from './components/TagMultiSelect.vue';
+import SegmentMultiSelect from './components/SegmentMultiSelect.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -36,6 +37,9 @@ const notificationTemplateMeta = computed(
 );
 const availableInboxes = computed(() => store.getters['inboxes/getInboxes']);
 const accountLabels = computed(() => store.getters['labels/getLabels']);
+const contactSegments = computed(
+  () => store.getters['customViews/getContactCustomViews']
+);
 
 const yclientsEnabled = computed(
   () => notificationTemplateMeta.value?.yclientsEnabled
@@ -80,7 +84,8 @@ const defaultForm = () => ({
   },
   conditions: {
     offsetHours: 0,
-    intervalDays: 30,
+    intervalValue: 30,
+    intervalUnit: 'days',
     since: 'last_message',
     serviceName: '',
     staffName: '',
@@ -88,15 +93,16 @@ const defaultForm = () => ({
   audience: {
     tags: [],
     excludeTags: [],
+    segmentIds: [],
+    segmentMatchMode: 'any',
     requireMailingConsent: false,
   },
   limits: {
-    minIntervalHours: 24,
+    minIntervalValue: 24,
+    minIntervalUnit: 'hours',
     quietHoursFrom: '22:00',
     quietHoursTo: '09:00',
-    maxPerDay: 3,
-    stopIfReplied: true,
-    skipIfHasActiveDialog: true,
+    bypassGlobalLimits: false,
   },
   messages: [defaultBlock()],
   enabled: true,
@@ -108,6 +114,31 @@ const typeOptions = computed(() => [
   { value: 'event', label: t('NOTIFICATION_TEMPLATES.TYPES.EVENT') },
   { value: 'time', label: t('NOTIFICATION_TEMPLATES.TYPES.TIME') },
   { value: 'interval', label: t('NOTIFICATION_TEMPLATES.TYPES.INTERVAL') },
+]);
+
+const intervalUnitOptions = computed(() => [
+  {
+    value: 'minutes',
+    label: t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_UNIT.MINUTES'),
+  },
+  {
+    value: 'hours',
+    label: t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_UNIT.HOURS'),
+  },
+  { value: 'days', label: t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_UNIT.DAYS') },
+  {
+    value: 'weeks',
+    label: t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_UNIT.WEEKS'),
+  },
+  {
+    value: 'months',
+    label: t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_UNIT.MONTHS'),
+  },
+]);
+
+const segmentMatchOptions = computed(() => [
+  { value: 'any', label: t('NOTIFICATION_TEMPLATES.FORM.SEGMENT_MATCH.ANY') },
+  { value: 'all', label: t('NOTIFICATION_TEMPLATES.FORM.SEGMENT_MATCH.ALL') },
 ]);
 
 const triggerEventOptions = computed(() => {
@@ -208,7 +239,11 @@ const normalizeForm = tmpl => ({
   },
   conditions: {
     offsetHours: tmpl.conditions?.offset_hours ?? 0,
-    intervalDays: tmpl.conditions?.interval_days ?? 30,
+    intervalValue:
+      tmpl.conditions?.interval_value ?? tmpl.conditions?.interval_days ?? 30,
+    intervalUnit:
+      tmpl.conditions?.interval_unit ??
+      (tmpl.conditions?.interval_days != null ? 'days' : 'days'),
     since: tmpl.conditions?.since ?? 'last_message',
     serviceName: tmpl.conditions?.service_name ?? '',
     staffName: tmpl.conditions?.staff_name ?? '',
@@ -216,15 +251,22 @@ const normalizeForm = tmpl => ({
   audience: {
     tags: [...(tmpl.audience?.tags ?? [])],
     excludeTags: [...(tmpl.audience?.exclude_tags ?? [])],
+    segmentIds: [
+      ...(tmpl.audience?.segment_ids ??
+        (tmpl.audience?.segment_id ? [tmpl.audience.segment_id] : [])),
+    ].map(Number),
+    segmentMatchMode: tmpl.audience?.segment_match_mode ?? 'any',
     requireMailingConsent: tmpl.audience?.require_mailing_consent ?? false,
   },
   limits: {
-    minIntervalHours: tmpl.limits?.min_interval_hours ?? 24,
+    minIntervalValue:
+      tmpl.limits?.min_interval_value ?? tmpl.limits?.min_interval_hours ?? 24,
+    minIntervalUnit:
+      tmpl.limits?.min_interval_unit ??
+      (tmpl.limits?.min_interval_hours != null ? 'hours' : 'hours'),
     quietHoursFrom: tmpl.limits?.quiet_hours_from ?? '22:00',
     quietHoursTo: tmpl.limits?.quiet_hours_to ?? '09:00',
-    maxPerDay: tmpl.limits?.max_per_day ?? 3,
-    stopIfReplied: tmpl.limits?.stop_if_replied ?? true,
-    skipIfHasActiveDialog: tmpl.limits?.skip_if_has_active_dialog ?? true,
+    bypassGlobalLimits: tmpl.limits?.bypass_global_limits ?? false,
   },
   messages: normalizeMessages(tmpl),
   enabled: tmpl.enabled ?? true,
@@ -339,7 +381,8 @@ const handleSave = async () => {
     },
     conditions: {
       offset_hours: Number(form.value.conditions.offsetHours || 0),
-      interval_days: Number(form.value.conditions.intervalDays || 0),
+      interval_value: Number(form.value.conditions.intervalValue || 0),
+      interval_unit: form.value.conditions.intervalUnit,
       since: form.value.conditions.since,
       service_name: form.value.conditions.serviceName,
       staff_name: form.value.conditions.staffName,
@@ -347,15 +390,16 @@ const handleSave = async () => {
     audience: {
       tags: [...form.value.audience.tags],
       exclude_tags: [...form.value.audience.excludeTags],
+      segment_ids: [...form.value.audience.segmentIds].map(Number),
+      segment_match_mode: form.value.audience.segmentMatchMode,
       require_mailing_consent: form.value.audience.requireMailingConsent,
     },
     limits: {
-      min_interval_hours: Number(form.value.limits.minIntervalHours || 0),
+      min_interval_value: Number(form.value.limits.minIntervalValue || 0),
+      min_interval_unit: form.value.limits.minIntervalUnit,
       quiet_hours_from: form.value.limits.quietHoursFrom,
       quiet_hours_to: form.value.limits.quietHoursTo,
-      max_per_day: Number(form.value.limits.maxPerDay || 0),
-      stop_if_replied: form.value.limits.stopIfReplied,
-      skip_if_has_active_dialog: form.value.limits.skipIfHasActiveDialog,
+      bypass_global_limits: form.value.limits.bypassGlobalLimits,
     },
     messages,
     enabled: form.value.enabled,
@@ -382,6 +426,9 @@ onMounted(() => {
   }
   if (!accountLabels.value.length) {
     store.dispatch('labels/get');
+  }
+  if (!contactSegments.value.length) {
+    store.dispatch('customViews/get', { filter_type: 'contact' });
   }
 });
 </script>
@@ -666,18 +713,32 @@ onMounted(() => {
 
               <div
                 v-if="form.type === 'interval'"
-                class="grid grid-cols-1 md:grid-cols-3 gap-3"
+                class="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-medium text-n-slate-11">
-                    {{ t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_DAYS.LABEL') }}
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.INTERVAL.LABEL') }}
                   </label>
-                  <input
-                    v-model.number="form.conditions.intervalDays"
-                    type="number"
-                    min="1"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                  />
+                  <div class="flex gap-2">
+                    <input
+                      v-model.number="form.conditions.intervalValue"
+                      type="number"
+                      min="1"
+                      class="h-9 w-24 rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    />
+                    <select
+                      v-model="form.conditions.intervalUnit"
+                      class="h-9 flex-1 rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    >
+                      <option
+                        v-for="option in intervalUnitOptions"
+                        :key="option.value"
+                        :value="option.value"
+                      >
+                        {{ option.label }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -698,18 +759,30 @@ onMounted(() => {
                   </select>
                 </div>
 
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1 md:col-span-2">
                   <label class="text-xs font-medium text-n-slate-11">
-                    {{
-                      t('NOTIFICATION_TEMPLATES.FORM.MIN_INTERVAL_HOURS.LABEL')
-                    }}
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.MIN_INTERVAL.LABEL') }}
                   </label>
-                  <input
-                    v-model.number="form.limits.minIntervalHours"
-                    type="number"
-                    min="0"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                  />
+                  <div class="flex gap-2">
+                    <input
+                      v-model.number="form.limits.minIntervalValue"
+                      type="number"
+                      min="0"
+                      class="h-9 w-24 rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    />
+                    <select
+                      v-model="form.limits.minIntervalUnit"
+                      class="h-9 flex-1 rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    >
+                      <option
+                        v-for="option in intervalUnitOptions"
+                        :key="option.value"
+                        :value="option.value"
+                      >
+                        {{ option.label }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -838,6 +911,44 @@ onMounted(() => {
                     "
                   />
                 </div>
+
+                <div class="flex flex-col gap-1 md:col-span-2">
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.SEGMENTS.LABEL') }}
+                  </label>
+                  <SegmentMultiSelect
+                    v-model="form.audience.segmentIds"
+                    :segments="contactSegments"
+                    :placeholder="
+                      t('NOTIFICATION_TEMPLATES.FORM.SEGMENTS.PLACEHOLDER')
+                    "
+                  />
+                </div>
+
+                <div
+                  v-if="form.audience.segmentIds.length > 1"
+                  class="flex flex-col gap-1 md:col-span-2"
+                >
+                  <label class="text-xs font-medium text-n-slate-11">
+                    {{ t('NOTIFICATION_TEMPLATES.FORM.SEGMENT_MATCH.LABEL') }}
+                  </label>
+                  <div class="flex gap-2">
+                    <button
+                      v-for="option in segmentMatchOptions"
+                      :key="option.value"
+                      type="button"
+                      class="h-9 px-3 rounded-lg border text-sm transition-colors"
+                      :class="
+                        form.audience.segmentMatchMode === option.value
+                          ? 'border-n-brand bg-n-brand/10 text-n-brand'
+                          : 'border-n-weak bg-n-solid-1 text-n-slate-11 hover:border-n-strong'
+                      "
+                      @click="form.audience.segmentMatchMode = option.value"
+                    >
+                      {{ option.label }}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div
@@ -874,7 +985,7 @@ onMounted(() => {
               />
             </button>
             <div v-show="!collapsedSections.limits" class="px-4 pb-4">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-medium text-n-slate-11">
                     {{
@@ -898,36 +1009,36 @@ onMounted(() => {
                     class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
                   />
                 </div>
-
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
-                    {{ t('NOTIFICATION_TEMPLATES.FORM.MAX_PER_DAY.LABEL') }}
-                  </label>
-                  <input
-                    v-model.number="form.limits.maxPerDay"
-                    type="number"
-                    min="1"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-                  />
-                </div>
               </div>
 
               <div class="flex flex-col gap-2 mt-3 pt-3 border-t border-n-weak">
                 <div class="flex items-center gap-3">
-                  <Switch v-model="form.limits.stopIfReplied" />
-                  <label class="text-xs font-medium text-n-slate-11">
-                    {{ t('NOTIFICATION_TEMPLATES.FORM.STOP_IF_REPLIED.LABEL') }}
-                  </label>
-                </div>
-                <div class="flex items-center gap-3">
-                  <Switch v-model="form.limits.skipIfHasActiveDialog" />
+                  <Switch v-model="form.limits.bypassGlobalLimits" />
                   <label class="text-xs font-medium text-n-slate-11">
                     {{
                       t(
-                        'NOTIFICATION_TEMPLATES.FORM.SKIP_IF_HAS_ACTIVE_DIALOG.LABEL'
+                        'NOTIFICATION_TEMPLATES.FORM.BYPASS_GLOBAL_LIMITS.LABEL'
                       )
                     }}
                   </label>
+                </div>
+
+                <div
+                  v-if="form.limits.bypassGlobalLimits"
+                  class="flex items-start gap-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 px-3 py-2.5"
+                >
+                  <span
+                    class="i-lucide-triangle-alert size-3.5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"
+                  />
+                  <p
+                    class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed"
+                  >
+                    {{
+                      t(
+                        'NOTIFICATION_TEMPLATES.FORM.BYPASS_GLOBAL_LIMITS.WARNING'
+                      )
+                    }}
+                  </p>
                 </div>
               </div>
             </div>

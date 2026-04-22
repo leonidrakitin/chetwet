@@ -78,6 +78,8 @@ Rails.application.routes.draw do
             resources :assistant_templates, only: [:index, :show] do
               collection do
                 post :create_assistant
+                post :adapt
+                get :clarifying_questions
               end
             end
             resources :assistant_responses
@@ -152,6 +154,7 @@ Rails.application.routes.draw do
             member do
               post :send_now
               get  :preview_audience
+              get  :statistics, action: :campaign_statistics
             end
             collection do
               get :statistics
@@ -167,6 +170,8 @@ Rails.application.routes.draw do
               post :reorder
               get  :cascade_settings
               put  :cascade_settings, action: :update_cascade_settings
+              get  :delivery_limits
+              put  :delivery_limits, action: :update_delivery_limits
               get  :statistics
             end
           end

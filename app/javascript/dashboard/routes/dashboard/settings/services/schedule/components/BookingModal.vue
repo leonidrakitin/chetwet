@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { format } from 'date-fns';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
-import ContactAPI from 'dashboard/api/contacts';
+import ContactSearchCombobox from './ContactSearchCombobox.vue';
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -31,6 +31,35 @@ const STATUS_OPTIONS = [
   'completed',
   'cancelled',
 ];
+
+/** Segmented control: idle + selected styles (aligned with calendar card colors). */
+const STATUS_SEGMENT_IDLE =
+  'border border-n-weak bg-n-solid-2 text-n-slate-11 shadow-sm hover:bg-n-solid-3 hover:border-n-slate-6';
+
+const STATUS_SEGMENT_SELECTED = {
+  pending:
+    'border border-n-amber-9/60 bg-n-amber-3 text-n-amber-12 shadow-md ring-2 ring-n-amber-9/25',
+  confirmed:
+    'border border-n-blue-9/60 bg-n-blue-3 text-n-blue-12 shadow-md ring-2 ring-n-blue-9/25',
+  arrived:
+    'border border-n-teal-9/60 bg-n-teal-3 text-n-teal-12 shadow-md ring-2 ring-n-teal-9/25',
+  no_show:
+    'border border-n-ruby-9/60 bg-n-ruby-3 text-n-ruby-12 shadow-md ring-2 ring-n-ruby-9/25',
+  completed:
+    'border border-n-violet-9/60 bg-n-violet-3 text-n-violet-12 shadow-md ring-2 ring-n-violet-9/25',
+  cancelled:
+    'border border-n-ruby-10/80 bg-n-ruby-5 text-n-ruby-12 shadow-md ring-2 ring-n-ruby-10/35',
+};
+
+const STATUS_SEGMENT_ICON = {
+  pending: 'i-lucide-clock-3',
+  confirmed: 'i-lucide-shield-check',
+  arrived: 'i-lucide-log-in',
+  no_show: 'i-lucide-user-x',
+  completed: 'i-lucide-badge-check',
+  cancelled: 'i-lucide-circle-x',
+};
+
 const dialogRef = ref(null);
 const deleteDialogRef = ref(null);
 const form = ref({
@@ -44,9 +73,11 @@ const form = ref({
   cancellation_reason: '',
 });
 const initialStatus = ref('pending');
-const contactSearch = ref('');
-const contactResults = ref([]);
-const isSearchingContacts = ref(false);
+
+const statusSegmentClass = status => {
+  if (form.value.status !== status) return STATUS_SEGMENT_IDLE;
+  return STATUS_SEGMENT_SELECTED[status] ?? STATUS_SEGMENT_SELECTED.pending;
+};
 const selectedContact = ref(null);
 const selectedServices = ref([]);
 const isSubmitting = ref(false);
@@ -95,8 +126,6 @@ const initForm = () => {
     selectedContact.value = null;
     selectedServices.value = [];
   }
-  contactSearch.value = '';
-  contactResults.value = [];
 };
 
 const openDeleteConfirm = () => deleteDialogRef.value?.open();
@@ -104,23 +133,14 @@ const closeDeleteConfirm = () => deleteDialogRef.value?.close();
 
 watch(
   () => props.show,
-  async newShow => {
-    if (newShow) {
-      initForm();
-      await nextTick();
-      dialogRef.value?.open();
-    } else {
-      dialogRef.value?.close();
-    }
-  }
-);
-
-onMounted(() => {
-  if (props.show) {
+  async isVisible => {
+    if (!isVisible) return;
     initForm();
+    await nextTick();
     dialogRef.value?.open();
-  }
-});
+  },
+  { immediate: true }
+);
 
 const title = computed(() =>
   isEditing.value
@@ -211,48 +231,9 @@ const handleDelete = async () => {
 
 const handleCancel = () => emit('close');
 
-const contactInputRef = ref(null);
-const dropdownStyle = ref({});
-
-const updateDropdownPosition = () => {
-  if (!contactInputRef.value) return;
-  const rect = contactInputRef.value.getBoundingClientRect();
-  dropdownStyle.value = {
-    top: `${rect.bottom + 4}px`,
-    left: `${rect.left}px`,
-    width: `${rect.width}px`,
-  };
-};
-
-let searchAbortController = null;
-const searchContacts = async query => {
-  if (!query || query.length < 2) {
-    contactResults.value = [];
-    return;
-  }
-  if (searchAbortController) searchAbortController.abort();
-  searchAbortController = new AbortController();
-  isSearchingContacts.value = true;
-  try {
-    const { data } = await ContactAPI.search(query, 1, 'name', '', {
-      signal: searchAbortController.signal,
-    });
-    contactResults.value = data.payload || [];
-    await nextTick();
-    updateDropdownPosition();
-  } catch {
-    contactResults.value = [];
-  } finally {
-    isSearchingContacts.value = false;
-  }
-};
-
-const selectContact = contact => {
-  selectedContact.value = contact;
-  form.value.contact_id = contact.id;
-  contactSearch.value = '';
-  contactResults.value = [];
-};
+watch(selectedContact, contact => {
+  form.value.contact_id = contact?.id ?? null;
+});
 
 const toggleService = service => {
   const index = selectedServices.value.findIndex(s => s.id === service.id);
@@ -265,8 +246,15 @@ const isServiceSelected = serviceId =>
 </script>
 
 <template>
-  <Dialog ref="dialogRef" :title="title" width="lg" @close="handleCancel">
-    <div class="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
+  <Dialog
+    v-if="show"
+    ref="dialogRef"
+    :title="title"
+    width="2xl"
+    max-height="min(90dvh, 100vh - 2rem)"
+    @close="handleCancel"
+  >
+    <div class="flex flex-col gap-4">
       <div>
         <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
           t('SCHEDULE.MODAL.PROVIDER')
@@ -300,55 +288,11 @@ const isServiceSelected = serviceId =>
         <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
           t('SCHEDULE.MODAL.CONTACT')
         }}</label>
-        <div
-          v-if="selectedContact"
-          class="flex items-center gap-2 px-3 py-2 bg-n-solid-2 rounded-md"
-        >
-          <span class="text-sm text-n-slate-12">{{
-            selectedContact.name
-          }}</span>
-          <button
-            class="text-n-slate-10 hover:text-n-slate-12"
-            @click="
-              selectedContact = null;
-              form.contact_id = null;
-            "
-          >
-            {{ '×' }}
-          </button>
-        </div>
-        <div v-else>
-          <input
-            ref="contactInputRef"
-            v-model="contactSearch"
-            type="text"
-            :placeholder="t('SCHEDULE.MODAL.SEARCH_CONTACT')"
-            class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
-            @input="searchContacts($event.target.value)"
-          />
-          <Teleport to="body">
-            <div
-              v-if="contactResults.length"
-              class="fixed z-[9999] bg-n-solid-1 border border-n-weak rounded-md shadow-lg max-h-40 overflow-y-auto"
-              :style="dropdownStyle"
-            >
-              <button
-                v-for="contact in contactResults"
-                :key="contact.id"
-                class="w-full px-3 py-2 text-left text-sm hover:bg-n-solid-2 text-n-slate-12"
-                @click="selectContact(contact)"
-              >
-                {{ contact.name }}
-                <span v-if="contact.phone_number" class="text-n-slate-10">
-                  {{ ' · ' }}{{ contact.phone_number }}
-                </span>
-                <span v-if="contact.email" class="text-n-slate-10">
-                  {{ ' · ' }}{{ contact.email }}
-                </span>
-              </button>
-            </div>
-          </Teleport>
-        </div>
+        <ContactSearchCombobox
+          v-model="selectedContact"
+          :placeholder="t('SCHEDULE.MODAL.SEARCH_CONTACT')"
+          :has-error="isSubmitting && !form.contact_id"
+        />
       </div>
 
       <div>
@@ -398,21 +342,41 @@ const isServiceSelected = serviceId =>
       </div>
 
       <div v-if="isEditing">
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
-          t('SCHEDULE.MODAL.STATUS')
-        }}</label>
-        <select
-          v-model="form.status"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+        <label
+          id="booking-status-label"
+          class="block text-sm font-medium text-n-slate-12 mb-2"
         >
-          <option
-            v-for="status in STATUS_OPTIONS"
-            :key="status"
-            :value="status"
+          {{ t('SCHEDULE.MODAL.STATUS') }}
+        </label>
+        <div
+          class="rounded-2xl border border-n-weak/80 bg-n-solid-2/80 p-1.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"
+        >
+          <div
+            role="radiogroup"
+            aria-labelledby="booking-status-label"
+            class="grid grid-cols-2 sm:grid-cols-3 gap-1.5"
           >
-            {{ t(`SCHEDULE.STATUS.${status.toUpperCase()}`) }}
-          </option>
-        </select>
+            <button
+              v-for="status in STATUS_OPTIONS"
+              :key="status"
+              type="button"
+              role="radio"
+              :aria-checked="form.status === status"
+              class="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-n-brand focus-visible:ring-offset-2 focus-visible:ring-offset-n-alpha-3"
+              :class="statusSegmentClass(status)"
+              @click="form.status = status"
+            >
+              <span
+                class="size-5 shrink-0 opacity-90"
+                :class="STATUS_SEGMENT_ICON[status]"
+                aria-hidden="true"
+              />
+              <span class="min-w-0 leading-snug">{{
+                t(`SCHEDULE.STATUS.${status.toUpperCase()}`)
+              }}</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div v-if="isEditing && form.status === 'cancelled'">

@@ -133,7 +133,10 @@ export default {
 
 <template>
   <div
-    v-if="!authUIFlags.isFetching && !accountUIFlags.isFetchingItem"
+    v-if="
+      !authUIFlags.isFetching &&
+      (!accountUIFlags.isFetchingItem || !hideOnOnboardingView)
+    "
     id="app"
     class="flex flex-col w-full h-screen min-h-0 bg-n-background"
     :dir="isRTL ? 'rtl' : 'ltr'"

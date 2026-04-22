@@ -5,7 +5,8 @@
 #  id                       :bigint           not null, primary key
 #  metadata                 :jsonb            not null
 #  responded_at             :datetime
-#  sent_at                  :datetime         not null
+#  scheduled_for            :datetime
+#  sent_at                  :datetime
 #  status                   :string           default("sent"), not null
 #  trigger_type             :string
 #  created_at               :datetime         not null
@@ -21,7 +22,9 @@
 #  index_notification_template_deliveries_on_contact_id       (contact_id)
 #  index_notification_template_deliveries_on_conversation_id  (conversation_id)
 #  index_nt_deliveries_on_account_contact_sent_at             (account_id,contact_id,sent_at)
+#  index_nt_deliveries_on_contact_scheduled_for               (contact_id,scheduled_for)
 #  index_nt_deliveries_on_conversation_sent_at                (conversation_id,sent_at)
+#  index_nt_deliveries_on_status_scheduled_for                (status,scheduled_for)
 #  index_nt_deliveries_on_template_contact_sent_at            (notification_template_id,contact_id,sent_at)
 #  index_nt_deliveries_on_template_id                         (notification_template_id)
 #
@@ -33,7 +36,7 @@
 #  fk_rails_...  (notification_template_id => notification_templates.id)
 #
 class NotificationTemplateDelivery < ApplicationRecord
-  STATUSES = %w[sent failed skipped replied].freeze
+  STATUSES = %w[sent failed skipped replied scheduled].freeze
 
   belongs_to :notification_template, inverse_of: :deliveries
   belongs_to :account
@@ -41,5 +44,8 @@ class NotificationTemplateDelivery < ApplicationRecord
   belongs_to :conversation, optional: true
 
   validates :status, inclusion: { in: STATUSES }
-  validates :sent_at, presence: true
+  validates :sent_at, presence: true, unless: -> { status == 'scheduled' }
+  validates :scheduled_for, presence: true, if: -> { status == 'scheduled' }
+
+  scope :due_scheduled, -> { where(status: 'scheduled').where('scheduled_for <= ?', Time.current) }
 end

@@ -81,7 +81,9 @@ const handleDragOver = e => {
 </script>
 
 <template>
-  <div class="flex-1 min-w-[140px] border-r border-n-weak last:border-r-0">
+  <div
+    class="flex-1 min-w-[112px] sm:min-w-[140px] border-r border-n-weak last:border-r-0"
+  >
     <div
       class="h-12 px-2 flex flex-col items-center justify-center border-b border-n-weak"
       :class="isTodayDate ? 'bg-n-brand' : ''"

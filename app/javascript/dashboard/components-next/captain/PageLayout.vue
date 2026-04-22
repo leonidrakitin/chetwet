@@ -11,7 +11,7 @@ import PaginationFooter from 'dashboard/components-next/pagination/PaginationFoo
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Policy from 'dashboard/components/policy.vue';
 import AssistantSwitcher from 'dashboard/components-next/captain/pageComponents/switcher/AssistantSwitcher.vue';
-import CreateAssistantDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateAssistantDialog.vue';
+import CreateFromTemplateDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateFromTemplateDialog.vue';
 
 const props = defineProps({
   currentPage: {
@@ -110,7 +110,7 @@ const toggleAssistantSwitcher = () => {
 
 const handleCreateAssistant = () => {
   showAssistantSwitcherDropdown.value = false;
-  createAssistantDialogRef.value.dialogRef.open();
+  createAssistantDialogRef.value.open();
 };
 </script>
 
@@ -234,6 +234,6 @@ const handleCreateAssistant = () => {
         @update:current-page="handlePageChange"
       />
     </footer>
-    <CreateAssistantDialog ref="createAssistantDialogRef" type="create" />
+    <CreateFromTemplateDialog ref="createAssistantDialogRef" />
   </section>
 </template>

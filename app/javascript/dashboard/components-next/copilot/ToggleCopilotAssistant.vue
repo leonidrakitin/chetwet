@@ -9,6 +9,7 @@ import DropdownSection from 'next/dropdown-menu/base/DropdownSection.vue';
 import DropdownBody from 'next/dropdown-menu/base/DropdownBody.vue';
 import DropdownItem from 'next/dropdown-menu/base/DropdownItem.vue';
 import CreateAssistantDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateAssistantDialog.vue';
+import CreateFromTemplateDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateFromTemplateDialog.vue';
 import DeleteDialog from 'dashboard/components-next/captain/pageComponents/DeleteDialog.vue';
 
 const props = defineProps({
@@ -28,25 +29,22 @@ const { t } = useI18n();
 const { isAdmin } = useAdmin();
 
 const createDialogRef = ref(null);
+const editDialogRef = ref(null);
 const deleteDialogRef = ref(null);
 const selectedAssistant = ref({});
 const assistantToDelete = ref({});
-const dialogType = ref('create');
 
 const activeAssistantLabel = computed(() => {
   return props.activeAssistant?.name || t('CAPTAIN.COPILOT.SELECT_ASSISTANT');
 });
 
 const openCreateDialog = () => {
-  dialogType.value = 'create';
-  selectedAssistant.value = {};
-  createDialogRef.value.dialogRef.open();
+  createDialogRef.value.open();
 };
 
 const openEditDialog = assistant => {
-  dialogType.value = 'edit';
   selectedAssistant.value = assistant;
-  createDialogRef.value.dialogRef.open();
+  editDialogRef.value.dialogRef.open();
 };
 
 const openDeleteDialog = assistant => {
@@ -138,9 +136,10 @@ const openDeleteDialog = assistant => {
       </DropdownBody>
     </DropdownContainer>
 
+    <CreateFromTemplateDialog ref="createDialogRef" />
     <CreateAssistantDialog
-      ref="createDialogRef"
-      :type="dialogType"
+      ref="editDialogRef"
+      type="edit"
       :selected-assistant="selectedAssistant"
     />
     <DeleteDialog

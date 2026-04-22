@@ -79,7 +79,15 @@ class Account < ApplicationRecord
           },
           'additionalProperties': false
         },
-        'captain_message_buffer_seconds': { 'type': %w[integer null], 'minimum': 1, 'maximum': 30 }
+        'captain_message_buffer_seconds': { 'type': %w[integer null], 'minimum': 1, 'maximum': 30 },
+        'business_context': {
+          'type': %w[object null],
+          'properties': {
+            'business_type': { 'type': %w[string null], 'enum': ['support', 'sales', 'feedback', 'internal', 'ecommerce', 'other', nil] },
+            'description': { 'type': %w[string null], 'maxLength': 200 }
+          },
+          'additionalProperties': false
+        }
       },
     'required': [],
     'additionalProperties': true
@@ -104,7 +112,9 @@ class Account < ApplicationRecord
   store_accessor :settings, :reporting_timezone
   store_accessor :settings, :keep_pending_on_bot_failure
   store_accessor :settings, :captain_auto_resolve_mode
-  store_accessor :settings, :cascade_settings
+  store_accessor :settings, :cascade_settings, :notification_delivery_limits
+  store_accessor :settings, :business_context
+
   include AccountCaptainAutoResolve
 
   has_many :account_users, dependent: :destroy_async

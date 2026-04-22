@@ -4,14 +4,17 @@
 #
 #  id                      :bigint           not null, primary key
 #  audience                :jsonb
+#  audience_count          :integer          default(0), not null
 #  description             :text
 #  enabled                 :boolean          default(TRUE)
+#  failed_count            :integer          default(0), not null
 #  last_sent_at            :datetime
 #  messages                :jsonb
 #  metadata                :jsonb
 #  name                    :string           not null
 #  schedule                :jsonb
 #  scheduled_at            :datetime
+#  sent_count              :integer          default(0), not null
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #  account_id              :bigint           not null
@@ -43,12 +46,15 @@ class Campaign < ApplicationRecord
 
   before_validation :normalize_json_fields
   before_validation :sync_inbox_from_yclients
+  before_save :calculate_audience_count, if: -> { audience_changed? || inbox_id_changed? }
 
   validates :name, presence: true
   validates :messages, presence: true
   validate :messages_must_be_an_array
   validate :inbox_belongs_to_account
   validate :yclients_integration_belongs_to_account
+
+  DELIVERY_STATUSES = %w[scheduled in_progress completed].freeze
 
   def effective_inbox_id
     inbox_id || yclients_integration&.inbox_id
@@ -58,7 +64,30 @@ class Campaign < ApplicationRecord
     schedule['timezone'].presence || inbox&.timezone.presence || yclients_integration&.inbox&.timezone.presence || 'UTC'
   end
 
+  def delivery_status
+    return 'scheduled' if scheduled_at.present? && sent_count.zero?
+    return 'completed' if !enabled || last_sent_at.present?
+
+    'in_progress'
+  end
+
+  def delivery_progress_percent
+    return 0 if audience_count.zero?
+
+    [(sent_count.to_f / audience_count * 100).round, 100].min
+  end
+
+  def reset_delivery_counters!
+    update!(sent_count: 0, failed_count: 0)
+  end
+
   private
+
+  def calculate_audience_count
+    self.audience_count = Campaigns::AudienceScope.new(campaign: self).call.size
+  rescue StandardError
+    self.audience_count = 0
+  end
 
   def normalize_json_fields
     self.schedule = schedule.presence || {}

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_14_232422) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_20_200902) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -331,7 +331,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_14_232422) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "replied_at"
+    t.datetime "delivered_at"
+    t.index ["account_id", "sent_at"], name: "index_campaign_deliveries_on_account_id_and_sent_at"
     t.index ["account_id"], name: "index_campaign_deliveries_on_account_id"
+    t.index ["campaign_id", "sent_at"], name: "index_campaign_deliveries_on_campaign_id_and_sent_at"
     t.index ["campaign_id", "status"], name: "index_campaign_deliveries_on_campaign_id_and_status"
     t.index ["campaign_id"], name: "index_campaign_deliveries_on_campaign_id"
     t.index ["contact_id", "campaign_id"], name: "index_campaign_deliveries_on_contact_id_and_campaign_id"
@@ -354,6 +358,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_14_232422) do
     t.jsonb "metadata", default: {}
     t.datetime "last_sent_at"
     t.bigint "yclients_integration_id"
+    t.integer "audience_count", default: 0, null: false
+    t.integer "sent_count", default: 0, null: false
+    t.integer "failed_count", default: 0, null: false
     t.index ["account_id", "enabled"], name: "index_campaigns_on_account_id_and_enabled"
     t.index ["account_id", "scheduled_at"], name: "index_campaigns_on_account_id_and_scheduled_at"
     t.index ["account_id"], name: "index_campaigns_on_account_id"
@@ -1229,18 +1236,21 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_14_232422) do
     t.bigint "conversation_id"
     t.string "status", default: "sent", null: false
     t.string "trigger_type"
-    t.datetime "sent_at", null: false
+    t.datetime "sent_at"
     t.datetime "responded_at"
     t.jsonb "metadata", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "scheduled_for"
     t.index ["account_id", "contact_id", "sent_at"], name: "index_nt_deliveries_on_account_contact_sent_at"
     t.index ["account_id"], name: "index_notification_template_deliveries_on_account_id"
+    t.index ["contact_id", "scheduled_for"], name: "index_nt_deliveries_on_contact_scheduled_for"
     t.index ["contact_id"], name: "index_notification_template_deliveries_on_contact_id"
     t.index ["conversation_id", "sent_at"], name: "index_nt_deliveries_on_conversation_sent_at"
     t.index ["conversation_id"], name: "index_notification_template_deliveries_on_conversation_id"
     t.index ["notification_template_id", "contact_id", "sent_at"], name: "index_nt_deliveries_on_template_contact_sent_at"
     t.index ["notification_template_id"], name: "index_nt_deliveries_on_template_id"
+    t.index ["status", "scheduled_for"], name: "index_nt_deliveries_on_status_scheduled_for"
   end
 
   create_table "notification_templates", force: :cascade do |t|

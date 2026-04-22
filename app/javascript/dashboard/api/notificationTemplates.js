@@ -27,6 +27,16 @@ class NotificationTemplatesAPI extends ApiClient {
     });
   }
 
+  deliveryLimits() {
+    return axios.get(`${this.url}/delivery_limits`);
+  }
+
+  updateDeliveryLimits(data) {
+    return axios.put(`${this.url}/delivery_limits`, {
+      notification_delivery_limits: data,
+    });
+  }
+
   statistics() {
     return axios.get(`${this.url}/statistics`);
   }

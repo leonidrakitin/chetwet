@@ -495,35 +495,51 @@ const menuItems = computed(() => {
       label: t('SIDEBAR.NOTIFICATION_TEMPLATES'),
       children: [
         {
+          name: 'Mailings',
+          label: t('SIDEBAR.MAILINGS'),
+          children: [
+            {
+              name: 'Mailings Templates',
+              label: t('SIDEBAR.MAILINGS_TEMPLATES'),
+              activeOn: [
+                'notification_templates_index',
+                'notification_templates_new',
+                'notification_templates_edit',
+                'notification_templates_marketing',
+              ],
+              to: accountScopedRoute('notification_templates_index'),
+            },
+            {
+              name: 'Mailings Statistics',
+              label: t('SIDEBAR.MAILINGS_STATISTICS'),
+              activeOn: ['notification_templates_statistics'],
+              to: accountScopedRoute('notification_templates_statistics'),
+            },
+          ],
+        },
+        {
           name: 'Notifications',
           label: t('SIDEBAR.NOTIFICATIONS'),
-          activeOn: [
-            'notification_templates_index',
-            'notification_templates_new',
-            'notification_templates_edit',
-            'notification_templates_event',
-            'notification_templates_time',
-            'notification_templates_interval',
-            'notification_templates_statistics',
+          children: [
+            {
+              name: 'Notifications Templates',
+              label: t('SIDEBAR.NOTIFICATIONS_TEMPLATES'),
+              activeOn: ['notification_templates_service'],
+              to: accountScopedRoute('notification_templates_service'),
+            },
+            {
+              name: 'Notifications Statistics',
+              label: t('SIDEBAR.NOTIFICATIONS_STATISTICS'),
+              activeOn: ['campaigns_statistics'],
+              to: accountScopedRoute('campaigns_statistics'),
+            },
           ],
-          to: accountScopedRoute('notification_templates_index'),
         },
         {
           name: 'Campaigns',
           label: t('SIDEBAR.CAMPAIGNS'),
-          activeOn: [
-            'campaigns_index',
-            'campaigns_new',
-            'campaigns_edit',
-            'campaigns_statistics',
-          ],
+          activeOn: ['campaigns_index', 'campaigns_new', 'campaigns_edit'],
           to: accountScopedRoute('campaigns_index'),
-        },
-        {
-          name: 'Delivery',
-          label: t('SIDEBAR.MAILINGS_DELIVERY'),
-          activeOn: ['notification_templates_delivery'],
-          to: accountScopedRoute('notification_templates_delivery'),
         },
       ],
     },
@@ -721,6 +737,12 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.CONVERSATION_WORKFLOW'),
           icon: 'i-lucide-workflow',
           to: accountScopedRoute('conversation_workflow_index'),
+        },
+        {
+          name: 'Settings Notifications',
+          label: t('SIDEBAR.NOTIFICATIONS_SETTINGS'),
+          icon: 'i-lucide-bell',
+          to: accountScopedRoute('notifications_settings'),
         },
         {
           name: 'Settings Security',
