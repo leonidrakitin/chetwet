@@ -453,6 +453,44 @@
       "EMPTY_LIST": "No assistants found, please create one to get started",
       "SHOW_ALL": "Show all assistants"
     },
+    "INSIGHTS": {
+      "HEADER": "Insights",
+      "RANGE_LABEL": "Range",
+      "RANGES": {
+        "WEEK": "Last 7 days",
+        "MONTH": "Last 30 days",
+        "QUARTER": "Last 90 days"
+      },
+      "TOTALS": {
+        "CONVERSATIONS": "Conversations handled by Captain",
+        "HANDOFF_RATE": "Handoff rate",
+        "PENDING_HUMAN": "Pending human follow-up"
+      },
+      "ROUTING": {
+        "HEADER": "Routing decisions",
+        "DIRECT": "Direct answer",
+        "FAQ": "FAQ-grounded",
+        "SCENARIO": "Scenario handoff",
+        "HUMAN": "Human handoff"
+      },
+      "CONFIDENCE": {
+        "HEADER": "FAQ confidence distribution",
+        "LOW": "Low (<0.4)",
+        "MEDIUM": "Medium (0.4-0.6)",
+        "HIGH": "High (0.6-0.8)",
+        "VERY_HIGH": "Very high (>=0.8)"
+      },
+      "APPROVALS": {
+        "HEADER": "Approval requests",
+        "PENDING": "Pending",
+        "RESOLVED": "Resolved",
+        "EXPIRED": "Expired"
+      },
+      "TOP_ASSISTANTS": {
+        "HEADER": "Top assistants",
+        "EMPTY": "No assistant activity in this period."
+      }
+    },
     "COPILOT": {
       "TITLE": "Copilot",
       "TRY_THESE_PROMPTS": "Try these prompts",
@@ -608,6 +646,29 @@
           "DESCRIPTION": "Start from scratch and shape the assistant directly in Copilot.",
           "DEFAULT_NAME": "New assistant",
           "DEFAULT_DESCRIPTION": "Assistant created from scratch. Configure it in Copilot."
+        },
+        "SECTIONS": {
+          "SCENARIOS": "Scenarios",
+          "DOCUMENTS_HINT": "Documents used as seed"
+        },
+        "FORM": {
+          "PRODUCT_NAME": {
+            "LABEL": "Product Name",
+            "PLACEHOLDER": "Enter product name"
+          },
+          "LOCALE": {
+            "LABEL": "Locale",
+            "HINT": "Select the language for the assistant",
+            "OPTIONS": {
+              "RU": "Russian",
+              "EN": "English"
+            }
+          }
+        },
+        "BUTTONS": {
+          "BACK": "Back",
+          "CREATE": "Create",
+          "CANCEL": "Cancel"
         }
       },
       "FORM": {

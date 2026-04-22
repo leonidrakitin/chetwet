@@ -335,6 +335,7 @@
     "CAPTAIN_RESPONSES": "FAQs",
     "CAPTAIN_SCENARIOS": "Scenarios",
     "CAPTAIN_PLAYGROUND": "Playground",
+    "CAPTAIN_INSIGHTS": "Insights",
     "CAPTAIN_INBOXES": "Inboxes",
     "CAPTAIN_MIGRATIONS": "Historical data migration",
     "CAPTAIN_SETTINGS": "Settings",
@@ -523,6 +524,11 @@
       "RESPONSES": "Credits",
       "UPGRADE": "Captain is not available on the free plan, upgrade now to get access to assistants, copilot and more.",
       "REFRESH_CREDITS": "Refresh"
+    },
+    "ASSISTANTS": {
+      "NO_ASSISTANTS_AVAILABLE": "No assistants available",
+      "ADD_NEW": "Configure Assistant",
+      "CREATE_EMPTY": "Create Empty Assistant"
     },
     "CHAT_WITH_US": {
       "TITLE": "Need help?",

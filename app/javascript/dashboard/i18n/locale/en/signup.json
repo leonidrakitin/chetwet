@@ -96,5 +96,61 @@
     "COMPLETE_TITLE": "You're all set!",
     "COMPLETE_SUBTITLE": "Your workspace is ready to go",
     "GO_TO_DASHBOARD": "Go to Dashboard"
-  }
+  },
+  "CAPTAIN": {
+    "ASSISTANTS": {
+      "TEMPLATES": {
+        "TITLE": "Create from Template",
+        "DESCRIPTION": "Choose a template to quickly set up your assistant with predefined scenarios and FAQs",
+        "SUCCESS_MESSAGE": "Assistant created successfully!",
+        "ERROR_MESSAGE": "Failed to create assistant. Please try again.",
+        "SCENARIOS_COUNT": "{{count}} scenario(s)",
+        "FAQ_COUNT": "{{count}} FAQ(s)",
+        "EMPTY": {
+          "TITLE": "Create Empty Assistant",
+          "DEFAULT_NAME": "New Assistant",
+          "DEFAULT_DESCRIPTION": "An AI assistant for your business",
+          "DESCRIPTION": "Start from scratch and build your assistant step by step"
+        },
+        "CLARIFYING_QUESTIONS_TITLE": "Tell us more about your business",
+        "PREVIEW_TITLE": "Preview your assistant",
+        "PREVIEW_ASSISTANT": "Assistant Details",
+        "PREVIEW_SCENARIOS": "Scenarios",
+        "PREVIEW_FAQ": "Frequently Asked Questions",
+        "PREVIEW_FAQ_COUNT": "{{count}} questions",
+        "PREVIEW_ADAPTATION_NOTE": "Your assistant has been tailored using your business context to provide more relevant assistance",
+        "SECTIONS": {
+          "SCENARIOS": "Scenarios",
+          "DOCUMENTS_HINT": "Documents will be automatically loaded from your business knowledge"
+        },
+        "FORM": {
+          "PRODUCT_NAME": {
+            "LABEL": "Business Name",
+            "PLACEHOLDER": "e.g., Your Company Name"
+          },
+          "LOCALE": {
+            "LABEL": "Language",
+            "HINT": "The language your assistant will use to communicate",
+            "OPTIONS": {
+              "RU": "Русский",
+              "EN": "English"
+            }
+          }
+        },
+        "BUTTONS": {
+          "BACK": "Back",
+          "CREATE": "Create Assistant"
+        }
+      },
+      "CREATE": {
+        "SUCCESS_MESSAGE": "Assistant created successfully!",
+        "ERROR_MESSAGE": "Failed to create assistant. Please try again."
+      }
+    }
+  },
+  "CONTINUE": "Continue",
+  "YOUR_ANSWER": "Your answer",
+  "NO_ADDITIONAL_INFORMATION_NEEDED": "No additional information needed",
+  "EDIT": "Edit",
+  "CREATE_ASSISTANT": "Create Assistant"
 }

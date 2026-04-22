@@ -318,6 +318,7 @@
     "CAPTAIN_TOOLS": "Инструменты",
     "CAPTAIN_SCENARIOS": "Сценарии",
     "CAPTAIN_PLAYGROUND": "Площадка",
+    "CAPTAIN_INSIGHTS": "Инсайты",
     "CAPTAIN_INBOXES": "Источники",
     "CAPTAIN_SETTINGS": "Настройки",
     "HOME": "Главная",
@@ -468,6 +469,16 @@
       "UPGRADE": "Captain недоступен в бесплатном тарифном плане, обновите его, чтобы получить доступ к ассистентам, copilot и другим функциям.",
       "REFRESH_CREDITS": "Обновить"
     },
+    "ASSISTANTS": {
+      "NO_ASSISTANTS_AVAILABLE": "Нет ассистентов",
+      "ADD_NEW": "Настроить ассистента",
+      "CREATE_EMPTY": "Создать пустого ассистента"
+    },
+    "CONTINUE": "Продолжить",
+    "YOUR_ANSWER": "Ваш ответ",
+    "NO_ADDITIONAL_INFORMATION_NEEDED": "Дополнительная информация не требуется",
+    "EDIT": "Редактировать",
+    "CREATE_ASSISTANT": "Создать ассистента",
     "CHAT_WITH_US": {
       "TITLE": "Нужна помощь?",
       "DESCRIPTION": "Вы сталкиваетесь с какими-либо проблемами при оплате? Мы здесь, чтобы помочь.",
