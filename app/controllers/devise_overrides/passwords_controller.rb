@@ -12,14 +12,14 @@ class DeviseOverrides::PasswordsController < Devise::PasswordsController
 
   def update
     # params: reset_password_token, password, password_confirmation
-    original_token = params[:reset_password_token]
-    reset_password_token = Devise.token_generator.digest(self, :reset_password_token, original_token)
-    @recoverable = User.find_by(reset_password_token: reset_password_token)
+    original_token = params[:reset_password_token].to_s
+    normalized_token = original_token.tr(' ', '+')
+    @recoverable = User.with_reset_password_token(normalized_token)
     if @recoverable && reset_password_and_confirmation(@recoverable)
       send_auth_headers(@recoverable)
       render partial: 'devise/auth', formats: [:json], locals: { resource: @recoverable }
     else
-      render json: { message: 'Invalid token', redirect_url: '/' }, status: :unprocessable_entity
+      render json: { message: 'Invalid token', redirect_url: '/' }, status: :unprocessable_content
     end
   end
 
