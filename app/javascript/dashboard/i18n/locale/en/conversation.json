@@ -112,7 +112,8 @@
         "RT": "RT {status}",
         "MISSED": "missed",
         "DUE": "due"
-      }
+      },
+      "DEBUG_LOGS": "Debug Logs"
     },
     "RESOLVE_DROPDOWN": {
       "MARK_PENDING": "Mark as pending",

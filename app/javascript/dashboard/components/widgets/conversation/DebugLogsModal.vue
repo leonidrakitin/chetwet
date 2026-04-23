@@ -40,7 +40,7 @@ const localShow = computed({
 
 const loadDebugData = async () => {
   if (!props.copilotThreadId) {
-    useAlert(t('DEBUG_LOGS.NO_LOGS_FOUND'));
+    useAlert(t('CAPTAIN.DEBUG_LOGS.NO_LOGS_FOUND'));
     return;
   }
 
@@ -52,7 +52,7 @@ const loadDebugData = async () => {
     debugData.value = response.data;
     useTrack(COPILOT_EVENTS.DEBUG_LOGS_OPENED);
   } catch (error) {
-    useAlert(t('DEBUG_LOGS.ERROR_LOADING'));
+    useAlert(t('CAPTAIN.DEBUG_LOGS.ERROR_LOADING'));
   } finally {
     isLoading.value = false;
   }
@@ -75,52 +75,58 @@ const formatDate = dateString => {
 const getFriendlyToolName = toolName => {
   const toolNames = {
     'Captain::Tools::SearchDocumentationService': t(
-      'DEBUG_LOGS.TOOLS.DOCUMENTATION'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.DOCUMENTATION'
     ),
     'Captain::Tools::Copilot::GetConversationService': t(
-      'DEBUG_LOGS.TOOLS.CONVERSATION'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.CONVERSATION'
     ),
     'Captain::Tools::Copilot::SearchConversationsService': t(
-      'DEBUG_LOGS.TOOLS.SEARCH_CONVERSATIONS'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.SEARCH_CONVERSATIONS'
     ),
-    'Captain::Tools::Copilot::GetContactService': t('DEBUG_LOGS.TOOLS.CONTACT'),
-    'Captain::Tools::Copilot::GetArticleService': t('DEBUG_LOGS.TOOLS.ARTICLE'),
+    'Captain::Tools::Copilot::GetContactService': t(
+      'CAPTAIN.DEBUG_LOGS.TOOLS.CONTACT'
+    ),
+    'Captain::Tools::Copilot::GetArticleService': t(
+      'CAPTAIN.DEBUG_LOGS.TOOLS.ARTICLE'
+    ),
     'Captain::Tools::Copilot::SearchArticlesService': t(
-      'DEBUG_LOGS.TOOLS.SEARCH_ARTICLES'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.SEARCH_ARTICLES'
     ),
     'Captain::Tools::Copilot::SearchContactsService': t(
-      'DEBUG_LOGS.TOOLS.SEARCH_CONTACTS'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.SEARCH_CONTACTS'
     ),
     'Captain::Tools::Copilot::SearchLinearIssuesService': t(
-      'DEBUG_LOGS.TOOLS.LINEAR_ISSUES'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.LINEAR_ISSUES'
     ),
     'Captain::Tools::Copilot::ConfigureAssistantService': t(
-      'DEBUG_LOGS.TOOLS.CONFIGURE_ASSISTANT'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.CONFIGURE_ASSISTANT'
     ),
     'Captain::Tools::Copilot::SuggestFaqsService': t(
-      'DEBUG_LOGS.TOOLS.SUGGEST_FAQS'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.SUGGEST_FAQS'
     ),
-    'Captain::Tools::Copilot::AdaptFaqService': t('DEBUG_LOGS.TOOLS.ADAPT_FAQ'),
+    'Captain::Tools::Copilot::AdaptFaqService': t(
+      'CAPTAIN.DEBUG_LOGS.TOOLS.ADAPT_FAQ'
+    ),
     'Captain::Tools::Copilot::AdaptScenarioService': t(
-      'DEBUG_LOGS.TOOLS.ADAPT_SCENARIO'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.ADAPT_SCENARIO'
     ),
     'Captain::Tools::Copilot::ListNotificationTemplatesService': t(
-      'DEBUG_LOGS.TOOLS.LIST_NOTIFICATION_TEMPLATES'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.LIST_NOTIFICATION_TEMPLATES'
     ),
     'Captain::Tools::Copilot::GetNotificationTemplateService': t(
-      'DEBUG_LOGS.TOOLS.GET_NOTIFICATION_TEMPLATE'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.GET_NOTIFICATION_TEMPLATE'
     ),
     'Captain::Tools::Copilot::CreateNotificationTemplateService': t(
-      'DEBUG_LOGS.TOOLS.CREATE_NOTIFICATION_TEMPLATE'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.CREATE_NOTIFICATION_TEMPLATE'
     ),
     'Captain::Tools::Copilot::UpdateNotificationTemplateService': t(
-      'DEBUG_LOGS.TOOLS.UPDATE_NOTIFICATION_TEMPLATE'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.UPDATE_NOTIFICATION_TEMPLATE'
     ),
     'Captain::Tools::Copilot::DeleteNotificationTemplateService': t(
-      'DEBUG_LOGS.TOOLS.DELETE_NOTIFICATION_TEMPLATE'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.DELETE_NOTIFICATION_TEMPLATE'
     ),
     'Captain::Tools::Copilot::CreateSegmentService': t(
-      'DEBUG_LOGS.TOOLS.CREATE_SEGMENT'
+      'CAPTAIN.DEBUG_LOGS.TOOLS.CREATE_SEGMENT'
     ),
   };
   return toolNames[toolName] || toolName;
@@ -144,7 +150,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
         <div class="flex items-center gap-3">
           <Icon icon="i-lucide-terminal" class="w-6 h-6 text-purple-700" />
           <h3 class="text-lg font-semibold text-purple-900">
-            {{ t('DEBUG_LOGS.TITLE') }}
+            {{ t('CAPTAIN.DEBUG_LOGS.TITLE') }}
           </h3>
         </div>
         <Icon
@@ -159,7 +165,9 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
           icon="i-lucide-loader-2"
           class="w-6 h-6 text-purple-700 animate-spin"
         />
-        <span class="ml-2 text-purple-800">{{ t('DEBUG_LOGS.LOADING') }}</span>
+        <span class="ml-2 text-purple-800">{{
+          t('CAPTAIN.DEBUG_LOGS.LOADING')
+        }}</span>
       </div>
 
       <div v-else-if="!debugData" class="px-6 py-8">
@@ -169,7 +177,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
             class="w-12 h-12 mx-auto text-purple-300"
           />
           <p class="mt-2 text-purple-800">
-            {{ t('DEBUG_LOGS.NO_LOGS_FOUND') }}
+            {{ t('CAPTAIN.DEBUG_LOGS.NO_LOGS_FOUND') }}
           </p>
         </div>
       </div>
@@ -177,12 +185,12 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
       <div v-else class="flex-1 overflow-y-auto p-6 space-y-6">
         <div class="bg-white rounded-lg shadow-sm border border-purple-100 p-4">
           <h4 class="text-sm font-semibold text-purple-800 mb-3">
-            {{ t('DEBUG_LOGS.CONVERSATION_INFO') }}
+            {{ t('CAPTAIN.DEBUG_LOGS.CONVERSATION_INFO') }}
           </h4>
           <div class="grid grid-cols-2 gap-3 text-sm">
             <div>
               <span class="text-gray-500 block text-xs">{{
-                t('DEBUG_LOGS.CONVERSATION_ID')
+                t('CAPTAIN.DEBUG_LOGS.CONVERSATION_ID')
               }}</span>
               <span class="font-medium text-gray-900">{{
                 debugData.conversation?.id
@@ -190,7 +198,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
             </div>
             <div>
               <span class="text-gray-500 block text-xs">{{
-                t('DEBUG_LOGS.THREAD_ID')
+                t('CAPTAIN.DEBUG_LOGS.THREAD_ID')
               }}</span>
               <span class="font-medium text-gray-900">{{
                 debugData.thread.id
@@ -198,7 +206,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
             </div>
             <div>
               <span class="text-gray-500 block text-xs">{{
-                t('DEBUG_LOGS.CREATED_AT')
+                t('CAPTAIN.DEBUG_LOGS.CREATED_AT')
               }}</span>
               <span class="font-medium text-gray-900">{{
                 formatDate(debugData.thread.created_at)
@@ -206,7 +214,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
             </div>
             <div>
               <span class="text-gray-500 block text-xs">{{
-                t('DEBUG_LOGS.TITLE')
+                t('CAPTAIN.DEBUG_LOGS.TITLE')
               }}</span>
               <span class="font-medium text-gray-900">{{
                 debugData.thread.title
@@ -220,7 +228,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
           class="space-y-4"
         >
           <h4 class="text-sm font-semibold text-purple-800">
-            {{ t('DEBUG_LOGS.MESSAGES') }}
+            {{ t('CAPTAIN.DEBUG_LOGS.MESSAGES') }}
           </h4>
           <div class="space-y-4">
             <div
@@ -255,10 +263,10 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
                   >
                     {{
                       isMessageFromUser(message)
-                        ? t('DEBUG_LOGS.USER')
+                        ? t('CAPTAIN.DEBUG_LOGS.USER')
                         : isMessageFromAssistant(message)
-                          ? t('DEBUG_LOGS.ASSISTANT')
-                          : t('DEBUG_LOGS.THINKING')
+                          ? t('CAPTAIN.DEBUG_LOGS.ASSISTANT')
+                          : t('CAPTAIN.DEBUG_LOGS.THINKING')
                     }}
                   </span>
                 </div>
@@ -278,7 +286,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
                   class="flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 transition-colors"
                 >
                   <Icon icon="i-lucide-chevron-down" class="w-3 h-3" />
-                  {{ t('DEBUG_LOGS.REASONING') }}
+                  {{ t('CAPTAIN.DEBUG_LOGS.REASONING') }}
                 </button>
                 <div
                   class="mt-2 p-2 bg-purple-50 rounded border border-purple-100"
@@ -307,7 +315,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
           class="bg-white rounded-lg shadow-sm border border-purple-100 p-4"
         >
           <h4 class="text-sm font-semibold text-purple-800 mb-3">
-            {{ t('DEBUG_LOGS.TOOLS_USED') }}
+            {{ t('CAPTAIN.DEBUG_LOGS.TOOLS_USED') }}
           </h4>
           <div class="flex flex-wrap gap-2">
             <span
@@ -328,7 +336,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
           class="bg-white rounded-lg shadow-sm border border-purple-100 p-4"
         >
           <h4 class="text-sm font-semibold text-purple-800 mb-3">
-            {{ t('DEBUG_LOGS.NOTIFICATION_TEMPLATES') }}
+            {{ t('CAPTAIN.DEBUG_LOGS.NOTIFICATION_TEMPLATES') }}
           </h4>
           <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
             <li
@@ -345,7 +353,7 @@ const isThinkingMessage = msg => msg.message_type === 'assistant_thinking';
         class="flex justify-end px-6 py-4 bg-purple-50 border-t border-purple-100"
       >
         <Button
-          :label="t('DEBUG_LOGS.CLOSE')"
+          :label="t('CAPTAIN.DEBUG_LOGS.CLOSE')"
           @click="() => emit('cancel', false)"
         />
       </div>
