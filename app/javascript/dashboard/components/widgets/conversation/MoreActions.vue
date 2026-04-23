@@ -5,7 +5,9 @@ import { useStore } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import { emitter } from 'shared/helpers/mitt';
+import { useAdmin } from 'dashboard/composables/useAdmin';
 import EmailTranscriptModal from './EmailTranscriptModal.vue';
+import DebugLogsModal from './DebugLogsModal.vue';
 import ResolveAction from '../../buttons/ResolveAction.vue';
 import ButtonV4 from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
@@ -16,12 +18,13 @@ import {
   CMD_UNMUTE_CONVERSATION,
 } from 'dashboard/helper/commandbar/events';
 
-// No props needed as we're getting currentChat from the store directly
 const store = useStore();
 const { t } = useI18n();
+const { isAdmin } = useAdmin();
 
 const [showEmailActionsModal, toggleEmailModal] = useToggle(false);
 const [showActionsDropdown, toggleDropdown] = useToggle(false);
+const [showDebugLogs, toggleDebugLogs] = useToggle(false);
 
 const currentChat = computed(() => store.getters.getSelectedChat);
 
@@ -51,6 +54,15 @@ const actionMenuItems = computed(() => {
     value: 'send_transcript',
   });
 
+  if (isAdmin.value && currentChat.value.copilot_thread_id) {
+    items.push({
+      icon: 'i-lucide-terminal',
+      label: t('CONVERSATION.HEADER.DEBUG_LOGS'),
+      action: 'debug_logs',
+      value: 'debug_logs',
+    });
+  }
+
   return items;
 });
 
@@ -65,6 +77,8 @@ const handleActionClick = ({ action }) => {
     useAlert(t('CONTACT_PANEL.UNMUTED_SUCCESS'));
   } else if (action === 'send_transcript') {
     toggleEmailModal();
+  } else if (action === 'debug_logs') {
+    toggleDebugLogs();
   }
 };
 
@@ -121,6 +135,13 @@ onUnmounted(() => {
       :show="showEmailActionsModal"
       :current-chat="currentChat"
       @cancel="toggleEmailModal"
+    />
+    <DebugLogsModal
+      v-if="showDebugLogs"
+      :show="showDebugLogs"
+      :copilot-thread-id="currentChat.copilot_thread_id"
+      :current-chat="currentChat"
+      @cancel="toggleDebugLogs"
     />
   </div>
 </template>

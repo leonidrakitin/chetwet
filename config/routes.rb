@@ -94,6 +94,7 @@ Rails.application.routes.draw do
               post :generate_draft, on: :member
             end
             resources :bulk_migrations, only: [:index, :create, :show]
+            resource :copilot_debug, only: [:show]
             resources :documents, only: [:index, :show, :create, :destroy]
             resource :insights, only: [:show]
             resource :tasks, only: [], controller: 'tasks' do

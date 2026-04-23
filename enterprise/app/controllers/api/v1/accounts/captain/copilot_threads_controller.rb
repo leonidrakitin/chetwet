@@ -12,6 +12,10 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
 
   def create
     source = copilot_thread_params[:source].presence || 'default'
+    if copilot_thread_params[:conversation_id].present?
+      conversation = Current.account.conversations.find_by(display_id: copilot_thread_params[:conversation_id])
+    end
+
     existing = Current.account.copilot_threads
                       .where(user_id: Current.user.id, assistant_id: assistant.id)
                       .for_source(source)
@@ -20,30 +24,24 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
 
     if existing
       @copilot_thread = existing
-      copilot_message = @copilot_thread.copilot_messages.create!(
-        message_type: :user,
-        message: { content: copilot_thread_params[:message] }
-      )
-      build_copilot_response(copilot_message)
-      render
-      return
+    else
+      ActiveRecord::Base.transaction do
+        @copilot_thread = Current.account.copilot_threads.create!(
+          title: copilot_thread_params[:message],
+          user: Current.user,
+          assistant: assistant,
+          source: source
+        )
+
+        conversation.update!(copilot_thread_id: @copilot_thread.id) if conversation
+      end
     end
 
-    ActiveRecord::Base.transaction do
-      @copilot_thread = Current.account.copilot_threads.create!(
-        title: copilot_thread_params[:message],
-        user: Current.user,
-        assistant: assistant,
-        source: source
-      )
-
-      copilot_message = @copilot_thread.copilot_messages.create!(
-        message_type: :user,
-        message: { content: copilot_thread_params[:message] }
-      )
-
-      build_copilot_response(copilot_message)
-    end
+    copilot_message = @copilot_thread.copilot_messages.create!(
+      message_type: :user,
+      message: { content: copilot_thread_params[:message] }
+    )
+    build_copilot_response(copilot_message)
   end
 
   private

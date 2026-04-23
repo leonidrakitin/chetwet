@@ -2,16 +2,17 @@
 #
 # Table name: captain_scenarios
 #
-#  id           :bigint           not null, primary key
-#  description  :text
-#  enabled      :boolean          default(TRUE), not null
-#  instruction  :text
-#  title        :string
-#  tools        :jsonb
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  account_id   :bigint           not null
-#  assistant_id :bigint           not null
+#  id             :bigint           not null, primary key
+#  description    :text
+#  enabled        :boolean          default(TRUE), not null
+#  instruction    :text
+#  required_slots :jsonb
+#  title          :string
+#  tools          :jsonb
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  account_id     :bigint           not null
+#  assistant_id   :bigint           not null
 #
 # Indexes
 #
