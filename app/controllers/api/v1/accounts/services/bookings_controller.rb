@@ -104,7 +104,7 @@ class Api::V1::Accounts::Services::BookingsController < Api::V1::Accounts::Servi
   def update_params
     params.require(:booking).permit(
       :scheduled_at, :service_provider_id, :customer_notes, :internal_notes,
-      :status, preferences: {}
+      :status, :total_duration_minutes, preferences: {}
     )
   end
 

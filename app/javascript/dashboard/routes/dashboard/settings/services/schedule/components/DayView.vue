@@ -13,7 +13,13 @@ const props = defineProps({
   schedule: { type: Object, default: null },
 });
 
-const emit = defineEmits(['bookingClick', 'slotClick', 'bookingMove']);
+const emit = defineEmits([
+  'bookingClick',
+  'slotClick',
+  'bookingCreate',
+  'bookingMove',
+  'bookingResize',
+]);
 
 const {
   slotInterval,
@@ -40,6 +46,15 @@ const providerBookings = computed(() => {
 
 const handleSlotClick = ({ providerId, time }) => {
   emit('slotClick', { providerId, date: props.date, time });
+};
+
+const handleBookingCreate = ({ providerId, startTime, durationMinutes }) => {
+  emit('bookingCreate', {
+    providerId,
+    date: props.date,
+    startTime,
+    durationMinutes,
+  });
 };
 
 const handleBookingMove = ({ bookingId, newProviderId, newTime }) => {
@@ -163,7 +178,9 @@ onBeforeUnmount(() => {
           :working-hours="dayWorkingHours"
           @booking-click="$emit('bookingClick', $event)"
           @slot-click="handleSlotClick"
+          @booking-create="handleBookingCreate"
           @booking-dragend="handleBookingMove"
+          @booking-resize="$emit('bookingResize', $event)"
         />
       </template>
     </div>

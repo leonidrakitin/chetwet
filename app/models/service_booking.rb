@@ -97,7 +97,7 @@ class ServiceBooking < ApplicationRecord
   def scheduled_at_not_in_past
     return unless scheduled_at.present? && scheduled_at < Time.current
 
-    errors.add(:scheduled_at, 'cannot be in the past')
+    errors.add(:base, I18n.t('services.bookings.past_time'))
   end
 
   def cannot_cancel_without_reason

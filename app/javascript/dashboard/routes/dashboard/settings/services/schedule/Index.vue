@@ -32,6 +32,7 @@ const showBookingModal = ref(false);
 const selectedBooking = ref(null);
 const initialProviderId = ref(null);
 const initialTime = ref(null);
+const initialDuration = ref(null);
 const selectedBookingIds = ref(new Set());
 
 const schedule = computed(() => store.getters['services/getSchedule']);
@@ -131,7 +132,28 @@ const handleSlotClick = ({ providerId, time }) => {
   selectedBooking.value = null;
   initialProviderId.value = providerId;
   initialTime.value = time;
+  initialDuration.value = null;
   showBookingModal.value = true;
+};
+
+const handleBookingCreate = ({ providerId, startTime, durationMinutes }) => {
+  selectedBooking.value = null;
+  initialProviderId.value = providerId || selectedProviderId.value;
+  initialTime.value = startTime;
+  initialDuration.value = durationMinutes;
+  showBookingModal.value = true;
+};
+
+const handleBookingResize = async ({ bookingId, durationMinutes }) => {
+  try {
+    await store.dispatch('services/updateBooking', {
+      id: bookingId,
+      booking: { total_duration_minutes: durationMinutes },
+    });
+    await fetchCalendarData();
+  } catch (error) {
+    useAlert(error.message || t('SCHEDULE.MOVE_ERROR'));
+  }
 };
 
 const roundUpToSlot = (date, intervalMinutes) => {
@@ -161,6 +183,7 @@ const handleAddBooking = () => {
     base,
     schedule.value?.slot_interval_minutes
   );
+  initialDuration.value = null;
   showBookingModal.value = true;
 };
 
@@ -168,6 +191,7 @@ const handleBookingClick = booking => {
   selectedBooking.value = booking;
   initialProviderId.value = null;
   initialTime.value = null;
+  initialDuration.value = null;
   showBookingModal.value = true;
 };
 
@@ -243,7 +267,9 @@ const closeModal = () => {
             :selected-booking-ids="selectedBookingIds"
             @booking-click="handleBookingClick"
             @slot-click="handleSlotClick"
+            @booking-create="handleBookingCreate"
             @booking-move="handleBookingMove"
+            @booking-resize="handleBookingResize"
             @toggle-selection="toggleBookingSelection"
           />
 
@@ -255,7 +281,9 @@ const closeModal = () => {
             :schedule="schedule"
             @booking-click="handleBookingClick"
             @slot-click="handleSlotClick"
+            @booking-create="handleBookingCreate"
             @booking-move="handleBookingMove"
+            @booking-resize="handleBookingResize"
           />
 
           <MonthView
@@ -282,6 +310,7 @@ const closeModal = () => {
     :booking="selectedBooking"
     :initial-provider-id="initialProviderId"
     :initial-time="initialTime"
+    :initial-duration-minutes="initialDuration"
     :providers="activeProviders"
     :services="services"
     @close="closeModal"

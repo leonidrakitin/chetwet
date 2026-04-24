@@ -13,6 +13,7 @@ const props = defineProps({
   booking: { type: Object, default: null },
   initialProviderId: { type: [Number, String], default: null },
   initialTime: { type: Date, default: null },
+  initialDurationMinutes: { type: Number, default: null },
   providers: { type: Array, default: () => [] },
   services: { type: Array, default: () => [] },
 });
@@ -199,6 +200,16 @@ const handleSubmit = async () => {
       result = await store.dispatch('services/createBooking', {
         booking: bookingData,
       });
+      if (
+        result?.id &&
+        props.initialDurationMinutes &&
+        props.initialDurationMinutes !== result.total_duration_minutes
+      ) {
+        result = await store.dispatch('services/updateBooking', {
+          id: result.id,
+          booking: { total_duration_minutes: props.initialDurationMinutes },
+        });
+      }
     }
 
     useAlert(
@@ -282,6 +293,13 @@ const isServiceSelected = serviceId =>
           type="datetime-local"
           class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
         />
+        <p
+          v-if="!isEditing && initialDurationMinutes"
+          class="mt-1 text-xs text-n-slate-10"
+        >
+          {{ t('SCHEDULE.MODAL.PLANNED_DURATION') }}: {{ initialDurationMinutes
+          }}{{ t('SCHEDULE.MODAL.MIN') }}
+        </p>
       </div>
 
       <div>

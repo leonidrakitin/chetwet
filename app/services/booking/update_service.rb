@@ -26,20 +26,26 @@ class Booking::UpdateService
   end
 
   def update_booking
-    updates = {}
-
-    if updatable_params[:service_provider_id].present?
-      provider = @booking.account.service_providers.find(updatable_params[:service_provider_id])
-      updates[:service_provider_id] = provider.id
-    end
-
-    updates[:scheduled_at] = DateTime.parse(updatable_params[:scheduled_at]) if updatable_params[:scheduled_at].present?
-
-    %i[customer_notes preferences internal_notes].each do |key|
-      updates[key] = updatable_params[key] if updatable_params.key?(key)
-    end
-
+    updates = normalized_updates
     @booking.update!(updates) if updates.present?
+  end
+
+  def normalized_updates
+    updates = passthrough_updates
+    updates[:service_provider_id] = resolved_provider_id if updatable_params[:service_provider_id].present?
+    updates[:scheduled_at] = DateTime.parse(updatable_params[:scheduled_at]) if updatable_params[:scheduled_at].present?
+    updates[:total_duration_minutes] = updatable_params[:total_duration_minutes].to_i if updatable_params[:total_duration_minutes].present?
+    updates
+  end
+
+  def passthrough_updates
+    %i[customer_notes preferences internal_notes].each_with_object({}) do |key, acc|
+      acc[key] = updatable_params[key] if updatable_params.key?(key)
+    end
+  end
+
+  def resolved_provider_id
+    @booking.account.service_providers.find(updatable_params[:service_provider_id]).id
   end
 
   def update_booking_items
@@ -57,7 +63,10 @@ class Booking::UpdateService
   end
 
   def updatable_params
-    @updatable_params ||= @params.slice(:service_provider_id, :scheduled_at, :customer_notes, :preferences, :internal_notes)
+    @updatable_params ||= @params.slice(
+      :service_provider_id, :scheduled_at, :customer_notes, :preferences,
+      :internal_notes, :total_duration_minutes
+    )
   end
 
   def service_ids

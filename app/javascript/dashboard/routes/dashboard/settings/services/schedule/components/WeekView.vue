@@ -12,7 +12,13 @@ const props = defineProps({
   schedule: { type: Object, default: null },
 });
 
-const emit = defineEmits(['bookingClick', 'slotClick', 'bookingMove']);
+const emit = defineEmits([
+  'bookingClick',
+  'slotClick',
+  'bookingCreate',
+  'bookingMove',
+  'bookingResize',
+]);
 
 const { slotInterval, hoursRange } = useTimeSlots(
   computed(() => props.schedule),
@@ -38,8 +44,22 @@ const handleSlotClick = ({ date, time }) => {
   emit('slotClick', { providerId: props.providerId, date, time });
 };
 
-const handleBookingMove = ({ bookingId, newTime }) => {
-  emit('bookingMove', { bookingId, newScheduledAt: newTime });
+const handleBookingCreate = ({ date, startTime, durationMinutes }) => {
+  emit('bookingCreate', {
+    providerId: props.providerId,
+    date,
+    startTime,
+    durationMinutes,
+  });
+};
+
+const handleBookingMove = ({ bookingId, newDate, newTime }) => {
+  emit('bookingMove', {
+    bookingId,
+    newProviderId: Number(props.providerId),
+    newScheduledAt: newTime,
+    newDate,
+  });
 };
 </script>
 
@@ -60,7 +80,9 @@ const handleBookingMove = ({ bookingId, newTime }) => {
         :working-hours="schedule?.working_hours"
         @booking-click="$emit('bookingClick', $event)"
         @slot-click="handleSlotClick"
+        @booking-create="handleBookingCreate"
         @booking-dragend="handleBookingMove"
+        @booking-resize="$emit('bookingResize', $event)"
       />
     </div>
   </div>

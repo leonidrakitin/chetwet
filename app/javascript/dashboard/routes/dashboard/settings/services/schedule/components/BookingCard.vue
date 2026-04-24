@@ -1,27 +1,16 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { SLOT_HEIGHT } from '../composables/useCalendarLayout';
 
 const props = defineProps({
-  booking: {
-    type: Object,
-    required: true,
-  },
-  slotInterval: {
-    type: Number,
-    default: 30,
-  },
-  hoursRange: {
-    type: Object,
-    default: () => ({ start: 9, end: 18 }),
-  },
-  isDragging: {
-    type: Boolean,
-    default: false,
-  },
+  booking: { type: Object, required: true },
+  slotInterval: { type: Number, default: 30 },
+  layout: { type: Object, required: true },
+  isDragging: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['click', 'dragstart', 'dragend']);
+const emit = defineEmits(['click', 'dragstart', 'dragend', 'resize']);
 
 const { t } = useI18n();
 
@@ -34,67 +23,86 @@ const statusColors = {
   no_show: 'bg-n-ruby-5 border-n-ruby-9',
 };
 
-const cardPosition = computed(() => {
-  const scheduledAt = new Date(props.booking.scheduled_at);
-  const startHour = props.hoursRange?.start ?? 9;
-  const dayStart = new Date(scheduledAt);
-  dayStart.setHours(startHour, 0, 0, 0);
+const contactName = computed(
+  () => props.booking.contact?.name || t('SCHEDULE.NO_CONTACT')
+);
+const contactPhone = computed(() => props.booking.contact?.phone_number || '');
+const servicesList = computed(
+  () => props.booking.services?.map(s => s.name).join(', ') || ''
+);
+const isFirstBooking = computed(
+  () => props.booking.contact?.is_first_booking ?? false
+);
+const statusClass = computed(
+  () => statusColors[props.booking.status] || statusColors.pending
+);
 
-  const minutesFromStart =
-    (scheduledAt.getHours() - startHour) * 60 + scheduledAt.getMinutes();
+const pxPerMinute = computed(() => SLOT_HEIGHT / props.slotInterval);
+const resizingHeight = ref(null);
+const resizingDurationRef = ref(null);
+let resizeStartY = 0;
 
-  const duration = props.booking.total_duration_minutes || props.slotInterval;
-  const slotHeight = 48;
-  const pixelsPerMinute = slotHeight / props.slotInterval;
+const onResizeMouseMove = e => {
+  const baseHeight = props.layout.height;
+  const baseDuration =
+    props.booking.total_duration_minutes || props.slotInterval;
+  const delta = e.clientY - resizeStartY;
+  const newHeight = Math.max(baseHeight + delta, SLOT_HEIGHT / 2);
+  const newDurationRaw = baseDuration + delta / pxPerMinute.value;
+  const snapped = Math.max(Math.round(newDurationRaw / 5) * 5, 5);
+  resizingHeight.value = newHeight;
+  resizingDurationRef.value = snapped;
+};
 
-  return {
-    top: minutesFromStart * pixelsPerMinute,
-    height: duration * pixelsPerMinute - 2,
-  };
-});
-
-const contactName = computed(() => {
-  return props.booking.contact?.name || t('SCHEDULE.NO_CONTACT');
-});
-
-const contactPhone = computed(() => {
-  return props.booking.contact?.phone_number || '';
-});
-
-const servicesList = computed(() => {
-  return props.booking.services?.map(s => s.name).join(', ') || '';
-});
-
-const isFirstBooking = computed(() => {
-  return props.booking.contact?.is_first_booking ?? false;
-});
-
-const statusClass = computed(() => {
-  return statusColors[props.booking.status] || statusColors.pending;
-});
+const rootStyle = computed(() => ({
+  top: `${props.layout.top}px`,
+  height: `${resizingHeight.value ?? props.layout.height}px`,
+  left: `${props.layout.leftPct}%`,
+  width: `${props.layout.widthPct}%`,
+  zIndex: props.layout.zIndex,
+}));
 
 const handleDragStart = e => {
   emit('dragstart', e, props.booking);
   e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', props.booking.id);
+  e.dataTransfer.setData('text/plain', String(props.booking.id));
 };
 
-const handleClick = () => {
-  emit('click', props.booking);
+const handleClick = () => emit('click', props.booking);
+
+const onResizeMouseUp = () => {
+  window.removeEventListener('mousemove', onResizeMouseMove);
+  window.removeEventListener('mouseup', onResizeMouseUp);
+  const duration = resizingDurationRef.value;
+  resizingHeight.value = null;
+  resizingDurationRef.value = null;
+  if (duration && duration !== props.booking.total_duration_minutes) {
+    emit('resize', { bookingId: props.booking.id, durationMinutes: duration });
+  }
+};
+
+const startResize = e => {
+  e.stopPropagation();
+  e.preventDefault();
+  resizeStartY = e.clientY;
+  window.addEventListener('mousemove', onResizeMouseMove);
+  window.addEventListener('mouseup', onResizeMouseUp);
 };
 </script>
 
 <template>
   <div
-    class="absolute left-1 right-1 rounded-md border-l-2 cursor-pointer transition-all hover:shadow-md overflow-hidden group"
+    data-booking-card
+    class="absolute rounded-md border-l-2 cursor-pointer transition-shadow hover:shadow-md overflow-hidden group"
     :class="[statusClass, { 'opacity-60 cursor-grabbing': isDragging }]"
-    :style="`top: ${cardPosition.top}px; height: ${cardPosition.height}px; min-height: 48px;`"
+    :style="rootStyle"
     draggable="true"
     @dragstart="handleDragStart"
     @dragend="$emit('dragend')"
     @click="handleClick"
+    @mousedown.stop
   >
-    <div class="p-1.5 h-full flex flex-col">
+    <div class="p-1.5 h-full flex flex-col pointer-events-none">
       <div class="flex items-start justify-between gap-1">
         <span class="text-xs font-medium text-n-slate-12 truncate">
           {{ servicesList }}
@@ -121,5 +129,10 @@ const handleClick = () => {
         {{ booking.customer_notes }}
       </div>
     </div>
+
+    <div
+      class="absolute inset-x-0 bottom-0 h-1.5 cursor-ns-resize bg-transparent hover:bg-n-alpha-2"
+      @mousedown="startResize"
+    />
   </div>
 </template>
