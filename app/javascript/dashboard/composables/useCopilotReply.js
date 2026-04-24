@@ -73,6 +73,7 @@ export function useCopilotReply() {
   const trackedConversationId = ref(null);
 
   const approvalRequestContext = ref(null);
+  const isAcceptingApproval = ref(false);
 
   const conversationId = computed(() => currentChat.value?.id);
 
@@ -114,6 +115,7 @@ export function useCopilotReply() {
     followUpCount.value = 0;
     trackedConversationId.value = null;
     approvalRequestContext.value = null;
+    isAcceptingApproval.value = false;
   }
 
   function toggleEditor() {
@@ -354,6 +356,10 @@ export function useCopilotReply() {
     const content = generatedContent.value;
 
     if (approvalRequestContext.value) {
+      if (isAcceptingApproval.value) {
+        return content;
+      }
+      isAcceptingApproval.value = true;
       try {
         await approvalRequestsApi.resolve(
           approvalRequestContext.value.approvalRequestId,
@@ -379,6 +385,8 @@ export function useCopilotReply() {
           reason: error?.name || CAPTAIN_GENERATION_FAILURE_REASONS.EXCEPTION,
         });
         throw error;
+      } finally {
+        isAcceptingApproval.value = false;
       }
     } else if (currentAction.value) {
       const eventKey = `${getEventPrefix(currentAction.value)}_APPLIED`;
