@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import { emitter } from 'shared/helpers/mitt';
 import { useAdmin } from 'dashboard/composables/useAdmin';
 import EmailTranscriptModal from './EmailTranscriptModal.vue';
-import DebugLogsModal from './DebugLogsModal.vue';
+import CaptainTraceModal from './CaptainTraceModal.vue';
 import ResolveAction from '../../buttons/ResolveAction.vue';
 import ButtonV4 from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
@@ -24,7 +24,7 @@ const { isAdmin } = useAdmin();
 
 const [showEmailActionsModal, toggleEmailModal] = useToggle(false);
 const [showActionsDropdown, toggleDropdown] = useToggle(false);
-const [showDebugLogs, toggleDebugLogs] = useToggle(false);
+const [showCaptainTrace, toggleCaptainTrace] = useToggle(false);
 
 const currentChat = computed(() => store.getters.getSelectedChat);
 
@@ -54,12 +54,12 @@ const actionMenuItems = computed(() => {
     value: 'send_transcript',
   });
 
-  if (isAdmin.value && currentChat.value.copilot_thread_id) {
+  if (isAdmin.value) {
     items.push({
       icon: 'i-lucide-terminal',
       label: t('CONVERSATION.HEADER.DEBUG_LOGS'),
-      action: 'debug_logs',
-      value: 'debug_logs',
+      action: 'captain_trace',
+      value: 'captain_trace',
     });
   }
 
@@ -77,8 +77,8 @@ const handleActionClick = ({ action }) => {
     useAlert(t('CONTACT_PANEL.UNMUTED_SUCCESS'));
   } else if (action === 'send_transcript') {
     toggleEmailModal();
-  } else if (action === 'debug_logs') {
-    toggleDebugLogs();
+  } else if (action === 'captain_trace') {
+    toggleCaptainTrace();
   }
 };
 
@@ -136,12 +136,11 @@ onUnmounted(() => {
       :current-chat="currentChat"
       @cancel="toggleEmailModal"
     />
-    <DebugLogsModal
-      v-if="showDebugLogs"
-      :show="showDebugLogs"
-      :copilot-thread-id="currentChat.copilot_thread_id"
+    <CaptainTraceModal
+      v-if="showCaptainTrace"
+      :show="showCaptainTrace"
       :current-chat="currentChat"
-      @cancel="toggleDebugLogs"
+      @cancel="toggleCaptainTrace"
     />
   </div>
 </template>
