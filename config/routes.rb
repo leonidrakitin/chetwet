@@ -94,7 +94,7 @@ Rails.application.routes.draw do
               post :generate_draft, on: :member
             end
             resources :bulk_migrations, only: [:index, :create, :show]
-            resource :copilot_debug, only: [:show]
+            resources :copilot_debug, only: [:show]
             resources :documents, only: [:index, :show, :create, :destroy]
             resource :insights, only: [:show]
             resource :tasks, only: [], controller: 'tasks' do
@@ -199,6 +199,7 @@ Rails.application.routes.draw do
               resource :participants, only: [:show, :create, :update, :destroy]
               resource :direct_uploads, only: [:create]
               resource :draft_messages, only: [:show, :update, :destroy]
+              resources :captain_trace_events, only: [:index]
             end
             member do
               post :mute
