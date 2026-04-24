@@ -52,7 +52,7 @@ class CopilotDebugEnricher
 
   def tools_used_data
     messages = @copilot_thread.copilot_messages.where("message->>'function_name' IS NOT NULL")
-    messages.pluck('message->>function_name').uniq.compact.map { |name| name.to_s.underscore.tr('_', ' ').titleize }
+    messages.pluck(Arel.sql("message->>'function_name'")).uniq.compact.map { |name| name.to_s.underscore.tr('_', ' ').titleize }
   end
 
   def notification_templates_data

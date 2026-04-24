@@ -9,7 +9,7 @@ class Api::V1::Accounts::Captain::CopilotDebugController < Api::V1::Accounts::Ba
   private
 
   def ensure_admin
-    render json: { error: 'Unauthorized' }, status: :unauthorized unless Current.user.admin?
+    render json: { error: 'Unauthorized' }, status: :unauthorized unless Current.user.administrator?
   end
 
   def find_copilot_thread
