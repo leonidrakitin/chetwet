@@ -115,7 +115,7 @@ class Conversation < ApplicationRecord
   has_many :attachments, through: :messages
   has_many :reporting_events, dependent: :destroy_async
 
-  has_one :copilot_thread, dependent: :destroy_async
+  belongs_to :copilot_thread, optional: true, dependent: :destroy_async
 
   before_save :ensure_snooze_until_reset
   before_create :determine_conversation_status
