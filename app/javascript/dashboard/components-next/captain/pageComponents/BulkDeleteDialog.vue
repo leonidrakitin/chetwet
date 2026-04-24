@@ -26,7 +26,7 @@ const i18nKey = computed(() => {
     AssistantResponse: 'RESPONSES',
     AssistantDocument: 'DOCUMENTS',
   };
-  return i18nTypeMap[props.type];
+  return i18nTypeMap[props.type] || 'RESPONSES';
 });
 
 const handleBulkDelete = async ids => {

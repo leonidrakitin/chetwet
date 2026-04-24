@@ -13,16 +13,11 @@ RSpec.describe 'Api::V1::Accounts::Conversations::CaptainTraceEvents', type: :re
                      message_type: :outgoing, sender: assistant, content: 'Hi there')
   end
 
-  let!(:event) do
+  def create_event(message_id: outgoing_message.id, session: 'sess_1', seq: 1, type: 'outgoing_message', payload: { 'content' => 'Hi there' })
     Captain::TraceEvent.create!(
-      account: account,
-      conversation: conversation,
-      assistant: assistant,
-      source_message_id: outgoing_message.id,
-      session_id: 'sess_1',
-      sequence: 1,
-      event_type: 'outgoing_message',
-      payload: { 'content' => 'Hi there' }
+      account: account, conversation: conversation, assistant: assistant,
+      source_message_id: message_id, session_id: session, sequence: seq,
+      event_type: type, payload: payload
     )
   end
 
@@ -48,6 +43,8 @@ RSpec.describe 'Api::V1::Accounts::Conversations::CaptainTraceEvents', type: :re
 
     context 'when the user is an administrator' do
       it 'returns outgoing messages and events' do
+        create_event
+
         get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/captain_trace_events",
             headers: admin.create_new_auth_token, as: :json
 
@@ -59,13 +56,10 @@ RSpec.describe 'Api::V1::Accounts::Conversations::CaptainTraceEvents', type: :re
       end
 
       it 'filters events by message_id when provided' do
+        create_event
         other_message = create(:message, conversation: conversation, account: account, inbox: inbox,
                                          message_type: :outgoing, sender: assistant, content: 'Other')
-        Captain::TraceEvent.create!(
-          account: account, conversation: conversation, assistant: assistant,
-          source_message_id: other_message.id, session_id: 'sess_2', sequence: 1,
-          event_type: 'outgoing_message', payload: {}
-        )
+        create_event(message_id: other_message.id, session: 'sess_2', payload: {})
 
         get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/captain_trace_events",
             params: { message_id: outgoing_message.id },
