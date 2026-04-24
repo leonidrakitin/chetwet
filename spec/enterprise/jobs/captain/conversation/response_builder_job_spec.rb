@@ -66,8 +66,7 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
 
       it 'uses Captain::Assistant::AgentRunnerService' do
         expect(Captain::Assistant::AgentRunnerService).to receive(:new).with(
-          assistant: assistant,
-          conversation: conversation
+          hash_including(assistant: assistant, conversation: conversation)
         )
         expect(Captain::Llm::AssistantChatService).not_to receive(:new)
 
@@ -274,6 +273,68 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
 
     it 'defines MAX_MESSAGE_LENGTH constant' do
       expect(described_class::MAX_MESSAGE_LENGTH).to eq(10_000)
+    end
+  end
+
+  describe 'captain trace events' do
+    let(:conversation) { create(:conversation, inbox: inbox, account: account, status: :pending) }
+    let(:mock_llm_chat_service) { instance_double(Captain::Llm::AssistantChatService) }
+
+    before do
+      create(:message, conversation: conversation, content: 'Hello', message_type: :incoming)
+      allow(Captain::Llm::AssistantChatService).to receive(:new).and_return(mock_llm_chat_service)
+      allow(account).to receive(:feature_enabled?).and_return(false)
+      allow(account).to receive(:feature_enabled?).with('captain_trace_events').and_return(true)
+      allow(account).to receive(:feature_enabled?).with('captain_integration_v2').and_return(false)
+    end
+
+    context 'when Captain generates a regular response' do
+      before do
+        allow(mock_llm_chat_service).to receive(:generate_response).and_return(
+          { 'response' => 'Yes, I can help with that', 'agent_name' => 'Assistant', 'reasoning' => 'because' }
+        )
+      end
+
+      it 'records run lifecycle events attached to the created outgoing message' do
+        expect do
+          described_class.perform_now(conversation, assistant)
+        end.to change(Captain::TraceEvent, :count).by_at_least(3)
+
+        outgoing = conversation.messages.outgoing.last
+        events = Captain::TraceEvent.for_conversation(conversation.id).ordered
+        types = events.pluck(:event_type)
+
+        expect(types).to include('run_started', 'outgoing_message', 'run_completed')
+        expect(events.where(source_message_id: outgoing.id)).to be_any
+      end
+    end
+
+    context 'when Captain triggers a handoff' do
+      before do
+        allow(mock_llm_chat_service).to receive(:generate_response).and_return(
+          { 'response' => 'conversation_handoff', 'reasoning' => 'escalate' }
+        )
+      end
+
+      it 'records a handoff event' do
+        described_class.perform_now(conversation, assistant)
+
+        types = Captain::TraceEvent.for_conversation(conversation.id).pluck(:event_type)
+        expect(types).to include('handoff')
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(account).to receive(:feature_enabled?).with('captain_trace_events').and_return(false)
+        allow(mock_llm_chat_service).to receive(:generate_response).and_return({ 'response' => 'Hi' })
+      end
+
+      it 'does not persist trace events' do
+        expect do
+          described_class.perform_now(conversation, assistant)
+        end.not_to change(Captain::TraceEvent, :count)
+      end
     end
   end
 

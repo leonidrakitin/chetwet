@@ -1,27 +1,36 @@
-class Captain::Conversation::ResponseBuilderJob < ApplicationJob
+class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disable Metrics/ClassLength
   MAX_MESSAGE_LENGTH = 10_000
   retry_on ActiveStorage::FileNotFoundError, attempts: 3, wait: 2.seconds
   retry_on Faraday::BadRequestError, attempts: 3, wait: 2.seconds
 
-  def perform(conversation, assistant)
+  def perform(conversation, assistant) # rubocop:disable Metrics/MethodLength
     @conversation = conversation
     @inbox = conversation.inbox
     @assistant = assistant
+    @trace_recorder = Captain::Trace::Recorder.new(conversation: conversation, assistant: assistant, source: 'response_builder_job')
+    @created_message = nil
 
     return unless conversation_pending?
 
     Current.executed_by = @assistant
+
+    @trace_recorder.record(:run_started, { v2: captain_v2_enabled? })
 
     if captain_v2_enabled?
       generate_response_with_v2
     else
       generate_and_process_response
     end
+
+    @trace_recorder.record(:run_completed, { response: truncate_for_trace(@response&.dig('response')) })
+    @trace_recorder.flush_to(source_message: @created_message)
   rescue ActiveStorage::FileNotFoundError, Faraday::BadRequestError => e
     handle_error(e)
+    flush_trace_on_error(e)
     raise e
   rescue StandardError => e
     handle_error(e)
+    flush_trace_on_error(e)
   ensure
     Current.executed_by = nil
   end
@@ -41,10 +50,29 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     message_history = collect_previous_messages
     detect_and_persist_language(message_history)
     message_history = build_message_history_for_v2(message_history)
-    @response = Captain::Assistant::AgentRunnerService.new(assistant: @assistant, conversation: @conversation).generate_response(
-      message_history: message_history
-    )
+    @response = Captain::Assistant::AgentRunnerService.new(
+      assistant: @assistant,
+      conversation: @conversation,
+      callbacks: trace_runner_callbacks
+    ).generate_response(message_history: message_history)
     process_response
+  end
+
+  def trace_runner_callbacks
+    return {} unless @trace_recorder.enabled?
+
+    recorder = @trace_recorder
+    {
+      on_tool_start: lambda { |tool_name, args, _ctx|
+        recorder.record(:tool_start, { tool: tool_name, args: args })
+      },
+      on_tool_complete: lambda { |tool_name, result, _ctx|
+        recorder.record(:tool_complete, { tool: tool_name, result: truncate_for_trace(result) })
+      },
+      on_agent_handoff: lambda { |from_agent, to_agent, reason, _ctx|
+        recorder.record(:agent_handoff, { from: from_agent, to: to_agent, reason: reason })
+      }
+    }
   end
 
   def build_message_history_for_v2(messages)
@@ -89,12 +117,11 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
   def process_response
     return unless conversation_pending?
-    # If a prior escalation created a pending ApprovalRequest,
-    # skip sending a message — the operator will respond via Telegram.
     return if pending_approval_request_exists?
     return if @response['response'].blank?
 
     if handoff_requested?
+      @trace_recorder.record(:handoff, { reasoning: truncate_for_trace(@response['reasoning']) })
       process_action('handoff')
     else
       ActiveRecord::Base.transaction do
@@ -102,6 +129,12 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
         Rails.logger.info("[CAPTAIN][ResponseBuilderJob] Incrementing response usage for #{account.id}")
         account.increment_response_usage
       end
+      @trace_recorder.record(:outgoing_message, {
+                               message_id: @created_message&.id,
+                               agent_name: @response['agent_name'],
+                               reasoning: truncate_for_trace(@response['reasoning']),
+                               content: truncate_for_trace(@response['response'])
+                             })
     end
   end
 
@@ -116,7 +149,6 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
         role: determine_role(message)
       }
 
-      # Include agent_name if present in additional_attributes
       message_hash[:agent_name] = message.additional_attributes['agent_name'] if message.additional_attributes&.dig('agent_name').present?
 
       message_hash
@@ -169,7 +201,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     additional_attrs = {}
     additional_attrs[:agent_name] = agent_name if agent_name.present?
 
-    @conversation.messages.create!(
+    @created_message = @conversation.messages.create!(
       message_type: :outgoing,
       account_id: account.id,
       inbox_id: inbox.id,
@@ -190,7 +222,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def pending_approval_request_exists?
-    Captain::ApprovalRequest.where(conversation_id: @conversation.id, status: :pending).exists?
+    Captain::ApprovalRequest.exists?(conversation_id: @conversation.id, status: :pending)
   end
 
   def captain_v2_enabled?
@@ -218,7 +250,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     detected
   end
 
-  def extract_text_from_content(content)
+  def extract_text_from_content(content) # rubocop:disable Metrics/CyclomaticComplexity
     return content.to_s if content.is_a?(String)
     return content[:response] || content['response'] || content.to_s if content.is_a?(Hash)
     return content.filter_map { |part| part[:text] || part['text'] }.join(' ') if content.is_a?(Array)
@@ -228,5 +260,21 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
 
   def runtime_state_service
     @runtime_state_service ||= Captain::RuntimeStateService.new(@conversation)
+  end
+
+  def flush_trace_on_error(error)
+    return unless @trace_recorder
+
+    @trace_recorder.record(:error, { class: error.class.name, message: error.message.to_s.truncate(500) })
+    @trace_recorder.flush_to(source_message: @created_message)
+  end
+
+  def truncate_for_trace(value)
+    case value
+    when nil then nil
+    when String then value.truncate(2_000)
+    when Hash, Array then value
+    else value.to_s.truncate(2_000)
+    end
   end
 end
