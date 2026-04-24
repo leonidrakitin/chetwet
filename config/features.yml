@@ -253,3 +253,7 @@
 - name: conversation_labels
   display_name: Conversation - Labels
   enabled: true
+- name: captain_trace_events
+  display_name: Captain Trace Events
+  enabled: false
+  chatwoot_internal: true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_23_203133) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_25_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -519,6 +519,24 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_23_203133) do
     t.index ["assistant_id", "enabled"], name: "index_captain_scenarios_on_assistant_id_and_enabled"
     t.index ["assistant_id"], name: "index_captain_scenarios_on_assistant_id"
     t.index ["enabled"], name: "index_captain_scenarios_on_enabled"
+  end
+
+  create_table "captain_trace_events", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "conversation_id", null: false
+    t.bigint "assistant_id"
+    t.string "session_id", null: false
+    t.bigint "source_message_id"
+    t.string "event_type", null: false
+    t.integer "sequence", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["account_id"], name: "index_captain_trace_events_on_account_id"
+    t.index ["assistant_id"], name: "index_captain_trace_events_on_assistant_id"
+    t.index ["conversation_id", "created_at"], name: "index_captain_trace_events_on_conversation_id_and_created_at"
+    t.index ["conversation_id"], name: "index_captain_trace_events_on_conversation_id"
+    t.index ["session_id", "sequence"], name: "index_captain_trace_events_on_session_id_and_sequence"
+    t.index ["source_message_id"], name: "index_captain_trace_events_on_source_message_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -1733,6 +1751,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_23_203133) do
   add_foreign_key "captain_approval_requests", "captain_assistants", column: "assistant_id"
   add_foreign_key "captain_approval_requests", "conversations"
   add_foreign_key "captain_approval_requests", "users", column: "resolved_by_id"
+  add_foreign_key "captain_trace_events", "accounts"
+  add_foreign_key "captain_trace_events", "conversations"
   add_foreign_key "channel_avito", "accounts"
   add_foreign_key "channel_max", "accounts"
   add_foreign_key "channel_telegram_personal", "accounts"
