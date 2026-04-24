@@ -9,7 +9,9 @@
       "TIME": "По времени",
       "INTERVAL": "Интервал",
       "CASCADE": "Доставка",
-      "STATISTICS": "Статистика"
+      "STATISTICS": "Статистика",
+      "MARKETING": "Marketing",
+      "SERVICE": "Service"
     },
     "EVENTS": {
       "CONVERSATION_CREATED": "При создании диалога",
@@ -45,7 +47,9 @@
       "TRIGGER": "Настройки триггера",
       "AUDIENCE": "Аудитория",
       "LIMITS": "Ограничения",
-      "YCLIENTS": "Фильтры Y-Clients"
+      "YCLIENTS": "Фильтры Y-Clients",
+      "BASICS": "Template details",
+      "BASICS_HINT": "Define the template name, type, and integration context."
     },
     "FORM": {
       "REQUIRED_INDICATOR": "*",
@@ -58,7 +62,9 @@
         "LABEL": "Описание",
         "PLACEHOLDER": "Необязательное описание"
       },
-      "TYPE": { "LABEL": "Тип" },
+      "TYPE": {
+        "LABEL": "Тип"
+      },
       "INBOX": {
         "LABEL": "Входящие",
         "PLACEHOLDER": "Выберите входящие"
@@ -68,14 +74,30 @@
         "PLACEHOLDER": "Салон не выбран",
         "OPTION": "Салон {salonId}"
       },
-      "TRIGGER_EVENT": { "LABEL": "Событие" },
-      "OFFSET_HOURS": { "LABEL": "Смещение (часы, минус = до)" },
-      "SEND_AT": { "LABEL": "Отправить в" },
-      "TIMEZONE": { "LABEL": "Часовой пояс" },
-      "REPEAT": { "LABEL": "Повтор" },
-      "REPEAT_UNTIL": { "LABEL": "Повторять до" },
-      "INTERVAL_DAYS": { "LABEL": "Каждые N дней" },
-      "SINCE": { "LABEL": "С момента" },
+      "TRIGGER_EVENT": {
+        "LABEL": "Событие"
+      },
+      "OFFSET_HOURS": {
+        "LABEL": "Смещение (часы, минус = до)"
+      },
+      "SEND_AT": {
+        "LABEL": "Отправить в"
+      },
+      "TIMEZONE": {
+        "LABEL": "Часовой пояс"
+      },
+      "REPEAT": {
+        "LABEL": "Повтор"
+      },
+      "REPEAT_UNTIL": {
+        "LABEL": "Повторять до"
+      },
+      "INTERVAL_DAYS": {
+        "LABEL": "Каждые N дней"
+      },
+      "SINCE": {
+        "LABEL": "С момента"
+      },
       "MIN_INTERVAL_HOURS": {
         "LABEL": "Минимальный интервал между отправками (часы)"
       },
@@ -89,16 +111,26 @@
       },
       "TAGS": {
         "LABEL": "Теги",
-        "PLACEHOLDER": "vip, реактивация"
+        "PLACEHOLDER": "vip, реактивация",
+        "SEARCH": "Search labels...",
+        "NO_LABELS": "No labels found"
       },
       "EXCLUDE_TAGS": {
         "LABEL": "Исключить теги",
         "PLACEHOLDER": "отписка, чёрный список"
       },
-      "QUIET_HOURS_FROM": { "LABEL": "Тихие часы с" },
-      "QUIET_HOURS_TO": { "LABEL": "Тихие часы до" },
-      "MAX_PER_DAY": { "LABEL": "Макс. в день на клиента" },
-      "STOP_IF_REPLIED": { "LABEL": "Остановить при ответе клиента" },
+      "QUIET_HOURS_FROM": {
+        "LABEL": "Тихие часы с"
+      },
+      "QUIET_HOURS_TO": {
+        "LABEL": "Тихие часы до"
+      },
+      "MAX_PER_DAY": {
+        "LABEL": "Макс. в день на клиента"
+      },
+      "STOP_IF_REPLIED": {
+        "LABEL": "Остановить при ответе клиента"
+      },
       "SKIP_IF_HAS_ACTIVE_DIALOG": {
         "LABEL": "Пропускать при активном диалоге"
       },
@@ -114,10 +146,23 @@
         "MOVE_DOWN_ARIA": "Переместить сообщение вниз",
         "REMOVE_MESSAGE_ARIA": "Удалить сообщение"
       },
-      "ENABLED": { "LABEL": "Включено" }
+      "ENABLED": {
+        "LABEL": "Включено"
+      },
+      "CANCEL": "Cancel",
+      "INBOX_FILTER": {
+        "LABEL": "Limit to inbox",
+        "PLACEHOLDER": "All inboxes",
+        "HINT": "Only conversations in this inbox will receive the message."
+      }
     },
-    "ADD": { "TITLE": "Новый шаблон" },
-    "EDIT": { "TITLE": "Редактировать шаблон", "BUTTON_TEXT": "Изменить" },
+    "ADD": {
+      "TITLE": "Новый шаблон"
+    },
+    "EDIT": {
+      "TITLE": "Редактировать шаблон",
+      "BUTTON_TEXT": "Изменить"
+    },
     "CLONE": {
       "BUTTON_TEXT": "Клонировать",
       "SUCCESS": "Шаблон успешно клонирован.",
@@ -166,7 +211,11 @@
       "SENT_COUNT_LINE": "Отправлено: {count}",
       "FAILED_WARNING_BADGE": "(!{count})",
       "SENT_TOTAL": "{sent} из {total}",
-      "UNKNOWN_TOTAL": "?"
+      "UNKNOWN_TOTAL": "?",
+      "ENABLED": "Включён",
+      "DISABLED": "Отключён",
+      "SHOW_MORE": "Показать ещё",
+      "SHOW_LESS": "Скрыть"
     },
     "STATISTICS": {
       "COMING_SOON": "Статистика будет доступна в следующем обновлении.",
@@ -268,7 +317,8 @@
       "TYPE_TEMPLATE": "Перейти к шаблону",
       "URL": "URL",
       "TEMPLATE": "Выберите шаблон...",
-      "MAX_REACHED": "Максимум 3 кнопки"
+      "MAX_REACHED": "Максимум 3 кнопки",
+      "CREATE_TEMPLATE": "Create template"
     },
     "CASCADE": {
       "TITLE": "Каскад доставки",
@@ -290,14 +340,16 @@
         "TITLE": "Сервисные уведомления",
         "BADGE": "Сервис",
         "DESCRIPTION": "Напоминания о записи, статусы, транзакционные сообщения"
-      }
+      },
+      "LOADING": "Loading cascade settings"
     },
     "COMMON": {
       "CANCEL": "Отмена"
     },
     "VIEW": {
       "GRID": "Сетка",
-      "FLOW": "Поток"
+      "FLOW": "Поток",
+      "CATEGORIES": "Категории"
     },
     "CATEGORIES": {
       "SYSTEM": {
@@ -353,6 +405,88 @@
         "DESCRIPTION": "Ваши собственные шаблоны",
         "EMPTY": "Пока нет собственных шаблонов. Создайте новый кнопкой выше."
       }
+    },
+    "QUICK_CREATE": {
+      "TITLE": "Quick template",
+      "DESCRIPTION": "Create a simple template and attach it to this button.",
+      "NAME_LABEL": "Template name",
+      "NAME_PLACEHOLDER": "Follow-up reminder",
+      "MESSAGE_LABEL": "Message text",
+      "MESSAGE_PLACEHOLDER": "Thanks for your visit! We will remind you about the next appointment.",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Create template",
+      "SUCCESS": "Template created. Select it to continue.",
+      "ERROR": "Could not create template."
+    },
+    "NOTIFICATIONS_SETTINGS": {
+      "TITLE": "Notifications",
+      "DESCRIPTION": "Global notification delivery settings",
+      "SAVE": "Save settings",
+      "SAVE_SUCCESS": "Notification settings saved.",
+      "SAVE_ERROR": "Could not save notification settings.",
+      "QUIET_HOURS": {
+        "TITLE": "Quiet hours",
+        "DESCRIPTION": "Time window when notifications will not be sent",
+        "FROM": "From",
+        "TO": "To"
+      },
+      "LIMITS": {
+        "TITLE": "Delivery limits",
+        "DESCRIPTION": "Account-wide restrictions applied to all notification templates",
+        "MAX_PER_DAY": {
+          "LABEL": "Max per day per contact",
+          "PLACEHOLDER": "No limit",
+          "HELP": "Maximum number of notifications a contact can receive per day"
+        },
+        "PER_CONTACT_GAP": {
+          "LABEL": "Minimum gap between messages (minutes)",
+          "PLACEHOLDER": "0",
+          "HELP": "Minimum time between two notifications to the same contact"
+        },
+        "STOP_IF_REPLIED": {
+          "LABEL": "Stop if contact replied",
+          "HELP": "Pause notifications if the contact sent a message recently"
+        },
+        "STOP_IF_REPLIED_RETRY_MINUTES": {
+          "LABEL": "Retry delay (minutes)",
+          "PLACEHOLDER": "15",
+          "HELP": "Time to wait after a reply before retrying"
+        },
+        "SKIP_IF_HAS_ACTIVE_DIALOG": {
+          "LABEL": "Skip if active conversation exists",
+          "HELP": "Do not send if there is an open conversation with the contact"
+        }
+      }
+    },
+    "DELIVERY_LIMITS": {
+      "TITLE": "Global delivery limits",
+      "DESCRIPTION": "Account-wide restrictions applied to all notification templates",
+      "MAX_PER_DAY": {
+        "LABEL": "Max per day per contact",
+        "PLACEHOLDER": "No limit",
+        "HELP": "Maximum number of notifications a contact can receive per day"
+      },
+      "PER_CONTACT_GAP": {
+        "LABEL": "Minimum gap between messages (minutes)",
+        "PLACEHOLDER": "0",
+        "HELP": "Minimum time between two notifications to the same contact"
+      },
+      "STOP_IF_REPLIED": {
+        "LABEL": "Stop if contact replied",
+        "HELP": "Pause notifications if the contact sent a message recently"
+      },
+      "STOP_IF_REPLIED_RETRY_MINUTES": {
+        "LABEL": "Retry delay (minutes)",
+        "PLACEHOLDER": "15",
+        "HELP": "Time to wait after a reply before retrying"
+      },
+      "SKIP_IF_HAS_ACTIVE_DIALOG": {
+        "LABEL": "Skip if active conversation exists",
+        "HELP": "Do not send if there is an open conversation with the contact"
+      },
+      "SAVE": "Save limits",
+      "SAVE_SUCCESS": "Delivery limits saved.",
+      "SAVE_ERROR": "Could not save delivery limits."
     }
   }
 }

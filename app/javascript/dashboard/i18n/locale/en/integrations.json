@@ -626,6 +626,22 @@
         "CREATE_SEGMENT": "Create Segment"
       }
     },
+    "TRACE": {
+      "TITLE": "Captain Trace",
+      "CLOSE": "Close",
+      "OUTGOING_MESSAGES": "Outgoing messages",
+      "ALL_EVENTS": "All events",
+      "NO_OUTGOING_MESSAGES": "No outgoing Captain messages yet.",
+      "NO_EVENTS": "No trace events recorded for this selection.",
+      "ERROR_LOADING": "Failed to load Captain trace events.",
+      "SECTIONS": {
+        "PROMPT": "Prompt",
+        "TOOLS": "Tools",
+        "KNOWLEDGE": "Knowledge",
+        "POLICY": "Policy",
+        "OUTCOME": "Outcome"
+      }
+    },
     "PLAYGROUND": {
       "USER": "You",
       "ASSISTANT": "Assistant",

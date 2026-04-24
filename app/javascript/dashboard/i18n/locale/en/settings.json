@@ -68,7 +68,8 @@
         "API_SUCCESS": "Signature saved successfully",
         "IMAGE_UPLOAD_ERROR": "Couldn't upload image! Try again",
         "IMAGE_UPLOAD_SUCCESS": "Image added successfully. Please click on save to save the signature",
-        "IMAGE_UPLOAD_SIZE_ERROR": "Image size should be less than {size}MB"
+        "IMAGE_UPLOAD_SIZE_ERROR": "Image size should be less than {size}MB",
+        "INLINE_IMAGE_WARNING": "Pasted inline images were removed. Please use the image upload button to add images to your signature."
       },
       "MESSAGE_SIGNATURE": {
         "LABEL": "Message Signature",
@@ -410,22 +411,22 @@
     "CAPTAIN_AI": "Captain",
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
     "NOTIFICATION_TEMPLATES": "Mailings & Notifications",
-    "NOTIFICATIONS": "Notifications",
     "NOTIFICATIONS_SETTINGS": "Notifications (Settings)",
     "MAILINGS": "Mailings",
     "MAILINGS_TEMPLATES": "Templates",
     "MAILINGS_STATISTICS": "Statistics",
     "NOTIFICATIONS_TEMPLATES": "Templates",
     "NOTIFICATIONS_STATISTICS": "Statistics",
-    "CAMPAIGNS": "Campaigns",
     "MAILINGS_ALL": "All",
     "MAILINGS_EVENT": "On Event",
     "MAILINGS_TIME": "By Time",
     "MAILINGS_INTERVAL": "Interval",
     "MAILINGS_ONE_TIME": "One-time",
     "MAILINGS_DELIVERY": "Delivery",
-    "MAILINGS_STATISTICS": "Statistics",
-    "SUGGESTIONS": "Suggestions"
+    "SUGGESTIONS": "Suggestions",
+    "COMPANIES": "Компании",
+    "ALL_COMPANIES": "Все компании",
+    "CAPTAIN_TOOLS": "Инструменты"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",
@@ -523,7 +524,15 @@
       "DOCUMENTS": "Documents",
       "RESPONSES": "Credits",
       "UPGRADE": "Captain is not available on the free plan, upgrade now to get access to assistants, copilot and more.",
-      "REFRESH_CREDITS": "Refresh"
+      "REFRESH_CREDITS": "Refresh",
+      "PLAYGROUND": {
+        "USER": "You",
+        "ASSISTANT": "Assistant",
+        "MESSAGE_PLACEHOLDER": "Type your message...",
+        "HEADER": "Playground",
+        "DESCRIPTION": "Use this playground to send messages to your assistant and check if it responds accurately, quickly, and in the tone you expect.",
+        "CREDIT_NOTE": "Messages sent here will count toward your Captain credits."
+      }
     },
     "ASSISTANTS": {
       "NO_ASSISTANTS_AVAILABLE": "No assistants available",

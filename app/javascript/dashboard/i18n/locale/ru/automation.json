@@ -43,13 +43,13 @@
       }
     },
     "LIST": {
+      "404": "Правила автоматизации не найдены",
       "TABLE_HEADER": {
         "NAME": "Название",
         "ACTIVE": "Активно",
         "CREATED_ON": "Дата создания",
         "ACTIONS": "Действия"
-      },
-      "404": "Правила автоматизации не найдены"
+      }
     },
     "DELETE": {
       "TITLE": "Удалить правило автоматизации",
@@ -99,7 +99,10 @@
       "TEAM_MESSAGE_INPUT_PLACEHOLDER": "Введите сообщение",
       "TEAM_DROPDOWN_PLACEHOLDER": "Выберите команды",
       "EMAIL_INPUT_PLACEHOLDER": "Введите адрес электронной почты",
-      "URL_INPUT_PLACEHOLDER": "Введите URL-адрес"
+      "URL_INPUT_PLACEHOLDER": "Введите URL-адрес",
+      "MESSAGE_LABEL": "Message",
+      "ADD_MESSAGE": "Add message",
+      "PREVIEW_LABEL": "Preview"
     },
     "TOGGLE": {
       "ACTIVATION_TITLE": "Включить правило автоматизации",

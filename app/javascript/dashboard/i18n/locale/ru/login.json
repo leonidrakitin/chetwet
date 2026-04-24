@@ -19,7 +19,10 @@
       "GOOGLE_LOGIN": "Войти с помощью Google",
       "BUSINESS_ACCOUNTS_ONLY": "Пожалуйста, используйте адрес электронной почты вашей компании для входа",
       "NO_ACCOUNT_FOUND": "Мы не смогли найти учетную запись для вашего адреса электронной почты.",
-      "VK_EMAIL_REQUIRED": "В вашем аккаунте VK отсутствует подтверждённый email. Добавьте email в профиль VK и попробуйте снова."
+      "VK_EMAIL_REQUIRED": "В вашем аккаунте VK отсутствует подтверждённый email. Добавьте email в профиль VK и попробуйте снова.",
+      "VK": "VK",
+      "VK_ID_LOGIN": "Continue with VK ID",
+      "YANDEX_LOGIN": "Continue with Yandex"
     },
     "FORGOT_PASSWORD": "Забыли пароль?",
     "CREATE_NEW_ACCOUNT": "Создать новый аккаунт",
@@ -37,6 +40,10 @@
       "API": {
         "ERROR_MESSAGE": "Ошибка аутентификации SSO. Пожалуйста, проверьте ваши учетные данные и повторите попытку."
       }
-    }
+    },
+    "SUBTITLE": "Welcome back! Choose a way to sign in.",
+    "NO_ACCOUNT": "Don't have an account?",
+    "SIGN_UP_LINK": "Sign up for free",
+    "EMAIL_SECTION_TITLE": "Or sign in with email"
   }
 }

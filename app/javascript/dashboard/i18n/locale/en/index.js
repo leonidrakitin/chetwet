@@ -94,4 +94,34 @@ export default {
   ...onboarding,
   ...suggestions,
   ...servicesMgmt,
+  CAPTAIN: {
+    ...(integrations.CAPTAIN || {}),
+    ...(signup.CAPTAIN || {}),
+    ASSISTANTS: {
+      ...((integrations.CAPTAIN && integrations.CAPTAIN.ASSISTANTS) || {}),
+      ...((signup.CAPTAIN && signup.CAPTAIN.ASSISTANTS) || {}),
+      TEMPLATES: {
+        ...((integrations.CAPTAIN &&
+          integrations.CAPTAIN.ASSISTANTS &&
+          integrations.CAPTAIN.ASSISTANTS.TEMPLATES) ||
+          {}),
+        ...((signup.CAPTAIN &&
+          signup.CAPTAIN.ASSISTANTS &&
+          signup.CAPTAIN.ASSISTANTS.TEMPLATES) ||
+          {}),
+        BUTTONS: {
+          ...((integrations.CAPTAIN &&
+            integrations.CAPTAIN.ASSISTANTS &&
+            integrations.CAPTAIN.ASSISTANTS.TEMPLATES &&
+            integrations.CAPTAIN.ASSISTANTS.TEMPLATES.BUTTONS) ||
+            {}),
+          ...((signup.CAPTAIN &&
+            signup.CAPTAIN.ASSISTANTS &&
+            signup.CAPTAIN.ASSISTANTS.TEMPLATES &&
+            signup.CAPTAIN.ASSISTANTS.TEMPLATES.BUTTONS) ||
+            {}),
+        },
+      },
+    },
+  },
 };

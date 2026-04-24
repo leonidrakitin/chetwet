@@ -18,6 +18,10 @@
 #available at https://guides.rubyonrails.org/i18n.html.
 ru:
   hello: 'Привет мир'
+  activerecord:
+    errors:
+      messages:
+        record_invalid: 'Ошибка валидации: %{errors}'
   inbox:
     reauthorization:
       success: 'Канал успешно повторно авторизирован'

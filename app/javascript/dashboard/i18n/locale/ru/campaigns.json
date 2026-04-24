@@ -99,6 +99,14 @@
         "REPLY_RATE": "Доля ответов",
         "LAST_SENT": "Последняя отправка"
       }
+    },
+    "CARD": {
+      "STATUS_SCHEDULED": "Scheduled",
+      "STATUS_IN_PROGRESS": "In Progress",
+      "STATUS_COMPLETED": "Completed",
+      "SENT_OF_TOTAL": "{sent} of {total}",
+      "FAILED_COUNT": "{count} failed",
+      "PROGRESS_PERCENT": "{percent}%"
     }
   }
 }

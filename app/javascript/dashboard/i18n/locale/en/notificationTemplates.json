@@ -7,7 +7,11 @@
       "ALL": "All",
       "MARKETING": "Marketing",
       "SERVICE": "Service",
-      "STATISTICS": "Statistics"
+      "STATISTICS": "Statistics",
+      "EVENT": "По событию",
+      "TIME": "По времени",
+      "INTERVAL": "Интервал",
+      "CASCADE": "Доставка"
     },
     "EVENTS": {
       "CONVERSATION_CREATED": "On conversation creation",
@@ -75,7 +79,9 @@
         "LABEL": "Description",
         "PLACEHOLDER": "Optional description"
       },
-      "TYPE": { "LABEL": "Type" },
+      "TYPE": {
+        "LABEL": "Type"
+      },
       "INBOX": {
         "LABEL": "Inbox",
         "PLACEHOLDER": "Select inbox"
@@ -90,14 +96,30 @@
         "PLACEHOLDER": "No salon selected",
         "OPTION": "Salon {salonId}"
       },
-      "TRIGGER_EVENT": { "LABEL": "Trigger Event" },
-      "OFFSET_HOURS": { "LABEL": "Offset (hours, negative = before)" },
-      "SEND_AT": { "LABEL": "Send at" },
-      "TIMEZONE": { "LABEL": "Timezone" },
-      "REPEAT": { "LABEL": "Repeat" },
-      "REPEAT_UNTIL": { "LABEL": "Repeat until" },
-      "INTERVAL_DAYS": { "LABEL": "Every N days" },
-      "SINCE": { "LABEL": "Since" },
+      "TRIGGER_EVENT": {
+        "LABEL": "Trigger Event"
+      },
+      "OFFSET_HOURS": {
+        "LABEL": "Offset (hours, negative = before)"
+      },
+      "SEND_AT": {
+        "LABEL": "Send at"
+      },
+      "TIMEZONE": {
+        "LABEL": "Timezone"
+      },
+      "REPEAT": {
+        "LABEL": "Repeat"
+      },
+      "REPEAT_UNTIL": {
+        "LABEL": "Repeat until"
+      },
+      "INTERVAL_DAYS": {
+        "LABEL": "Every N days"
+      },
+      "SINCE": {
+        "LABEL": "Since"
+      },
       "MIN_INTERVAL_HOURS": {
         "LABEL": "Minimum interval between sends (hours)"
       },
@@ -119,11 +141,21 @@
         "LABEL": "Exclude tags",
         "PLACEHOLDER": "Select tags to exclude..."
       },
-      "QUIET_HOURS_FROM": { "LABEL": "Quiet hours from" },
-      "QUIET_HOURS_TO": { "LABEL": "Quiet hours to" },
-      "MAX_PER_DAY": { "LABEL": "Max per day per client" },
-      "STOP_IF_REPLIED": { "LABEL": "Stop if client replied" },
-      "SKIP_IF_HAS_ACTIVE_DIALOG": { "LABEL": "Skip if active dialog exists" },
+      "QUIET_HOURS_FROM": {
+        "LABEL": "Quiet hours from"
+      },
+      "QUIET_HOURS_TO": {
+        "LABEL": "Quiet hours to"
+      },
+      "MAX_PER_DAY": {
+        "LABEL": "Max per day per client"
+      },
+      "STOP_IF_REPLIED": {
+        "LABEL": "Stop if client replied"
+      },
+      "SKIP_IF_HAS_ACTIVE_DIALOG": {
+        "LABEL": "Skip if active dialog exists"
+      },
       "REQUIRE_MAILING_CONSENT": {
         "LABEL": "Require mailing consent",
         "HINT": "Only send to clients who consented to advertising mailings in YCLIENTS"
@@ -136,10 +168,17 @@
         "MOVE_DOWN_ARIA": "Move message down",
         "REMOVE_MESSAGE_ARIA": "Remove message"
       },
-      "ENABLED": { "LABEL": "Enabled" }
+      "ENABLED": {
+        "LABEL": "Enabled"
+      }
     },
-    "ADD": { "TITLE": "New Template" },
-    "EDIT": { "TITLE": "Edit Template", "BUTTON_TEXT": "Edit" },
+    "ADD": {
+      "TITLE": "New Template"
+    },
+    "EDIT": {
+      "TITLE": "Edit Template",
+      "BUTTON_TEXT": "Edit"
+    },
     "CLONE": {
       "BUTTON_TEXT": "Clone",
       "SUCCESS": "Template cloned successfully.",
@@ -169,9 +208,13 @@
     "LAST_SENT": "Last sent",
     "LAST_SENT_LINE": "Last sent: {datetime}",
     "CARD": {
-      "SENT_COUNT_LINE": "Sent: {count}",
+      "ENABLED": "Включён",
+      "DISABLED": "Отключён",
+      "SHOW_MORE": "Показать ещё",
+      "SHOW_LESS": "Скрыть",
+      "SENT_COUNT_LINE": "Отправлено: {count}",
       "FAILED_WARNING_BADGE": "(!{count})",
-      "SENT_TOTAL": "{sent} / {total}",
+      "SENT_TOTAL": "{sent} из {total}",
       "UNKNOWN_TOTAL": "?"
     },
     "STATISTICS": {
@@ -389,12 +432,6 @@
       "CATEGORIES": "Категории",
       "GRID": "Список",
       "FLOW": "Схема"
-    },
-    "CARD": {
-      "ENABLED": "Включён",
-      "DISABLED": "Отключён",
-      "SHOW_MORE": "Показать ещё",
-      "SHOW_LESS": "Скрыть"
     },
     "CATEGORIES": {
       "SYSTEM": {

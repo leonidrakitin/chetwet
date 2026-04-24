@@ -56,7 +56,8 @@
       "CONTACT_LABELS": "Ярлыки контактов",
       "PREVIOUS_CONVERSATIONS": "Предыдущие диалоги",
       "NO_RECORDS_FOUND": "Атрибуты не найдены"
-    }
+    },
+    "CLICK_TO_EDIT": "Click to edit"
   },
   "EDIT_CONTACT": {
     "BUTTON_LABEL": "Изменить контакт",

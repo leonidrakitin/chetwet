@@ -1,8 +1,8 @@
 {
   "CONVERSATION": {
+    "404": "Мы не можем найти диалог. Пожалуйста, попробуйте еще раз",
     "SELECT_A_CONVERSATION": "Пожалуйста, выберите диалог из левой панели",
     "CSAT_REPLY_MESSAGE": "Пожалуйста, оцените диалог",
-    "404": "Мы не можем найти диалог. Пожалуйста, попробуйте еще раз",
     "SWITCH_VIEW_LAYOUT": "Переключить вид",
     "DASHBOARD_APP_TAB_MESSAGES": "Сообщения",
     "UNVERIFIED_SESSION": "Подлинность этого пользователя не подтверждена",
@@ -103,7 +103,8 @@
         "MISSED": "пропущенный",
         "DUE": "до"
       },
-      "DEBUG_LOGS": "Отладочные логи"
+      "DEBUG_LOGS": "Отладочные логи",
+      "HAND_BACK_TO_CAPTAIN": "Hand back to Captain"
     },
     "RESOLVE_DROPDOWN": {
       "MARK_PENDING": "Отметить как ожидающие",
@@ -298,7 +299,17 @@
       "REJECT_CALL": "Отклонить",
       "JOIN_CALL": "Присоединиться к звонку",
       "END_CALL": "Завершить звонок"
-    }
+    },
+    "VIEW_PRODUCT": "View product",
+    "APPROVAL_DRAFT": {
+      "INSERT": "Suggest reply",
+      "CONFIRM": "Send & resolve",
+      "SUGGEST_OWN": "Write your own",
+      "SELECTED_OPTION": "Selected option:",
+      "EDIT_IN_REPLY_BOX": "Edit and send your reply in the input box below",
+      "RESOLUTION_FAILED": "Failed to resolve approval request. Please try again."
+    },
+    "HAND_BACK_TO_CAPTAIN_SUCCESS": "Conversation handed back to Captain"
   },
   "EMAIL_TRANSCRIPT": {
     "TITLE": "Отправить субтитры разговора",
@@ -363,7 +374,9 @@
       "PREVIOUS_CONVERSATION": "Предыдущие диалоги",
       "MACROS": "Макросс",
       "LINEAR_ISSUES": "Связанные проблемы",
-      "SHOPIFY_ORDERS": "Shopify Orders"
+      "SHOPIFY_ORDERS": "Shopify Orders",
+      "YCLIENTS_APPOINTMENTS": "YClients Appointments",
+      "SERVICE_BOOKINGS": "Service Bookings"
     },
     "SHOPIFY": {
       "ORDER_ID": "Order #{id}",
@@ -383,6 +396,26 @@
         "PARTIALLY_FULFILLED": "Partially Fulfilled",
         "UNFULFILLED": "Unfulfilled"
       }
+    },
+    "YCLIENTS": {
+      "NO_APPOINTMENTS": "No appointments found",
+      "ERROR": "Error loading appointments",
+      "NOT_CONNECTED": "YClients is not connected for this account yet.",
+      "CONNECT_CTA": "Connect YClients",
+      "REFRESH": "Refresh",
+      "APPOINTMENTS_SECTION": "Appointments",
+      "TRANSACTIONS_SECTION": "Transactions",
+      "NO_SERVICE": "No service",
+      "PAYMENT": "Payment",
+      "COMPANY": "Salon #{id}",
+      "DISCOUNT": "Discount: {amount}",
+      "STATUS_VISITED": "Visited",
+      "STATUS_CONFIRMED": "Confirmed",
+      "STATUS_CANCELLED": "Cancelled",
+      "STATUS_PENDING": "Pending",
+      "UPDATE_STATUS": "Update status",
+      "STATUS_UPDATED": "Status updated",
+      "STATUS_UPDATE_ERROR": "Failed to update status"
     }
   },
   "CONVERSATION_CUSTOM_ATTRIBUTES": {

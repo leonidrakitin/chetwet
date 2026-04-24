@@ -4,7 +4,8 @@
       "TITLE": "Общение с клиентами — проще простого",
       "SUBTITLE": "Общайтесь с клиентами по всем каналам из одной платформы.",
       "CTA_SIGNUP": "Начать бесплатно",
-      "CTA_LOGIN": "Войти"
+      "CTA_LOGIN": "Войти",
+      "TITLE_ACCENT": "simplified"
     },
     "FEATURES": {
       "TITLE": "Всё необходимое для работы с клиентами",
@@ -23,10 +24,52 @@
       "ANALYTICS": {
         "TITLE": "Отчёты и аналитика",
         "DESCRIPTION": "Отслеживайте эффективность команды, время ответа и удовлетворённость клиентов в реальном времени."
+      },
+      "SUBTITLE": "Powerful tools to manage every customer interaction",
+      "TEMPLATES": {
+        "TITLE": "Notification templates",
+        "DESCRIPTION": "Visual drag-and-drop builder for notification workflows with variables, attachments, and smart buttons."
+      },
+      "TELEGRAM": {
+        "TITLE": "Telegram Personal",
+        "DESCRIPTION": "Connect personal Telegram accounts to manage client conversations directly from the platform."
+      },
+      "YCLIENTS": {
+        "TITLE": "YClients integration",
+        "DESCRIPTION": "Sync appointments, client data, and booking notifications seamlessly with YClients CRM."
       }
     },
     "FOOTER": {
       "POWERED_BY": "На платформе %{installationName}"
+    },
+    "STATS": {
+      "CHANNELS": "10+",
+      "CHANNELS_DESC": "Channels connected",
+      "AUTOMATIONS": "Unlimited",
+      "AUTOMATIONS_DESC": "Automation rules",
+      "UPTIME": "99.9%",
+      "UPTIME_DESC": "Platform uptime"
+    },
+    "HOW_IT_WORKS": {
+      "TITLE": "Get started in minutes",
+      "SUBTITLE": "Three simple steps to transform your customer support",
+      "STEP_1": {
+        "TITLE": "Connect your channels",
+        "DESCRIPTION": "Link your email, Telegram, WhatsApp, and social accounts in just a few clicks."
+      },
+      "STEP_2": {
+        "TITLE": "Set up workflows",
+        "DESCRIPTION": "Create automation rules, notification templates, and team routing to work smarter."
+      },
+      "STEP_3": {
+        "TITLE": "Delight customers",
+        "DESCRIPTION": "Respond faster, resolve issues efficiently, and build lasting relationships."
+      }
+    },
+    "CTA": {
+      "TITLE": "Ready to transform your customer support?",
+      "SUBTITLE": "Start for free. No credit card required.",
+      "BUTTON": "Get started now"
     }
   }
 }

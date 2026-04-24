@@ -209,6 +209,11 @@
         "SUCCESS_MESSAGE": "Кампания успешно удалена",
         "ERROR_MESSAGE": "Произошла ошибка. Пожалуйста, попробуйте еще раз."
       }
+    },
+    "FORM_MESSAGES": {
+      "MESSAGE_LABEL": "Message",
+      "ADD_MESSAGE": "Add message",
+      "PREVIEW_LABEL": "Preview"
     }
   }
 }

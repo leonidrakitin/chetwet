@@ -41,6 +41,10 @@
       "ANALYTICS": {
         "TITLE": "Reports & analytics",
         "DESCRIPTION": "Track team performance, response times, and customer satisfaction with real-time dashboards."
+      },
+      "COLLABORATION": {
+        "TITLE": "Командная работа",
+        "DESCRIPTION": "Назначайте диалоги, оставляйте личные заметки и решайте задачи быстрее вместе."
       }
     },
     "HOW_IT_WORKS": {

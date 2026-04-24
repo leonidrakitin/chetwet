@@ -239,7 +239,9 @@
           "WHATSAPP_CLOUD": "WhatsApp Cloud",
           "WHATSAPP_CLOUD_DESC": "Быстрая настройка через Meta",
           "TWILIO_DESC": "Подключиться через Twilio",
-          "360_DIALOG": "360Dialog"
+          "360_DIALOG": "360Dialog",
+          "EVOLUTION_API": "Evolution API",
+          "EVOLUTION_API_DESC": "Self-hosted WhatsApp via Evolution API"
         },
         "SELECT_PROVIDER": {
           "TITLE": "Выберите провайдера API",
@@ -313,6 +315,16 @@
         },
         "API": {
           "ERROR_MESSAGE": "Не удалось сохранить канал WhatsApp"
+        },
+        "EVOLUTION_API_URL": {
+          "LABEL": "API URL",
+          "PLACEHOLDER": "Enter your Evolution API URL (e.g. https://evo.example.com)",
+          "ERROR": "Please enter a valid URL"
+        },
+        "EVOLUTION_INSTANCE_NAME": {
+          "LABEL": "Instance Name",
+          "PLACEHOLDER": "Enter the Evolution API instance name",
+          "ERROR": "This field is required"
         }
       },
       "VOICE": {
@@ -437,7 +449,29 @@
         "SUBMIT_BUTTON": "Создать канал Telegram",
         "API": {
           "ERROR_MESSAGE": "Не удалось добавить канал Телеграм"
-        }
+        },
+        "HAS_BOT": {
+          "QUESTION_TITLE": "Do you already have a Telegram bot?",
+          "YES": "I already have a bot",
+          "YES_DESC": "Show me where to find my bot token",
+          "NO": "I don't have a bot yet",
+          "NO_DESC": "Show me how to create a new bot"
+        },
+        "STEPS": {
+          "TITLE": "How to create a Telegram bot and get a token",
+          "STEP_1": "Open Telegram on any device.",
+          "STEP_2": "Search for <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">{atSign}BotFather</a> and start a conversation (tap <strong>Start</strong>).",
+          "STEP_3": "Send the command <strong>/newbot</strong>.",
+          "STEP_4": "Follow the prompts: choose a bot name and username (the username must end with <code>bot</code>).",
+          "STEP_5": "Copy the token that {atSign}BotFather sends you and paste it below."
+        },
+        "STEPS_HAS_BOT": {
+          "TITLE": "How to find your existing bot token",
+          "STEP_1": "Open Telegram and start a conversation with <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">{atSign}BotFather</a>.",
+          "STEP_2": "Send <strong>/mybots</strong> and choose your bot from the list.",
+          "STEP_3": "Tap <strong>API Token</strong> — copy it and paste below."
+        },
+        "DIRECT_LINK": "Direct link: <a href=\"https://t.me/BotFather\" target=\"_blank\" rel=\"noopener noreferrer\">t.me/BotFather</a>"
       },
       "TELEGRAM_PERSONAL": {
         "TITLE": "Личный входящий Telegram",
@@ -480,6 +514,16 @@
         },
         "API": {
           "ERROR_MESSAGE": "Не удалось подключить личный аккаунт Telegram"
+        },
+        "STEPS": {
+          "PHONE_TITLE": "Connect Telegram",
+          "PHONE_SUBTITLE": "Enter your phone number to link your personal Telegram account.",
+          "CODE_TITLE": "Verify your identity",
+          "CODE_SUBTITLE": "We sent a verification code to your Telegram app. Enter it below.",
+          "PASSWORD_TITLE": "Two-factor authentication",
+          "PASSWORD_SUBTITLE": "Your account has 2FA enabled. Enter your cloud password to continue.",
+          "READY_TITLE": "You're all set!",
+          "READY_SUBTITLE": "Your Telegram personal inbox is connected and ready."
         }
       },
       "AUTH": {
@@ -535,6 +579,18 @@
           "VOICE": {
             "TITLE": "Голосовая связь",
             "DESCRIPTION": "Интегрировать Twilio Voice"
+          },
+          "VK": {
+            "TITLE": "VK",
+            "DESCRIPTION": "Integrate VK community for customer support"
+          },
+          "MAX": {
+            "TITLE": "MAX",
+            "DESCRIPTION": "Connect MAX messenger bot for customer support"
+          },
+          "AVITO": {
+            "TITLE": "Avito",
+            "DESCRIPTION": "Support customers from Avito classifieds"
           }
         }
       },
@@ -569,6 +625,131 @@
         "SIGN_IN": "Войти с помощью Google",
         "EMAIL_PLACEHOLDER": "Введите адрес электронной почты",
         "ERROR_MESSAGE": "Произошла ошибка при подключении к Google, пожалуйста, попробуйте еще раз"
+      },
+      "AVITO_CHANNEL": {
+        "TITLE": "Avito Channel",
+        "DESC": "Integrate with Avito Messenger to support your customers directly from classifieds conversations.",
+        "NAME": {
+          "LABEL": "Inbox name",
+          "PLACEHOLDER": "e.g. Avito Support"
+        },
+        "CLIENT_ID": {
+          "LABEL": "Client ID",
+          "SUBTITLE": "OAuth Client ID from Avito Developer Portal (developers.avito.ru).",
+          "PLACEHOLDER": "Client ID"
+        },
+        "CLIENT_SECRET": {
+          "LABEL": "Client Secret",
+          "SUBTITLE": "OAuth Client Secret from Avito Developer Portal.",
+          "PLACEHOLDER": "Client Secret"
+        },
+        "SUBMIT_BUTTON": "Create Avito Channel",
+        "API": {
+          "ERROR_MESSAGE": "We were not able to save the Avito channel"
+        }
+      },
+      "MAX_CHANNEL": {
+        "TITLE": "MAX Messenger",
+        "DESC": "Connect your MAX Messenger bot to receive and reply to messages directly from Chatwoot.",
+        "HAS_BOT": {
+          "QUESTION_TITLE": "Do you already have a MAX bot?",
+          "YES": "I already have a bot",
+          "YES_DESC": "Show me where to find my bot token",
+          "NO": "I don't have a bot yet",
+          "NO_DESC": "Show me how to create a new bot"
+        },
+        "STEPS": {
+          "TITLE": "How to create a MAX bot and get a token",
+          "STEP_1": "Open <a href=\"https://max.ru\" target=\"_blank\" rel=\"noopener noreferrer\">MAX Messenger</a> on any device.",
+          "STEP_2": "Find <strong>{atSign}MasterBot</strong> and start a conversation with it.",
+          "STEP_3": "Send <strong>/newbot</strong>, follow the prompts to set a name and username for your bot.",
+          "STEP_4": "Copy the token that {atSign}MasterBot sends you and paste it below."
+        },
+        "STEPS_HAS_BOT": {
+          "TITLE": "How to find your existing bot token",
+          "STEP_1": "Open MAX Messenger and start a conversation with <strong>{atSign}MasterBot</strong>.",
+          "STEP_2": "Send <strong>/mybots</strong> and choose your bot from the list.",
+          "STEP_3": "Copy the token shown and paste it below."
+        },
+        "BOT_TOKEN": {
+          "LABEL": "Bot Token",
+          "SUBTITLE": "The token is provided by {atSign}MasterBot after creating a new bot.",
+          "PLACEHOLDER": "Paste your bot token here"
+        },
+        "SUBMIT_BUTTON": "Connect MAX Bot",
+        "API": {
+          "ERROR_MESSAGE": "Could not connect to MAX. Please check the bot token and try again."
+        }
+      },
+      "VK_CHANNEL": {
+        "TITLE": "VK Channel",
+        "DESC": "Integrate with VK (VKontakte) community and start supporting your customers.",
+        "HAS_GROUP": {
+          "QUESTION_TITLE": "Do you already have a VK community (group)?",
+          "YES": "I already have a group",
+          "YES_DESC": "Show me how to get the token for my existing group",
+          "NO": "I don’t have a group yet",
+          "NO_DESC": "Show me how to create a VK community first"
+        },
+        "CREATE_GROUP": {
+          "TITLE": "How to create a VK community",
+          "STEP_1": "Go to <a href=\"https://vk.com/groups?act=create\" target=\"_blank\" rel=\"noopener noreferrer\">vk.com/groups?act=create</a>.",
+          "STEP_2": "Choose community type: <strong>Business</strong> or <strong>Community</strong>.",
+          "STEP_3": "Fill in the name, then click <strong>Create community</strong>.",
+          "STEP_4": "Once the group is ready, connect it using the button below."
+        },
+        "MANUAL_SETUP": {
+          "TITLE": "How to get your VK community access token",
+          "INTRO": "VK bots work on behalf of a community.",
+          "STEP_1": "Go to vk.com and create a community (group) if you don’t have one yet.",
+          "STEP_2": "Open your community → tap <strong>Management</strong> in the right menu.",
+          "STEP_3": "Under <strong>Messages</strong>, enable incoming messages.",
+          "STEP_4": "In management, open <strong>API work</strong> (it may be under <strong>Additional</strong>).",
+          "STEP_5": "Go to the <strong>Access keys</strong> tab → click <strong>Create key</strong>.",
+          "STEP_6": "Select the permissions you need (at minimum <strong>Messages</strong> and <strong>Manage community</strong>).",
+          "STEP_7": "Copy the access token and paste it below.",
+          "LINKS": "<a href=\"https://dev.vk.com/ru/bots_docs\" target=\"_blank\" rel=\"noopener noreferrer\">VK bots documentation</a> · <a href=\"https://dev.vk.com/api/bots/getting-started\" target=\"_blank\" rel=\"noopener noreferrer\">Bots quick start</a>"
+        },
+        "CONNECT_TITLE": "Connect your VK community",
+        "CONNECT_HELP": "Authorize with your VK account to select a community for receiving messages.",
+        "CONNECT_BUTTON": "Connect VKontakte",
+        "LOADING_GROUPS": "Loading your communities...",
+        "NO_GROUPS": "No communities found where you are an administrator.",
+        "MEMBERS": "{count} members",
+        "ACTIVATE": "Connect",
+        "RETRY": "Try again",
+        "GROUP_ID": {
+          "LABEL": "Group ID",
+          "SUBTITLE": "Numeric ID from your group URL (e.g. vk.com/club123456789 → 123456789). With or without minus.",
+          "PLACEHOLDER": "123456789"
+        },
+        "ACCESS_TOKEN": {
+          "LABEL": "Access Token",
+          "SUBTITLE": "Community access token from VK: Manage → API usage → Access token. Needs 'Manage community' permission.",
+          "PLACEHOLDER": "Access Token"
+        },
+        "SECRET": {
+          "LABEL": "Secret (Confirmation string)",
+          "SUBTITLE": "String from Callback API settings. Required for webhook confirmation.",
+          "PLACEHOLDER": "Optional"
+        },
+        "SUBMIT_BUTTON": "Create VK Channel",
+        "API": {
+          "ERROR_MESSAGE": "We were not able to save the VK channel"
+        }
+      },
+      "IMAP_PROVIDER": {
+        "TITLE": "{provider} email channel",
+        "DESC": "Connect your {provider} email account using IMAP/SMTP.",
+        "PASSWORD": {
+          "LABEL": "Password",
+          "PLACEHOLDER": "Enter your app password",
+          "SUBTITLE": "Use an app password instead of your regular password. Generate one in your email provider's security settings."
+        },
+        "SUBMIT_BUTTON": "Create {provider} channel",
+        "API": {
+          "ERROR_MESSAGE": "Could not create the email channel. Please verify your credentials."
+        }
       }
     },
     "DETAILS": {
@@ -1177,6 +1358,18 @@
       "OTHER_PROVIDERS": {
         "TITLE": "Другие провайдеры",
         "DESCRIPTION": "Подключить других провайдеров"
+      },
+      "MAILRU": {
+        "TITLE": "Mail.ru",
+        "DESCRIPTION": "Connect with Mail.ru"
+      },
+      "YANDEX": {
+        "TITLE": "Yandex",
+        "DESCRIPTION": "Connect with Yandex Mail"
+      },
+      "RAMBLER": {
+        "TITLE": "Rambler",
+        "DESCRIPTION": "Connect with Rambler Mail"
       }
     },
     "CHANNELS": {
@@ -1193,7 +1386,9 @@
       "API": "Источник API",
       "INSTAGRAM": "Instagram",
       "TIKTOK": "TikTok",
-      "VOICE": "Голосовая связь"
+      "VOICE": "Голосовая связь",
+      "VK": "VK",
+      "AVITO": "Avito"
     }
   }
 }

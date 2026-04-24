@@ -108,6 +108,9 @@
       },
       "embed": {
         "CONTENT": "Встроенный контент"
+      },
+      "market": {
+        "CONTENT": "Product"
       }
     },
     "CHAT_SORT_BY_FILTER": {

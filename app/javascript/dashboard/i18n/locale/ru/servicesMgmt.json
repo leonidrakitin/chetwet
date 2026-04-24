@@ -209,19 +209,19 @@
       "DELETE_CONFIRM": "Удалить эту запись? Это действие нельзя отменить.",
       "DELETE_SUCCESS": "Запись удалена",
       "MIN": "мин",
+      "PLANNED_DURATION": "Планируемая длительность",
       "CANCEL": "Отмена",
       "SAVE": "Сохранить",
       "CREATE_SUCCESS": "Запись создана",
       "UPDATE_SUCCESS": "Запись сохранена",
-      "ERROR": "Не удалось сохранить запись"
-    },
-    "STATUS": {
-      "PENDING": "Ожидает",
-      "CONFIRMED": "Подтверждена",
-      "COMPLETED": "Завершена",
-      "CANCELLED": "Отменена",
-      "ARRIVED": "Пришёл",
-      "NO_SHOW": "Неявка"
+      "ERROR": "Не удалось сохранить запись",
+      "SEARCH_CONTACT_EMPTY": "No contacts found",
+      "SEARCH_CONTACT_EMPTY_HINT": "Try a different spelling or phone format",
+      "SEARCH_CONTACT_LOADING": "Searching…",
+      "SEARCH_CONTACT_COUNT": "Found: {count}",
+      "SEARCH_CONTACT_KBD_NAV": "Navigate with arrow keys",
+      "SEARCH_CONTACT_KBD_PICK": "Press Enter to select",
+      "CLEAR_CONTACT": "Clear selected contact"
     },
     "BULK": {
       "SELECT_ALL": "Выбрать все",
@@ -254,6 +254,10 @@
       "DURATION": "Длительность",
       "BOOKINGS": "Записи",
       "REVENUE": "Выручка"
+    },
+    "HIDDEN_PROVIDERS": {
+      "TOOLTIP": "{count} providers not visible — click to jump",
+      "EMPTY": "All providers visible"
     }
   },
   "BOOKINGS": {

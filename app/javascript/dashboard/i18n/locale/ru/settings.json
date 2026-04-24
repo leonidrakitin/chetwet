@@ -162,7 +162,8 @@
           "SLA_MISSED_NEXT_RESPONSE": "Диалог не соответствует SLA по следующему ответу",
           "SLA_MISSED_RESOLUTION": "Диалог не соответствует SLA по разрешению"
         },
-        "BROWSER_PERMISSION": "Включите push-уведомления для вашего браузера, чтобы вы могли их получать"
+        "BROWSER_PERMISSION": "Включите push-уведомления для вашего браузера, чтобы вы могли их получать",
+        "TELEGRAM": "Telegram"
       },
       "API": {
         "UPDATE_SUCCESS": "Настройки уведомлений сохранены",
@@ -225,6 +226,25 @@
         "LABEL": "Подтвердите новый пароль",
         "ERROR": "Подтверждение пароля должно соответствовать паролю",
         "PLACEHOLDER": "Пожалуйста, введите новый пароль еще раз"
+      },
+      "TELEGRAM_NOTIFICATIONS_SECTION": {
+        "TITLE": "Telegram Notifications",
+        "NOTE": "Connect your Telegram below to receive notifications"
+      },
+      "TELEGRAM_CONNECT": {
+        "TITLE": "Telegram Notifications",
+        "DESCRIPTION": "Connect your Telegram account to receive notifications directly in Telegram.",
+        "DESCRIPTION_NEW": "Click the button below to connect your Telegram account. You will be redirected to our bot where you can share your phone number to verify.",
+        "CONNECT": "Connect Telegram",
+        "OPEN_TELEGRAM": "Open Telegram",
+        "LINK_HINT": "Click the button to open the bot in Telegram, then share your phone number to complete the connection.",
+        "WAITING": "Waiting for confirmation from Telegram...",
+        "CONNECTED": "Your Telegram account is connected. You will receive notifications here.",
+        "DISCONNECT": "Disconnect Telegram",
+        "DISCONNECTED": "Telegram disconnected successfully",
+        "DISCONNECT_ERROR": "Failed to disconnect Telegram",
+        "UPDATE_SUCCESS": "Telegram connected successfully!",
+        "LINK_ERROR": "Failed to generate Telegram link. Make sure the Approval Bot is configured."
       }
     }
   },
@@ -382,7 +402,31 @@
     "DOCS": "Открыть документацию",
     "SECURITY": "Безопасность",
     "CAPTAIN_AI": "Капитан",
-    "CONVERSATION_WORKFLOW": "Conversation Workflow"
+    "CONVERSATION_WORKFLOW": "Conversation Workflow",
+    "CAPTAIN_KNOWLEDGE": "Knowledge",
+    "CAPTAIN_INSIGHTS": "Insights",
+    "CAPTAIN_MIGRATIONS": "Historical data migration",
+    "AGENT_ACTIVITY": "Agent Activity",
+    "SERVICES": "Services",
+    "SCHEDULE": "Schedule",
+    "SCHEDULE_CALENDAR": "Schedules",
+    "SCHEDULE_PROVIDERS": "Providers",
+    "SCHEDULE_SERVICES": "Services",
+    "REPORTS_SEGMENTS": "Segments",
+    "NOTIFICATION_TEMPLATES": "Mailings & Notifications",
+    "NOTIFICATIONS_SETTINGS": "Notifications (Settings)",
+    "MAILINGS": "Mailings",
+    "MAILINGS_TEMPLATES": "Templates",
+    "MAILINGS_STATISTICS": "Statistics",
+    "NOTIFICATIONS_TEMPLATES": "Templates",
+    "NOTIFICATIONS_STATISTICS": "Statistics",
+    "MAILINGS_ALL": "All",
+    "MAILINGS_EVENT": "On Event",
+    "MAILINGS_TIME": "By Time",
+    "MAILINGS_INTERVAL": "Interval",
+    "MAILINGS_ONE_TIME": "One-time",
+    "MAILINGS_DELIVERY": "Delivery",
+    "SUGGESTIONS": "Suggestions"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",
@@ -430,6 +474,32 @@
     "API": {
       "SUCCESS": "Captain settings updated successfully.",
       "ERROR": "Failed to update Captain settings. Please try again."
+    },
+    "MESSAGE_BUFFER": {
+      "TITLE": "Message buffer",
+      "DESCRIPTION": "Time to wait (in seconds) for the client to finish writing messages before sending them to the AI. Gives customers time to send multiple messages in one go.",
+      "SECONDS": "{count}s"
+    },
+    "MANAGED_IN_SUPER_ADMIN": {
+      "TITLE": "Account-level configuration",
+      "DESCRIPTION": "Default AI models for editor, assistant, and co-pilot are set in Super Admin under Accounts → your account → Edit (Captain AI model configuration). You can adjust the message buffer for each assistant next to response temperature in that assistant's settings."
+    },
+    "PROVIDER_STATUS": {
+      "TITLE": "Enabled Providers",
+      "DESCRIPTION": "LLM providers configured for this installation. Primary provider is highlighted.",
+      "NO_PROVIDERS": "No providers configured. Contact your administrator.",
+      "PRIMARY": "(Primary)"
+    },
+    "APPROVAL_BOT": {
+      "TITLE": "Approval Bot",
+      "DESCRIPTION": "Configure the Telegram bot that delivers operator approval requests and notifications from Captain.",
+      "BOT_TOKEN_LABEL": "Telegram Bot Token",
+      "BOT_TOKEN_PLACEHOLDER": "e.g. 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+      "CONNECTED_AS": "Connected as @{name}",
+      "ENABLED_LABEL": "Enable approval notifications via Telegram",
+      "SAVE": "Save",
+      "SAVE_SUCCESS": "Approval Bot configuration saved successfully.",
+      "SAVE_ERROR": "Failed to save Approval Bot configuration. Please try again."
     }
   },
   "BILLING_SETTINGS": {
@@ -454,7 +524,15 @@
       "DOCUMENTS": "Документы",
       "RESPONSES": "Ответы",
       "UPGRADE": "Captain недоступен в бесплатном тарифном плане, обновите его, чтобы получить доступ к ассистентам, copilot и другим функциям.",
-      "REFRESH_CREDITS": "Обновить"
+      "REFRESH_CREDITS": "Обновить",
+      "PLAYGROUND": {
+        "USER": "Вы",
+        "ASSISTANT": "Ассистент",
+        "MESSAGE_PLACEHOLDER": "Введите сообщение...",
+        "HEADER": "Площадка",
+        "DESCRIPTION": "Используйте эту площадку, чтобы отправлять сообщения своему ассистенту и проверять правильность ответа, быстро и в том тоне, который вы ожидали.",
+        "CREDIT_NOTE": "Отправленные здесь сообщения будут учитываться в кредитах Captain."
+      }
     },
     "CHAT_WITH_US": {
       "TITLE": "Нужна помощь?",
@@ -484,6 +562,11 @@
         "GO_BACK": "Вернуться",
         "CONFIRM_PURCHASE": "Confirm Purchase"
       }
+    },
+    "ASSISTANTS": {
+      "NO_ASSISTANTS_AVAILABLE": "No assistants available",
+      "ADD_NEW": "Configure Assistant",
+      "CREATE_EMPTY": "Create Empty Assistant"
     }
   },
   "SECURITY_SETTINGS": {

@@ -316,11 +316,23 @@
           "SUCCESS_MESSAGE": "Локаль успешно удалена из портала",
           "ERROR_MESSAGE": "Невозможно удалить локаль из портала. Повторите попытку."
         }
+      },
+      "DRAFT_LOCALE": {
+        "API": {
+          "SUCCESS_MESSAGE": "Locale moved to draft successfully",
+          "ERROR_MESSAGE": "Unable to move locale to draft. Try again."
+        }
+      },
+      "PUBLISH_LOCALE": {
+        "API": {
+          "SUCCESS_MESSAGE": "Locale published successfully",
+          "ERROR_MESSAGE": "Unable to publish locale. Try again."
+        }
       }
     },
     "TABLE": {
-      "LOADING_MESSAGE": "Загрузка статей...",
       "404": "Нет статей, соответствующих вашему запросу 🔍",
+      "LOADING_MESSAGE": "Загрузка статей...",
       "NO_ARTICLES": "Нет доступных статей",
       "HEADERS": {
         "TITLE": "Название",
@@ -646,8 +658,11 @@
         "DEFAULT": "По умолчанию",
         "DROPDOWN_MENU": {
           "MAKE_DEFAULT": "Сделать по умолчанию",
-          "DELETE": "Удалить"
-        }
+          "DELETE": "Удалить",
+          "MOVE_TO_DRAFT": "Move to draft",
+          "PUBLISH_LOCALE": "Publish locale"
+        },
+        "DRAFT": "Draft"
       },
       "ADD_LOCALE_DIALOG": {
         "TITLE": "Добавить новую локаль",
@@ -658,6 +673,13 @@
         "API": {
           "SUCCESS_MESSAGE": "Локаль успешно добавлен",
           "ERROR_MESSAGE": "Не удалось добавить локаль. Попробуйте еще раз."
+        },
+        "STATUS": {
+          "LABEL": "Status",
+          "OPTIONS": {
+            "LIVE": "Published",
+            "DRAFT": "Draft"
+          }
         }
       }
     },
