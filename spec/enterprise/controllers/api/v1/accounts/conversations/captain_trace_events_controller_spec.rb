@@ -124,6 +124,35 @@ RSpec.describe 'Api::V1::Accounts::Conversations::CaptainTraceEvents', type: :re
         )
       end
 
+      it 'returns prompt_snapshot events without breaking the existing payload contract' do
+        create_event(
+          seq: 1,
+          type: 'prompt_snapshot',
+          payload: {
+            'agent' => 'orchestrator',
+            'model' => 'gpt-4o',
+            'system_prompt' => 'Be helpful.',
+            'message_count' => 2,
+            'messages' => [{ 'role' => 'user', 'content' => 'Hi' }],
+            'tool_instructions' => [{ 'name' => 'escalate_to_human', 'description' => 'Hand off to human' }]
+          }
+        )
+
+        get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/captain_trace_events",
+            headers: admin.create_new_auth_token, as: :json
+
+        event = json_response[:events].find { |e| e[:event_type] == 'prompt_snapshot' }
+        expect(event).to be_present
+        expect(event[:payload]).to include(
+          agent: 'orchestrator',
+          model: 'gpt-4o',
+          system_prompt: 'Be helpful.',
+          message_count: 2
+        )
+        expect(event[:payload][:messages].first).to include(role: 'user', content: 'Hi')
+        expect(event[:payload][:tool_instructions].first).to include(name: 'escalate_to_human')
+      end
+
       it 'includes raw_payload alias when include=raw_payload is requested' do
         create_event(payload: { 'tool' => 'faq', 'result' => { 'policy' => 'answer' } }, type: 'tool_complete')
 
