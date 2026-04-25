@@ -261,6 +261,59 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       end
     end
 
+    context 'when escalation intent is only in the response field (Russian dative)' do
+      let(:mock_result) do
+        instance_double(
+          Agents::RunResult,
+          output: {
+            'response' => 'Спасибо, перевожу оператору.',
+            'reasoning' => 'Пользователь поблагодарил'
+          },
+          context: nil
+        )
+      end
+
+      it 'normalizes the response to conversation_handoff' do
+        result = service.generate_response(message_history: message_history)
+        expect(result['response']).to eq('conversation_handoff')
+      end
+
+      it 'invokes the HandoffTool fallback even though reasoning is benign' do
+        tool_double = instance_double(Captain::Tools::HandoffTool)
+        allow(Captain::Tools::HandoffTool).to receive(:new).with(assistant).and_return(tool_double)
+        allow(tool_double).to receive(:name).and_return('escalate_to_human')
+        expect(tool_double).to receive(:perform).with(
+          an_instance_of(Agents::ToolContext),
+          reason: 'Пользователь поблагодарил',
+          post_reason_as_note: true
+        )
+
+        service.generate_response(message_history: message_history)
+      end
+    end
+
+    context 'when neither response nor reasoning suggest escalation' do
+      let(:mock_result) do
+        instance_double(
+          Agents::RunResult,
+          output: {
+            'response' => 'Sure, here is the information you asked for.',
+            'reasoning' => 'Provided answer based on docs'
+          },
+          context: nil
+        )
+      end
+
+      it 'leaves the response untouched' do
+        tool_double = instance_double(Captain::Tools::HandoffTool, name: 'escalate_to_human')
+        allow(Captain::Tools::HandoffTool).to receive(:new).and_return(tool_double)
+        expect(tool_double).not_to receive(:perform)
+
+        result = service.generate_response(message_history: message_history)
+        expect(result['response']).to eq('Sure, here is the information you asked for.')
+      end
+    end
+
     context 'when an error occurs' do
       let(:error) { StandardError.new('Test error') }
 
@@ -369,6 +422,107 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       expect(result).to be_a(RubyLLM::Content)
       expect(result.text).to eq('Can you check this screenshot?')
       expect(result.attachments.first.source.to_s).to eq('https://example.com/image.jpg')
+    end
+  end
+
+  describe '#escalation_intent_detected?' do
+    subject(:service) { described_class.new(assistant: assistant, conversation: conversation) }
+
+    it 'detects English transfer-to-human phrasing' do
+      expect(service.send(:escalation_intent_detected?, 'I will transfer you to a human now')).to be true
+    end
+
+    it 'detects English "requires operator"' do
+      expect(service.send(:escalation_intent_detected?, 'User wants cancellation, requires operator')).to be true
+    end
+
+    it 'detects Russian "перевожу оператору" (dative case)' do
+      expect(service.send(:escalation_intent_detected?, 'Спасибо, перевожу оператору.')).to be true
+    end
+
+    it 'detects Russian "перевод на оператора"' do
+      expect(service.send(:escalation_intent_detected?, 'Делаю перевод на оператора')).to be true
+    end
+
+    it 'detects Russian "связать с человеком"' do
+      expect(service.send(:escalation_intent_detected?, 'Нужно связать с человеком')).to be true
+    end
+
+    it 'returns false for benign English text' do
+      expect(service.send(:escalation_intent_detected?, 'Sure, here is the information you asked for.')).to be false
+    end
+
+    it 'returns false for benign Russian text' do
+      expect(service.send(:escalation_intent_detected?, 'Спасибо, всё понятно, до свидания.')).to be false
+    end
+
+    it 'returns false for blank text' do
+      expect(service.send(:escalation_intent_detected?, '')).to be false
+      expect(service.send(:escalation_intent_detected?, nil)).to be false
+    end
+  end
+
+  describe '#normalize_escalation_response!' do
+    subject(:service) { described_class.new(assistant: assistant, conversation: conversation) }
+
+    let(:tool_double) { instance_double(Captain::Tools::HandoffTool, name: 'escalate_to_human') }
+
+    before do
+      allow(Captain::Tools::HandoffTool).to receive(:new).with(assistant).and_return(tool_double)
+      allow(tool_double).to receive(:perform).and_return('Conversation escalated to human support team')
+    end
+
+    it 'is idempotent when response is already conversation_handoff' do
+      response = { 'response' => 'conversation_handoff', 'reasoning' => 'transfer to human' }.with_indifferent_access
+      expect(tool_double).not_to receive(:perform)
+
+      service.send(:normalize_escalation_response!, response)
+      expect(response['response']).to eq('conversation_handoff')
+    end
+
+    it 'is idempotent across repeated invocations on the same response hash' do
+      response = { 'response' => 'Перевожу оператору.', 'reasoning' => '' }.with_indifferent_access
+
+      expect(tool_double).to receive(:perform).once
+      service.send(:normalize_escalation_response!, response)
+      service.send(:normalize_escalation_response!, response)
+
+      expect(response['response']).to eq('conversation_handoff')
+    end
+
+    context 'with an enabled trace recorder' do
+      let(:recorder) do
+        Captain::Trace::Recorder.new(conversation: conversation, assistant: assistant, source: 'test')
+      end
+      let(:traced_service) do
+        described_class.new(assistant: assistant, conversation: conversation, trace_recorder: recorder)
+      end
+
+      before do
+        account.enable_features!('captain_trace_events')
+      end
+
+      it 'records escalation_decision with the source attribution and fallback tool_start/tool_complete events' do
+        response = { 'response' => 'Перевожу оператору.', 'reasoning' => '' }.with_indifferent_access
+
+        traced_service.send(:normalize_escalation_response!, response)
+        recorder.flush_to(source_message: nil)
+
+        events = Captain::TraceEvent.for_conversation(conversation.id).ordered
+        types = events.pluck(:event_type)
+        expect(types).to include('escalation_decision', 'tool_start', 'tool_complete')
+
+        decision = events.find { |e| e.event_type == 'escalation_decision' }
+        expect(decision.payload['decision_domain']).to eq('handoff')
+        expect(decision.payload['inputs']['source']).to eq('response')
+
+        tool_start = events.find { |e| e.event_type == 'tool_start' }
+        tool_complete = events.find { |e| e.event_type == 'tool_complete' }
+        expect(tool_start.payload['tool']).to eq('escalate_to_human')
+        expect(tool_start.payload['trigger']).to eq('fallback_escalation')
+        expect(tool_complete.payload['correlation_id']).to eq(tool_start.payload['correlation_id'])
+        expect(tool_complete.payload['duration_ms']).to be_a(Integer)
+      end
     end
   end
 

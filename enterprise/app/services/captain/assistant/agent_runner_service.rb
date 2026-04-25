@@ -110,6 +110,7 @@ class Captain::Assistant::AgentRunnerService
     response['response'] = normalize_repeated_response_text(response['response'])
     normalize_escalation_response!(response)
     enforce_citation_grounding!(response, result)
+    response.delete('_escalation_handled')
     text = response['response'].to_s
     Rails.logger.info(
       '[Captain DEBUG TMP] process_agent_result ' \
@@ -122,6 +123,7 @@ class Captain::Assistant::AgentRunnerService
 
   def enforce_citation_grounding!(response, result)
     return unless @assistant
+    return if response['_escalation_handled']
 
     status = Captain::Assistant::CitationValidator.check(
       assistant: @assistant,
@@ -140,7 +142,8 @@ class Captain::Assistant::AgentRunnerService
       selected: true,
       reasoning_summary: "Citation grounding failed: #{status}"
     )
-    invoke_handoff_tool_fallback(response)
+    invoke_handoff_tool_fallback(response, source: 'citation_grounding')
+    response['_escalation_handled'] = true
   end
 
   def normalize_repeated_response_text(raw_text)
@@ -169,24 +172,44 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def normalize_escalation_response!(response)
-    reasoning = response['reasoning'].to_s
+    return if response['_escalation_handled']
     return if response['response'].to_s == 'conversation_handoff'
-    return unless escalation_intent_detected?(reasoning)
+
+    reasoning = response['reasoning'].to_s
+    response_text = response['response'].to_s
+    reasoning_match = escalation_intent_detected?(reasoning)
+    response_match = escalation_intent_detected?(response_text)
+    return unless reasoning_match || response_match
+
+    source = escalation_source_label(reasoning_match, response_match)
 
     Rails.logger.info(
       '[Captain DEBUG TMP] normalize_escalation_response ' \
-      'reasoning_detected=true ' \
-      "response_preview=#{response['response'].to_s.truncate(200).inspect}"
+      "source=#{source} " \
+      "reasoning_preview=#{reasoning.truncate(200).inspect} " \
+      "response_preview=#{response_text.truncate(200).inspect}"
     )
     record_trace_decision(
       :escalation_decision,
       domain: 'handoff', name: 'escalation_intent_detected',
       selected: true,
-      reasoning_summary: reasoning,
-      inputs: { source: 'reasoning_text' }
+      reasoning_summary: source == 'response' ? response_text : reasoning,
+      inputs: {
+        source: source,
+        reasoning_preview: reasoning.truncate(300),
+        response_preview: response_text.truncate(300)
+      }
     )
-    invoke_handoff_tool_fallback(response)
+    invoke_handoff_tool_fallback(response, source: source)
     response['response'] = 'conversation_handoff'
+    response['_escalation_handled'] = true
+  end
+
+  def escalation_source_label(reasoning_match, response_match)
+    return 'both' if reasoning_match && response_match
+    return 'reasoning' if reasoning_match
+
+    'response'
   end
 
   def record_trace_decision(event_type, **)
@@ -224,16 +247,52 @@ class Captain::Assistant::AgentRunnerService
     Rails.logger.warn("[Captain::Trace] policy_check capture failed: #{e.message}")
   end
 
-  def invoke_handoff_tool_fallback(response)
+  def invoke_handoff_tool_fallback(response, source: nil)
     return unless @conversation
 
     reason = response['reasoning'].to_s.truncate(500).presence ||
              'Auto-escalation: LLM signaled escalation without calling tool'
     tool = Captain::Tools::HandoffTool.new(@assistant)
     tool_context = build_fallback_tool_context
-    tool.perform(tool_context, reason: reason, post_reason_as_note: true)
+    correlation_id = record_fallback_handoff_tool_start(tool, reason, source)
+    started_at = Time.current
+    result = tool.perform(tool_context, reason: reason, post_reason_as_note: true)
+    record_fallback_handoff_tool_complete(tool, result, correlation_id, started_at)
+    result
   rescue StandardError => e
     Rails.logger.warn("[AgentRunnerService] Fallback handoff invocation failed: #{e.message}")
+  end
+
+  def record_fallback_handoff_tool_start(tool, reason, source)
+    return nil unless @trace_recorder.respond_to?(:enabled?) && @trace_recorder.enabled?
+
+    correlation_id = @trace_recorder.new_correlation_id
+    @trace_recorder.record(:tool_start, {
+      tool: tool.name,
+      args: { reason: reason.to_s.truncate(300) },
+      correlation_id: correlation_id,
+      trigger: 'fallback_escalation',
+      source: source
+    }.compact)
+    correlation_id
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] fallback handoff tool_start failed: #{e.message}")
+    nil
+  end
+
+  def record_fallback_handoff_tool_complete(tool, result, correlation_id, started_at)
+    return unless @trace_recorder.respond_to?(:enabled?) && @trace_recorder.enabled?
+
+    duration_ms = ((Time.current - started_at) * 1000).round
+    @trace_recorder.record(:tool_complete, {
+      tool: tool.name,
+      result: result.to_s.truncate(500),
+      correlation_id: correlation_id,
+      duration_ms: duration_ms,
+      trigger: 'fallback_escalation'
+    }.compact)
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] fallback handoff tool_complete failed: #{e.message}")
   end
 
   def build_fallback_tool_context
@@ -242,17 +301,28 @@ class Captain::Assistant::AgentRunnerService
     Agents::ToolContext.new(run_context: run_context)
   end
 
-  def escalation_intent_detected?(reasoning)
-    return false if reasoning.blank?
+  ESCALATION_RU_VERB_RE = /\b(перевод\w*|перевожу|перевед\w+|переключ\w*|передам?|передаю|подключ\w*|соедин\w+)\b/i
+  ESCALATION_RU_TARGET_RE = /оператор|человек\w*|агент\w*|сотрудник\w*/i
 
-    # Matches Russian "эскалир", "перевод на оператора", "связать с человеком"
-    # and English "escalat", "transfer to human", "hand over to operator"
-    reasoning.match?(/\bescalat/i) ||
-      reasoning.match?(/\bhandoff\b/i) ||
-      reasoning.match?(/эскалир/i) ||
-      reasoning.match?(/перевод\w* на оператора/i) ||
-      reasoning.match?(/связать с человеком/i) ||
-      reasoning.match?(/transfer to human/i)
+  def escalation_intent_detected?(text)
+    text = text.to_s
+    return false if text.blank?
+
+    # English
+    return true if text.match?(/\bescalat/i)
+    return true if text.match?(/\bhandoff\b/i)
+    return true if text.match?(/conversation_handoff/i)
+    return true if text.match?(/\b(transfer|hand[\s-]?over|hand off|connect)\b.{0,40}\b(human|agent|operator|representative|support|live)\b/i)
+
+    # Russian
+    return true if text.match?(/эскалир/i)
+    return true if text.match?(/связать\s+с\s+(человек|оператор|агент|сотрудник)/i)
+    return true if text.match?(/соединить\s+с\s+(человек|оператор|агент|сотрудник)/i)
+
+    # Russian verb + target combo (covers e.g. "перевожу оператору", "переведу на оператора")
+    return true if text.match?(ESCALATION_RU_VERB_RE) && text.match?(ESCALATION_RU_TARGET_RE)
+
+    false
   end
 
   def error_response(error_message)
