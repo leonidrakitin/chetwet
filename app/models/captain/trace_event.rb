@@ -36,6 +36,7 @@ class Captain::TraceEvent < ApplicationRecord
     run_started
     llm_request
     llm_response
+    prompt_snapshot
     tool_start
     tool_complete
     agent_handoff
