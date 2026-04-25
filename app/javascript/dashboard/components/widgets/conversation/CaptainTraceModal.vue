@@ -369,7 +369,18 @@ const decisionStatusLabel = event => {
                         class="text-[11px]"
                       >
                         <span class="font-mono text-slate-800">
-                          {{ tool.name }}
+                          {{ tool.display_name || tool.name }}
+                        </span>
+                        <span
+                          v-if="
+                            tool.display_name &&
+                            tool.name &&
+                            tool.display_name !== tool.name
+                          "
+                          class="ml-1 text-[10px] text-slate-400 font-mono"
+                          :title="tool.name"
+                        >
+                          ({{ tool.name }})
                         </span>
                         <span v-if="tool.description" class="text-slate-500">
                           — {{ tool.description }}

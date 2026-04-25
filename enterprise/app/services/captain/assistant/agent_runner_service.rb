@@ -303,23 +303,21 @@ class Captain::Assistant::AgentRunnerService
 
   ESCALATION_RU_VERB_RE = /\b(перевод\w*|перевожу|перевед\w+|переключ\w*|передам?|передаю|подключ\w*|соедин\w+)\b/i
   ESCALATION_RU_TARGET_RE = /оператор|человек\w*|агент\w*|сотрудник\w*/i
+  ESCALATION_EN_VERB_RE = /\b(transfer|handover|hand[\s-]?off|connect|escalate|forward|route|loop\s+in|bring\s+in|requires?|needs?)\b/i
+  ESCALATION_EN_TARGET_RE = /\b(human|agent|operator|representative|support|live\s+person)\b/i
 
   def escalation_intent_detected?(text)
     text = text.to_s
     return false if text.blank?
 
-    # English
     return true if text.match?(/\bescalat/i)
     return true if text.match?(/\bhandoff\b/i)
     return true if text.match?(/conversation_handoff/i)
-    return true if text.match?(/\b(transfer|hand[\s-]?over|hand off|connect)\b.{0,40}\b(human|agent|operator|representative|support|live)\b/i)
+    return true if text.match?(ESCALATION_EN_VERB_RE) && text.match?(ESCALATION_EN_TARGET_RE)
 
-    # Russian
     return true if text.match?(/эскалир/i)
     return true if text.match?(/связать\s+с\s+(человек|оператор|агент|сотрудник)/i)
     return true if text.match?(/соединить\s+с\s+(человек|оператор|агент|сотрудник)/i)
-
-    # Russian verb + target combo (covers e.g. "перевожу оператору", "переведу на оператора")
     return true if text.match?(ESCALATION_RU_VERB_RE) && text.match?(ESCALATION_RU_TARGET_RE)
 
     false

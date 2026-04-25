@@ -352,6 +352,67 @@ export function useCopilotReply() {
     }
   }
 
+  async function resolveApprovalRequest(content) {
+    if (!approvalRequestContext.value) return;
+    if (isAcceptingApproval.value) return;
+
+    isAcceptingApproval.value = true;
+    try {
+      await approvalRequestsApi.resolve(
+        approvalRequestContext.value.approvalRequestId,
+        {
+          selectedOptionIndex: approvalRequestContext.value.selectedIndex,
+          customResponse: content,
+        }
+      );
+
+      useTrack(
+        CAPTAIN_EVENTS.APPROVAL_DRAFT_APPLIED,
+        buildPayload(
+          'approval_draft',
+          trackedConversationId.value,
+          followUpCount.value
+        )
+      );
+    } catch (error) {
+      trackGenerationFailure({
+        action: 'approval_draft',
+        conversationId: trackedConversationId.value,
+        stage: 'resolution',
+        reason: error?.name || CAPTAIN_GENERATION_FAILURE_REASONS.EXCEPTION,
+      });
+      throw error;
+    } finally {
+      isAcceptingApproval.value = false;
+    }
+  }
+
+  async function submitApprovalAsIs(customText) {
+    const content = (customText ?? '').toString().trim();
+    if (!content) return '';
+    if (!approvalRequestContext.value) return '';
+
+    await resolveApprovalRequest(content);
+
+    showEditor.value = false;
+    generatedContent.value = '';
+    followUpContext.value = null;
+    currentAction.value = null;
+    followUpCount.value = 0;
+    trackedConversationId.value = null;
+    approvalRequestContext.value = null;
+
+    return content;
+  }
+
+  async function improveApprovalDraft(customText) {
+    if (!approvalRequestContext.value) return;
+    const content = (customText ?? '').toString().trim();
+    if (!content) return;
+
+    await sendFollowUp(content);
+  }
+
   async function accept() {
     const content = generatedContent.value;
 
@@ -359,35 +420,7 @@ export function useCopilotReply() {
       if (isAcceptingApproval.value) {
         return content;
       }
-      isAcceptingApproval.value = true;
-      try {
-        await approvalRequestsApi.resolve(
-          approvalRequestContext.value.approvalRequestId,
-          {
-            selectedOptionIndex: approvalRequestContext.value.selectedIndex,
-            customResponse: content,
-          }
-        );
-
-        useTrack(
-          CAPTAIN_EVENTS.APPROVAL_DRAFT_APPLIED,
-          buildPayload(
-            'approval_draft',
-            trackedConversationId.value,
-            followUpCount.value
-          )
-        );
-      } catch (error) {
-        trackGenerationFailure({
-          action: 'approval_draft',
-          conversationId: trackedConversationId.value,
-          stage: 'resolution',
-          reason: error?.name || CAPTAIN_GENERATION_FAILURE_REASONS.EXCEPTION,
-        });
-        throw error;
-      } finally {
-        isAcceptingApproval.value = false;
-      }
+      await resolveApprovalRequest(content);
     } else if (currentAction.value) {
       const eventKey = `${getEventPrefix(currentAction.value)}_APPLIED`;
       useTrack(
@@ -431,5 +464,7 @@ export function useCopilotReply() {
     startApprovalDraft,
     sendFollowUp,
     accept,
+    improveApprovalDraft,
+    submitApprovalAsIs,
   };
 }

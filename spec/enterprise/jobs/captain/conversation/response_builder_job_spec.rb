@@ -397,6 +397,27 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
         expect(event.payload['tool_instructions'].first).to include('name' => 'escalate_to_human')
       end
 
+      it 'normalizes tool instruction names by stripping the captain--tools-- prefix into display_name' do
+        prefixed_tool = double('tool', name: 'captain--tools--faq_lookup', description: 'Look up FAQ.')
+        plain_tool = double('tool', name: 'plan_next_step', description: 'Plan next step.')
+        user_msg = double('msg', role: :user, content: 'Hi', tool_calls: nil)
+        assistant_msg = double('msg', role: :assistant, content: 'ok', tool_calls: nil)
+        chat = double(
+          'chat',
+          messages: [user_msg, assistant_msg],
+          tools: { faq: prefixed_tool, planner: plain_tool }
+        )
+
+        job.send(:record_prompt_snapshot, recorder, chat, 'orchestrator', 'gpt-4o')
+        recorder.flush_to(source_message: nil)
+
+        event = Captain::TraceEvent.for_conversation(conversation.id).find_by(event_type: 'prompt_snapshot')
+        names = event.payload['tool_instructions'].map { |t| [t['name'], t['display_name']] }
+
+        expect(names).to include(['captain--tools--faq_lookup', 'faq_lookup'])
+        expect(names).to include(%w[plan_next_step plan_next_step])
+      end
+
       it 'truncates oversized message content to per-message char limit' do
         stub_const("#{described_class}::PROMPT_SNAPSHOT_PER_MESSAGE_CHARS", 50)
 
@@ -418,6 +439,40 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
         recorder.flush_to(source_message: nil)
 
         expect(Captain::TraceEvent.for_conversation(conversation.id).where(event_type: 'prompt_snapshot')).to be_empty
+      end
+    end
+
+    describe 'handoff tool decision capture' do
+      let(:job) { described_class.new }
+      let(:recorder) do
+        Captain::Trace::Recorder.new(conversation: conversation, assistant: assistant, source: 'test')
+      end
+
+      before { account.enable_features!('captain_trace_events') }
+
+      it 'records a knowledge_hit when the handoff tool ran a proactive FAQ lookup' do
+        ctx_state = {
+          state: {
+            orchestration: {
+              handoff_proactive_faq: {
+                query: 'cancel order',
+                options: ['Send the cancellation form to the customer'],
+                found_count: 1
+              }
+            }
+          }
+        }
+        ctx = Struct.new(:context).new(ctx_state)
+
+        job.send(:record_tool_decision_events, recorder, 'escalate_to_human', 'Conversation escalated', 'corr-1', ctx)
+        recorder.flush_to(source_message: nil)
+
+        events = Captain::TraceEvent.for_conversation(conversation.id).pluck(:event_type)
+        expect(events).to include('knowledge_hit', 'escalation_decision')
+
+        knowledge_hit = Captain::TraceEvent.for_conversation(conversation.id).find_by(event_type: 'knowledge_hit')
+        expect(knowledge_hit.payload['source']).to eq('faq_lookup_proactive')
+        expect(knowledge_hit.payload['query']).to eq('cancel order')
       end
     end
   end

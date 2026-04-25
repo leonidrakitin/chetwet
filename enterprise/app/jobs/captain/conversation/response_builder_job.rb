@@ -200,17 +200,27 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
     messages.last(PROMPT_SNAPSHOT_MAX_MESSAGES)
   end
 
+  PROMPT_SNAPSHOT_TOOL_LIMIT = 50
+
   def build_prompt_tool_instructions(chat)
     tools = chat.respond_to?(:tools) ? chat.tools : nil
     return nil if tools.blank?
 
     list = tools.respond_to?(:values) ? tools.values : Array(tools)
-    list.first(20).map do |t|
+    list.first(PROMPT_SNAPSHOT_TOOL_LIMIT).map do |t|
+      raw_name = t.respond_to?(:name) ? t.name.to_s : nil
       {
-        name: t.respond_to?(:name) ? t.name.to_s : nil,
+        name: raw_name,
+        display_name: normalize_prompt_tool_name(raw_name),
         description: (t.respond_to?(:description) ? t.description.to_s : '').truncate(PROMPT_SNAPSHOT_TOOL_DESC_CHARS)
       }.compact
     end
+  end
+
+  def normalize_prompt_tool_name(raw_name)
+    return nil if raw_name.blank?
+
+    raw_name.to_s.delete_prefix('captain--tools--').sub(/\Acaptain::tools::/i, '')
   end
 
   def extract_tool_call_summary(message)
@@ -235,8 +245,8 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
       record_schedule_follow_up_decision(recorder, result, correlation_id)
     when /create_notification_template/
       record_notification_template_decision(recorder, result, correlation_id)
-    when /handoff|escalate_to_human/
-      record_handoff_tool_decision(recorder, result, correlation_id)
+    when /handoff/
+      record_handoff_tool_decision(recorder, result, correlation_id, ctx)
     end
   rescue StandardError => e
     Rails.logger.warn("[Captain::Trace] tool decision capture failed: #{e.message}")
@@ -322,14 +332,34 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
     )
   end
 
-  def record_handoff_tool_decision(recorder, result, correlation_id)
+  def record_handoff_tool_decision(recorder, result, correlation_id, ctx)
     summary = result.is_a?(Hash) ? result.to_json : result.to_s
+    proactive = extract_proactive_faq_payload(ctx)
     recorder.record_decision(
       :escalation_decision,
       domain: 'handoff', name: 'handoff_tool',
       selected: true,
       reasoning_summary: summary.to_s.truncate(400),
+      inputs: proactive ? { proactive_faq: proactive } : nil,
       correlation_id: correlation_id
+    )
+    record_proactive_faq_knowledge_hit(recorder, proactive, correlation_id) if proactive
+  end
+
+  def extract_proactive_faq_payload(ctx)
+    payload = ctx&.context&.dig(:state, :orchestration, :handoff_proactive_faq) ||
+              ctx&.context&.dig(:state, :orchestration, 'handoff_proactive_faq')
+    return nil unless payload.is_a?(Hash)
+
+    payload.deep_stringify_keys
+  end
+
+  def record_proactive_faq_knowledge_hit(recorder, proactive, correlation_id)
+    recorder.record_knowledge_hit(
+      source: 'faq_lookup_proactive',
+      query: proactive['query'],
+      reference: Array(proactive['options']),
+      extra: { trigger: 'handoff_proactive', found_count: proactive['found_count'], correlation_id: correlation_id }
     )
   end
 

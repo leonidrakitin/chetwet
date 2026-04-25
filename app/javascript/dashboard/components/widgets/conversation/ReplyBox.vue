@@ -1266,6 +1266,19 @@ export default {
         useAlert(this.$t('CONVERSATION.APPROVAL_DRAFT.RESOLUTION_FAILED'));
       }
     },
+    onImproveApprovalDraft(customText) {
+      this.copilot.improveApprovalDraft(customText);
+    },
+    async onSubmitApprovalAsIs(customText) {
+      try {
+        const sent = await this.copilot.submitApprovalAsIs(customText);
+        if (sent) {
+          this.setCopilotAcceptedMessage(sent);
+        }
+      } catch (error) {
+        useAlert(this.$t('CONVERSATION.APPROVAL_DRAFT.RESOLUTION_FAILED'));
+      }
+    },
   },
 };
 </script>
@@ -1341,6 +1354,7 @@ export default {
           :is-generating-content="copilot.isGenerating.value"
           :generated-content="copilot.generatedContent.value"
           :is-popout="popOutReplyBox"
+          :is-approval-mode="copilot.isApprovalDraftMode.value"
           :placeholder="$t('CONVERSATION.FOOTER.COPILOT_MSG_INPUT')"
           @focus="onFocus"
           @blur="onBlur"
@@ -1348,6 +1362,8 @@ export default {
           @close="copilot.showEditor.value = false"
           @content-ready="copilot.setContentReady"
           @send="copilot.sendFollowUp"
+          @improve="onImproveApprovalDraft"
+          @submit-as-is="onSubmitApprovalAsIs"
         />
         <WootMessageEditor
           v-else-if="!showAudioRecorderEditor"

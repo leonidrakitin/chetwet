@@ -1,9 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import CopilotEditor from 'dashboard/components/widgets/WootWriter/CopilotEditor.vue';
 import CaptainLoader from 'dashboard/components/widgets/conversation/copilot/CaptainLoader.vue';
+import NextButton from 'dashboard/components-next/button/Button.vue';
 
-defineProps({
+const props = defineProps({
   showCopilotEditor: {
     type: Boolean,
     default: false,
@@ -20,6 +22,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  isApprovalMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits([
@@ -28,9 +34,15 @@ const emit = defineEmits([
   'clearSelection',
   'contentReady',
   'send',
+  'improve',
+  'submitAsIs',
 ]);
 
+const { t } = useI18n();
+
 const copilotEditorContent = ref('');
+
+const hasContent = computed(() => copilotEditorContent.value.trim().length > 0);
 
 const onFocus = () => {
   emit('focus');
@@ -45,8 +57,22 @@ const clearEditorSelection = () => {
 };
 
 const onSend = () => {
+  // Approval mode requires an explicit choice (improve vs send-as-is) so
+  // the editor must not silently clear the input or fire the follow-up
+  // pipeline on Enter — the buttons below are the canonical entry points.
+  if (props.isApprovalMode) return;
   emit('send', copilotEditorContent.value);
   copilotEditorContent.value = '';
+};
+
+const onImprove = () => {
+  if (!hasContent.value || props.isGeneratingContent) return;
+  emit('improve', copilotEditorContent.value);
+};
+
+const onSubmitAsIs = () => {
+  if (!hasContent.value || props.isGeneratingContent) return;
+  emit('submitAsIs', copilotEditorContent.value);
 };
 </script>
 
@@ -61,20 +87,44 @@ const onSend = () => {
     leave-to-class="opacity-0 translate-y-2 scale-[0.98]"
     @after-enter="emit('contentReady')"
   >
-    <CopilotEditor
-      v-if="showCopilotEditor && !isGeneratingContent"
-      key="copilot-editor"
-      v-model="copilotEditorContent"
-      class="copilot-editor"
-      :generated-content="generatedContent"
-      :min-height="4"
-      :enabled-menu-options="[]"
-      :is-popout="isPopout"
-      @focus="onFocus"
-      @blur="onBlur"
-      @clear-selection="clearEditorSelection"
-      @send="onSend"
-    />
+    <div v-if="showCopilotEditor && !isGeneratingContent" key="copilot-editor">
+      <CopilotEditor
+        v-model="copilotEditorContent"
+        class="copilot-editor"
+        :generated-content="generatedContent"
+        :min-height="4"
+        :enabled-menu-options="[]"
+        :is-popout="isPopout"
+        @focus="onFocus"
+        @blur="onBlur"
+        @clear-selection="clearEditorSelection"
+        @send="onSend"
+      />
+      <div
+        v-if="isApprovalMode"
+        class="flex justify-end gap-2 mb-4 -mt-2"
+        data-testid="approval-draft-actions"
+      >
+        <NextButton
+          slate
+          faded
+          sm
+          :disabled="!hasContent || isGeneratingContent"
+          :label="t('CONVERSATION.APPROVAL_DRAFT.SEND_AS_IS')"
+          data-testid="approval-send-as-is"
+          @click="onSubmitAsIs"
+        />
+        <NextButton
+          solid
+          sm
+          class="bg-n-iris-9 text-white"
+          :disabled="!hasContent || isGeneratingContent"
+          :label="t('CONVERSATION.APPROVAL_DRAFT.IMPROVE')"
+          data-testid="approval-improve"
+          @click="onImprove"
+        />
+      </div>
+    </div>
     <div
       v-else-if="isGeneratingContent"
       key="loading-state"

@@ -115,7 +115,9 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     normalized = Array(labels).compact.map(&:to_s).map(&:strip).reject(&:blank?)
     return normalized if normalized.any?
 
-    fallback_options_from_faq(tool_context)
+    options = fallback_options_from_faq(tool_context)
+    options = proactive_options_from_faq(tool_context) if options.empty?
+    options
   end
 
   def fallback_options_from_faq(tool_context)
@@ -126,6 +128,56 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     return [] if answer_draft.blank?
 
     extract_answer_snippets(answer_draft).first(2)
+  end
+
+  # When the LLM escalates without first calling faq_lookup (common for
+  # cancellation/refund intents that are policy-routed to handoff), do a
+  # last-mile FAQ search ourselves so the operator gets concrete reply options
+  # instead of just "Suggest your own".
+  def proactive_options_from_faq(tool_context)
+    query = proactive_faq_query(tool_context)
+    return [] if query.blank?
+
+    results = Captain::Knowledge::UnifiedSearchService.new(assistant: @assistant).search(query)
+    snippets = results.first(2).filter_map { |r| extract_proactive_snippet(r) }
+    return [] if snippets.blank?
+
+    record_proactive_lookup(tool_context, query, snippets)
+    snippets
+  rescue StandardError => e
+    Rails.logger.warn("[HandoffTool] Proactive FAQ lookup failed: #{e.message}")
+    []
+  end
+
+  def proactive_faq_query(tool_context)
+    last_user = tool_context.state&.dig(:conversation, :last_user_message_text).to_s
+    return last_user if last_user.present?
+
+    conversation = find_conversation(tool_context.state)
+    return nil unless conversation
+
+    conversation.messages
+                .where(message_type: :incoming, private: false)
+                .order(created_at: :desc)
+                .limit(1)
+                .pick(:content)
+  end
+
+  def extract_proactive_snippet(result)
+    raw = result.respond_to?(:content) ? result.content.to_s : ''
+    answer_match = raw.match(/Answer:\s*(.+?)(?=\n\s*Question:|\n\s*\[REQUIRES|\z)/m)
+    text = answer_match ? answer_match[1] : raw
+    text = text.gsub(/\s+/, ' ').strip
+    text.presence&.truncate(160)
+  end
+
+  def record_proactive_lookup(tool_context, query, snippets)
+    tool_context.state[:orchestration] ||= {}
+    tool_context.state[:orchestration][:handoff_proactive_faq] = {
+      query: query.to_s.truncate(300),
+      options: snippets,
+      found_count: snippets.size
+    }
   end
 
   def extract_answer_snippets(answer_draft)

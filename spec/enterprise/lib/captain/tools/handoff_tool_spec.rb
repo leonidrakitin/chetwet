@@ -135,6 +135,52 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
           expect(outgoing.content_type).to eq('input_select')
           expect(titles).to include('Approve cancellation', 'Deny cancellation')
         end
+
+        context 'when no options are provided and no prior FAQ lookup ran' do
+          let(:incoming_message) { 'Хотел бы отменить заказ' }
+          let(:tool_context) do
+            Struct.new(:state).new({ conversation: { id: conversation.id }, orchestration: {} })
+          end
+          let(:fake_search_result) do
+            instance_double(
+              Captain::Knowledge::SearchResult,
+              content: "\nQuestion: Как отменить заказ?\nAnswer: Напишите в поддержку с номером заказа\n"
+            )
+          end
+
+          before do
+            conversation.messages.create!(
+              account_id: account.id,
+              inbox_id: inbox.id,
+              sender: contact,
+              message_type: :incoming,
+              content: incoming_message
+            )
+            search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
+            allow(Captain::Knowledge::UnifiedSearchService).to receive(:new)
+              .with(assistant: assistant).and_return(search_service)
+            allow(search_service).to receive(:search).and_return([fake_search_result])
+          end
+
+          it 'falls back to a proactive FAQ lookup so the operator gets concrete options' do
+            tool.perform(tool_context, reason: 'cancellation_intent')
+
+            outgoing = conversation.messages.outgoing.order(:created_at).last
+            items = outgoing.content_attributes['items'] || outgoing.content_attributes[:items]
+            titles = items.map { |item| item['title'] || item[:title] }
+            expect(titles).to include('Напишите в поддержку с номером заказа')
+          end
+
+          it 'records the proactive lookup in the orchestration state for trace consumers' do
+            tool.perform(tool_context, reason: 'cancellation_intent')
+
+            proactive = tool_context.state.dig(:orchestration, :handoff_proactive_faq)
+            expect(proactive).to be_a(Hash)
+            expect(proactive[:found_count]).to eq(1)
+            expect(proactive[:options]).to include(/поддержку/)
+            expect(proactive[:query]).to include(incoming_message)
+          end
+        end
       end
 
       context 'with post_reason_as_note: false' do
