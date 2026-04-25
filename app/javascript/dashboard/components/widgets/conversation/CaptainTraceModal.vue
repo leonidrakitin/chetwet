@@ -41,7 +41,7 @@ const sections = [
   {
     key: 'prompt',
     labelKey: 'CAPTAIN.TRACE.SECTIONS.PROMPT',
-    types: ['run_started', 'llm_request', 'llm_response'],
+    types: ['run_started', 'llm_request', 'prompt_snapshot', 'llm_response'],
   },
   {
     key: 'decisions',
@@ -144,10 +144,13 @@ const eventSummary = event => {
   if (DECISION_TYPES.includes(event.event_type))
     return `${p.decision_domain || ''}/${p.decision_name || ''}`;
   if (event.event_type === 'knowledge_hit') return p.source || '';
+  if (event.event_type === 'prompt_snapshot')
+    return `${p.agent || ''} · ${p.message_count || 0} msg`;
   return '';
 };
 
 const isDecisionEvent = event => DECISION_TYPES.includes(event.event_type);
+const isPromptSnapshotEvent = event => event.event_type === 'prompt_snapshot';
 
 const formatDelay = seconds => {
   if (seconds === undefined || seconds === null || seconds === '') return '';
@@ -309,6 +312,72 @@ const decisionStatusLabel = event => {
                     {{ formatDate(event.created_at) }}
                   </span>
                 </button>
+                <div
+                  v-if="isPromptSnapshotEvent(event)"
+                  class="px-3 py-2 bg-slate-50 border-t border-slate-200 space-y-2"
+                >
+                  <div
+                    v-if="event.payload?.system_prompt"
+                    class="text-xs text-slate-700"
+                  >
+                    <div class="font-semibold text-slate-600 mb-1">
+                      {{ t('CAPTAIN.TRACE.PROMPT.SYSTEM') }}
+                    </div>
+                    <pre
+                      class="whitespace-pre-wrap break-words bg-white border border-slate-200 rounded p-2 text-[11px]"
+                      >{{ event.payload.system_prompt }}</pre
+                    >
+                  </div>
+                  <div
+                    v-if="event.payload?.messages?.length"
+                    class="text-xs text-slate-700"
+                  >
+                    <div class="font-semibold text-slate-600 mb-1">
+                      {{ t('CAPTAIN.TRACE.PROMPT.MESSAGES') }}
+                      ({{ event.payload.message_count }})
+                    </div>
+                    <div class="space-y-1">
+                      <div
+                        v-for="(msg, idx) in event.payload.messages"
+                        :key="idx"
+                        class="bg-white border border-slate-200 rounded p-2"
+                      >
+                        <span
+                          class="text-[10px] font-mono uppercase text-purple-700 mr-2"
+                        >
+                          {{ msg.role }}
+                        </span>
+                        <span
+                          class="whitespace-pre-wrap break-words text-[11px]"
+                        >
+                          {{ msg.content }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-if="event.payload?.tool_instructions?.length"
+                    class="text-xs text-slate-700"
+                  >
+                    <div class="font-semibold text-slate-600 mb-1">
+                      {{ t('CAPTAIN.TRACE.PROMPT.TOOLS') }}
+                    </div>
+                    <ul class="space-y-0.5 list-disc pl-4">
+                      <li
+                        v-for="(tool, idx) in event.payload.tool_instructions"
+                        :key="idx"
+                        class="text-[11px]"
+                      >
+                        <span class="font-mono text-slate-800">
+                          {{ tool.name }}
+                        </span>
+                        <span v-if="tool.description" class="text-slate-500">
+                          — {{ tool.description }}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
                 <div
                   v-if="isDecisionEvent(event)"
                   class="px-3 py-2 bg-slate-50 border-t border-slate-200 space-y-1"

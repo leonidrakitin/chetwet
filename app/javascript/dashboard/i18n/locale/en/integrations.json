@@ -652,6 +652,11 @@
         "SCHEDULED_FOR": "Scheduled for",
         "IN": "in",
         "CORRELATION": "Correlation"
+      },
+      "PROMPT": {
+        "SYSTEM": "System prompt",
+        "MESSAGES": "Messages",
+        "TOOLS": "Tool instructions"
       }
     },
     "PLAYGROUND": {
