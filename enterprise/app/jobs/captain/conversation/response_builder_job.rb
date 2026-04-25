@@ -22,7 +22,10 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
       generate_and_process_response
     end
 
-    @trace_recorder.record(:run_completed, { response: truncate_for_trace(@response&.dig('response')) })
+    @trace_recorder.record(:run_completed, {
+      response: truncate_for_trace(@response&.dig('response')),
+      duration_ms: @trace_recorder.run_duration_ms
+    }.compact)
     @trace_recorder.flush_to(source_message: @created_message)
   rescue ActiveStorage::FileNotFoundError, Faraday::BadRequestError => e
     handle_error(e)
@@ -53,26 +56,198 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
     @response = Captain::Assistant::AgentRunnerService.new(
       assistant: @assistant,
       conversation: @conversation,
-      callbacks: trace_runner_callbacks
+      callbacks: trace_runner_callbacks,
+      trace_recorder: @trace_recorder
     ).generate_response(message_history: message_history)
     process_response
   end
 
-  def trace_runner_callbacks
+  def trace_runner_callbacks # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
     return {} unless @trace_recorder.enabled?
 
     recorder = @trace_recorder
+    @tool_correlations = {}
     {
       on_tool_start: lambda { |tool_name, args, _ctx|
-        recorder.record(:tool_start, { tool: tool_name, args: args })
+        correlation_id = recorder.new_correlation_id
+        @tool_correlations[tool_name.to_s] = { id: correlation_id, started_at: Time.current }
+        recorder.record(:tool_start, { tool: tool_name, args: args, correlation_id: correlation_id })
       },
-      on_tool_complete: lambda { |tool_name, result, _ctx|
-        recorder.record(:tool_complete, { tool: tool_name, result: truncate_for_trace(result) })
+      on_tool_complete: lambda { |tool_name, result, ctx|
+        meta = @tool_correlations.delete(tool_name.to_s) || {}
+        duration_ms = meta[:started_at] ? ((Time.current - meta[:started_at]) * 1000).round : nil
+        recorder.record(:tool_complete, {
+          tool: tool_name,
+          result: truncate_for_trace(result),
+          correlation_id: meta[:id],
+          duration_ms: duration_ms
+        }.compact)
+        record_tool_decision_events(recorder, tool_name, result, meta[:id], ctx)
       },
       on_agent_handoff: lambda { |from_agent, to_agent, reason, _ctx|
         recorder.record(:agent_handoff, { from: from_agent, to: to_agent, reason: reason })
+      },
+      on_chat_created: lambda { |chat, agent_name, model, context_wrapper|
+        record_llm_request_event(recorder, agent_name, model, context_wrapper)
+        attach_llm_response_listener(chat, recorder, agent_name, model)
       }
     }
+  end
+
+  def record_llm_request_event(recorder, agent_name, model, context_wrapper)
+    state = context_wrapper&.context&.dig(:state) || {}
+    payload = {
+      agent: agent_name.to_s,
+      model: model.to_s,
+      detected_language: state[:detected_language],
+      tools_history: state.dig(:orchestration, :tool_history),
+      conversation_length: context_wrapper&.context&.dig(:conversation_length),
+      autonomy_retry_count: context_wrapper&.context&.dig(:autonomy_retry_count)
+    }.compact
+    recorder.start_timer("llm:#{agent_name}")
+    recorder.record(:llm_request, payload)
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] llm_request capture failed: #{e.message}")
+  end
+
+  def attach_llm_response_listener(chat, recorder, agent_name, model)
+    return unless chat.respond_to?(:on_end_message)
+
+    chat.on_end_message do |message|
+      next unless message.respond_to?(:role) && message.role == :assistant
+
+      duration_ms = recorder.stop_timer("llm:#{agent_name}")
+      tool_calls = extract_tool_call_summary(message)
+      recorder.record(:llm_response, {
+        agent: agent_name.to_s,
+        model: model.to_s,
+        duration_ms: duration_ms,
+        content_summary: truncate_for_trace(message.respond_to?(:content) ? message.content.to_s : ''),
+        tool_calls: tool_calls
+      }.compact)
+    rescue StandardError => e
+      Rails.logger.warn("[Captain::Trace] llm_response capture failed: #{e.message}")
+    end
+  end
+
+  def extract_tool_call_summary(message)
+    return nil unless message.respond_to?(:tool_calls) && message.tool_calls.is_a?(Hash)
+    return nil if message.tool_calls.blank?
+
+    message.tool_calls.values.first(5).map do |tc|
+      {
+        name: tc.respond_to?(:name) ? tc.name.to_s : nil,
+        arguments: tc.respond_to?(:arguments) ? truncate_for_trace(tc.arguments) : nil
+      }.compact
+    end
+  end
+
+  def record_tool_decision_events(recorder, tool_name, result, correlation_id, _ctx)
+    case tool_name.to_s
+    when /faq_lookup/
+      record_faq_lookup_decision(recorder, result, correlation_id)
+    when /search_documentation/
+      record_search_documentation_hit(recorder, result, correlation_id)
+    when /schedule_follow_up/
+      record_schedule_follow_up_decision(recorder, result, correlation_id)
+    when /create_notification_template/
+      record_notification_template_decision(recorder, result, correlation_id)
+    when /handoff/
+      record_handoff_tool_decision(recorder, result, correlation_id)
+    end
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] tool decision capture failed: #{e.message}")
+  end
+
+  def record_search_documentation_hit(recorder, result, correlation_id)
+    text = result.to_s
+    found = !text.start_with?('No FAQs found')
+    recorder.record_knowledge_hit(
+      source: 'search_documentation',
+      reference: nil,
+      snippet: text,
+      extra: { found: found, correlation_id: correlation_id }
+    )
+  end
+
+  def record_faq_lookup_decision(recorder, result, correlation_id) # rubocop:disable Metrics/MethodLength
+    return unless result.is_a?(Hash)
+
+    data = result.with_indifferent_access
+    policy = data['policy'].to_s
+    confidence = data['confidence']
+    sources = Array(data['sources']).first(5).map { |s| s.is_a?(Hash) ? s.slice('label', 'title', 'url').compact : s }
+    recorder.record_knowledge_hit(
+      source: 'faq_lookup',
+      query: data['query'],
+      score: confidence,
+      reference: sources,
+      extra: { policy: policy }
+    )
+    selected = policy == 'answer'
+    recorder.record_decision(
+      selected ? :decision_selected : :decision_rejected,
+      domain: 'tool_choice', name: 'faq_lookup',
+      selected: selected,
+      reasoning_summary: "FAQ policy=#{policy.presence || 'none'} confidence=#{confidence}",
+      inputs: { query: data['query'], confidence: confidence, policy: policy },
+      correlation_id: correlation_id
+    )
+  end
+
+  def record_schedule_follow_up_decision(recorder, result, correlation_id) # rubocop:disable Metrics/MethodLength
+    return unless result.is_a?(Hash)
+
+    data = result.with_indifferent_access
+    if data['status'].to_s == 'scheduled'
+      scheduled_for = data['scheduled_for']
+      delay_seconds = data['delay_minutes'] ? data['delay_minutes'].to_i * 60 : nil
+      recorder.record_decision(
+        :decision_selected,
+        domain: 'delayed_send', name: 'schedule_follow_up',
+        selected: true,
+        reasoning_summary: 'Scheduled outbound follow-up message',
+        scheduled_for: scheduled_for,
+        delay_seconds: delay_seconds,
+        inputs: { delivery_id: data['delivery_id'] },
+        correlation_id: correlation_id
+      )
+    else
+      recorder.record_decision(
+        :decision_rejected,
+        domain: 'delayed_send', name: 'schedule_follow_up',
+        selected: false,
+        reasoning_summary: data['error'].to_s.presence || 'Schedule follow-up rejected',
+        correlation_id: correlation_id
+      )
+    end
+  end
+
+  def record_notification_template_decision(recorder, result, correlation_id)
+    summary = result.to_s
+    selected = summary.include?('created successfully')
+    template_id = summary[/ID:\s*(\d+)/, 1]
+    template_name = summary[/Name:\s*([^,]+)/, 1]
+    recorder.record_decision(
+      selected ? :decision_selected : :decision_rejected,
+      domain: 'notification_template', name: 'create_notification_template',
+      selected: selected,
+      reasoning_summary: summary.to_s.truncate(400),
+      template_id: template_id,
+      template_name: template_name&.strip,
+      correlation_id: correlation_id
+    )
+  end
+
+  def record_handoff_tool_decision(recorder, result, correlation_id)
+    summary = result.is_a?(Hash) ? result.to_json : result.to_s
+    recorder.record_decision(
+      :escalation_decision,
+      domain: 'handoff', name: 'handoff_tool',
+      selected: true,
+      reasoning_summary: summary.to_s.truncate(400),
+      correlation_id: correlation_id
+    )
   end
 
   def build_message_history_for_v2(messages)
@@ -115,13 +290,19 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
     parts.join("\n")
   end
 
-  def process_response
+  def process_response # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
     return unless conversation_pending?
     return if pending_approval_request_exists?
     return if @response['response'].blank?
 
     if handoff_requested?
       @trace_recorder.record(:handoff, { reasoning: truncate_for_trace(@response['reasoning']) })
+      @trace_recorder.record_decision(
+        :decision_selected,
+        domain: 'handoff', name: 'process_response_handoff',
+        selected: true,
+        reasoning_summary: truncate_for_trace(@response['reasoning'])
+      )
       process_action('handoff')
     else
       ActiveRecord::Base.transaction do

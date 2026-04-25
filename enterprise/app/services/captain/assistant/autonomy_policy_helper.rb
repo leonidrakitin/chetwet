@@ -43,7 +43,28 @@ module Captain::Assistant::AutonomyPolicyHelper
       "[Captain DEBUG TMP] AutonomyPolicy: finished acceptable=#{acceptable} " \
       "escalating=#{!acceptable}"
     )
-    acceptable ? result : escalation_result(context)
+    record_trace_policy_check(
+      name: 'autonomy_acceptance',
+      passed: acceptable,
+      reasoning_summary: acceptable ? 'Answer accepted by autonomy policy' : 'Answer rejected, escalating to human',
+      inputs: {
+        autonomy_retries_used: context[:autonomy_retry_count],
+        knowledge_mode: @assistant.knowledge_mode,
+        citation_status: context[:citation_verification_status]
+      }
+    )
+    if acceptable
+      result
+    else
+      record_trace_decision(
+        :escalation_decision,
+        domain: 'handoff', name: 'autonomy_max_retries',
+        selected: true,
+        reasoning_summary: 'Autonomy policy: escalation after max retries',
+        inputs: { retries: context[:autonomy_retry_count] }
+      )
+      escalation_result(context)
+    end
   end
 
   # autonomy_max_retries: nil → default 2 (autonomy on)

@@ -636,10 +636,22 @@
       "ERROR_LOADING": "Failed to load Captain trace events.",
       "SECTIONS": {
         "PROMPT": "Prompt",
+        "DECISIONS": "Decisions",
         "TOOLS": "Tools",
         "KNOWLEDGE": "Knowledge",
         "POLICY": "Policy",
         "OUTCOME": "Outcome"
+      },
+      "DECISIONS": {
+        "SELECTED": "Selected",
+        "REJECTED": "Rejected",
+        "DEFERRED": "Deferred",
+        "EVALUATED": "Evaluated",
+        "WHY": "Why",
+        "TEMPLATE": "Template",
+        "SCHEDULED_FOR": "Scheduled for",
+        "IN": "in",
+        "CORRELATION": "Correlation"
       }
     },
     "PLAYGROUND": {

@@ -69,6 +69,71 @@ RSpec.describe 'Api::V1::Accounts::Conversations::CaptainTraceEvents', type: :re
         expect(json_response[:events].size).to eq(1)
         expect(json_response[:events].first[:source_message_id]).to eq(outgoing_message.id)
       end
+
+      it 'filters events by event_type list' do
+        create_event(seq: 1, type: 'outgoing_message')
+        create_event(seq: 2, type: 'tool_start', payload: { 'tool' => 'faq' })
+        create_event(seq: 3, type: 'decision_selected', payload: { 'decision_domain' => 'handoff' })
+
+        get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/captain_trace_events",
+            params: { event_type: 'tool_start,decision_selected' },
+            headers: admin.create_new_auth_token, as: :json
+
+        types = json_response[:events].map { |e| e[:event_type] }
+        expect(types).to contain_exactly('tool_start', 'decision_selected')
+      end
+
+      it 'expands decision_* shortcut to all decision event types' do
+        create_event(seq: 1, type: 'outgoing_message')
+        create_event(seq: 2, type: 'decision_selected', payload: { 'decision_domain' => 'handoff' })
+        create_event(seq: 3, type: 'decision_rejected', payload: { 'decision_domain' => 'tool_choice' })
+        create_event(seq: 4, type: 'escalation_decision', payload: { 'decision_domain' => 'handoff' })
+
+        get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/captain_trace_events",
+            params: { event_type: 'decision_*' },
+            headers: admin.create_new_auth_token, as: :json
+
+        types = json_response[:events].map { |e| e[:event_type] }
+        expect(types).to contain_exactly('decision_selected', 'decision_rejected', 'escalation_decision')
+      end
+
+      it 'attaches a decision summary on decision events' do
+        create_event(
+          seq: 1,
+          type: 'decision_selected',
+          payload: {
+            'decision_domain' => 'delayed_send',
+            'decision_name' => 'schedule_outbound_message',
+            'selected' => true,
+            'reasoning_summary' => 'Customer asked for follow-up tomorrow',
+            'scheduled_for' => '2026-04-26T09:00:00Z',
+            'delay_seconds' => 86_400
+          }
+        )
+
+        get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/captain_trace_events",
+            headers: admin.create_new_auth_token, as: :json
+
+        event = json_response[:events].first
+        expect(event[:summary]).to include(
+          decision_domain: 'delayed_send',
+          decision_name: 'schedule_outbound_message',
+          selected: true,
+          scheduled_for: '2026-04-26T09:00:00Z',
+          delay_seconds: 86_400
+        )
+      end
+
+      it 'includes raw_payload alias when include=raw_payload is requested' do
+        create_event(payload: { 'tool' => 'faq', 'result' => { 'policy' => 'answer' } }, type: 'tool_complete')
+
+        get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/captain_trace_events",
+            params: { include: 'raw_payload' },
+            headers: admin.create_new_auth_token, as: :json
+
+        event = json_response[:events].first
+        expect(event[:raw_payload]).to eq(event[:payload])
+      end
     end
   end
 end

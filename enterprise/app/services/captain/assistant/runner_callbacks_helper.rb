@@ -6,6 +6,7 @@ module Captain::Assistant::RunnerCallbacksHelper
     runner = add_tool_start_callback(runner) if @callbacks[:on_tool_start]
     runner = add_tool_complete_callback(runner) if @callbacks[:on_tool_complete]
     runner = add_agent_handoff_callback(runner) if @callbacks[:on_agent_handoff]
+    runner = add_chat_created_callback(runner) if @callbacks[:on_chat_created]
     runner
   end
 
@@ -48,6 +49,14 @@ module Captain::Assistant::RunnerCallbacksHelper
       @callbacks[:on_agent_handoff].call(*args)
     rescue StandardError => e
       Rails.logger.warn "[Captain] Callback error for agent_handoff: #{e.message}"
+    end
+  end
+
+  def add_chat_created_callback(runner)
+    runner.on_chat_created do |chat, agent_name, model, context_wrapper|
+      @callbacks[:on_chat_created].call(chat, agent_name, model, context_wrapper)
+    rescue StandardError => e
+      Rails.logger.warn "[Captain] Callback error for chat_created: #{e.message}"
     end
   end
 end

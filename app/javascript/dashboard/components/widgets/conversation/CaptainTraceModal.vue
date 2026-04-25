@@ -29,11 +29,24 @@ const localShow = computed({
   set: value => emit('cancel', value),
 });
 
+const DECISION_TYPES = [
+  'decision_evaluated',
+  'decision_selected',
+  'decision_rejected',
+  'decision_deferred',
+  'escalation_decision',
+];
+
 const sections = [
   {
     key: 'prompt',
     labelKey: 'CAPTAIN.TRACE.SECTIONS.PROMPT',
     types: ['run_started', 'llm_request', 'llm_response'],
+  },
+  {
+    key: 'decisions',
+    labelKey: 'CAPTAIN.TRACE.SECTIONS.DECISIONS',
+    types: DECISION_TYPES,
   },
   {
     key: 'tools',
@@ -43,7 +56,7 @@ const sections = [
   {
     key: 'knowledge',
     labelKey: 'CAPTAIN.TRACE.SECTIONS.KNOWLEDGE',
-    types: [],
+    types: ['knowledge_hit'],
   },
   {
     key: 'policy',
@@ -128,7 +141,43 @@ const eventSummary = event => {
     return p.reason || p.reasoning || '';
   if (event.event_type === 'error')
     return `${p.class || ''}: ${p.message || ''}`;
+  if (DECISION_TYPES.includes(event.event_type))
+    return `${p.decision_domain || ''}/${p.decision_name || ''}`;
+  if (event.event_type === 'knowledge_hit') return p.source || '';
   return '';
+};
+
+const isDecisionEvent = event => DECISION_TYPES.includes(event.event_type);
+
+const formatDelay = seconds => {
+  if (seconds === undefined || seconds === null || seconds === '') return '';
+  const value = Number(seconds);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  if (value < 60) return `${value}s`;
+  if (value < 3600) return `${Math.round(value / 60)}m`;
+  if (value < 86400) return `${Math.round(value / 3600)}h`;
+  return `${Math.round(value / 86400)}d`;
+};
+
+const formatScheduledFor = iso => (iso ? new Date(iso).toLocaleString() : '');
+
+const decisionBadgeClass = event => {
+  const selected = event.payload?.selected;
+  if (selected === true)
+    return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+  if (selected === false) return 'bg-rose-100 text-rose-800 border-rose-200';
+  if (event.event_type === 'decision_deferred')
+    return 'bg-amber-100 text-amber-800 border-amber-200';
+  return 'bg-slate-100 text-slate-700 border-slate-200';
+};
+
+const decisionStatusLabel = event => {
+  const selected = event.payload?.selected;
+  if (selected === true) return t('CAPTAIN.TRACE.DECISIONS.SELECTED');
+  if (selected === false) return t('CAPTAIN.TRACE.DECISIONS.REJECTED');
+  if (event.event_type === 'decision_deferred')
+    return t('CAPTAIN.TRACE.DECISIONS.DEFERRED');
+  return t('CAPTAIN.TRACE.DECISIONS.EVALUATED');
 };
 </script>
 
@@ -242,6 +291,13 @@ const eventSummary = event => {
                     >
                       #{{ event.sequence }}
                     </span>
+                    <span
+                      v-if="isDecisionEvent(event)"
+                      class="text-[10px] font-semibold uppercase border rounded px-1.5 py-0.5"
+                      :class="decisionBadgeClass(event)"
+                    >
+                      {{ decisionStatusLabel(event) }}
+                    </span>
                     <span class="text-xs font-medium text-purple-800">
                       {{ event.event_type }}
                     </span>
@@ -253,6 +309,67 @@ const eventSummary = event => {
                     {{ formatDate(event.created_at) }}
                   </span>
                 </button>
+                <div
+                  v-if="isDecisionEvent(event)"
+                  class="px-3 py-2 bg-slate-50 border-t border-slate-200 space-y-1"
+                >
+                  <div
+                    v-if="event.payload?.reasoning_summary"
+                    class="text-xs text-slate-700"
+                  >
+                    <span class="font-semibold text-slate-600">
+                      {{ t('CAPTAIN.TRACE.DECISIONS.WHY') }}:
+                    </span>
+                    {{ event.payload.reasoning_summary }}
+                  </div>
+                  <div
+                    v-if="
+                      event.payload?.template_name || event.payload?.template_id
+                    "
+                    class="text-xs text-slate-700"
+                  >
+                    <span class="font-semibold text-slate-600">
+                      {{ t('CAPTAIN.TRACE.DECISIONS.TEMPLATE') }}:
+                    </span>
+                    {{
+                      event.payload.template_name || event.payload.template_id
+                    }}
+                    <span
+                      v-if="
+                        event.payload.template_id && event.payload.template_name
+                      "
+                      class="text-slate-400"
+                    >
+                      (#{{ event.payload.template_id }})
+                    </span>
+                  </div>
+                  <div
+                    v-if="
+                      event.payload?.scheduled_for ||
+                      event.payload?.delay_seconds
+                    "
+                    class="text-xs text-slate-700"
+                  >
+                    <span class="font-semibold text-slate-600">
+                      {{ t('CAPTAIN.TRACE.DECISIONS.SCHEDULED_FOR') }}:
+                    </span>
+                    {{ formatScheduledFor(event.payload.scheduled_for) }}
+                    <span
+                      v-if="event.payload.delay_seconds"
+                      class="text-slate-500"
+                    >
+                      ({{ t('CAPTAIN.TRACE.DECISIONS.IN') }}
+                      {{ formatDelay(event.payload.delay_seconds) }})
+                    </span>
+                  </div>
+                  <div
+                    v-if="event.payload?.correlation_id"
+                    class="text-[10px] text-slate-400 font-mono"
+                  >
+                    {{ t('CAPTAIN.TRACE.DECISIONS.CORRELATION') }}:
+                    {{ event.payload.correlation_id }}
+                  </div>
+                </div>
                 <pre
                   v-if="expandedEventIds.has(event.id)"
                   class="text-xs bg-slate-50 border-t border-slate-200 p-3 whitespace-pre-wrap break-all"

@@ -41,11 +41,25 @@ class Captain::TraceEvent < ApplicationRecord
     agent_handoff
     policy_check
     citation_check
+    knowledge_hit
+    decision_evaluated
+    decision_selected
+    decision_rejected
+    decision_deferred
     escalation
+    escalation_decision
     handoff
     outgoing_message
     error
     run_completed
+  ].freeze
+
+  DECISION_EVENT_TYPES = %w[
+    decision_evaluated
+    decision_selected
+    decision_rejected
+    decision_deferred
+    escalation_decision
   ].freeze
 
   belongs_to :account, class_name: '::Account'
@@ -60,4 +74,6 @@ class Captain::TraceEvent < ApplicationRecord
   scope :for_message, ->(message_id) { where(source_message_id: message_id) }
   scope :for_conversation, ->(conversation_id) { where(conversation_id: conversation_id) }
   scope :ordered, -> { order(:session_id, :sequence, :id) }
+  scope :decisions, -> { where(event_type: DECISION_EVENT_TYPES) }
+  scope :by_event_types, ->(types) { where(event_type: Array(types).map(&:to_s).reject(&:blank?)) }
 end

@@ -785,3 +785,11 @@
   value: 'https://us.cloud.langfuse.com'
   locked: false
 ## ---- End of LLM Observability ---- ##
+
+## ----- Captain Trace Observability ---- ##
+- name: CAPTAIN_TRACE_TTL_DAYS
+  display_title: 'Captain Trace Retention (days)'
+  description: 'Number of days to retain captain_trace_events rows. Defaults to 30. Set to 0 or negative to disable cleanup.'
+  value: 30
+  locked: false
+## ---- End of Captain Trace Observability ---- ##

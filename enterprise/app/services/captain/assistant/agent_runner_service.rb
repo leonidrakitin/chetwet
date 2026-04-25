@@ -21,11 +21,12 @@ class Captain::Assistant::AgentRunnerService
 
   CONTACT_INBOX_STATE_ATTRIBUTES = %i[id hmac_verified].freeze
 
-  def initialize(assistant:, conversation: nil, callbacks: {}, source: nil)
+  def initialize(assistant:, conversation: nil, callbacks: {}, source: nil, trace_recorder: nil)
     @assistant = assistant
     @conversation = conversation
     @callbacks = callbacks
     @source = source
+    @trace_recorder = trace_recorder
   end
 
   def generate_response(message_history: [])
@@ -127,11 +128,18 @@ class Captain::Assistant::AgentRunnerService
       result: result,
       response_text: response['response']
     )
+    record_trace_citation_check(status, response['response'])
     return if status == :ok
 
     Rails.logger.info("[Captain] Citation grounding failed: #{status}")
     response['reasoning'] = "Citation grounding failed: #{status}. Original: #{response['reasoning']}"
     response['response'] = 'conversation_handoff'
+    record_trace_decision(
+      :escalation_decision,
+      domain: 'handoff', name: 'citation_grounding_failed',
+      selected: true,
+      reasoning_summary: "Citation grounding failed: #{status}"
+    )
     invoke_handoff_tool_fallback(response)
   end
 
@@ -170,8 +178,50 @@ class Captain::Assistant::AgentRunnerService
       'reasoning_detected=true ' \
       "response_preview=#{response['response'].to_s.truncate(200).inspect}"
     )
+    record_trace_decision(
+      :escalation_decision,
+      domain: 'handoff', name: 'escalation_intent_detected',
+      selected: true,
+      reasoning_summary: reasoning,
+      inputs: { source: 'reasoning_text' }
+    )
     invoke_handoff_tool_fallback(response)
     response['response'] = 'conversation_handoff'
+  end
+
+  def record_trace_decision(event_type, **)
+    return unless @trace_recorder.respond_to?(:record_decision)
+    return unless @trace_recorder.enabled?
+
+    @trace_recorder.record_decision(event_type, **)
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] decision capture failed: #{e.message}")
+  end
+
+  def record_trace_citation_check(status, response_text)
+    return unless @trace_recorder.respond_to?(:record)
+    return unless @trace_recorder.enabled?
+
+    @trace_recorder.record(:citation_check, {
+                             status: status.to_s,
+                             response_preview: response_text.to_s.truncate(200)
+                           })
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] citation_check capture failed: #{e.message}")
+  end
+
+  def record_trace_policy_check(name:, passed:, reasoning_summary: nil, inputs: nil)
+    return unless @trace_recorder.respond_to?(:record)
+    return unless @trace_recorder.enabled?
+
+    @trace_recorder.record(:policy_check, {
+      name: name.to_s,
+      passed: passed,
+      reasoning_summary: reasoning_summary,
+      inputs: inputs
+    }.compact)
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] policy_check capture failed: #{e.message}")
   end
 
   def invoke_handoff_tool_fallback(response)

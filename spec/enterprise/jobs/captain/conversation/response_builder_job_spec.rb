@@ -322,6 +322,31 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
         types = Captain::TraceEvent.for_conversation(conversation.id).pluck(:event_type)
         expect(types).to include('handoff')
       end
+
+      it 'records an explicit handoff decision event' do
+        described_class.perform_now(conversation, assistant)
+
+        decision = Captain::TraceEvent.for_conversation(conversation.id).decisions.last
+        expect(decision).to be_present
+        expect(decision.payload['decision_domain']).to eq('handoff')
+        expect(decision.payload['selected']).to be(true)
+      end
+    end
+
+    context 'when run completes' do
+      before do
+        allow(mock_llm_chat_service).to receive(:generate_response).and_return(
+          { 'response' => 'Sure!', 'reasoning' => 'easy answer' }
+        )
+      end
+
+      it 'attaches duration_ms to run_completed' do
+        described_class.perform_now(conversation, assistant)
+
+        run_completed = Captain::TraceEvent.for_conversation(conversation.id).find_by(event_type: 'run_completed')
+        expect(run_completed).to be_present
+        expect(run_completed.payload['duration_ms']).to be_a(Integer)
+      end
     end
 
     context 'when feature flag is disabled' do

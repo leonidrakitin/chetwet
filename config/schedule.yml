@@ -80,3 +80,9 @@ telegram_personal_sync_worker:
   cron: '*/5 * * * *'
   class: 'TelegramSyncWorker'
   queue: scheduled_jobs
+
+# executed daily at 0330 UTC to purge captain_trace_events older than the configured TTL
+captain_trace_cleanup_job:
+  cron: '30 3 * * *'
+  class: 'Captain::Trace::CleanupJob'
+  queue: purgable
