@@ -118,6 +118,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
 
       duration_ms = recorder.stop_timer("llm:#{agent_name}")
       tool_calls = extract_tool_call_summary(message)
+      record_prompt_snapshot(recorder, chat, agent_name, model)
       recorder.record(:llm_response, {
         agent: agent_name.to_s,
         model: model.to_s,
@@ -127,6 +128,88 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
       }.compact)
     rescue StandardError => e
       Rails.logger.warn("[Captain::Trace] llm_response capture failed: #{e.message}")
+    end
+  end
+
+  PROMPT_SNAPSHOT_MAX_MESSAGES = 30
+  PROMPT_SNAPSHOT_PER_MESSAGE_CHARS = 1_500
+  PROMPT_SNAPSHOT_SYSTEM_CHARS = 4_000
+  PROMPT_SNAPSHOT_TOOL_DESC_CHARS = 240
+
+  def record_prompt_snapshot(recorder, chat, agent_name, model)
+    return unless chat.respond_to?(:messages)
+
+    prompt_messages = Array(chat.messages)[0...-1]
+    return if prompt_messages.blank?
+
+    serialized = prompt_messages.map { |m| serialize_prompt_message(m) }
+    system_messages = serialized.select { |m| m[:role] == 'system' }
+    other_messages = serialized.reject { |m| m[:role] == 'system' }
+
+    recorder.record(:prompt_snapshot, {
+      agent: agent_name.to_s,
+      model: model.to_s,
+      system_prompt: build_prompt_system_summary(system_messages),
+      messages: build_prompt_messages_payload(other_messages),
+      message_count: serialized.size,
+      tool_instructions: build_prompt_tool_instructions(chat)
+    }.compact)
+  rescue StandardError => e
+    Rails.logger.warn("[Captain::Trace] prompt_snapshot capture failed: #{e.message}")
+  end
+
+  def serialize_prompt_message(message)
+    role = message.respond_to?(:role) ? message.role.to_s : 'unknown'
+    content = serialize_prompt_message_content(message)
+    out = { role: role, content: content }
+    if message.respond_to?(:tool_calls) && message.tool_calls.is_a?(Hash) && message.tool_calls.any?
+      out[:tool_calls] = message.tool_calls.values.first(5).map do |tc|
+        {
+          name: tc.respond_to?(:name) ? tc.name.to_s : nil,
+          arguments: tc.respond_to?(:arguments) ? tc.arguments.to_s.truncate(PROMPT_SNAPSHOT_PER_MESSAGE_CHARS) : nil
+        }.compact
+      end
+    end
+    out
+  end
+
+  def serialize_prompt_message_content(message)
+    return '' unless message.respond_to?(:content)
+
+    raw = message.content
+    str = if raw.respond_to?(:text) && raw.respond_to?(:attachments)
+            text = raw.text.to_s
+            urls = Array(raw.attachments).map { |a| a.respond_to?(:source) ? a.source.to_s : a.to_s }
+            urls.any? ? "#{text}\n[attachments: #{urls.join(', ')}]" : text
+          elsif raw.is_a?(Hash) || raw.is_a?(Array)
+            raw.to_json
+          else
+            raw.to_s
+          end
+    str.to_s.truncate(PROMPT_SNAPSHOT_PER_MESSAGE_CHARS)
+  end
+
+  def build_prompt_system_summary(system_messages)
+    return nil if system_messages.blank?
+
+    combined = system_messages.map { |m| m[:content].to_s }.join("\n---\n")
+    combined.truncate(PROMPT_SNAPSHOT_SYSTEM_CHARS)
+  end
+
+  def build_prompt_messages_payload(messages)
+    messages.last(PROMPT_SNAPSHOT_MAX_MESSAGES)
+  end
+
+  def build_prompt_tool_instructions(chat)
+    tools = chat.respond_to?(:tools) ? chat.tools : nil
+    return nil if tools.blank?
+
+    list = tools.respond_to?(:values) ? tools.values : Array(tools)
+    list.first(20).map do |t|
+      {
+        name: t.respond_to?(:name) ? t.name.to_s : nil,
+        description: (t.respond_to?(:description) ? t.description.to_s : '').truncate(PROMPT_SNAPSHOT_TOOL_DESC_CHARS)
+      }.compact
     end
   end
 

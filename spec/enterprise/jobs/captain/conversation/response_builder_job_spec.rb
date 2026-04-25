@@ -361,6 +361,65 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
         end.not_to change(Captain::TraceEvent, :count)
       end
     end
+
+    describe 'prompt snapshot capture' do
+      let(:job) { described_class.new }
+      let(:recorder) do
+        Captain::Trace::Recorder.new(conversation: conversation, assistant: assistant, source: 'test')
+      end
+
+      before do
+        account.enable_features!('captain_trace_events')
+      end
+
+      it 'records a prompt_snapshot event with system, messages and tool instructions' do
+        system_msg = double('msg', role: :system, content: 'Be helpful. Contact: ops@example.com')
+        user_msg = double('msg', role: :user, content: 'Hi there', tool_calls: nil)
+        assistant_msg = double('msg', role: :assistant, content: 'Just placeholder', tool_calls: nil)
+        chat = double(
+          'chat',
+          messages: [system_msg, user_msg, assistant_msg],
+          tools: { handoff: double('tool', name: 'escalate_to_human', description: 'Escalate to a human operator.') }
+        )
+
+        job.send(:record_prompt_snapshot, recorder, chat, 'orchestrator', 'gpt-4o')
+
+        recorder.flush_to(source_message: nil)
+        event = Captain::TraceEvent.for_conversation(conversation.id).find_by(event_type: 'prompt_snapshot')
+
+        expect(event).to be_present
+        expect(event.payload['agent']).to eq('orchestrator')
+        expect(event.payload['model']).to eq('gpt-4o')
+        expect(event.payload['system_prompt']).to include('Be helpful')
+        expect(event.payload['system_prompt']).to include('[redacted_email]')
+        expect(event.payload['message_count']).to eq(2)
+        expect(event.payload['messages']).to include(hash_including('role' => 'user', 'content' => 'Hi there'))
+        expect(event.payload['tool_instructions'].first).to include('name' => 'escalate_to_human')
+      end
+
+      it 'truncates oversized message content to per-message char limit' do
+        stub_const("#{described_class}::PROMPT_SNAPSHOT_PER_MESSAGE_CHARS", 50)
+
+        long_text = 'x' * 1_000
+        user_msg = double('msg', role: :user, content: long_text, tool_calls: nil)
+        chat = double('chat', messages: [user_msg, double('asst', role: :assistant, content: '', tool_calls: nil)], tools: nil)
+
+        job.send(:record_prompt_snapshot, recorder, chat, 'orchestrator', 'gpt-4o')
+        recorder.flush_to(source_message: nil)
+
+        event = Captain::TraceEvent.for_conversation(conversation.id).find_by(event_type: 'prompt_snapshot')
+        truncated = event.payload['messages'].first['content']
+        expect(truncated.length).to be <= 50
+      end
+
+      it 'is a no-op when chat has no usable messages' do
+        chat = double('chat', messages: [], tools: nil)
+        job.send(:record_prompt_snapshot, recorder, chat, 'orchestrator', 'gpt-4o')
+        recorder.flush_to(source_message: nil)
+
+        expect(Captain::TraceEvent.for_conversation(conversation.id).where(event_type: 'prompt_snapshot')).to be_empty
+      end
+    end
   end
 
   describe 'out of office message after handoff' do
