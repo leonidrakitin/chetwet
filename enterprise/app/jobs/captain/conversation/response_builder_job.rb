@@ -235,7 +235,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob # rubocop:disab
       record_schedule_follow_up_decision(recorder, result, correlation_id)
     when /create_notification_template/
       record_notification_template_decision(recorder, result, correlation_id)
-    when /handoff/
+    when /handoff|escalate_to_human/
       record_handoff_tool_decision(recorder, result, correlation_id)
     end
   rescue StandardError => e
