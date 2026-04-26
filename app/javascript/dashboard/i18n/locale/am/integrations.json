@@ -840,7 +840,7 @@
         },
         "ENDPOINT_URL": {
           "LABEL": "የመጨረሻ አድራሻ URL",
-          "PLACEHOLDER": "https://api.example.com/orders/{'{{'} order_id {'}}'}",
+          "PLACEHOLDER": "https://api.example.com/orders/{order_id}",
           "ERROR": "ትክክለኛ ዩአርኤል ያስፈልጋል"
         },
         "AUTH_TYPE": {
@@ -890,11 +890,11 @@
         },
         "REQUEST_TEMPLATE": {
           "LABEL": "የጥያቄ አካል አብነት (አማራጭ)",
-          "PLACEHOLDER": "{'{'}\n  \"order_id\": \"{'{{'} order_id {'}}'}\"\n{'}'}"
+          "PLACEHOLDER": "{\n  \"order_id\": \"{order_id}\"\n}"
         },
         "RESPONSE_TEMPLATE": {
           "LABEL": "የመልስ አብነት (አማራጭ)",
-          "PLACEHOLDER": "Order {'{{'} order_id {'}}'} status: {'{{'} status {'}}'}"
+          "PLACEHOLDER": "Order {order_id} status: {status}"
         },
         "ERRORS": {
           "PARAM_NAME_REQUIRED": "የፓራሜተር ስም አስፈላጊ ነው"

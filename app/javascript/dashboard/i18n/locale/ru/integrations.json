@@ -1270,7 +1270,7 @@
         },
         "ENDPOINT_URL": {
           "LABEL": "Endpoint URL",
-          "PLACEHOLDER": "https://api.example.com/orders/{'{{'} order_id {'}}'}",
+          "PLACEHOLDER": "https://api.example.com/orders/{order_id}",
           "ERROR": "Требуется корректный URL"
         },
         "AUTH_TYPE": {
@@ -1320,11 +1320,11 @@
         },
         "REQUEST_TEMPLATE": {
           "LABEL": "Шаблон тела запроса (необязательно)",
-          "PLACEHOLDER": "{'{'}\n  \"order_id\": \"{'{{'} order_id {'}}'}\"\n{'}'}"
+          "PLACEHOLDER": "{\n  \"order_id\": \"{order_id}\"\n}"
         },
         "RESPONSE_TEMPLATE": {
           "LABEL": "Шаблон ответа (необязательно)",
-          "PLACEHOLDER": "Заказ {'{{'} order_id {'}}'} status: {'{{'} status {'}}'}"
+          "PLACEHOLDER": "Заказ {order_id} status: {status}"
         },
         "ERRORS": {
           "PARAM_NAME_REQUIRED": "Имя параметра обязательно"

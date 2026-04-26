@@ -176,7 +176,7 @@ defineExpose({ open, dialogRef });
             <Icon icon="i-lucide-workflow" class="size-3.5" />
             {{
               t('CAPTAIN.ASSISTANTS.TEMPLATES.SCENARIOS_COUNT', {
-                count: template.scenarios.length,
+                count: template.scenarios?.length ?? 0,
               })
             }}
           </span>

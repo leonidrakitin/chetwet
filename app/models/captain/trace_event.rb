@@ -64,7 +64,7 @@ class Captain::TraceEvent < ApplicationRecord
   ].freeze
 
   belongs_to :account, class_name: '::Account'
-  belongs_to :conversation, class_name: '::Conversation'
+  belongs_to :conversation, class_name: '::Conversation', inverse_of: :captain_trace_events
   belongs_to :assistant, class_name: 'Captain::Assistant', optional: true
   belongs_to :source_message, class_name: '::Message', optional: true
 

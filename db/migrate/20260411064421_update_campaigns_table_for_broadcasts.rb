@@ -1,5 +1,9 @@
 class UpdateCampaignsTableForBroadcasts < ActiveRecord::Migration[7.1]
   def change
+    # When `campaigns` was dropped earlier (e.g. old 20260327120000) or the DB was
+    # reset without init, (re)create the pre-broadcasts shape: init + messages + template_params.
+    ensure_pre_broadcast_campaigns_table!
+
     rename_column :campaigns, :title, :name if column_exists?(:campaigns, :title)
     rename_column :campaigns, :message, :old_message if column_exists?(:campaigns, :message)
 
@@ -34,5 +38,35 @@ class UpdateCampaignsTableForBroadcasts < ActiveRecord::Migration[7.1]
     add_index :campaign_deliveries, :account_id unless index_exists?(:campaign_deliveries, :account_id)
     add_index :campaign_deliveries, %i[campaign_id status] unless index_exists?(:campaign_deliveries, %i[campaign_id status])
     add_index :campaign_deliveries, %i[contact_id campaign_id] unless index_exists?(:campaign_deliveries, %i[contact_id campaign_id])
+  end
+
+  def ensure_pre_broadcast_campaigns_table!
+    return if table_exists?(:campaigns)
+
+    create_table :campaigns do |t|
+      t.integer :display_id, null: false
+      t.string :title, null: false
+      t.text :description
+      t.text :message, null: false
+      t.integer :sender_id
+      t.boolean :enabled, default: true
+      t.bigint :account_id, null: false
+      t.bigint :inbox_id, null: false
+      t.jsonb :trigger_rules, default: {}
+      t.jsonb :audience, default: []
+      t.datetime :scheduled_at, precision: nil
+      t.integer :campaign_type, default: 0, null: false
+      t.integer :campaign_status, default: 0, null: false
+      t.boolean :trigger_only_during_business_hours, default: false
+      t.jsonb :messages
+      t.jsonb :template_params
+      t.timestamps
+    end
+
+    add_index :campaigns, :account_id unless index_exists?(:campaigns, :account_id)
+    add_index :campaigns, :campaign_status unless index_exists?(:campaigns, :campaign_status)
+    add_index :campaigns, :campaign_type unless index_exists?(:campaigns, :campaign_type)
+    add_index :campaigns, :inbox_id unless index_exists?(:campaigns, :inbox_id)
+    add_index :campaigns, :scheduled_at unless index_exists?(:campaigns, :scheduled_at)
   end
 end

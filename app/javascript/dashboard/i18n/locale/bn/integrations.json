@@ -840,7 +840,7 @@
         },
         "ENDPOINT_URL": {
           "LABEL": "এন্ডপয়েন্ট URL",
-          "PLACEHOLDER": "https://api.example.com/orders/{'{{'} order_id {'}}'}",
+          "PLACEHOLDER": "https://api.example.com/orders/{order_id}",
           "ERROR": "বৈধ URL প্রয়োজন"
         },
         "AUTH_TYPE": {
@@ -890,11 +890,11 @@
         },
         "REQUEST_TEMPLATE": {
           "LABEL": "রিকোয়েস্ট বডি টেমপ্লেট (ঐচ্ছিক)",
-          "PLACEHOLDER": "{'{'}\n  \"order_id\": \"{'{{'} order_id {'}}'}\"\n{'}'}"
+          "PLACEHOLDER": "{\n  \"order_id\": \"{order_id}\"\n}"
         },
         "RESPONSE_TEMPLATE": {
           "LABEL": "রেসপন্স টেমপ্লেট (ঐচ্ছিক)",
-          "PLACEHOLDER": "অর্ডার {'{{'} order_id {'}}'} স্ট্যাটাস: {'{{'} status {'}}'}"
+          "PLACEHOLDER": "অর্ডার {order_id} স্ট্যাটাস: {status}"
         },
         "ERRORS": {
           "PARAM_NAME_REQUIRED": "প্যারামিটার নাম আবশ্যক"

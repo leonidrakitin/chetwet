@@ -32,6 +32,23 @@ RSpec.describe DeleteObjectJob, type: :job do
         expect(Contact.where(id: contact_ids).reload).not_to be_empty
         expect { inbox.reload }.to raise_error(ActiveRecord::RecordNotFound)
       end
+
+      it 'removes captain trace events that reference conversations (no FK violation)' do
+        conv = inbox.conversations.first
+        Captain::TraceEvent.create!(
+          account: account,
+          conversation: conv,
+          session_id: 'test-session',
+          event_type: 'run_started',
+          sequence: 1,
+          payload: {},
+          created_at: Time.current
+        )
+
+        expect { described_class.perform_now(inbox) }.not_to raise_error
+        expect(Captain::TraceEvent.where(conversation_id: conv.id)).to be_empty
+        expect { inbox.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
     end
 
     context 'when object is heavy (Account)' do

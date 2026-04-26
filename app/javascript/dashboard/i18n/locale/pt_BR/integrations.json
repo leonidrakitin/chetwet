@@ -840,7 +840,7 @@
         },
         "ENDPOINT_URL": {
           "LABEL": "URL do endpoint",
-          "PLACEHOLDER": "https://api.example.com/orders/{'{{'} order_id {'}}'}",
+          "PLACEHOLDER": "https://api.example.com/orders/{order_id}",
           "ERROR": "É necessário informar uma URL válida"
         },
         "AUTH_TYPE": {
@@ -890,11 +890,11 @@
         },
         "REQUEST_TEMPLATE": {
           "LABEL": "Modelo do Corpo da Requisição (Opcional)",
-          "PLACEHOLDER": "{'{'}\n  \"order_id\": \"{'{{'} order_id {'}}'}\"\n{'}'}"
+          "PLACEHOLDER": "{\n  \"order_id\": \"{order_id}\"\n}"
         },
         "RESPONSE_TEMPLATE": {
           "LABEL": "Modelo de Resposta (Opcional)",
-          "PLACEHOLDER": "Order {'{{'} order_id {'}}'} status: {'{{'} status {'}}'}"
+          "PLACEHOLDER": "Order {order_id} status: {status}"
         },
         "ERRORS": {
           "PARAM_NAME_REQUIRED": "O nome do parâmetro é obrigatório"
