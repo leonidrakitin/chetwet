@@ -64,21 +64,34 @@ module Llm::Config
         provider_cfg.is_a?(Hash) && provider_cfg['enabled'] == true && provider_cfg['api_key'].present?
       end
 
-      enabled_chain.empty? ? [:openai] : enabled_chain.map { |p| provider_sym(p) }
+      if enabled_chain.empty?
+        Rails.logger.warn('[LLM Config] No enabled provider with api_key in CAPTAIN_PROVIDERS; defaulting to :openai')
+        return [:openai]
+      end
+
+      # Keep chatwoot-name symbols (e.g. :zai, :deepseek) so `with_provider` can look up
+      # the right `providers[<chatwoot_name>]` entry. PROVIDER_MAP collapses these to
+      # :openai for RubyLLM, but the lookup must use the original chatwoot key.
+      enabled_chain.map(&:to_sym)
     end
 
     def with_provider(provider_key = nil, api_key_override: nil)
-      provider = provider_key || primary_provider
+      raw = provider_key || primary_chatwoot_provider
+      chatwoot_name = raw.to_s
       cfg = provider_config
-      providers_hash = cfg['providers'] || {} if cfg.present?
-
-      provider_cfg = providers_hash&.dig(provider.to_s) || {}
+      providers_hash = (cfg && cfg['providers']) || {}
+      provider_cfg = providers_hash[chatwoot_name] || {}
 
       api_key = api_key_override || provider_cfg['api_key']
       api_base = provider_cfg['api_base']
 
-      context = build_ruby_llm_context(provider, api_key, api_base, provider_cfg['settings'] || {})
-      yield context, provider
+      ruby_llm_sym = ruby_llm_provider(chatwoot_name)
+      context = build_ruby_llm_context(chatwoot_name, api_key, api_base, provider_cfg['settings'] || {})
+      # Yield (context, chatwoot_sym, ruby_llm_sym). 2-arg blocks `|ctx, provider|` keep
+      # the previous semantics (chatwoot symbol). New callers can take 3 args to receive
+      # a RubyLLM-compatible provider symbol — important for OpenAI-compatible providers
+      # (deepseek/qwen/zai) where chatwoot_name != ruby_llm_sym.
+      yield context, chatwoot_name.to_sym, ruby_llm_sym
     end
 
     def embedding_context
@@ -150,13 +163,67 @@ module Llm::Config
       [key, base]
     end
 
+    # Apply the resolved provider config (for the given provider, defaults to primary)
+    # to the GLOBAL Agents.config / RubyLLM.config. Captain V2's AgentRunner (ai-agents
+    # gem) builds `RubyLLM::Chat.new(model: ...)` without per-call context, so it relies
+    # entirely on these globals. Call this whenever provider_config might have changed
+    # (boot, after Super Admin save, before each AgentRunner run) to keep them in sync.
+    #
+    # NOTE: this mutates global state and is not thread-safe across concurrent jobs —
+    # captain V2 runs are serialised per-conversation via Redis::LockManager, but parallel
+    # runs across distinct conversations on the same process can race. Acceptable for
+    # the current single-primary configuration model.
+    def apply_to_globals!(provider_key = nil)
+      raw = provider_key || primary_chatwoot_provider
+      chatwoot_name = raw.to_s
+      cfg = provider_config
+      providers_hash = (cfg && cfg['providers']) || {}
+      provider_cfg = providers_hash[chatwoot_name] || {}
+
+      api_key = provider_cfg['api_key']
+      api_base = provider_cfg['api_base']
+
+      Agents.configure do |config|
+        case chatwoot_name
+        when 'openrouter'
+          config.openrouter_api_key = api_key
+          config.openrouter_api_base = normalize_api_base(api_base) if api_base.present?
+        when 'anthropic'
+          config.anthropic_api_key = api_key
+        when 'gemini'
+          config.gemini_api_key = api_key
+        when 'ollama'
+          config.ollama_api_base = normalize_api_base(api_base, 'ollama') if api_base.present?
+        else
+          # OpenAI and OpenAI-compatible (deepseek, qwen, zai). RubyLLM/Agents only know
+          # `openai_*` config keys for these — that's why a missing key surfaces as
+          # "Missing configuration for OpenAI: openai_api_key" even when the UI selected
+          # zai/qwen/deepseek as the primary provider.
+          config.openai_api_key = api_key
+          config.openai_api_base = normalize_api_base(api_base) if api_base.present?
+        end
+
+        model = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || DEFAULT_MODEL
+        config.default_model = model
+      end
+    rescue StandardError => e
+      Rails.logger.error("[LLM Config] apply_to_globals! failed for provider=#{provider_key}: #{e.class}: #{e.message}")
+    end
+
     private
+
+    def primary_chatwoot_provider
+      cfg = provider_config
+      return 'openai' if cfg.blank?
+
+      cfg['primary_provider'].presence || 'openai'
+    end
 
     def provider_sym(provider_string)
       PROVIDER_MAP[provider_string.to_s] || :openai
     end
 
-    def build_ruby_llm_context(provider, api_key, api_base, settings = {})
+    def build_ruby_llm_context(provider, api_key, api_base, _settings = {})
       RubyLLM.context do |config|
         case provider.to_sym
         when :openrouter

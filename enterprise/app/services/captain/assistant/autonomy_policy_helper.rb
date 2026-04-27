@@ -28,10 +28,22 @@ module Captain::Assistant::AutonomyPolicyHelper
 
       # Stop retrying if the runner itself errored (e.g. LLM API failure) — retries would be identical
       if result.respond_to?(:error) && result.error
-        Rails.logger.error(
-          "[Captain DEBUG TMP] AutonomyPolicy: runner error on attempt #{attempt}, " \
-          "aborting retries: #{result.error.class}: #{result.error.message}"
-        )
+        if result.error.is_a?(RubyLLM::ConfigurationError)
+          # Distinguish missing-key/config errors from transient API failures so ops
+          # can spot misconfigured CAPTAIN_PROVIDERS rather than read this as an
+          # "autonomy escalation". The handoff still happens downstream, but the
+          # log line is unambiguous.
+          Rails.logger.error(
+            "[Captain V2][LLM] Provider configuration error on attempt #{attempt} " \
+            '(check Super Admin → CAPTAIN_PROVIDERS for primary provider keys): ' \
+            "#{result.error.class}: #{result.error.message}"
+          )
+        else
+          Rails.logger.error(
+            "[Captain DEBUG TMP] AutonomyPolicy: runner error on attempt #{attempt}, " \
+            "aborting retries: #{result.error.class}: #{result.error.message}"
+          )
+        end
         break
       end
 

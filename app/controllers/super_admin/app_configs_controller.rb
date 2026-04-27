@@ -115,6 +115,8 @@ class SuperAdmin::AppConfigsController < SuperAdmin::ApplicationController
     if errors&.any?
       redirect_to super_admin_app_config_path(config: @config), alert: errors.join(', ')
     else
+      Llm::Config.instance_variable_set(:@provider_config, nil)
+      Llm::Config.apply_to_globals!
       redirect_to super_admin_settings_path, notice: "App Configs - #{@config.titleize} updated successfully"
     end
   end

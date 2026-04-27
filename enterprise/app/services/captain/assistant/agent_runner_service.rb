@@ -36,6 +36,12 @@ class Captain::Assistant::AgentRunnerService
       "assistant_id=#{@assistant.id} conversation_id=#{@conversation&.id} source=#{@source.inspect}"
     )
 
+    # ai-agents' Runner uses the global RubyLLM/Agents config (no per-call context).
+    # Re-apply the primary provider here so changes saved via Super Admin take effect
+    # without an app restart, and so OpenAI-compatible providers (deepseek/qwen/zai)
+    # populate openai_api_key/base correctly.
+    Llm::Config.apply_to_globals!
+
     with_conversation_lock do
       result = run_with_autonomy_policy(message_to_process, context)
       process_agent_result(result)

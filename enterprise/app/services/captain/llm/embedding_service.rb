@@ -15,27 +15,30 @@ class Captain::Llm::EmbeddingService
     InstallationConfig.find_by(name: 'CAPTAIN_EMBEDDING_MODEL')&.value.presence || LlmConstants::DEFAULT_EMBEDDING_MODEL
   end
 
-  def get_embedding(content, model: @embedding_model)
+  def get_embedding(content, model: nil)
     return [] if content.blank?
 
-    instrument_embedding_call(instrumentation_params(content, model)) do
-      embed_with_retry(content, model)
+    context, provider, configured_model = Llm::Config.embedding_context
+    selected_model = model.presence || configured_model.presence || @embedding_model
+
+    instrument_embedding_call(instrumentation_params(content, selected_model)) do
+      embed_with_retry(content, context: context, provider: provider, model: selected_model)
     end
   rescue StandardError => e
-    log_embedding_failure(e, content, model)
+    log_embedding_failure(e, content, selected_model || model || @embedding_model)
     raise EmbeddingsError, "Failed to create an embedding: #{e.message}"
   end
 
   private
 
-  def embed_with_retry(content, model)
-    context, provider, _embedding_model = Llm::Config.embedding_context
-
+  def embed_with_retry(content, context:, provider:, model:)
     attempts = 0
     begin
       attempts += 1
-      context.embed(content, model: model, provider: provider, assume_model_exists: true,
-                             dimensions: LlmConstants::EMBEDDING_VECTOR_DIMENSIONS).vectors || []
+      params = { model: model, provider: provider, assume_model_exists: true }
+      params[:dimensions] = LlmConstants::EMBEDDING_VECTOR_DIMENSIONS if dimensions_supported?(model)
+
+      context.embed(content, **params).vectors || []
     rescue RubyLLM::Error => e
       raise unless attempts < EMBEDDING_MAX_RETRIES && transient_embedding_error?(e)
 
@@ -67,5 +70,9 @@ class Captain::Llm::EmbeddingService
       feature_name: 'embedding',
       account_id: @account_id
     }
+  end
+
+  def dimensions_supported?(model)
+    model.to_s.start_with?('text-embedding-3-')
   end
 end

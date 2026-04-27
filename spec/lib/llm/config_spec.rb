@@ -76,9 +76,34 @@ RSpec.describe Llm::Config do
         reset_config_cache
       end
 
-      it 'returns only enabled providers with api keys' do
+      it 'returns enabled providers as chatwoot-name symbols (so with_provider can resolve the right config)' do
         chain = described_class.provider_chain
-        expect(chain).to eq([:openai, :openai])
+        expect(chain).to eq([:openai, :deepseek])
+      end
+    end
+
+    context 'with a non-openai primary (zai) and openai fallback' do
+      before do
+        allow(described_class).to receive(:provider_config).and_return({
+                                                                         'primary_provider' => 'zai',
+                                                                         'fallback_order' => %w[openai],
+                                                                         'providers' => {
+                                                                           'zai' => { 'enabled' => true, 'api_key' => 'zai-key',
+                                                                                      'api_base' => 'https://open.bigmodel.cn' },
+                                                                           'openai' => { 'enabled' => true, 'api_key' => 'sk-test' }
+                                                                         }
+                                                                       })
+        reset_config_cache
+      end
+
+      it 'preserves the chatwoot provider name so with_provider reads zai config (not openai)' do
+        expect(described_class.provider_chain).to eq([:zai, :openai])
+
+        captured = []
+        described_class.with_provider(:zai) do |_ctx, chatwoot_sym, ruby_llm_sym|
+          captured << [chatwoot_sym, ruby_llm_sym]
+        end
+        expect(captured).to eq([[:zai, :openai]])
       end
     end
 
@@ -106,6 +131,31 @@ RSpec.describe Llm::Config do
 
     it 'yields a RubyLLM context' do
       expect { |b| described_class.with_provider(:openai, &b) }.to yield_control
+    end
+  end
+
+  describe '.apply_to_globals!' do
+    context 'when primary is an OpenAI-compatible provider (zai)' do
+      before do
+        allow(described_class).to receive(:provider_config).and_return({
+                                                                         'primary_provider' => 'zai',
+                                                                         'providers' => {
+                                                                           'zai' => { 'enabled' => true, 'api_key' => 'zai-key',
+                                                                                      'api_base' => 'https://open.bigmodel.cn' }
+                                                                         }
+                                                                       })
+        reset_config_cache
+      end
+
+      it 'writes the primary key into Agents.configuration.openai_api_key' do
+        # OpenAI-compatible providers (zai/qwen/deepseek) all share the openai_* slots
+        # in RubyLLM/Agents — that's why a missing key surfaces as
+        # "Missing configuration for OpenAI: openai_api_key" even when zai is selected.
+        described_class.apply_to_globals!
+
+        expect(Agents.configuration.openai_api_key).to eq('zai-key')
+        expect(Agents.configuration.openai_api_base).to eq('https://open.bigmodel.cn/v1')
+      end
     end
   end
 
@@ -185,7 +235,7 @@ RSpec.describe Llm::Config do
                                                                      })
       reset_config_cache
 
-      key, base = described_class.embedding_openai_credentials
+      key, = described_class.embedding_openai_credentials
       expect(key).to eq('main-key')
     end
   end

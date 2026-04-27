@@ -43,8 +43,8 @@ class Captain::BaseTaskService
   end
 
   def execute_ruby_llm_request(model:, messages:, schema: nil, tools: [])
-    Llm::FallbackExecutor.execute do |context, provider_key|
-      chat = build_chat(context, model: model, messages: messages, schema: schema, tools: tools, provider: provider_key)
+    Llm::FallbackExecutor.execute do |context, _chatwoot_sym, ruby_llm_sym|
+      chat = build_chat(context, model: model, messages: messages, schema: schema, tools: tools, provider: ruby_llm_sym)
 
       conversation_messages = messages.reject { |m| m[:role] == 'system' }
       return { error: 'No conversation messages provided', error_code: 400, request_messages: messages } if conversation_messages.empty?
