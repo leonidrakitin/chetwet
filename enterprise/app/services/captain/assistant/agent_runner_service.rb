@@ -41,17 +41,25 @@ class Captain::Assistant::AgentRunnerService
     # without an app restart, and so OpenAI-compatible providers (deepseek/qwen/zai)
     # populate openai_api_key/base correctly.
     Llm::Config.apply_to_globals!
+    Llm::Config.validate_primary_provider!
 
     with_conversation_lock do
       result = run_with_autonomy_policy(message_to_process, context)
       process_agent_result(result)
     end
+  rescue Llm::Config::ProviderNotConfiguredError => e
+    log_infra_error(e)
+    infra_error_response(e)
   rescue StandardError => e
     # In rake/local runs, conversation may not be present, so account is optional here.
     ChatwootExceptionTracker.new(e, account: @conversation&.account).capture_exception
+    if infra_error?(e)
+      log_infra_error(e)
+      return infra_error_response(e)
+    end
+
     Rails.logger.error "[Captain V2] AgentRunnerService error: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
-
     error_response(e.message)
   end
 
@@ -333,6 +341,47 @@ class Captain::Assistant::AgentRunnerService
     {
       'response' => 'conversation_handoff',
       'reasoning' => "Error occurred: #{error_message}"
+    }
+  end
+
+  # Treat upstream RubyLLM configuration errors the same as our pre-flight check —
+  # they're infra/config failures, not business escalations.
+  def infra_error?(error)
+    error.is_a?(RubyLLM::ConfigurationError) ||
+      error.is_a?(Llm::Config::ProviderNotConfiguredError)
+  end
+
+  def log_infra_error(error)
+    provider = begin
+      Llm::Config.primary_provider
+    rescue StandardError
+      nil
+    end
+    Rails.logger.error(
+      '[Captain V2][LLM Config Error] ' \
+      "primary_provider=#{provider.inspect} " \
+      "error_class=#{error.class.name} " \
+      "message=#{error.message}"
+    )
+    record_trace_decision(
+      :escalation_decision,
+      domain: 'handoff', name: 'infra_provider_misconfigured',
+      selected: true,
+      reasoning_summary: "Captain primary provider misconfigured: #{error.message}".truncate(500),
+      inputs: { error_class: error.class.name, primary_provider: provider.to_s }
+    )
+  end
+
+  def infra_error_response(error)
+    provider = begin
+      Llm::Config.primary_provider
+    rescue StandardError
+      'unknown'
+    end.to_s
+    {
+      'response' => 'conversation_handoff',
+      'reasoning' => "Infra error: primary provider '#{provider}' misconfigured (#{error.class.name}: #{error.message})",
+      'error_kind' => 'infra'
     }
   end
 

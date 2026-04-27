@@ -71,22 +71,53 @@ class Webhooks::VkEventsJob < ApplicationJob
 
   def duplicate_event?(params)
     event_id = params[:event_id].to_s
-    return false if event_id.blank?
+    return log_blank_event_id(params) if event_id.blank?
 
-    event_key = [
-      'vk:event',
-      params[:group_id].to_s,
-      params[:type].to_s,
-      event_id
-    ].join(':')
-
-    is_new_event = Rails.cache.write(event_key, true, expires_in: EVENT_IDEMPOTENCY_TTL, unless_exist: true)
+    event_key = ['vk:event', params[:group_id].to_s, params[:type].to_s, event_id].join(':')
+    is_new_event = Rails.cache.write(event_key, Time.current.iso8601, expires_in: EVENT_IDEMPOTENCY_TTL, unless_exist: true)
     return false if is_new_event
 
-    Rails.logger.info(
-      "[VK] Duplicate event skipped for group_id=#{params[:group_id]} type=#{params[:type]} event_id=#{event_id}"
-    )
+    log_duplicate_event(params, event_id, event_key)
     true
+  end
+
+  # No event_id → can't safely dedup. Fail-open with a warning rather than risk
+  # dropping real incoming messages. Blank event_id has been seen on partial
+  # callback deliveries and previously caused real messages to be silently
+  # discarded before Captain saw them.
+  def log_blank_event_id(params)
+    Rails.logger.warn(
+      "[VK] Skipping dedup (blank event_id) group_id=#{params[:group_id]} type=#{params[:type]} " \
+      "object_hint=#{vk_object_hint(params).inspect}"
+    )
+    false
+  end
+
+  def log_duplicate_event(params, event_id, event_key)
+    Rails.logger.info(
+      '[VK] Duplicate event skipped ' \
+      "group_id=#{params[:group_id]} type=#{params[:type]} event_id=#{event_id} " \
+      "matched_key=#{event_key} first_seen=#{Rails.cache.read(event_key).inspect} " \
+      "object_hint=#{vk_object_hint(params).inspect}"
+    )
+  end
+
+  # Extract a short, recognisable hint from the event payload so duplicate
+  # log lines are easy to cross-reference with the originating VK event
+  # (e.g. message id / peer id). Best-effort, never raises.
+  def vk_object_hint(params)
+    object = params[:object] || params['object']
+    return nil unless object.is_a?(Hash)
+
+    obj = object.with_indifferent_access
+    message = obj[:message].is_a?(Hash) ? obj[:message].with_indifferent_access : obj
+    {
+      message_id: message[:id] || message[:conversation_message_id],
+      peer_id: message[:peer_id] || message[:from_id],
+      date: message[:date]
+    }.compact
+  rescue StandardError
+    nil
   end
 
   def event_object(params)

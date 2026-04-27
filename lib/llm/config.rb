@@ -27,6 +27,24 @@ module Llm::Config
 
   class AllProvidersFailedError < StandardError; end
 
+  # Raised when the configured primary provider is missing required credentials
+  # (typically api_key). Used to surface a clear infra-class failure instead of
+  # the cryptic upstream "Missing configuration for OpenAI: openai_api_key" that
+  # RubyLLM emits even when the user selected zai/qwen/deepseek as primary.
+  class ProviderNotConfiguredError < StandardError
+    attr_reader :provider, :missing_field
+
+    def initialize(provider:, missing_field: 'api_key')
+      @provider = provider.to_s
+      @missing_field = missing_field.to_s
+      super("Captain primary provider '#{@provider}' is not configured: missing #{@missing_field}. " \
+            'Check Super Admin → CAPTAIN_PROVIDERS for the primary provider credentials.')
+    end
+  end
+
+  # Providers that can legitimately run without an api_key (local inference).
+  KEYLESS_PROVIDERS = %w[ollama].freeze
+
   class << self
     def provider_config
       @provider_config ||= begin
@@ -208,6 +226,22 @@ module Llm::Config
       end
     rescue StandardError => e
       Rails.logger.error("[LLM Config] apply_to_globals! failed for provider=#{provider_key}: #{e.class}: #{e.message}")
+    end
+
+    # Pre-flight check used by Captain V2 (and any other LLM caller that wants
+    # an explicit, attributable failure rather than a downstream "openai_api_key
+    # missing" surprise). Raises ProviderNotConfiguredError when the primary
+    # provider has no api_key (except for keyless providers like ollama).
+    def validate_primary_provider!
+      cfg = provider_config
+      provider_name = cfg&.dig('primary_provider').presence || 'openai'
+      providers_hash = cfg&.dig('providers') || {}
+      provider_cfg = providers_hash[provider_name] || {}
+
+      return if KEYLESS_PROVIDERS.include?(provider_name)
+      return if provider_cfg['api_key'].to_s.strip.present?
+
+      raise ProviderNotConfiguredError.new(provider: provider_name)
     end
 
     private

@@ -16,21 +16,24 @@ class Captain::Tools::ScheduleFollowUpTool < Captain::Tools::BasePublicTool
   param :reason, type: 'string', desc: 'Optional internal reason for the follow-up', required: false
 
   def perform(tool_context, message:, delay_minutes:, reason: nil)
+    log_start(tool_context, message, delay_minutes, reason)
+
     delay = validate_delay!(delay_minutes)
     text = message.to_s.strip
-    return error_result('message must not be empty') if text.blank?
+    return log_failure('blank_message', 'message must not be empty') if text.blank?
 
     conversation = find_conversation(tool_context.state)
     contact = find_contact(tool_context.state) || conversation&.contact
-    return error_result('No conversation context for follow-up') if conversation.blank?
-    return error_result('No contact context for follow-up') if contact.blank?
+    return log_failure('no_conversation', 'No conversation context for follow-up') if conversation.blank?
+    return log_failure('no_contact', 'No contact context for follow-up') if contact.blank?
 
     delivery = schedule_delivery!(conversation, contact, text, delay, reason)
+    log_success(delivery, delay)
     success_result(delivery, delay)
   rescue ArgumentError => e
-    error_result(e.message)
+    log_failure('invalid_argument', e.message)
   rescue ActiveRecord::RecordInvalid => e
-    error_result("Failed to schedule follow-up: #{e.message}")
+    log_failure('record_invalid', "Failed to schedule follow-up: #{e.message}")
   end
 
   private
@@ -84,5 +87,43 @@ class Captain::Tools::ScheduleFollowUpTool < Captain::Tools::BasePublicTool
 
   def error_result(message)
     { status: 'error', error: message }
+  end
+
+  # Structured logs let ops trace the full path tool_invoked → delivery_created →
+  # scheduled_for → dispatched without diff'ing the trace recorder payload. The
+  # `[Captain V2][schedule_follow_up]` prefix is grep-friendly and pairs with the
+  # NotificationTemplate dispatcher's own logs by delivery_id.
+  def log_start(tool_context, message, delay_minutes, reason)
+    state = tool_context&.state || {}
+    Rails.logger.info(
+      '[Captain V2][schedule_follow_up] start ' \
+      "assistant_id=#{@assistant&.id} " \
+      "conversation_id=#{state.dig(:conversation, :id) || state.dig('conversation', 'id')} " \
+      "contact_id=#{state.dig(:contact, :id) || state.dig('contact', 'id')} " \
+      "delay_minutes=#{delay_minutes.inspect} " \
+      "reason=#{reason.to_s.truncate(120).inspect} " \
+      "message_preview=#{message.to_s.truncate(120).inspect}"
+    )
+  end
+
+  def log_success(delivery, delay_minutes)
+    Rails.logger.info(
+      '[Captain V2][schedule_follow_up] success ' \
+      "assistant_id=#{@assistant&.id} " \
+      "notification_template_id=#{delivery.notification_template_id} " \
+      "delivery_id=#{delivery.id} " \
+      "scheduled_for=#{delivery.scheduled_for&.iso8601} " \
+      "delay_minutes=#{delay_minutes}"
+    )
+  end
+
+  def log_failure(reason_code, message)
+    Rails.logger.warn(
+      '[Captain V2][schedule_follow_up] failure ' \
+      "assistant_id=#{@assistant&.id} " \
+      "reason_code=#{reason_code} " \
+      "message=#{message.to_s.truncate(300).inspect}"
+    )
+    error_result(message)
   end
 end

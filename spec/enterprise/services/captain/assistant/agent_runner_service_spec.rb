@@ -33,6 +33,9 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
     allow(mock_runner).to receive(:run).and_return(mock_result)
     allow(mock_agent).to receive(:register_handoffs)
     allow(mock_scenario_agent).to receive(:register_handoffs)
+    # Unit specs stub Agents::Runner; they don't need real provider credentials.
+    # Skip the pre-flight validation so tests remain isolated from CAPTAIN_PROVIDERS.
+    allow(Llm::Config).to receive(:validate_primary_provider!)
   end
 
   describe '#initialize' do
