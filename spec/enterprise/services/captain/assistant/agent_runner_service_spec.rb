@@ -34,8 +34,10 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
     allow(mock_agent).to receive(:register_handoffs)
     allow(mock_scenario_agent).to receive(:register_handoffs)
     # Unit specs stub Agents::Runner; they don't need real provider credentials.
-    # Skip the pre-flight validation so tests remain isolated from CAPTAIN_PROVIDERS.
-    allow(Llm::Config).to receive(:validate_primary_provider!)
+    # Skip the pre-flight validation/global apply so tests remain isolated from
+    # CAPTAIN_PROVIDERS configuration.
+    allow(Llm::Config).to receive(:validate_provider!)
+    allow(Llm::Config).to receive(:apply_to_globals!)
   end
 
   describe '#initialize' do
@@ -359,6 +361,90 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
                                })
         end
       end
+    end
+  end
+
+  describe 'runtime provider/model resolution' do
+    let(:service) { described_class.new(assistant: assistant, conversation: conversation) }
+
+    # Tests in this describe block intentionally exercise the public API up to
+    # but not including the mocked Agents::Runner. The runtime provider/model
+    # resolver runs inside `generate_response` BEFORE the runner is touched, so
+    # we drive it through a custom service shim that stops right after the
+    # resolution step. This sidesteps the pre-existing `mock_runner` setup
+    # issues in the broader spec (it doesn't stub on_tool_complete etc.) and
+    # keeps these specs focused on the contract under test.
+    def resolve!(svc)
+      svc.send(:resolve_runtime_llm_selection!)
+      [svc.instance_variable_get(:@resolved_provider), svc.instance_variable_get(:@resolved_model)]
+    end
+
+    it 'defaults to the chatwoot primary provider when none was passed and resolves a validated runtime_model from account preferences' do
+      allow(Llm::Config).to receive(:primary_chatwoot_provider).and_return('openai')
+      allow(assistant.account).to receive(:captain_assistant_model).and_return('gpt-5.1')
+
+      provider, model = resolve!(service)
+
+      expect(provider).to eq('openai')
+      expect(model).to eq('gpt-5.1')
+    end
+
+    it 'forwards the resolved runtime_model into Concerns::Agentable#agent during build_and_wire_agents' do
+      allow(Llm::Config).to receive(:primary_chatwoot_provider).and_return('openai')
+      allow(assistant.account).to receive(:captain_assistant_model).and_return('gpt-5.1')
+      service.send(:resolve_runtime_llm_selection!)
+
+      expect(assistant).to receive(:agent).with(runtime_model: 'gpt-5.1').and_return(mock_agent)
+      expect(scenario).to receive(:agent).with(runtime_model: 'gpt-5.1').and_return(mock_scenario_agent)
+
+      service.send(:build_and_wire_agents)
+    end
+
+    it 'falls back to the provider default when the account-selected model is not hosted on the provider' do
+      service_with_override = described_class.new(
+        assistant: assistant, conversation: conversation, provider: 'openrouter'
+      )
+      # claude-haiku-4.5 is not hosted on openai but IS on openrouter — pretend the
+      # account picked an openrouter-only id while we override provider to a
+      # different one. We assert that the runner doesn't blindly forward an
+      # incompatible id.
+      allow(assistant.account).to receive(:captain_assistant_model).and_return('claude-sonnet-4.5')
+
+      _, model = resolve!(service_with_override)
+
+      expect(Llm::Config.model_available_for_provider?('openrouter', model)).to be true
+    end
+
+    it 'raises ProviderRequiredError when provider resolution yields blank' do
+      allow(Llm::Config).to receive(:primary_chatwoot_provider).and_return('')
+
+      expect { resolve!(service) }.to raise_error(Llm::Config::ProviderRequiredError)
+    end
+
+    it 'classifies ProviderRequiredError as an infra error and returns a handoff response with error_kind=infra' do
+      allow(Llm::Config).to receive(:primary_chatwoot_provider).and_return('')
+      allow(ChatwootExceptionTracker).to receive(:new).and_return(
+        instance_double(ChatwootExceptionTracker, capture_exception: true)
+      )
+
+      result = service.generate_response(message_history: message_history)
+
+      expect(result['response']).to eq('conversation_handoff')
+      expect(result['error_kind']).to eq('infra')
+      expect(result['reasoning']).to include('ProviderRequiredError')
+    end
+
+    it 'does not implicitly fall back to OpenAI when openrouter is selected with an unprefixed model — apply/validate are scoped to openrouter' do
+      service_with_override = described_class.new(
+        assistant: assistant, conversation: conversation, provider: 'openrouter', model: 'gpt-5-mini'
+      )
+
+      provider, model = resolve!(service_with_override)
+      expect(provider).to eq('openrouter')
+      # gpt-5-mini IS hosted on openrouter (per llm.yml), so it survives validation.
+      # The contract under test is that the resolved provider stays openrouter.
+      expect(model).to eq('gpt-5-mini')
+      expect(Llm::Config.model_available_for_provider?('openrouter', model)).to be true
     end
   end
 

@@ -100,8 +100,8 @@ class Captain::Scenario < ApplicationRecord
     MAX_AGENT_NAME_LENGTH - handoff_id_key.length - HANDOFF_KEY_SUFFIX.length - 2
   end
 
-  def agent_tools
-    base = orchestration_subagent_tools + resolved_tools.map { |tool| resolve_tool_instance(tool) }
+  def agent_tools(runtime_model: nil)
+    base = orchestration_subagent_tools(runtime_model: runtime_model) + resolved_tools.map { |tool| resolve_tool_instance(tool) }
     base << Captain::Tools::CollectSlotsTool.new(assistant, scenario: self) if Array(required_slots).any?
     base.compact
   end

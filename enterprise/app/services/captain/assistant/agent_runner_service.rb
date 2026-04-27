@@ -21,12 +21,22 @@ class Captain::Assistant::AgentRunnerService
 
   CONTACT_INBOX_STATE_ATTRIBUTES = %i[id hmac_verified].freeze
 
-  def initialize(assistant:, conversation: nil, callbacks: {}, source: nil, trace_recorder: nil)
+  # `provider` / `model` are runtime overrides for the Captain V2 LLM call.
+  # Both are optional from the caller's perspective: when not passed we resolve
+  # `provider` from the primary chatwoot provider in CAPTAIN_PROVIDERS, and
+  # `model` from Llm::Config.resolve_runtime_model. The runtime path itself
+  # treats provider as mandatory — a blank resolution raises ProviderRequiredError
+  # instead of silently falling through to the previous global-default-model
+  # behaviour, which routed unprefixed model names through OpenAI even when
+  # primary=openrouter.
+  def initialize(assistant:, conversation: nil, callbacks: {}, source: nil, trace_recorder: nil, provider: nil, model: nil) # rubocop:disable Metrics/ParameterLists
     @assistant = assistant
     @conversation = conversation
     @callbacks = callbacks
     @source = source
     @trace_recorder = trace_recorder
+    @runtime_provider = provider
+    @runtime_model = model
   end
 
   def generate_response(message_history: [])
@@ -37,17 +47,22 @@ class Captain::Assistant::AgentRunnerService
     )
 
     # ai-agents' Runner uses the global RubyLLM/Agents config (no per-call context).
-    # Re-apply the primary provider here so changes saved via Super Admin take effect
-    # without an app restart, and so OpenAI-compatible providers (deepseek/qwen/zai)
-    # populate openai_api_key/base correctly.
-    Llm::Config.apply_to_globals!
-    Llm::Config.validate_primary_provider!
+    # Re-apply the resolved runtime provider here so changes saved via Super Admin
+    # take effect without an app restart, and so OpenAI-compatible providers
+    # (deepseek/qwen/zai) populate openai_api_key/base correctly. We deliberately
+    # apply for the runtime-resolved provider (not unconditionally the primary)
+    # so a future runtime override stays consistent end-to-end.
+    resolve_runtime_llm_selection!
+    Llm::Config.apply_to_globals!(@resolved_provider)
+    Llm::Config.validate_provider!(@resolved_provider)
 
     with_conversation_lock do
       result = run_with_autonomy_policy(message_to_process, context)
       process_agent_result(result)
     end
-  rescue Llm::Config::ProviderNotConfiguredError => e
+  rescue Llm::Config::ProviderNotConfiguredError,
+         Llm::Config::ProviderRequiredError,
+         Llm::Config::ModelNotAvailableForProviderError => e
     log_infra_error(e)
     infra_error_response(e)
   rescue StandardError => e
@@ -348,18 +363,36 @@ class Captain::Assistant::AgentRunnerService
   # they're infra/config failures, not business escalations.
   def infra_error?(error)
     error.is_a?(RubyLLM::ConfigurationError) ||
-      error.is_a?(Llm::Config::ProviderNotConfiguredError)
+      error.is_a?(Llm::Config::ProviderNotConfiguredError) ||
+      error.is_a?(Llm::Config::ProviderRequiredError) ||
+      error.is_a?(Llm::Config::ModelNotAvailableForProviderError)
+  end
+
+  # Resolves the runtime provider/model pair used by this run. Provider falls
+  # back to the chatwoot primary provider; model falls back to the account's
+  # captain_assistant_model when valid for the chosen provider, otherwise to
+  # the provider's default from llm.yml. The result is memoised so logging,
+  # apply_to_globals! and agent construction all see the same pair.
+  def resolve_runtime_llm_selection!
+    @resolved_provider = (@runtime_provider.presence || Llm::Config.primary_chatwoot_provider).to_s
+    raise Llm::Config::ProviderRequiredError if @resolved_provider.blank?
+
+    runtime_model_candidate = @runtime_model.presence || account_assistant_model
+    @resolved_model = Llm::Config.resolve_runtime_model(provider: @resolved_provider, model: runtime_model_candidate)
+  end
+
+  def account_assistant_model
+    @assistant.account.captain_assistant_model
+  rescue StandardError
+    nil
   end
 
   def log_infra_error(error)
-    provider = begin
-      Llm::Config.primary_provider
-    rescue StandardError
-      nil
-    end
+    provider = resolved_or_primary_provider_for_logging
     Rails.logger.error(
       '[Captain V2][LLM Config Error] ' \
-      "primary_provider=#{provider.inspect} " \
+      "provider=#{provider.inspect} " \
+      "model=#{@resolved_model.inspect} " \
       "error_class=#{error.class.name} " \
       "message=#{error.message}"
     )
@@ -367,22 +400,26 @@ class Captain::Assistant::AgentRunnerService
       :escalation_decision,
       domain: 'handoff', name: 'infra_provider_misconfigured',
       selected: true,
-      reasoning_summary: "Captain primary provider misconfigured: #{error.message}".truncate(500),
-      inputs: { error_class: error.class.name, primary_provider: provider.to_s }
+      reasoning_summary: "Captain LLM provider/model misconfigured: #{error.message}".truncate(500),
+      inputs: { error_class: error.class.name, provider: provider.to_s, model: @resolved_model.to_s }
     )
   end
 
   def infra_error_response(error)
-    provider = begin
-      Llm::Config.primary_provider
-    rescue StandardError
-      'unknown'
-    end.to_s
+    provider = resolved_or_primary_provider_for_logging.to_s
     {
       'response' => 'conversation_handoff',
-      'reasoning' => "Infra error: primary provider '#{provider}' misconfigured (#{error.class.name}: #{error.message})",
+      'reasoning' => "Infra error: provider '#{provider}' misconfigured (#{error.class.name}: #{error.message})",
       'error_kind' => 'infra'
     }
+  end
+
+  def resolved_or_primary_provider_for_logging
+    return @resolved_provider if @resolved_provider.present?
+
+    Llm::Config.primary_chatwoot_provider
+  rescue StandardError
+    'unknown'
   end
 
   def build_state
@@ -415,8 +452,8 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def build_and_wire_agents
-    assistant_agent = @assistant.agent
-    scenario_agents = @assistant.scenarios.enabled.map(&:agent)
+    assistant_agent = @assistant.agent(runtime_model: @resolved_model)
+    scenario_agents = @assistant.scenarios.enabled.map { |scenario| scenario.agent(runtime_model: @resolved_model) }
 
     assistant_agent.register_handoffs(*scenario_agents) if scenario_agents.any?
     scenario_agents.each { |scenario_agent| scenario_agent.register_handoffs(assistant_agent) }

@@ -1,12 +1,16 @@
 module Concerns::Agentable
   extend ActiveSupport::Concern
 
-  def agent
+  # `runtime_model` is the validated model resolved by Captain V2's runtime
+  # path (Llm::Config.resolve_runtime_model). When passed in we use it as
+  # source-of-truth for both the primary agent and any orchestration sub-agents,
+  # so the whole tree stays consistent with the runtime provider.
+  def agent(runtime_model: nil)
     Agents::Agent.new(
       name: agent_name,
       instructions: ->(context) { agent_instructions(context) },
-      tools: agent_tools,
-      model: agent_model,
+      tools: agent_tools(runtime_model: runtime_model),
+      model: agent_model(runtime_model: runtime_model),
       temperature: temperature.to_f || 0.7,
       response_schema: agent_response_schema
     )
@@ -58,22 +62,27 @@ module Concerns::Agentable
     self.class.name.demodulize.underscore
   end
 
-  def agent_tools
+  def agent_tools(runtime_model: nil) # rubocop:disable Lint/UnusedMethodArgument
     []  # Default implementation, override if needed
   end
 
-  def agent_model
-    InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || LlmConstants::DEFAULT_MODEL
+  # Captain V2 runtime path passes the validated runtime_model. We deliberately
+  # do not consult CAPTAIN_OPEN_AI_MODEL here — that legacy installation config
+  # is provider-agnostic and would silently route an openrouter run through
+  # an OpenAI-shaped model name. Legacy non-runtime callers fall back to
+  # LlmConstants::DEFAULT_MODEL.
+  def agent_model(runtime_model: nil)
+    runtime_model.presence || LlmConstants::DEFAULT_MODEL
   end
 
   def agent_response_schema
     Captain::ResponseSchema
   end
 
-  def orchestration_subagent_tools
+  def orchestration_subagent_tools(runtime_model: nil)
     return [] unless orchestration_subagents_enabled?
 
-    [planner_agent_tool, policy_agent_tool]
+    [planner_agent_tool(runtime_model: runtime_model), policy_agent_tool(runtime_model: runtime_model)]
   end
 
   def orchestration_subagents_enabled?
@@ -91,7 +100,7 @@ module Concerns::Agentable
     raise NotImplementedError, "#{self.class} must implement prompt_context"
   end
 
-  def planner_agent_tool
+  def planner_agent_tool(runtime_model: nil)
     Agents::Agent.new(
       name: "#{agent_name}_planner",
       instructions: lambda { |_context|
@@ -100,7 +109,7 @@ module Concerns::Agentable
           'MUST escalate for restricted actions: cancellations, refunds, or account changes. ' \
           'Keep your reasoning concise and return only structured output.'
       },
-      model: orchestration_subagent_model,
+      model: orchestration_subagent_model(runtime_model: runtime_model),
       temperature: 0.2,
       response_schema: planner_response_schema
     ).as_tool(
@@ -109,7 +118,7 @@ module Concerns::Agentable
     )
   end
 
-  def policy_agent_tool
+  def policy_agent_tool(runtime_model: nil)
     Agents::Agent.new(
       name: "#{agent_name}_policy",
       instructions: lambda { |_context|
@@ -119,7 +128,7 @@ module Concerns::Agentable
           'for restricted actions: cancellations, refunds, or account changes. ' \
           'Even if the request looks simple, if it involves these topics, escalation is mandatory.'
       },
-      model: orchestration_subagent_model,
+      model: orchestration_subagent_model(runtime_model: runtime_model),
       temperature: 0.1,
       response_schema: policy_response_schema
     ).as_tool(
@@ -128,8 +137,8 @@ module Concerns::Agentable
     )
   end
 
-  def orchestration_subagent_model
-    LlmConstants::DEFAULT_MODEL
+  def orchestration_subagent_model(runtime_model: nil)
+    runtime_model.presence || LlmConstants::DEFAULT_MODEL
   end
 
   def planner_response_schema

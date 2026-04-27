@@ -45,6 +45,29 @@ module Llm::Config
   # Providers that can legitimately run without an api_key (local inference).
   KEYLESS_PROVIDERS = %w[ollama].freeze
 
+  # Raised by the Captain V2 runtime path when a caller did not establish a
+  # provider — both explicit and primary fallbacks resolved to blank.
+  class ProviderRequiredError < StandardError
+    def initialize(message = 'provider is required at runtime')
+      super
+    end
+  end
+
+  # Raised when the resolved model is not part of llm.yml for the chosen
+  # provider (e.g. openrouter + unprefixed `gpt-5-mini` instead of an
+  # openrouter-hosted entry). Surfaces a clear validation error instead of
+  # silently falling back through OpenAI.
+  class ModelNotAvailableForProviderError < StandardError
+    attr_reader :provider, :model
+
+    def initialize(provider:, model:)
+      @provider = provider.to_s
+      @model = model.to_s
+      super("model '#{@model}' is not available for provider '#{@provider}' " \
+            '(check config/llm.yml for allowed combinations).')
+    end
+  end
+
   class << self
     def provider_config
       @provider_config ||= begin
@@ -184,8 +207,15 @@ module Llm::Config
     # Apply the resolved provider config (for the given provider, defaults to primary)
     # to the GLOBAL Agents.config / RubyLLM.config. Captain V2's AgentRunner (ai-agents
     # gem) builds `RubyLLM::Chat.new(model: ...)` without per-call context, so it relies
-    # entirely on these globals. Call this whenever provider_config might have changed
-    # (boot, after Super Admin save, before each AgentRunner run) to keep them in sync.
+    # on these globals for transport (api_key/api_base). Call this whenever
+    # provider_config might have changed (boot, after Super Admin save, before each
+    # AgentRunner run) to keep them in sync.
+    #
+    # IMPORTANT: this only configures transport keys. The model passed into each
+    # `Agents::Agent.new(model: ...)` is the runtime source-of-truth (see
+    # Llm::Config.resolve_runtime_model), so we deliberately do NOT touch
+    # `config.default_model` here — that would re-introduce the implicit
+    # CAPTAIN_OPEN_AI_MODEL fallback that conflicts with non-OpenAI providers.
     #
     # NOTE: this mutates global state and is not thread-safe across concurrent jobs —
     # captain V2 runs are serialised per-conversation via Redis::LockManager, but parallel
@@ -220,9 +250,6 @@ module Llm::Config
           config.openai_api_key = api_key
           config.openai_api_base = normalize_api_base(api_base) if api_base.present?
         end
-
-        model = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || DEFAULT_MODEL
-        config.default_model = model
       end
     rescue StandardError => e
       Rails.logger.error("[LLM Config] apply_to_globals! failed for provider=#{provider_key}: #{e.class}: #{e.message}")
@@ -233,8 +260,16 @@ module Llm::Config
     # missing" surprise). Raises ProviderNotConfiguredError when the primary
     # provider has no api_key (except for keyless providers like ollama).
     def validate_primary_provider!
+      validate_provider!(primary_chatwoot_provider)
+    end
+
+    # Same check as validate_primary_provider! but for an explicit chatwoot
+    # provider name. Captain V2's runtime path validates the resolved provider,
+    # not just the primary, so a runtime override (e.g. openrouter while
+    # primary=openai) still surfaces a missing api_key as a clean infra error.
+    def validate_provider!(chatwoot_provider)
       cfg = provider_config
-      provider_name = cfg&.dig('primary_provider').presence || 'openai'
+      provider_name = chatwoot_provider.to_s
       providers_hash = cfg&.dig('providers') || {}
       provider_cfg = providers_hash[provider_name] || {}
 
@@ -244,14 +279,64 @@ module Llm::Config
       raise ProviderNotConfiguredError.new(provider: provider_name)
     end
 
-    private
-
+    # Returns the chatwoot provider name (e.g. 'openrouter', 'zai') from
+    # CAPTAIN_PROVIDERS, falling back to 'openai'. Public so the Captain V2
+    # runtime can resolve provider/model without poking at private state.
     def primary_chatwoot_provider
       cfg = provider_config
       return 'openai' if cfg.blank?
 
       cfg['primary_provider'].presence || 'openai'
     end
+
+    # Returns true when the model is registered in llm.yml AND the chatwoot
+    # provider is allowed to host it (either as the model's `provider` or via
+    # the model's `hosts` list — openrouter is a host, not a provider).
+    def model_available_for_provider?(provider, model)
+      provider_str = provider.to_s
+      model_cfg = Llm::Models.models[model.to_s]
+      return false if model_cfg.nil?
+
+      hosts = model_cfg['hosts']
+      return model_cfg['provider'] == provider_str if hosts.blank?
+
+      hosts.include?(provider_str) || model_cfg['provider'] == provider_str
+    end
+
+    # Resolves a provider-specific default model from llm.yml. Prefers the
+    # account-facing assistant feature default when it's compatible with the
+    # provider, otherwise picks the first non-coming_soon model whose
+    # provider/hosts include the chosen provider. Used by the Captain V2
+    # runtime path so we never silently route to the global default model.
+    def default_model_for(provider)
+      provider_str = provider.to_s
+      assistant_default = Llm::Models.default_model_for(:assistant)
+      return assistant_default if assistant_default.present? && model_available_for_provider?(provider_str, assistant_default)
+
+      pick = Llm::Models.models.find do |id, cfg|
+        !cfg['coming_soon'] && model_available_for_provider?(provider_str, id)
+      end
+      pick&.first || DEFAULT_MODEL
+    end
+
+    # Captain V2 runtime entry point: resolves and validates the model for a
+    # given provider. Optional `model` is a runtime override (e.g. from the
+    # account's captain_assistant_model selection); when blank or unknown for
+    # the provider, falls back to default_model_for(provider) so we never
+    # implicitly pass an OpenAI-shaped name to an openrouter run.
+    def resolve_runtime_model(provider:, model: nil)
+      provider_str = provider.to_s
+      raise ProviderRequiredError if provider_str.blank?
+
+      candidate = model.to_s.strip
+      candidate = default_model_for(provider_str) if candidate.blank? || !model_available_for_provider?(provider_str, candidate)
+      raise ModelNotAvailableForProviderError.new(provider: provider_str, model: candidate) unless model_available_for_provider?(provider_str,
+                                                                                                                                 candidate)
+
+      candidate
+    end
+
+    private
 
     def provider_sym(provider_string)
       PROVIDER_MAP[provider_string.to_s] || :openai

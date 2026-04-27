@@ -211,6 +211,122 @@ RSpec.describe Llm::Config do
     end
   end
 
+  describe '.model_available_for_provider?' do
+    it 'returns true when the model lists the provider in hosts' do
+      # gpt-5.1 has hosts: [openai, openrouter] in llm.yml
+      expect(described_class.model_available_for_provider?('openrouter', 'gpt-5.1')).to be true
+    end
+
+    it 'returns true when the model.provider matches the chatwoot provider' do
+      expect(described_class.model_available_for_provider?('openai', 'gpt-5.1')).to be true
+    end
+
+    it 'returns false when the openrouter-hosted name is requested for a non-openrouter primary' do
+      # google/gemma-4-26b-a4b-it is hosted only on openrouter
+      expect(described_class.model_available_for_provider?('openai', 'google/gemma-4-26b-a4b-it')).to be false
+    end
+
+    it 'returns false for an unknown model id' do
+      expect(described_class.model_available_for_provider?('openai', 'made-up-model')).to be false
+    end
+  end
+
+  describe '.default_model_for' do
+    it 'returns the assistant-feature default when it is compatible with the provider' do
+      expect(described_class.default_model_for('openai')).to eq(Llm::Models.default_model_for(:assistant))
+    end
+
+    it 'falls back to a provider-compatible model when the assistant default is incompatible' do
+      result = described_class.default_model_for('zai')
+      expect(described_class.model_available_for_provider?('zai', result)).to be true
+    end
+
+    it 'returns an openrouter-hosted model when the chatwoot primary is openrouter' do
+      result = described_class.default_model_for('openrouter')
+      cfg = Llm::Models.models[result]
+      expect(cfg).to be_present
+      expect(cfg['hosts']).to include('openrouter')
+    end
+  end
+
+  describe '.resolve_runtime_model' do
+    it 'returns the runtime override when it is valid for the provider' do
+      expect(described_class.resolve_runtime_model(provider: 'openai', model: 'gpt-5.1')).to eq('gpt-5.1')
+    end
+
+    it 'falls back to the provider default when the runtime model is invalid for the provider' do
+      # primary=openrouter + caller-passed unprefixed openai-only id should NOT
+      # silently route through openai. It must resolve to an openrouter-hosted
+      # default instead, with no implicit OpenAI fallback.
+      result = described_class.resolve_runtime_model(provider: 'openrouter', model: 'made-up-name')
+      expect(described_class.model_available_for_provider?('openrouter', result)).to be true
+    end
+
+    it 'falls back to provider default when runtime model is blank' do
+      result = described_class.resolve_runtime_model(provider: 'zai', model: nil)
+      expect(described_class.model_available_for_provider?('zai', result)).to be true
+    end
+
+    it 'raises ProviderRequiredError when provider is blank' do
+      expect { described_class.resolve_runtime_model(provider: '', model: 'gpt-5.1') }
+        .to raise_error(described_class::ProviderRequiredError)
+    end
+  end
+
+  describe '.validate_provider!' do
+    context 'when the requested provider has an api_key configured' do
+      before do
+        allow(described_class).to receive(:provider_config).and_return({
+                                                                         'providers' => {
+                                                                           'openrouter' => { 'enabled' => true, 'api_key' => 'or-key' }
+                                                                         }
+                                                                       })
+        reset_config_cache
+      end
+
+      it 'does not raise' do
+        expect { described_class.validate_provider!('openrouter') }.not_to raise_error
+      end
+    end
+
+    context 'when the requested provider has no api_key' do
+      before do
+        allow(described_class).to receive(:provider_config).and_return({
+                                                                         'providers' => {
+                                                                           'openrouter' => { 'enabled' => true, 'api_key' => '' }
+                                                                         }
+                                                                       })
+        reset_config_cache
+      end
+
+      it 'raises ProviderNotConfiguredError tagged with the requested provider name' do
+        expect { described_class.validate_provider!('openrouter') }.to raise_error(described_class::ProviderNotConfiguredError) do |err|
+          expect(err.provider).to eq('openrouter')
+        end
+      end
+    end
+  end
+
+  describe '.apply_to_globals! does not write default_model from CAPTAIN_OPEN_AI_MODEL' do
+    before do
+      allow(described_class).to receive(:provider_config).and_return({
+                                                                       'primary_provider' => 'openrouter',
+                                                                       'providers' => {
+                                                                         'openrouter' => { 'enabled' => true, 'api_key' => 'or-key',
+                                                                                           'api_base' => 'https://openrouter.ai' }
+                                                                       }
+                                                                     })
+      reset_config_cache
+      upsert_installation_config('CAPTAIN_OPEN_AI_MODEL', 'gpt-4.1')
+      Agents.configure { |c| c.default_model = 'sentinel-model' }
+    end
+
+    it 'does not overwrite the global default_model with the legacy CAPTAIN_OPEN_AI_MODEL' do
+      described_class.apply_to_globals!
+      expect(Agents.configuration.default_model).to eq('sentinel-model')
+    end
+  end
+
   describe '.embedding_openai_credentials' do
     it 'returns embedding credentials from config' do
       allow(described_class).to receive(:provider_config).and_return({

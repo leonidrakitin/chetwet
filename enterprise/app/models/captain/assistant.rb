@@ -116,8 +116,8 @@ class Captain::Assistant < ApplicationRecord
     name.parameterize(separator: '_')
   end
 
-  def agent_tools
-    orchestration_subagent_tools + [
+  def agent_tools(runtime_model: nil)
+    orchestration_subagent_tools(runtime_model: runtime_model) + [
       self.class.resolve_tool_class('faq_lookup').new(self),
       self.class.resolve_tool_class('handoff').new(self)
     ]
