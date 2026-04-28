@@ -255,5 +255,5 @@
   enabled: true
 - name: captain_trace_events
   display_name: Captain Trace Events
-  enabled: false
+  enabled: true
   chatwoot_internal: true
