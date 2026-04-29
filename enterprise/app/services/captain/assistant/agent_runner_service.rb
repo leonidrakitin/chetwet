@@ -137,8 +137,8 @@ class Captain::Assistant::AgentRunnerService
     response = output.is_a?(Hash) ? output.with_indifferent_access : { 'response' => output.to_s, 'reasoning' => 'Processed by agent' }
     response['agent_name'] = result.context&.dig(:current_agent)
     response['response'] = normalize_repeated_response_text(response['response'])
-    normalize_escalation_response!(response)
     enforce_citation_grounding!(response, result)
+    ensure_structural_handoff_invoked!(response, result)
     response.delete('_escalation_handled')
     text = response['response'].to_s
     Rails.logger.info(
@@ -200,45 +200,24 @@ class Captain::Assistant::AgentRunnerService
     match ? match[1] : text
   end
 
-  def normalize_escalation_response!(response)
+  # Structural fallback: if the synthetic post-retries handoff (or any other
+  # path that sets response == 'conversation_handoff') was reached without the
+  # escalate_to_human tool actually being invoked, run the handoff tool now so
+  # the operator gets notified. Lexical detection has moved to the self-check
+  # stage in AutonomyPolicyHelper.
+  def ensure_structural_handoff_invoked!(response, result)
     return if response['_escalation_handled']
-    return if response['response'].to_s == 'conversation_handoff'
+    return unless response['response'].to_s == 'conversation_handoff'
+    return if result.respond_to?(:context) && result.context&.dig(:captain_v2_handoff_tool_called)
 
-    reasoning = response['reasoning'].to_s
-    response_text = response['response'].to_s
-    reasoning_match = escalation_intent_detected?(reasoning)
-    response_match = escalation_intent_detected?(response_text)
-    return unless reasoning_match || response_match
-
-    source = escalation_source_label(reasoning_match, response_match)
-
-    Rails.logger.info(
-      '[Captain DEBUG TMP] normalize_escalation_response ' \
-      "source=#{source} " \
-      "reasoning_preview=#{reasoning.truncate(200).inspect} " \
-      "response_preview=#{response_text.truncate(200).inspect}"
-    )
     record_trace_decision(
       :escalation_decision,
-      domain: 'handoff', name: 'escalation_intent_detected',
+      domain: 'handoff', name: 'autonomy_max_retries_fallback',
       selected: true,
-      reasoning_summary: source == 'response' ? response_text : reasoning,
-      inputs: {
-        source: source,
-        reasoning_preview: reasoning.truncate(300),
-        response_preview: response_text.truncate(300)
-      }
+      reasoning_summary: 'Synthetic handoff after autonomy retries — invoking tool fallback'
     )
-    invoke_handoff_tool_fallback(response, source: source)
-    response['response'] = 'conversation_handoff'
+    invoke_handoff_tool_fallback(response, source: 'autonomy_max_retries')
     response['_escalation_handled'] = true
-  end
-
-  def escalation_source_label(reasoning_match, response_match)
-    return 'both' if reasoning_match && response_match
-    return 'reasoning' if reasoning_match
-
-    'response'
   end
 
   def record_trace_decision(event_type, **)
@@ -328,28 +307,6 @@ class Captain::Assistant::AgentRunnerService
     state = build_state
     run_context = Agents::RunContext.new({ state: state })
     Agents::ToolContext.new(run_context: run_context)
-  end
-
-  ESCALATION_RU_VERB_RE = /\b(перевод\w*|перевожу|перевед\w+|переключ\w*|передам?|передаю|подключ\w*|соедин\w+)\b/i
-  ESCALATION_RU_TARGET_RE = /оператор|человек\w*|агент\w*|сотрудник\w*/i
-  ESCALATION_EN_VERB_RE = /\b(transfer|handover|hand[\s-]?off|connect|escalate|forward|route|loop\s+in|bring\s+in|requires?|needs?)\b/i
-  ESCALATION_EN_TARGET_RE = /\b(human|agent|operator|representative|support|live\s+person)\b/i
-
-  def escalation_intent_detected?(text)
-    text = text.to_s
-    return false if text.blank?
-
-    return true if text.match?(/\bescalat/i)
-    return true if text.match?(/\bhandoff\b/i)
-    return true if text.match?(/conversation_handoff/i)
-    return true if text.match?(ESCALATION_EN_VERB_RE) && text.match?(ESCALATION_EN_TARGET_RE)
-
-    return true if text.match?(/эскалир/i)
-    return true if text.match?(/связать\s+с\s+(человек|оператор|агент|сотрудник)/i)
-    return true if text.match?(/соединить\s+с\s+(человек|оператор|агент|сотрудник)/i)
-    return true if text.match?(ESCALATION_RU_VERB_RE) && text.match?(ESCALATION_RU_TARGET_RE)
-
-    false
   end
 
   def error_response(error_message)

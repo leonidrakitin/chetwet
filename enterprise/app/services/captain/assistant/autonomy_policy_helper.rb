@@ -1,4 +1,4 @@
-# rubocop:disable Metrics/ModuleLength, Metrics/MethodLength, Metrics/AbcSize, Layout/LineLength -- TEMP DEBUG TMP logging
+# rubocop:disable Metrics/ModuleLength, Metrics/MethodLength, Metrics/AbcSize, Layout/LineLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity -- TEMP DEBUG TMP logging
 module Captain::Assistant::AutonomyPolicyHelper
   private
 
@@ -95,6 +95,19 @@ module Captain::Assistant::AutonomyPolicyHelper
 
     response_text = output.is_a?(Hash) ? (output['response'] || output[:response]).to_s : output.to_s
 
+    if escalation_via_tool_required?(result, response_text)
+      Rails.logger.info('[Captain] AutonomyPolicy: rejecting answer — escalation intent in text without escalate_to_human tool')
+      context[:escalation_tool_required] = true
+      unless context.empty?
+        record_trace_policy_check(
+          name: 'escalation_tool_required',
+          passed: false,
+          reasoning_summary: 'Escalation intent detected in text but escalate_to_human tool was not called'
+        )
+      end
+      return false
+    end
+
     if strict_knowledge_mode?
       faq_policy = extract_faq_policy(result)
       if faq_policy == 'no_match' && response_text != 'conversation_handoff'
@@ -121,6 +134,56 @@ module Captain::Assistant::AutonomyPolicyHelper
     end
 
     response_text.present?
+  end
+
+  ESCALATION_RU_VERB_RE = /\b(перевод\w*|перевожу|перевед\w+|переключ\w*|передам?|передаю|подключ\w*|соедин\w+)\b/i
+  # Keep the target list strictly human-support oriented. Generic "агент" is excluded
+  # to avoid false positives for internal scenario handoffs (e.g. "передаю к
+  # специальному агенту для настройки напоминания"), which should stay inside
+  # Captain orchestration and not trigger human escalation.
+  ESCALATION_RU_TARGET_RE = /оператор|человек\w*|сотрудник\w*|поддержк\w*|специалист\w*/i
+  ESCALATION_EN_VERB_RE = /\b(transfer|handover|hand[\s-]?off|connect|escalate|forward|route|loop\s+in|bring\s+in|requires?|needs?)\b/i
+  ESCALATION_EN_TARGET_RE = /\b(human|agent|operator|representative|support|live\s+person)\b/i
+
+  # Escalation is only valid via the escalate_to_human tool. If the model
+  # implies escalation in text without invoking the tool, reject the answer
+  # and surface a hint on retry.
+  def escalation_via_tool_required?(result, response_text)
+    return false if response_text == 'conversation_handoff'
+    return false if handoff_tool_called?(result)
+
+    reasoning = response_reasoning_text(result)
+    escalation_intent_detected?(response_text) || escalation_intent_detected?(reasoning)
+  end
+
+  def handoff_tool_called?(result)
+    return false unless result.respond_to?(:context)
+
+    !!result.context&.dig(:captain_v2_handoff_tool_called)
+  end
+
+  def response_reasoning_text(result)
+    output = result.respond_to?(:output) ? result.output : nil
+    return '' unless output.is_a?(Hash)
+
+    (output['reasoning'] || output[:reasoning]).to_s
+  end
+
+  def escalation_intent_detected?(text)
+    text = text.to_s
+    return false if text.blank?
+
+    return true if text.match?(/\bescalat/i)
+    return true if text.match?(/\bhandoff\b/i)
+    return true if text.match?(/conversation_handoff/i)
+    return true if text.match?(ESCALATION_EN_VERB_RE) && text.match?(ESCALATION_EN_TARGET_RE)
+
+    return true if text.match?(/эскалир/i)
+    return true if text.match?(/связать\s+с\s+(человек|оператор|агент|сотрудник)/i)
+    return true if text.match?(/соединить\s+с\s+(человек|оператор|агент|сотрудник)/i)
+    return true if text.match?(ESCALATION_RU_VERB_RE) && text.match?(ESCALATION_RU_TARGET_RE)
+
+    false
   end
 
   SELF_CHECK_MIN_LENGTH = 40
@@ -203,6 +266,13 @@ module Captain::Assistant::AutonomyPolicyHelper
   end
 
   def build_retry_hint(attempt, message, context)
+    if context[:escalation_tool_required]
+      context[:escalation_tool_required] = nil
+      return <<~HINT.strip
+        Self-check rejected your previous draft because it implied transferring the conversation to a human agent in plain text. Human handoff must be performed by calling the `escalate_to_human` tool with a short reason and (optionally) a customer_message and 2–4 reply options. Do not write phrases like "transferring to operator" or "перевожу оператору" in the response — call the tool instead. If you do not actually need a human, simply answer the user's question.
+      HINT
+    end
+
     unsupported = context[:citation_verification_unsupported]
     if unsupported.present?
       list = unsupported.first(5).map { |c| "- #{c}" }.join("\n")
@@ -317,4 +387,4 @@ module Captain::Assistant::AutonomyPolicyHelper
     root_span.set_attribute(format(ATTR_LANGFUSE_METADATA, 'faq_hit'), (policy != 'no_match').to_s) if policy
   end
 end
-# rubocop:enable Metrics/ModuleLength, Metrics/MethodLength, Metrics/AbcSize, Layout/LineLength
+# rubocop:enable Metrics/ModuleLength, Metrics/MethodLength, Metrics/AbcSize, Layout/LineLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
