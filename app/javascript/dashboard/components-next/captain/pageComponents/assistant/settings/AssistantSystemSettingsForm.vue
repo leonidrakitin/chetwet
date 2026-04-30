@@ -6,13 +6,12 @@ import { useVuelidate } from '@vuelidate/core';
 import { minLength } from '@vuelidate/validators';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useAccount } from 'dashboard/composables/useAccount';
-import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { useCaptainConfigStore } from 'dashboard/store/captain/preferences';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Editor from 'dashboard/components-next/Editor/Editor.vue';
-import TagMultiSelectComboBox from 'dashboard/components-next/combobox/TagMultiSelectComboBox.vue';
+import Switch from 'dashboard/components-next/switch/Switch.vue';
 
 const props = defineProps({
   assistant: {
@@ -55,28 +54,17 @@ async function handleMessageBufferChange(value) {
   }
 }
 
-const store = useStore();
-const agents = useMapGetter('agents/getAgents');
-
 const isCaptainV2Enabled = computed(() =>
   isCloudFeatureEnabled(FEATURE_FLAGS.CAPTAIN_V2)
 );
-
-const agentOptions = computed(() => {
-  return agents.value
-    .filter(agent => agent.has_telegram)
-    .map(agent => ({
-      label: agent.name,
-      value: agent.id,
-    }));
-});
 
 const initialState = {
   handoffMessage: '',
   resolutionMessage: '',
   instructions: '',
   temperature: 1,
-  decisionMakers: [],
+  handoffApprovalEnabled: true,
+  handoffApprovalInstructions: '',
   knowledgeMode: 'balanced',
 };
 
@@ -107,7 +95,9 @@ const updateStateFromAssistant = assistant => {
   state.resolutionMessage = config.resolution_message ?? '';
   state.instructions = config.instructions ?? '';
   state.temperature = config.temperature || 1;
-  state.decisionMakers = config.decision_maker_ids || [];
+  state.handoffApprovalEnabled = config.handoff_approval_enabled !== false;
+  state.handoffApprovalInstructions =
+    config.handoff_approval_instructions ?? '';
   state.knowledgeMode = config.knowledge_mode || 'balanced';
 };
 
@@ -132,7 +122,8 @@ const handleSystemMessagesUpdate = async () => {
       handoff_message: state.handoffMessage,
       resolution_message: state.resolutionMessage,
       temperature: state.temperature || 1,
-      decision_maker_ids: state.decisionMakers,
+      handoff_approval_enabled: state.handoffApprovalEnabled,
+      handoff_approval_instructions: state.handoffApprovalInstructions,
       knowledge_mode: state.knowledgeMode,
     },
   };
@@ -146,9 +137,6 @@ const handleSystemMessagesUpdate = async () => {
 
 onMounted(() => {
   captainConfigStore.fetch();
-  if (!agents.value.length) {
-    store.dispatch('agents/get');
-  }
 });
 
 watch(
@@ -269,19 +257,29 @@ watch(
       </div>
     </div>
 
-    <div class="flex flex-col gap-2 relative z-10">
-      <label class="text-sm font-medium text-n-slate-12">
-        {{ t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.LABEL') }}
-      </label>
-      <TagMultiSelectComboBox
-        v-model="state.decisionMakers"
-        :options="agentOptions"
-        :placeholder="t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.PLACEHOLDER')"
-        :search-placeholder="
-          t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.SEARCH_PLACEHOLDER')
+    <div class="flex flex-col gap-3 relative z-10">
+      <div class="flex items-start gap-3">
+        <Switch v-model="state.handoffApprovalEnabled" />
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_APPROVAL.LABEL') }}
+          </label>
+          <p class="text-sm text-n-slate-11 italic">
+            {{ t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_APPROVAL.DESCRIPTION') }}
+          </p>
+        </div>
+      </div>
+      <Editor
+        v-if="state.handoffApprovalEnabled"
+        v-model="state.handoffApprovalInstructions"
+        :label="
+          t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_APPROVAL.INSTRUCTIONS_LABEL')
         "
-        :empty-state="t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.EMPTY_STATE')"
-        :message="t('CAPTAIN.ASSISTANTS.FORM.DECISION_MAKERS.HELP')"
+        :placeholder="
+          t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_APPROVAL.INSTRUCTIONS_PLACEHOLDER')
+        "
+        :max-length="4000"
+        class="z-0"
       />
     </div>
 

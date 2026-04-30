@@ -1,14 +1,15 @@
 class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
-  description 'Escalate the conversation to the human support team. The operator will be notified via Telegram ' \
-              'if they have it configured. Provide a short public message for the customer and 2–4 short reply ' \
-              'options for the operator when possible. Use this tool when the user explicitly asks for a human ' \
-              'agent, when the issue requires operator judgment, or when FAQ lookup indicates operator clarification.'
+  description 'Escalate the conversation to the human support team. When approval mode is enabled on the assistant, ' \
+              'an approval request is created so operators can review and approve a reply before it goes to the ' \
+              'customer. Use this tool when the user explicitly asks for a human agent, when the issue requires ' \
+              'operator judgment, or when FAQ lookup indicates operator clarification.'
   param :reason, type: 'string', desc: 'The reason why human escalation is needed (optional)', required: false
   param :customer_message, type: 'string',
-                           desc: 'Public message to the customer while the operator reviews the request (optional)',
+                           desc: 'Public message to the customer while the operator reviews the request (optional, ' \
+                                 'overrides the generated one)',
                            required: false
   param :options, type: 'array',
-                  desc: 'Array of short reply options for the operator (e.g. ["Approve cancellation", "Deny"]). ' \
+                  desc: 'Array of short reply options for the operator (optional, overrides generated ones). ' \
                         'A free-text option is appended automatically.',
                   required: false
   param :post_reason_as_note, type: 'boolean',
@@ -30,8 +31,7 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
                    })
 
     trigger_handoff(conversation, reason, post_reason_as_note)
-    request = notify_operator_via_telegram(conversation, reason, normalize_options(options, tool_context))
-    send_customer_message(conversation, request, customer_message)
+    run_approval_pipeline(conversation, reason, tool_context, customer_message, options) if approval_enabled?
 
     "Conversation escalated to human support team#{" (Reason: #{reason})" if reason}"
   rescue StandardError => e
@@ -40,6 +40,11 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
   end
 
   private
+
+  def approval_enabled?
+    value = @assistant.config['handoff_approval_enabled']
+    value.nil? || ActiveModel::Type::Boolean.new.cast(value)
+  end
 
   def trigger_handoff(conversation, reason, post_reason_as_note)
     if post_reason_as_note && reason.present?
@@ -57,70 +62,118 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     send_out_of_office_message_if_applicable(conversation)
   end
 
-  def notify_operator_via_telegram(conversation, reason, options)
-    user = resolve_notification_target(conversation)
-    return nil unless user
+  def run_approval_pipeline(conversation, reason, tool_context, override_customer_message, override_options)
+    conversation.reload
+    faq_snippets = collect_faq_snippets(tool_context)
+    generated = generate_via_llm(conversation, reason, faq_snippets)
+    final_options = pick_options(override_options, generated[:options], faq_snippets)
+    final_customer_message = override_customer_message.presence || generated[:customer_message].presence
 
-    context_text = generate_context(conversation)
-    request = Captain::ApprovalRequest.create!(
+    request = create_approval_request(conversation, reason, final_options)
+    deliver_messages(conversation, request, final_customer_message)
+    ApprovalBot::NotifyJob.perform_later(request)
+    request
+  rescue StandardError => e
+    Rails.logger.warn("[HandoffTool] approval pipeline failed for conversation #{conversation.id}: #{e.message}")
+    nil
+  end
+
+  def generate_via_llm(conversation, reason, faq_snippets)
+    Captain::Llm::HandoffApprovalGeneratorService.new(
+      assistant: @assistant,
+      conversation: conversation,
+      reason: reason,
+      faq_snippets: faq_snippets
+    ).generate
+  end
+
+  def pick_options(override_options, generated_options, faq_snippets)
+    candidates = sanitize_labels(override_options)
+    candidates = sanitize_labels(generated_options) if candidates.empty?
+    candidates = faq_snippets.first(2) if candidates.empty?
+    candidates
+  end
+
+  def sanitize_labels(labels)
+    Array(labels).compact.map(&:to_s).map(&:strip).reject(&:blank?)
+  end
+
+  def create_approval_request(conversation, reason, options)
+    assignee_type, assignee_id = resolve_assignee(conversation)
+    Captain::ApprovalRequest.create!(
       account_id: @assistant.account_id,
       conversation: conversation,
       assistant: @assistant,
       title: reason.presence || 'Conversation escalated to human support',
-      context: context_text,
+      context: generate_context(conversation),
       options: build_options(options),
-      assignee_type: 'user',
-      assignee_id: user.id,
+      assignee_type: assignee_type,
+      assignee_id: assignee_id,
       expires_at: 1.hour.from_now
     )
-    ApprovalBot::NotifyJob.perform_later(request)
-    request
-  rescue StandardError => e
-    Rails.logger.warn("[HandoffTool] Telegram notification failed for conversation #{conversation.id}: #{e.message}")
-    nil
+  end
+
+  def resolve_assignee(conversation)
+    assignee = conversation.assignee
+    return ['user', assignee.id] if assignee.is_a?(User)
+    return ['team', conversation.team_id] if conversation.team_id.present?
+
+    [nil, nil]
   end
 
   def build_options(labels)
-    result = (labels || []).map do |label|
+    result = labels.map do |label|
       { label: label, action_type: 'reply_to_customer', action_payload: {} }
     end
     result << { label: I18n.t('approval_bot.suggest_your_own'), action_type: 'free_text' }
     result
   end
 
-  def send_customer_message(conversation, request, customer_message)
-    content = customer_message.presence || (request ? I18n.t('captain.clarifying_with_operator') : nil)
+  def deliver_messages(conversation, request, customer_message)
+    send_customer_text(conversation, customer_message)
+    send_dashboard_input_select(conversation, request)
+  end
+
+  def send_customer_text(conversation, customer_message)
+    content = customer_message.presence || I18n.t('captain.clarifying_with_operator')
     return if content.blank?
 
-    attrs = {
+    conversation.messages.create!(
       message_type: :outgoing,
       account_id: @assistant.account_id,
       inbox_id: conversation.inbox_id,
       sender: @assistant,
       content: content
-    }
-    if request
-      attrs[:content_type] = :input_select
-      attrs[:content_attributes] = {
+    )
+  rescue StandardError => e
+    Rails.logger.warn("[HandoffTool] customer message failed for conversation #{conversation.id}: #{e.message}")
+  end
+
+  def send_dashboard_input_select(conversation, request)
+    conversation.messages.create!(
+      message_type: :outgoing,
+      private: true,
+      account_id: @assistant.account_id,
+      inbox_id: conversation.inbox_id,
+      sender: @assistant,
+      content: request.title,
+      content_type: :input_select,
+      content_attributes: {
         items: request.options.map { |opt| { title: opt[:label] || opt['label'], value: opt[:label] || opt['label'] } },
         approval_request_id: request.id
       }
-    end
-    conversation.messages.create!(attrs)
+    )
   rescue StandardError => e
-    Rails.logger.warn("[HandoffTool] Clarifying message failed for conversation #{conversation.id}: #{e.message}")
+    Rails.logger.warn("[HandoffTool] dashboard input_select failed for conversation #{conversation.id}: #{e.message}")
   end
 
-  def normalize_options(labels, tool_context)
-    normalized = Array(labels).compact.map(&:to_s).map(&:strip).reject(&:blank?)
-    return normalized if normalized.any?
-
-    options = fallback_options_from_faq(tool_context)
-    options = proactive_options_from_faq(tool_context) if options.empty?
-    options
+  def collect_faq_snippets(tool_context)
+    snippets = snippets_from_last_faq_lookup(tool_context)
+    snippets = proactive_faq_snippets(tool_context) if snippets.empty?
+    snippets
   end
 
-  def fallback_options_from_faq(tool_context)
+  def snippets_from_last_faq_lookup(tool_context)
     last_faq_lookup = tool_context.state&.dig(:orchestration, :last_faq_lookup)
     return [] unless last_faq_lookup.is_a?(Hash)
 
@@ -130,11 +183,10 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     extract_answer_snippets(answer_draft).first(2)
   end
 
-  # When the LLM escalates without first calling faq_lookup (common for
-  # cancellation/refund intents that are policy-routed to handoff), do a
-  # last-mile FAQ search ourselves so the operator gets concrete reply options
-  # instead of just "Suggest your own".
-  def proactive_options_from_faq(tool_context)
+  # When the LLM escalates without first calling faq_lookup (common for cancellation/refund
+  # intents that are policy-routed to handoff), do a last-mile FAQ search so the generator and
+  # the operator both see concrete reference snippets.
+  def proactive_faq_snippets(tool_context)
     query = proactive_faq_query(tool_context)
     return [] if query.blank?
 
@@ -186,21 +238,6 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
     snippets = [answer_draft.to_s.gsub(/\s+/, ' ').strip] if snippets.blank?
 
     snippets.map { |text| text.truncate(160) }
-  end
-
-  def resolve_notification_target(conversation)
-    assignee = conversation.assignee
-    return assignee if assignee.is_a?(User) && assignee.telegram_chat_id.present?
-
-    dm_ids = @assistant.config['decision_maker_ids'] || []
-    return nil if dm_ids.blank?
-
-    account_id = @assistant.account_id
-    users_by_id = ::User.joins(:account_users)
-                        .where(account_users: { account_id: account_id })
-                        .where(id: dm_ids)
-                        .index_by(&:id)
-    dm_ids.filter_map { |raw_id| users_by_id[raw_id.to_i] }.find { |u| u.telegram_chat_id.present? }
   end
 
   def generate_context(conversation)

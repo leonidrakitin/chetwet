@@ -792,12 +792,12 @@
           "LABEL": "Instructions",
           "PLACEHOLDER": "Enter instructions for the assistant"
         },
-        "DECISION_MAKERS": {
-          "LABEL": "Decision makers",
-          "PLACEHOLDER": "Select decision makers",
-          "SEARCH_PLACEHOLDER": "Search by name",
-          "EMPTY_STATE": "No operators found with connected Telegram",
-          "HELP": "Only operators with a connected Telegram are listed here."
+        "HANDOFF_APPROVAL": {
+          "LABEL": "Approval on handoff",
+          "DESCRIPTION": "When enabled, every escalation to a human creates an approval request: the customer gets a polite holding message, operators see ready-made reply options in the dashboard (and via Telegram if connected).",
+          "INSTRUCTIONS_LABEL": "Approval prompt for the LLM",
+          "INSTRUCTIONS_PLACEHOLDER": "Customise how the LLM should phrase the holding message and the operator reply options. Leave empty to use the built-in multilingual default.",
+          "RESET": "Reset to default"
         },
         "KNOWLEDGE_MODE": {
           "LABEL": "Knowledge Strictness",

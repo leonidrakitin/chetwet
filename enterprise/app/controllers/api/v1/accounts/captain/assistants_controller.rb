@@ -68,8 +68,9 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
                                                     :autonomy_max_retries, :faq_auto_answer_threshold, :faq_suggest_threshold,
                                                     :autonomy_self_check_enabled, :autonomy_return_to_scenario,
                                                     :knowledge_mode, :knowledge_answer_threshold,
+                                                    :handoff_approval_enabled, :handoff_approval_instructions,
                                                     :tone, :emojify,
-                                                    { decision_maker_ids: [], allowed_emojis: [] }
+                                                    { allowed_emojis: [] }
                                                   ])
 
     merge_array_params(permitted)

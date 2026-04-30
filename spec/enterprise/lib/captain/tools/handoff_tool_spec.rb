@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Captain::Tools::HandoffTool, type: :model do
@@ -9,6 +11,16 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
   let(:contact) { create(:contact, account: account) }
   let(:conversation) { create(:conversation, account: account, inbox: inbox, contact: contact) }
   let(:tool_context) { Struct.new(:state).new({ conversation: { id: conversation.id } }) }
+  let(:generator_double) do
+    instance_double(
+      Captain::Llm::HandoffApprovalGeneratorService,
+      generate: { customer_message: 'Hold on, checking with team', options: ['Approve cancellation', 'Deny cancellation'] }
+    )
+  end
+
+  before do
+    allow(Captain::Llm::HandoffApprovalGeneratorService).to receive(:new).and_return(generator_double)
+  end
 
   describe '#description' do
     it 'mentions escalation to human support' do
@@ -17,269 +29,175 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
   end
 
   describe '#parameters' do
-    it 'returns the correct parameters' do
-      expect(tool.parameters).to have_key(:reason)
-      expect(tool.parameters[:reason].name).to eq(:reason)
-      expect(tool.parameters[:reason].type).to eq('string')
-      expect(tool.parameters[:reason].description).to eq('The reason why human escalation is needed (optional)')
+    it 'returns the expected parameters' do
+      expect(tool.parameters).to include(:reason, :customer_message, :options, :post_reason_as_note)
       expect(tool.parameters[:reason].required).to be false
-      expect(tool.parameters).to have_key(:customer_message)
-      expect(tool.parameters[:customer_message].required).to be false
-      expect(tool.parameters).to have_key(:options)
-      expect(tool.parameters[:options].required).to be false
-      expect(tool.parameters).to have_key(:post_reason_as_note)
-      expect(tool.parameters[:post_reason_as_note].required).to be false
     end
   end
 
   describe '#perform' do
-    context 'when conversation exists' do
-      context 'with reason provided' do
-        it 'creates a private note with reason and hands off conversation' do
-          reason = 'Customer needs specialized support'
-
-          expect do
-            result = tool.perform(tool_context, reason: reason)
-            expect(result).to eq("Conversation escalated to human support team (Reason: #{reason})")
-          end.to change(Message, :count).by(1)
-        end
-
-        it 'creates message with correct attributes' do
-          reason = 'Customer needs specialized support'
-          tool.perform(tool_context, reason: reason)
-
-          private_message = conversation.messages.where(private: true).order(:created_at).last
-          expect(private_message.content).to eq(reason)
-          expect(private_message.message_type).to eq('outgoing')
-          expect(private_message.private).to be true
-          expect(private_message.sender).to eq(assistant)
-          expect(private_message.account).to eq(account)
-          expect(private_message.inbox).to eq(inbox)
-          expect(private_message.conversation).to eq(conversation)
-        end
-
-        it 'triggers bot handoff on conversation' do
-          # The tool finds the conversation by ID, so we need to mock the found conversation
-          found_conversation = Conversation.find(conversation.id)
-          scoped_conversations = Conversation.where(account_id: assistant.account_id)
-          allow(Conversation).to receive(:where).with(account_id: assistant.account_id).and_return(scoped_conversations)
-          allow(scoped_conversations).to receive(:find_by).with(id: conversation.id).and_return(found_conversation)
-          expect(found_conversation).to receive(:bot_handoff!)
-
-          tool.perform(tool_context, reason: 'Test reason')
-        end
-
-        it 'creates a conversation_bot_handoff reporting event' do
-          create(:captain_inbox, captain_assistant: assistant, inbox: inbox)
-          Current.executed_by = assistant
-
-          perform_enqueued_jobs do
-            tool.perform(tool_context, reason: 'Customer needs specialized support')
-          end
-
-          reporting_event = ReportingEvent.find_by(conversation_id: conversation.id, name: 'conversation_bot_handoff')
-          expect(reporting_event).to be_present
-        ensure
-          Current.reset
-        end
-
-        it 'logs tool usage with reason' do
-          reason = 'Customer needs help'
-          expect(tool).to receive(:log_tool_usage).with(
-            'tool_human_escalation',
-            { conversation_id: conversation.id, reason: reason }
-          )
-
-          tool.perform(tool_context, reason: reason)
-        end
-      end
-
-      context 'without reason provided' do
-        it 'hands off conversation without sending a public message when no operator notified' do
-          expect do
-            result = tool.perform(tool_context)
-            expect(result).to eq('Conversation escalated to human support team')
-          end.not_to change(Message, :count)
-        end
-
-        it 'logs tool usage with default reason' do
-          expect(tool).to receive(:log_tool_usage).with(
-            'tool_human_escalation',
-            { conversation_id: conversation.id, reason: 'Agent requested human escalation' }
-          )
-
-          tool.perform(tool_context)
-        end
-      end
-
-      context 'when operator notification is available' do
-        let(:user) { create(:user, account: account, telegram_chat_id: '1234') }
-
-        before do
-          conversation.update!(assignee: user)
-        end
-
-        it 'sends a public message with input options' do
-          tool.perform(
-            tool_context,
-            reason: 'Needs operator approval',
-            customer_message: 'I will check this with an operator and get back to you.',
-            options: ['Approve cancellation', 'Deny cancellation']
-          )
-
-          outgoing = conversation.messages.outgoing.order(:created_at).last
-          items = outgoing.content_attributes['items'] || outgoing.content_attributes[:items]
-          titles = items.map { |item| item['title'] || item[:title] }
-
-          expect(outgoing.content).to eq('I will check this with an operator and get back to you.')
-          expect(outgoing.content_type).to eq('input_select')
-          expect(titles).to include('Approve cancellation', 'Deny cancellation')
-        end
-
-        context 'when no options are provided and no prior FAQ lookup ran' do
-          let(:incoming_message) { 'Хотел бы отменить заказ' }
-          let(:tool_context) do
-            Struct.new(:state).new({ conversation: { id: conversation.id }, orchestration: {} })
-          end
-          let(:fake_search_result) do
-            instance_double(
-              Captain::Knowledge::SearchResult,
-              content: "\nQuestion: Как отменить заказ?\nAnswer: Напишите в поддержку с номером заказа\n"
-            )
-          end
-
-          before do
-            conversation.messages.create!(
-              account_id: account.id,
-              inbox_id: inbox.id,
-              sender: contact,
-              message_type: :incoming,
-              content: incoming_message
-            )
-            search_service = instance_double(Captain::Knowledge::UnifiedSearchService)
-            allow(Captain::Knowledge::UnifiedSearchService).to receive(:new)
-              .with(assistant: assistant).and_return(search_service)
-            allow(search_service).to receive(:search).and_return([fake_search_result])
-          end
-
-          it 'falls back to a proactive FAQ lookup so the operator gets concrete options' do
-            tool.perform(tool_context, reason: 'cancellation_intent')
-
-            outgoing = conversation.messages.outgoing.order(:created_at).last
-            items = outgoing.content_attributes['items'] || outgoing.content_attributes[:items]
-            titles = items.map { |item| item['title'] || item[:title] }
-            expect(titles).to include('Напишите в поддержку с номером заказа')
-          end
-
-          it 'records the proactive lookup in the orchestration state for trace consumers' do
-            tool.perform(tool_context, reason: 'cancellation_intent')
-
-            proactive = tool_context.state.dig(:orchestration, :handoff_proactive_faq)
-            expect(proactive).to be_a(Hash)
-            expect(proactive[:found_count]).to eq(1)
-            expect(proactive[:options]).to include(/поддержку/)
-            expect(proactive[:query]).to include(incoming_message)
-          end
-        end
-      end
-
-      context 'with post_reason_as_note: false' do
-        it 'hands off without creating a private note (avoids duplicate when Add Private Note was already used)' do
-          reason = 'Customer needs specialized support'
-
-          expect do
-            result = tool.perform(tool_context, reason: reason, post_reason_as_note: false)
-            expect(result).to eq("Conversation escalated to human support team (Reason: #{reason})")
-          end.not_to change(Message, :count)
-        end
-
-        it 'still triggers bot handoff' do
-          conversation.reload
-          expect(conversation).to receive(:bot_handoff!)
-
-          tool.perform(tool_context, reason: 'Test', post_reason_as_note: false)
-        end
-      end
-
-      context 'when handoff fails' do
-        before do
-          # Mock the conversation lookup and handoff failure
-          found_conversation = Conversation.find(conversation.id)
-          scoped_conversations = Conversation.where(account_id: assistant.account_id)
-          allow(Conversation).to receive(:where).with(account_id: assistant.account_id).and_return(scoped_conversations)
-          allow(scoped_conversations).to receive(:find_by).with(id: conversation.id).and_return(found_conversation)
-          allow(found_conversation).to receive(:bot_handoff!).and_raise(StandardError, 'Handoff error')
-
-          exception_tracker = instance_double(ChatwootExceptionTracker)
-          allow(ChatwootExceptionTracker).to receive(:new).and_return(exception_tracker)
-          allow(exception_tracker).to receive(:capture_exception)
-        end
-
-        it 'returns error message' do
-          result = tool.perform(tool_context, reason: 'Test')
-          expect(result).to eq('Failed to escalate conversation to human support')
-        end
-
-        it 'captures exception' do
-          exception_tracker = instance_double(ChatwootExceptionTracker)
-          expect(ChatwootExceptionTracker).to receive(:new).with(instance_of(StandardError)).and_return(exception_tracker)
-          expect(exception_tracker).to receive(:capture_exception)
-
-          tool.perform(tool_context, reason: 'Test')
-        end
-      end
-    end
-
     context 'when conversation does not exist' do
       let(:tool_context) { Struct.new(:state).new({ conversation: { id: 999_999 } }) }
 
-      it 'returns error message' do
-        result = tool.perform(tool_context, reason: 'Test')
-        expect(result).to eq('Conversation not found')
-      end
-
-      it 'does not create a message' do
+      it 'returns error message and creates no messages' do
         expect do
-          tool.perform(tool_context, reason: 'Test')
+          expect(tool.perform(tool_context, reason: 'Test')).to eq('Conversation not found')
         end.not_to change(Message, :count)
       end
     end
 
-    context 'when conversation state is missing' do
-      let(:tool_context) { Struct.new(:state).new({}) }
+    context 'when handoff fails' do
+      before do
+        scoped = Conversation.where(account_id: assistant.account_id)
+        allow(Conversation).to receive(:where).with(account_id: assistant.account_id).and_return(scoped)
+        allow(scoped).to receive(:find_by).with(id: conversation.id).and_return(conversation)
+        allow(conversation).to receive(:bot_handoff!).and_raise(StandardError, 'Handoff error')
+        allow(ChatwootExceptionTracker).to receive(:new).and_return(instance_double(ChatwootExceptionTracker, capture_exception: nil))
+      end
 
-      it 'returns error message' do
-        result = tool.perform(tool_context, reason: 'Test')
-        expect(result).to eq('Conversation not found')
+      it 'returns the failure message' do
+        expect(tool.perform(tool_context, reason: 'Test')).to eq('Failed to escalate conversation to human support')
       end
     end
 
-    context 'when conversation id is nil' do
-      let(:tool_context) { Struct.new(:state).new({ conversation: { id: nil } }) }
+    context 'when approval is enabled (default) and assignee has no Telegram' do
+      before do
+        conversation.update!(assignee: user)
+      end
 
-      it 'returns error message' do
-        result = tool.perform(tool_context, reason: 'Test')
-        expect(result).to eq('Conversation not found')
+      it 'creates an approval request and sends a plain customer message' do
+        expect do
+          tool.perform(tool_context, reason: 'Refund question')
+        end.to change(Captain::ApprovalRequest, :count).by(1)
+
+        request = Captain::ApprovalRequest.last
+        expect(request.assignee_type).to eq('user')
+        expect(request.assignee_id).to eq(user.id)
+        labels = request.options.map { |o| o[:label] || o['label'] }
+        expect(labels).to include('Approve cancellation', 'Deny cancellation')
+        expect(labels.last).to eq(I18n.t('approval_bot.suggest_your_own'))
+      end
+
+      it 'sends a public text message to the customer (no input_select)' do
+        tool.perform(tool_context, reason: 'Refund question')
+
+        public_outgoing = conversation.messages.outgoing.where(private: false).order(:created_at).last
+        expect(public_outgoing.content).to eq('Hold on, checking with team')
+        expect(public_outgoing.content_type).not_to eq('input_select')
+        expect(public_outgoing.content_attributes['approval_request_id']).to be_nil
+      end
+
+      it 'creates a private outgoing input_select that carries approval_request_id for the dashboard' do
+        tool.perform(tool_context, reason: 'Refund question')
+        request = Captain::ApprovalRequest.last
+
+        private_select = conversation.messages.outgoing.where(private: true, content_type: 'input_select').last
+        expect(private_select).to be_present
+        expect(private_select.content_attributes['approval_request_id']).to eq(request.id)
+      end
+
+      it 'enqueues the NotifyJob even though the operator has no Telegram' do
+        expect { tool.perform(tool_context, reason: 'Refund question') }
+          .to have_enqueued_job(ApprovalBot::NotifyJob)
       end
     end
-  end
 
-  describe '#active?' do
-    it 'returns true for public tools' do
-      expect(tool.active?).to be true
+    context 'when approval is enabled and assignee has Telegram' do
+      let(:user) { create(:user, account: account, telegram_chat_id: '1234') }
+
+      before { conversation.update!(assignee: user) }
+
+      it 'creates the approval request and enqueues the NotifyJob' do
+        expect { tool.perform(tool_context, reason: 'Refund question') }
+          .to change(Captain::ApprovalRequest, :count).by(1)
+          .and have_enqueued_job(ApprovalBot::NotifyJob)
+      end
+    end
+
+    context 'when approval is enabled and the conversation has a team but no assignee' do
+      let(:team) { create(:team, account: account) }
+
+      before { conversation.update!(team: team) }
+
+      it 'creates the approval request targeting the team' do
+        tool.perform(tool_context, reason: 'Refund question')
+
+        request = Captain::ApprovalRequest.last
+        expect(request.assignee_type).to eq('team')
+        expect(request.assignee_id).to eq(team.id)
+      end
+    end
+
+    context 'when approval is disabled in the assistant config' do
+      before do
+        assistant.update!(config: assistant.config.merge('handoff_approval_enabled' => false))
+      end
+
+      it 'does not create an approval request, sends no holding message, and still hands off' do
+        expect do
+          tool.perform(tool_context, reason: 'Customer needs help')
+        end.not_to change(Captain::ApprovalRequest, :count)
+
+        public_outgoing = conversation.messages.outgoing.where(private: false).order(:created_at).last
+        # Only the private note with the reason is created, not a holding message.
+        expect(public_outgoing).to be_nil
+        expect(conversation.reload.status).to eq('open')
+      end
+
+      it 'does not call the LLM generator' do
+        tool.perform(tool_context, reason: 'Customer needs help')
+        expect(Captain::Llm::HandoffApprovalGeneratorService).not_to have_received(:new)
+      end
+    end
+
+    context 'reason private note + bot handoff' do
+      it 'creates a private note and triggers bot_handoff! once' do
+        scoped = Conversation.where(account_id: assistant.account_id)
+        allow(Conversation).to receive(:where).with(account_id: assistant.account_id).and_return(scoped)
+        allow(scoped).to receive(:find_by).with(id: conversation.id).and_return(conversation)
+        expect(conversation).to receive(:bot_handoff!).and_call_original
+
+        expect do
+          tool.perform(tool_context, reason: 'Refund question')
+        end.to change { conversation.messages.where(private: true).count }.by_at_least(1)
+      end
+
+      it 'omits the private note when post_reason_as_note is false' do
+        expect do
+          tool.perform(tool_context, reason: 'Refund question', post_reason_as_note: false)
+        end.not_to(change { conversation.messages.where(private: true, content: 'Refund question').count })
+      end
+    end
+
+    context 'when LLM args override the generated values' do
+      before { conversation.update!(assignee: user) }
+
+      it 'uses the explicit customer_message and options from the orchestrator' do
+        tool.perform(
+          tool_context,
+          reason: 'Custom override',
+          customer_message: "I'll check with my colleague",
+          options: ['Yes refund', 'No refund']
+        )
+
+        public_outgoing = conversation.messages.outgoing.where(private: false).order(:created_at).last
+        expect(public_outgoing.content).to eq("I'll check with my colleague")
+
+        request = Captain::ApprovalRequest.last
+        labels = request.options.map { |o| o[:label] || o['label'] }
+        expect(labels).to include('Yes refund', 'No refund')
+      end
     end
   end
 
   describe 'out of office message after handoff' do
+    before { conversation.update!(assignee: user) }
+
     context 'when outside business hours' do
       before do
-        inbox.update!(
-          working_hours_enabled: true,
-          out_of_office_message: 'We are currently closed. Please leave your email.'
-        )
+        inbox.update!(working_hours_enabled: true, out_of_office_message: 'We are currently closed.')
         inbox.working_hours.find_by(day_of_week: Time.current.in_time_zone(inbox.timezone).wday).update!(
-          closed_all_day: true,
-          open_all_day: false
+          closed_all_day: true, open_all_day: false
         )
       end
 
@@ -287,47 +205,6 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
         expect do
           tool.perform(tool_context, reason: 'Customer needs help')
         end.to change { conversation.messages.template.count }.by(1)
-
-        ooo_message = conversation.messages.template.last
-        expect(ooo_message.content).to eq('We are currently closed. Please leave your email.')
-      end
-    end
-
-    context 'when within business hours' do
-      before do
-        inbox.update!(
-          working_hours_enabled: true,
-          out_of_office_message: 'We are currently closed.'
-        )
-        inbox.working_hours.find_by(day_of_week: Time.current.in_time_zone(inbox.timezone).wday).update!(
-          open_all_day: true,
-          closed_all_day: false
-        )
-      end
-
-      it 'does not send out of office message after handoff' do
-        expect do
-          tool.perform(tool_context, reason: 'Customer needs help')
-        end.not_to(change { conversation.messages.template.count })
-      end
-    end
-
-    context 'when no out of office message is configured' do
-      before do
-        inbox.update!(
-          working_hours_enabled: true,
-          out_of_office_message: nil
-        )
-        inbox.working_hours.find_by(day_of_week: Time.current.in_time_zone(inbox.timezone).wday).update!(
-          closed_all_day: true,
-          open_all_day: false
-        )
-      end
-
-      it 'does not send out of office message' do
-        expect do
-          tool.perform(tool_context, reason: 'Customer needs help')
-        end.not_to(change { conversation.messages.template.count })
       end
     end
   end

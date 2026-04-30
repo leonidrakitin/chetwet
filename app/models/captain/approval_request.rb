@@ -107,8 +107,13 @@ class Captain::ApprovalRequest < ApplicationRecord
   end
 
   def update_associated_message
-    # Find the message that initiated this approval request
-    message = conversation.messages.where("content_attributes->>'approval_request_id' = ?", id.to_s).last
+    # The approval_request_id is carried on the private outgoing message used to render
+    # the dashboard input_select bubble; the customer-facing text never carries it.
+    message = conversation.messages
+                          .where(private: true)
+                          .where("content_attributes->>'approval_request_id' = ?", id.to_s)
+                          .order(created_at: :desc)
+                          .first
     return unless message
 
     label = selected_option&.dig(:label) || custom_response
