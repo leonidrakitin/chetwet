@@ -150,7 +150,7 @@ RSpec.describe Captain::Tools::HandoffTool, type: :model do
       end
     end
 
-    context 'reason private note + bot handoff' do
+    context 'when handoff posts reason as private note' do
       it 'creates a private note and triggers bot_handoff! once' do
         scoped = Conversation.where(account_id: assistant.account_id)
         allow(Conversation).to receive(:where).with(account_id: assistant.account_id).and_return(scoped)

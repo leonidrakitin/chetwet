@@ -1,4 +1,4 @@
-class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
+class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool # rubocop:disable Metrics/ClassLength -- handoff + approval messaging pipeline
   description 'Escalate the conversation to the human support team. When approval mode is enabled on the assistant, ' \
               'an approval request is created so operators can review and approve a reply before it goes to the ' \
               'customer. Use this tool when the user explicitly asks for a human agent, when the issue requires ' \
