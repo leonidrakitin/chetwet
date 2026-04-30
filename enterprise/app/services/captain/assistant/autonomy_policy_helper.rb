@@ -108,31 +108,6 @@ module Captain::Assistant::AutonomyPolicyHelper
       return false
     end
 
-    if strict_knowledge_mode?
-      faq_policy = extract_faq_policy(result)
-      if faq_policy == 'no_match' && response_text != 'conversation_handoff'
-        Rails.logger.info(
-          '[Captain] AutonomyPolicy: rejecting answer - no_match policy ' \
-          "in #{@assistant.knowledge_mode} mode"
-        )
-        return false
-      end
-
-      citation_status = Captain::Assistant::CitationValidator.check(
-        assistant: @assistant, result: result, response_text: response_text
-      )
-      if citation_status != :ok
-        Rails.logger.info("[Captain] AutonomyPolicy: rejecting answer — citations #{citation_status}")
-        context[:citation_verification_status] = citation_status
-        return false
-      end
-
-      unless verification_supported?(result, response_text, context)
-        Rails.logger.info('[Captain] AutonomyPolicy: rejecting answer — LLM self-check unsupported')
-        return false
-      end
-    end
-
     response_text.present?
   end
 

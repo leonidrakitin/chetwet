@@ -1,4 +1,4 @@
-module Concerns::Agentable
+module Concerns::Agentable # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
 
   # `runtime_model` is the validated model resolved by Captain V2's runtime
@@ -18,33 +18,7 @@ module Concerns::Agentable
 
   def agent_instructions(context = nil)
     enhanced_context = prompt_context
-
-    if context
-      state = context.context[:state] || {}
-      config = state[:assistant_config] || {}
-      enhanced_context = enhanced_context.merge(
-        conversation: state[:conversation] || {},
-        contact: config['feature_contact_attributes'].present? ? state[:contact] : nil,
-        orchestration_state: state[:orchestration] || {},
-        orchestration_state_json: (state[:orchestration] || {}).to_json,
-        handoff_summary: context.context.dig(:last_handoff, :summary),
-        handoff_reason: context.context.dig(:last_handoff, :reason),
-        detected_language: state[:detected_language]
-      )
-      enhanced_context[:conversation_length] = context.context[:conversation_length] if context.context.key?(:conversation_length)
-      enhanced_context[:routing_hint] = context.context[:routing_hint] if context.context.key?(:routing_hint)
-      enhanced_context[:routing_plan] = context.context[:routing_plan] if context.context.key?(:routing_plan)
-      enhanced_context[:routing_plan_json] = context.context[:routing_plan].to_json if context.context.key?(:routing_plan)
-      if context.context[:pending_customer_confirm].present?
-        enhanced_context[:pending_customer_confirm] = context.context[:pending_customer_confirm]
-        enhanced_context[:pending_customer_confirm_args_json] =
-          context.context[:pending_customer_confirm_args_json] || context.context[:pending_customer_confirm]['on_confirm_args'].to_json
-      end
-      if context.context[:contact_memory].present?
-        enhanced_context[:contact_memory] = context.context[:contact_memory]
-        enhanced_context[:contact_memory_json] = context.context[:contact_memory_json] || context.context[:contact_memory].to_json
-      end
-    end
+    enhanced_context = merge_runtime_context_into(enhanced_context, context) if context
 
     [
       Agents::RECOMMENDED_HANDOFF_PROMPT_PREFIX,
@@ -53,6 +27,50 @@ module Concerns::Agentable
   end
 
   private
+
+  def merge_runtime_context_into(enhanced_context, context)
+    state = context.context[:state] || {}
+    config = state[:assistant_config] || {}
+    enhanced_context = enhanced_context.merge(
+      conversation: state[:conversation] || {},
+      contact: config['feature_contact_attributes'].present? ? state[:contact] : nil,
+      orchestration_state: state[:orchestration] || {},
+      orchestration_state_json: (state[:orchestration] || {}).to_json,
+      handoff_summary: context.context.dig(:last_handoff, :summary),
+      handoff_reason: context.context.dig(:last_handoff, :reason),
+      detected_language: state[:detected_language]
+    )
+    apply_optional_runtime_keys!(enhanced_context, context)
+    enhanced_context
+  end
+
+  def apply_optional_runtime_keys!(enhanced_context, context)
+    ctx = context.context
+    enhanced_context[:conversation_length] = ctx[:conversation_length] if ctx.key?(:conversation_length)
+    enhanced_context[:routing_hint] = ctx[:routing_hint] if ctx.key?(:routing_hint)
+    if ctx.key?(:routing_plan)
+      enhanced_context[:routing_plan] = ctx[:routing_plan]
+      enhanced_context[:routing_plan_json] = ctx[:routing_plan].to_json
+    end
+    enhanced_context[:prefetched_knowledge] = ctx[:prefetched_knowledge] if ctx[:prefetched_knowledge].present?
+    apply_pending_confirm_keys!(enhanced_context, ctx)
+    apply_contact_memory_keys!(enhanced_context, ctx)
+  end
+
+  def apply_pending_confirm_keys!(enhanced_context, ctx)
+    return if ctx[:pending_customer_confirm].blank?
+
+    enhanced_context[:pending_customer_confirm] = ctx[:pending_customer_confirm]
+    enhanced_context[:pending_customer_confirm_args_json] =
+      ctx[:pending_customer_confirm_args_json] || ctx[:pending_customer_confirm]['on_confirm_args'].to_json
+  end
+
+  def apply_contact_memory_keys!(enhanced_context, ctx)
+    return if ctx[:contact_memory].blank?
+
+    enhanced_context[:contact_memory] = ctx[:contact_memory]
+    enhanced_context[:contact_memory_json] = ctx[:contact_memory_json] || ctx[:contact_memory].to_json
+  end
 
   def agent_name
     raise NotImplementedError, "#{self.class} must implement agent_name"

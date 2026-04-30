@@ -585,9 +585,63 @@ class Captain::Assistant::AgentRunnerService
         context[:routing_plan] = router.routing_plan
       end
     end
+    attach_prefetched_knowledge!(context, message_to_process)
     enrich_context_with_trace_payload!(context, message_history, message_to_process)
     enrich_context_with_runtime_state!(context)
     [message_to_process, context]
+  end
+
+  # Pre-fetch FAQ search before the LLM call. When knowledge_mode is set on the
+  # assistant we run UnifiedSearchService + PolicyDecision (no LLM, just pgvector
+  # + threshold) and inject the result into the system prompt, so the model
+  # answers from concrete sources instead of promising to "check" via a tool
+  # call that some providers (e.g. DeepSeek under tool_choice=auto) skip.
+  def attach_prefetched_knowledge!(context, user_message)
+    return unless prefetch_eligible?(context)
+
+    query = user_message.to_s.strip
+    return if query.blank?
+
+    decision = run_knowledge_prefetch(query)
+    context[:prefetched_knowledge] = decision
+    record_knowledge_hit_trace(decision, query)
+  rescue StandardError => e
+    Rails.logger.error("[Captain V2] knowledge prefetch failed: #{e.class}: #{e.message}")
+    return unless trace_recorder_active?
+
+    @trace_recorder.record(:error, { stage: 'knowledge_prefetch', message: e.message })
+  end
+
+  def prefetch_eligible?(context)
+    return false if @assistant.knowledge_mode.blank?
+    return false if context[:routing_hint].to_s.start_with?('scenario')
+
+    true
+  end
+
+  def run_knowledge_prefetch(query)
+    results = Captain::Knowledge::UnifiedSearchService.new(assistant: @assistant).search(query)
+    decision = Captain::Knowledge::PolicyDecision.new(
+      assistant: @assistant, search_results: results
+    ).decide
+    decision[:query] = query
+    decision
+  end
+
+  def record_knowledge_hit_trace(decision, query)
+    return unless trace_recorder_active?
+
+    @trace_recorder.record(:knowledge_hit, {
+                             stage: 'prefetch',
+                             policy: decision[:policy],
+                             confidence: decision[:confidence],
+                             sources_count: Array(decision[:sources]).size,
+                             query_preview: query.truncate(120)
+                           })
+  end
+
+  def trace_recorder_active?
+    @trace_recorder.respond_to?(:record) && @trace_recorder.enabled?
   end
 
   def runtime_state_service
@@ -627,6 +681,7 @@ class Captain::Assistant::AgentRunnerService
       last_handoff: context_wrapper.context[:last_handoff],
       last_routing_decision: routing_decision,
       last_faq_lookup: orchestration[:last_faq_lookup],
+      last_knowledge_prefetch_policy: context_wrapper.context.dig(:prefetched_knowledge, :policy),
       last_http_tool_result: orchestration[:last_http_tool_result],
       pending_human_interaction: orchestration[:pending_human_interaction] || runtime_state_service.state['pending_human_interaction'],
       pending_customer_confirm: resolve_pending_customer_confirm(orchestration),

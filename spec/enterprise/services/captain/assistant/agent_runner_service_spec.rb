@@ -456,6 +456,93 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
     end
   end
 
+  describe '#attach_prefetched_knowledge!' do
+    subject(:service) { described_class.new(assistant: assistant, conversation: conversation) }
+
+    let(:search_service) { instance_double(Captain::Knowledge::UnifiedSearchService) }
+    let(:policy_decider) { instance_double(Captain::Knowledge::PolicyDecision) }
+    let(:decisions) do
+      {
+        answer: {
+          status: 'ok', policy: 'answer', confidence: 0.81,
+          answer_draft: '[1] Parking is free.',
+          sources: [{ label: 1, title: 'Parking', link: nil, content: 'Parking is free for guests.' }],
+          requires_operator: false
+        },
+        no_match: {
+          status: 'no_match', policy: 'no_match', confidence: 0.0,
+          answer_draft: nil, sources: [], requires_operator: false
+        }
+      }
+    end
+
+    before do
+      allow(Captain::Knowledge::UnifiedSearchService).to receive(:new).with(assistant: assistant).and_return(search_service)
+      allow(search_service).to receive(:search).and_return([:dummy_result])
+      allow(Captain::Knowledge::PolicyDecision).to receive(:new).and_return(policy_decider)
+    end
+
+    it 'injects the policy decision into the context when knowledge_mode is set' do
+      allow(assistant).to receive(:knowledge_mode).and_return('balanced')
+      allow(policy_decider).to receive(:decide).and_return(decisions[:answer])
+      ctx = {}
+
+      service.send(:attach_prefetched_knowledge!, ctx, 'is parking free?')
+
+      expect(ctx[:prefetched_knowledge]).to include(policy: 'answer', confidence: 0.81)
+      expect(ctx[:prefetched_knowledge][:query]).to eq('is parking free?')
+    end
+
+    it 'is a no-op when knowledge_mode is blank' do
+      allow(assistant).to receive(:knowledge_mode).and_return(nil)
+      ctx = {}
+
+      service.send(:attach_prefetched_knowledge!, ctx, 'is parking free?')
+
+      expect(ctx).not_to have_key(:prefetched_knowledge)
+      expect(search_service).not_to have_received(:search)
+    end
+
+    it 'skips when scenario routing has claimed the turn' do
+      allow(assistant).to receive(:knowledge_mode).and_return('strict')
+      ctx = { routing_hint: 'scenario_billing' }
+
+      service.send(:attach_prefetched_knowledge!, ctx, 'change my plan')
+
+      expect(ctx).not_to have_key(:prefetched_knowledge)
+      expect(search_service).not_to have_received(:search)
+    end
+
+    it 'skips when the user query is blank' do
+      allow(assistant).to receive(:knowledge_mode).and_return('balanced')
+      ctx = {}
+
+      service.send(:attach_prefetched_knowledge!, ctx, '   ')
+
+      expect(ctx).not_to have_key(:prefetched_knowledge)
+      expect(search_service).not_to have_received(:search)
+    end
+
+    it 'still records a no_match decision so the prompt can instruct escalation' do
+      allow(assistant).to receive(:knowledge_mode).and_return('balanced')
+      allow(policy_decider).to receive(:decide).and_return(decisions[:no_match])
+      ctx = {}
+
+      service.send(:attach_prefetched_knowledge!, ctx, 'totally unrelated question')
+
+      expect(ctx[:prefetched_knowledge]).to include(policy: 'no_match', confidence: 0.0)
+    end
+
+    it 'swallows search errors and does not poison the context' do
+      allow(assistant).to receive(:knowledge_mode).and_return('balanced')
+      allow(search_service).to receive(:search).and_raise(StandardError, 'pgvector unavailable')
+      ctx = {}
+
+      expect { service.send(:attach_prefetched_knowledge!, ctx, 'parking?') }.not_to raise_error
+      expect(ctx).not_to have_key(:prefetched_knowledge)
+    end
+  end
+
   describe '#answer_acceptable? (self-check escalation enforcement)' do
     subject(:service) { described_class.new(assistant: assistant, conversation: conversation) }
 
