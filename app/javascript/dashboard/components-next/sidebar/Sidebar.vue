@@ -512,54 +512,49 @@ const menuItems = computed(() => {
     {
       name: 'Mailings',
       icon: 'i-lucide-send',
-      label: t('SIDEBAR.NOTIFICATION_TEMPLATES'),
+      label: t('SIDEBAR.MAILINGS'),
       children: [
         {
-          name: 'Mailings',
-          label: t('SIDEBAR.MAILINGS'),
-          children: [
-            {
-              name: 'Mailings Templates',
-              label: t('SIDEBAR.MAILINGS_TEMPLATES'),
-              activeOn: [
-                'notification_templates_index',
-                'notification_templates_new',
-                'notification_templates_edit',
-                'notification_templates_marketing',
-              ],
-              to: accountScopedRoute('notification_templates_index'),
-            },
-            {
-              name: 'Mailings Statistics',
-              label: t('SIDEBAR.MAILINGS_STATISTICS'),
-              activeOn: ['notification_templates_statistics'],
-              to: accountScopedRoute('notification_templates_statistics'),
-            },
+          name: 'Mailings Templates',
+          label: t('SIDEBAR.MAILINGS_TEMPLATES'),
+          activeOn: [
+            'notification_templates_index',
+            'notification_templates_new',
+            'notification_templates_edit',
+            'notification_templates_marketing',
           ],
+          to: accountScopedRoute('notification_templates_index'),
         },
         {
-          name: 'Notifications',
-          label: t('SIDEBAR.NOTIFICATIONS'),
-          children: [
-            {
-              name: 'Notifications Templates',
-              label: t('SIDEBAR.NOTIFICATIONS_TEMPLATES'),
-              activeOn: ['notification_templates_service'],
-              to: accountScopedRoute('notification_templates_service'),
-            },
-            {
-              name: 'Notifications Statistics',
-              label: t('SIDEBAR.NOTIFICATIONS_STATISTICS'),
-              activeOn: ['campaigns_statistics'],
-              to: accountScopedRoute('campaigns_statistics'),
-            },
-          ],
+          name: 'Mailings Statistics',
+          label: t('SIDEBAR.MAILINGS_STATISTICS'),
+          activeOn: ['notification_templates_statistics'],
+          to: accountScopedRoute('notification_templates_statistics'),
         },
         {
           name: 'Campaigns',
           label: t('SIDEBAR.CAMPAIGNS'),
           activeOn: ['campaigns_index', 'campaigns_new', 'campaigns_edit'],
           to: accountScopedRoute('campaigns_index'),
+        },
+      ],
+    },
+    {
+      name: 'Notifications',
+      icon: 'i-lucide-bell',
+      label: t('SIDEBAR.NOTIFICATIONS'),
+      children: [
+        {
+          name: 'Notifications Templates',
+          label: t('SIDEBAR.NOTIFICATIONS_TEMPLATES'),
+          activeOn: ['notification_templates_service'],
+          to: accountScopedRoute('notification_templates_service'),
+        },
+        {
+          name: 'Notifications Statistics',
+          label: t('SIDEBAR.NOTIFICATIONS_STATISTICS'),
+          activeOn: ['campaigns_statistics'],
+          to: accountScopedRoute('campaigns_statistics'),
         },
       ],
     },
