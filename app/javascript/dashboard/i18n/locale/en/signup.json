@@ -104,8 +104,6 @@
         "DESCRIPTION": "Choose a template to quickly set up your assistant with predefined scenarios and FAQs",
         "SUCCESS_MESSAGE": "Assistant created successfully!",
         "ERROR_MESSAGE": "Failed to create assistant. Please try again.",
-        "SCENARIOS_COUNT": "{{count}} scenario(s)",
-        "FAQ_COUNT": "{{count}} FAQ(s)",
         "EMPTY": {
           "TITLE": "Create Empty Assistant",
           "DEFAULT_NAME": "New Assistant",
@@ -117,7 +115,7 @@
         "PREVIEW_ASSISTANT": "Assistant Details",
         "PREVIEW_SCENARIOS": "Scenarios",
         "PREVIEW_FAQ": "Frequently Asked Questions",
-        "PREVIEW_FAQ_COUNT": "{{count}} questions",
+        "PREVIEW_FAQ_COUNT": "{count} questions",
         "PREVIEW_ADAPTATION_NOTE": "Your assistant has been tailored using your business context to provide more relevant assistance",
         "SECTIONS": {
           "SCENARIOS": "Scenarios",

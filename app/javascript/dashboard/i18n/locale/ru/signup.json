@@ -69,8 +69,6 @@
         "DESCRIPTION": "Выберите шаблон для быстрой настройки ассистента с готовыми сценариями и FAQ",
         "SUCCESS_MESSAGE": "Ассистент успешно создан!",
         "ERROR_MESSAGE": "Не удалось создать ассистента. Пожалуйста, попробуйте еще раз.",
-        "SCENARIOS_COUNT": "{{count}} сценарий(ев)",
-        "FAQ_COUNT": "{{count}} FAQ",
         "EMPTY": {
           "TITLE": "Создать пустого ассистента",
           "DEFAULT_NAME": "Новый ассистент",
@@ -82,7 +80,7 @@
         "PREVIEW_ASSISTANT": "Детали ассистента",
         "PREVIEW_SCENARIOS": "Сценарии",
         "PREVIEW_FAQ": "Часто задаваемые вопросы",
-        "PREVIEW_FAQ_COUNT": "{{count}} вопросов",
+        "PREVIEW_FAQ_COUNT": "{count} вопросов",
         "PREVIEW_ADAPTATION_NOTE": "Ваш ассистент был адаптирован на основе контекста вашего бизнеса для более релевантной помощи",
         "SECTIONS": {
           "SCENARIOS": "Сценарии",
