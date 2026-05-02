@@ -289,7 +289,7 @@ export default {
 
 <template>
   <div
-    class="flex justify-between items-center gap-3 px-4 py-3 border-t border-n-container"
+    class="flex justify-between items-center gap-3 px-4 py-3 border-t border-n-border-hairline"
     :class="wrapClass"
   >
     <div class="left-wrap">

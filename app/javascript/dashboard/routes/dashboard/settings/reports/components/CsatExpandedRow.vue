@@ -70,7 +70,7 @@ const saveReviewNotes = async () => {
 </script>
 
 <template>
-  <div class="py-4 px-5 border-t border-n-container bg-n-background">
+  <div class="py-4 px-5 border-t border-n-border-hairline bg-n-background">
     <CsatReviewNotesPaywall v-if="showPaywall" />
     <div v-else-if="isFeatureEnabled" class="flex flex-col gap-3">
       <div class="flex items-start gap-4">

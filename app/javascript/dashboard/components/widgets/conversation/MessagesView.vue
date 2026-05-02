@@ -540,7 +540,7 @@ export default {
     }
 
     .reply-box {
-      @apply border border-n-container max-w-[75rem] w-[70%] shadow-[0_24px_64px_rgba(15,23,42,0.24)];
+      @apply border border-n-border-hairline max-w-[75rem] w-[70%] shadow-[0_24px_64px_rgba(15,23,42,0.24)];
 
       &.is-private {
         @apply dark:border-n-amber-3/30 border-n-amber-12/5;

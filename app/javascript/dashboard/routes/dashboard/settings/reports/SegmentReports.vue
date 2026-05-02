@@ -749,7 +749,7 @@ onMounted(() => {
           >
             <div v-if="detailsData.clients.length" class="overflow-x-auto">
               <table class="w-full">
-                <thead class="border-b border-n-container bg-n-solid-2">
+                <thead class="border-b border-n-border-hairline bg-n-solid-2">
                   <tr>
                     <th
                       class="px-5 py-3 text-left text-sm font-medium text-n-slate-12"

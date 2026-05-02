@@ -146,7 +146,7 @@ export default {
 
 <template>
   <div
-    class="flex justify-between gap-2 h-14 items-center ltr:pl-4 ltr:pr-3 rtl:pr-4 rtl:pl-3 border-b border-n-container"
+    class="flex justify-between gap-2 h-14 items-center ltr:pl-4 ltr:pr-3 rtl:pr-4 rtl:pl-3 border-b border-n-border-hairline"
   >
     <EditorModeToggle
       :mode="mode"

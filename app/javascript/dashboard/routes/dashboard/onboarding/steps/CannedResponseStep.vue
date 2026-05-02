@@ -54,7 +54,7 @@ function proceed() {
       <div
         v-for="(response, index) in responses"
         :key="index"
-        class="flex flex-col gap-2 rounded-lg border border-n-container p-3"
+        class="flex flex-col gap-2 rounded-lg border border-n-border-hairline p-3"
       >
         <div class="flex items-start gap-2">
           <div class="flex-1 flex flex-col gap-2">

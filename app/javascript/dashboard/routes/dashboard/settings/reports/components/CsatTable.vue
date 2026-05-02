@@ -148,7 +148,7 @@ const table = useVueTable({
 
     <div v-else-if="tableData.length" class="overflow-x-auto">
       <table class="w-full">
-        <thead class="bg-n-solid-2 border-b border-n-container">
+        <thead class="bg-n-solid-2 border-b border-n-border-hairline">
           <tr>
             <th
               v-for="header in table.getFlatHeaders()"

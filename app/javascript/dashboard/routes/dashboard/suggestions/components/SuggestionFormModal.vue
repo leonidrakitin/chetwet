@@ -184,7 +184,7 @@ const submitDisabled = computed(
     @click.self="emit('close')"
   >
     <div
-      class="w-full max-w-3xl max-h-[min(90vh,900px)] overflow-y-auto rounded-2xl bg-n-solid-2 p-6 shadow-xl border border-n-container"
+      class="w-full max-w-3xl max-h-[min(90vh,900px)] overflow-y-auto rounded-2xl bg-n-solid-2 p-6 shadow-xl border border-n-border-hairline"
     >
       <h2 class="text-lg font-semibold text-n-slate-12 mb-4">
         {{ modalTitle }}
@@ -199,7 +199,7 @@ const submitDisabled = computed(
             v-model="title"
             type="text"
             :placeholder="t('SUGGESTIONS.FIELD_TITLE_PLACEHOLDER')"
-            class="w-full rounded-xl border border-n-container bg-n-solid-3 px-4 py-2 text-sm text-n-slate-12 outline-none focus:border-woot-500"
+            class="w-full rounded-xl border border-n-border-hairline bg-n-solid-3 px-4 py-2 text-sm text-n-slate-12 outline-none focus:border-woot-500"
           />
         </div>
 
@@ -252,7 +252,7 @@ const submitDisabled = computed(
             <div
               v-for="img in visibleExistingImages"
               :key="`ex-${img.id}`"
-              class="relative group w-20 h-20 rounded-lg overflow-hidden border border-n-container bg-n-solid-3"
+              class="relative group w-20 h-20 rounded-lg overflow-hidden border border-n-border-hairline bg-n-solid-3"
             >
               <img
                 :src="resolveImageUrl(img.url)"
@@ -273,7 +273,7 @@ const submitDisabled = computed(
             <div
               v-for="(p, idx) in pendingUploads"
               :key="`pd-${idx}`"
-              class="relative group w-20 h-20 rounded-lg overflow-hidden border border-n-container bg-n-solid-3"
+              class="relative group w-20 h-20 rounded-lg overflow-hidden border border-n-border-hairline bg-n-solid-3"
             >
               <img
                 :src="p.previewUrl"
@@ -297,7 +297,7 @@ const submitDisabled = computed(
         <div class="flex justify-end gap-3 mt-2">
           <button
             type="button"
-            class="rounded-xl border border-n-container px-4 py-2 text-sm font-medium text-n-slate-11 hover:bg-n-alpha-1"
+            class="rounded-xl border border-n-border-hairline px-4 py-2 text-sm font-medium text-n-slate-11 hover:bg-n-alpha-1"
             @click="emit('close')"
           >
             {{ t('SUGGESTIONS.CANCEL') }}

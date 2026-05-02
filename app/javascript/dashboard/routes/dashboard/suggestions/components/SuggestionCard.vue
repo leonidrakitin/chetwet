@@ -165,7 +165,7 @@ const renderedDescription = computed(() => {
           :href="resolveImageUrl(img.url)"
           target="_blank"
           rel="noopener noreferrer"
-          class="block w-16 h-16 rounded-lg overflow-hidden border border-n-container shrink-0"
+          class="block w-16 h-16 rounded-lg overflow-hidden border border-n-border-hairline shrink-0"
         >
           <img
             :src="resolveImageUrl(img.url)"
