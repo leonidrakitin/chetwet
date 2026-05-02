@@ -504,7 +504,7 @@ export default {
       class="flex relative flex-col"
       :class="{
         'modal-mask': isPopOutReplyBox,
-        'bg-n-surface-2': !isPopOutReplyBox,
+        'bg-transparent': !isPopOutReplyBox,
       }"
     >
       <div
@@ -512,7 +512,7 @@ export default {
         class="absolute flex items-center w-full h-0 -top-7"
       >
         <div
-          class="flex py-2 pr-4 pl-5 shadow-[0_8px_24px_rgba(15,23,42,0.14)] rounded-full bg-n-surface-2 text-n-slate-11 text-xs font-semibold my-2.5 mx-auto border border-n-container"
+          class="flex py-2 pr-4 pl-5 shadow-glass-soft rounded-full bg-n-glass-strong backdrop-blur-glass-pane text-n-text-muted text-xs font-semibold my-2.5 mx-auto border border-n-border-glass"
         >
           {{ typingUserNames }}
           <img

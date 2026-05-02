@@ -527,7 +527,7 @@ onUnmounted(() => {
               </p>
               <select
                 v-model="form.inboxId"
-                class="w-full rounded-xl border border-n-container bg-n-surface-2 px-3 py-2.5 text-sm text-n-slate-12 outline-none focus:ring-2 focus:ring-n-brand/30 transition-all"
+                class="w-full rounded-xl border border-n-border-glass-soft bg-n-glass-soft px-3 py-2.5 text-sm text-n-text-display outline-none focus:ring-2 focus:ring-n-brand/30 transition-all"
                 :disabled="isFetchingInboxes || !inboxes.length"
               >
                 <option value="">
@@ -552,7 +552,7 @@ onUnmounted(() => {
               </p>
               <select
                 v-model="form.telegramSessionId"
-                class="w-full rounded-xl border border-n-container bg-n-surface-2 px-3 py-2.5 text-sm text-n-slate-12 outline-none focus:ring-2 focus:ring-n-brand/30 transition-all"
+                class="w-full rounded-xl border border-n-border-glass-soft bg-n-glass-soft px-3 py-2.5 text-sm text-n-text-display outline-none focus:ring-2 focus:ring-n-brand/30 transition-all"
                 :disabled="isFetchingSessions || !telegramSessions.length"
               >
                 <option value="">
@@ -595,7 +595,7 @@ onUnmounted(() => {
                 :class="
                   form.file
                     ? 'border-n-brand/40 bg-n-brand/5'
-                    : 'border-n-container bg-n-surface-2 hover:border-n-brand/30'
+                    : 'border-n-border-glass-soft bg-n-glass-soft hover:border-n-brand/30'
                 "
                 @drop="onDrop"
                 @dragover.prevent
@@ -639,7 +639,7 @@ onUnmounted(() => {
               </p>
               <select
                 v-model="form.dateLimitMonths"
-                class="w-full rounded-xl border border-n-container bg-n-surface-2 px-3 py-2.5 text-sm text-n-slate-12 outline-none focus:ring-2 focus:ring-n-brand/30 transition-all"
+                class="w-full rounded-xl border border-n-border-glass-soft bg-n-glass-soft px-3 py-2.5 text-sm text-n-text-display outline-none focus:ring-2 focus:ring-n-brand/30 transition-all"
               >
                 <option
                   v-for="opt in DATE_LIMIT_OPTIONS"
@@ -659,7 +659,7 @@ onUnmounted(() => {
                   :class="
                     form.dryRun
                       ? 'bg-n-brand border-n-brand'
-                      : 'border-n-slate-8 bg-n-surface-2'
+                      : 'border-n-border-glass-soft bg-n-glass-soft'
                   "
                   @click="form.dryRun = !form.dryRun"
                 >
@@ -679,7 +679,7 @@ onUnmounted(() => {
                   :class="
                     form.includeGroups
                       ? 'bg-n-brand border-n-brand'
-                      : 'border-n-slate-8 bg-n-surface-2'
+                      : 'border-n-border-glass-soft bg-n-glass-soft'
                   "
                   @click="form.includeGroups = !form.includeGroups"
                 >
@@ -825,7 +825,7 @@ onUnmounted(() => {
               <div
                 v-for="m in migrations"
                 :key="m.id"
-                class="rounded-xl border border-n-container bg-n-surface-2 p-4 transition-all hover:border-n-slate-6"
+                class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft p-4 transition-all hover:border-n-slate-6"
               >
                 <!-- Card header -->
                 <div class="flex items-start justify-between gap-2 mb-3">

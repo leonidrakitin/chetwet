@@ -358,7 +358,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col w-full h-full bg-n-surface-1">
+  <div
+    class="flex flex-col w-full h-full m-2.5 bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep overflow-hidden"
+  >
     <div class="flex w-full p-4">
       <NextButton
         :label="t('GENERAL_SETTINGS.BACK')"

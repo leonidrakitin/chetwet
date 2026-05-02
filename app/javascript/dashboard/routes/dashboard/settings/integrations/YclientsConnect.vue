@@ -319,7 +319,7 @@ watch(
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-if="showWelcomeScreen && view === 'welcome-success'">
         <div
-          class="flex flex-col items-center gap-6 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
+          class="flex flex-col items-center gap-6 rounded-[1.75rem] border border-n-border-glass bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass p-8 shadow-glass-deep"
         >
           <!-- success icon + logo -->
           <div class="flex flex-col items-center gap-3">
@@ -387,7 +387,7 @@ watch(
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-else-if="showWelcomeScreen && view === 'welcome'">
         <div
-          class="flex flex-col gap-6 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
+          class="flex flex-col gap-6 rounded-[1.75rem] border border-n-border-glass bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass p-8 shadow-glass-deep"
         >
           <!-- header -->
           <div class="flex flex-col items-center gap-3 text-center">
@@ -405,7 +405,9 @@ watch(
           </div>
 
           <!-- salon info card -->
-          <div class="rounded-2xl border border-n-container bg-n-surface-1 p-5">
+          <div
+            class="rounded-2xl border border-n-border-glass-soft bg-n-glass-soft p-5"
+          >
             <p
               class="mb-3 text-xs font-medium uppercase tracking-wide text-n-slate-10"
             >
@@ -595,7 +597,7 @@ watch(
                 </label>
                 <select
                   v-model="selectedAccountId"
-                  class="rounded-xl border border-n-container bg-n-surface-2 px-4 py-3 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+                  class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft px-4 py-3 text-sm text-n-text-display outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
                 >
                   <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
                     {{ acc.name }}
@@ -684,7 +686,7 @@ watch(
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-else-if="showWelcomeScreen && view === 'edit'">
         <div
-          class="flex flex-col gap-5 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
+          class="flex flex-col gap-5 rounded-[1.75rem] border border-n-border-glass bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass p-8 shadow-glass-deep"
         >
           <div class="flex flex-col items-center gap-2 text-center">
             <div
@@ -739,7 +741,7 @@ watch(
       <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
       <template v-else>
         <div
-          class="flex flex-col gap-6 rounded-[1.75rem] border border-n-container bg-n-surface-2 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
+          class="flex flex-col gap-6 rounded-[1.75rem] border border-n-border-glass bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass p-8 shadow-glass-deep"
         >
           <!-- header -->
           <div class="flex flex-col items-center gap-3 text-center">
@@ -759,7 +761,7 @@ watch(
           <!-- not logged in -->
           <template v-if="!isLoggedIn">
             <div
-              class="flex flex-col items-center gap-3 rounded-2xl border border-n-container bg-n-surface-1 p-5 text-center"
+              class="flex flex-col items-center gap-3 rounded-2xl border border-n-border-glass-soft bg-n-glass-soft p-5 text-center"
             >
               <fluent-icon
                 icon="person-lock"
@@ -851,7 +853,7 @@ watch(
                   </label>
                   <select
                     v-model="selectedAccountId"
-                    class="rounded-xl border border-n-container bg-n-surface-2 px-4 py-3 text-sm text-n-slate-12 outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+                    class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft px-4 py-3 text-sm text-n-text-display outline-none transition-colors focus:border-n-brand focus:ring-1 focus:ring-n-brand"
                   >
                     <option
                       v-for="acc in accounts"

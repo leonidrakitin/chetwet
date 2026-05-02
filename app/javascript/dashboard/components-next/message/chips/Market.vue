@@ -30,7 +30,7 @@ const product = computed(() => {
     :href="product.url"
     rel="noreferrer noopener nofollow"
     target="_blank"
-    class="flex overflow-hidden rounded-xl border border-n-container bg-n-alpha-white max-w-[280px] hover:border-n-slate-8 transition-colors"
+    class="flex overflow-hidden rounded-xl border border-n-border-hairline bg-n-alpha-white max-w-[280px] hover:border-n-slate-8 transition-colors"
   >
     <div v-if="product.thumb" class="shrink-0 w-20 h-20">
       <img
@@ -61,7 +61,7 @@ const product = computed(() => {
   </a>
   <div
     v-else
-    class="flex overflow-hidden rounded-xl border border-n-container bg-n-alpha-white max-w-[280px] p-3"
+    class="flex overflow-hidden rounded-xl border border-n-border-hairline bg-n-alpha-white max-w-[280px] p-3"
   >
     <div
       v-if="product.thumb"

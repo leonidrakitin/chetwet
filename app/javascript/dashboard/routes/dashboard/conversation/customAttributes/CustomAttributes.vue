@@ -251,8 +251,8 @@ onMounted(() => {
 });
 
 const evenClass = [
-  '[&>*:nth-child(odd)]:!bg-n-surface-1 [&>*:nth-child(even)]:!bg-n-slate-1',
-  'dark:[&>*:nth-child(odd)]:!bg-n-surface-2 dark:[&>*:nth-child(even)]:!bg-n-surface-1',
+  '[&>*:nth-child(odd)]:!bg-n-glass-soft [&>*:nth-child(even)]:!bg-transparent',
+  'dark:[&>*:nth-child(odd)]:!bg-n-glass-soft dark:[&>*:nth-child(even)]:!bg-transparent',
 ];
 </script>
 

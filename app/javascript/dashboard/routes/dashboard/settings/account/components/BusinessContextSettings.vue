@@ -140,7 +140,7 @@ async function updateBusinessContext() {
       >
         <select
           v-model="businessType"
-          class="appearance-none rounded-lg border-0 outline-1 outline -outline-offset-1 outline-n-weak bg-n-surface-1 py-2 px-3 text-sm w-full"
+          class="appearance-none rounded-lg border border-n-border-glass-soft bg-n-glass-soft py-2 px-3 text-sm w-full text-n-text-display"
         >
           <option value="" disabled>
             {{
@@ -164,7 +164,7 @@ async function updateBusinessContext() {
         <textarea
           v-model="description"
           rows="3"
-          class="w-full px-3 py-2 text-sm border border-n-weak rounded-lg bg-n-surface-1 resize-none focus:outline-none focus:ring-2 focus:ring-n-brand/30 focus:border-n-brand"
+          class="w-full px-3 py-2 text-sm border border-n-border-glass-soft rounded-lg bg-n-glass-soft resize-none focus:outline-none focus:ring-2 focus:ring-n-brand/30 focus:border-n-brand"
           :class="{ 'border-red-500': isOverLimit }"
           :placeholder="
             $t('GENERAL_SETTINGS.BUSINESS_CONTEXT.DESCRIPTION_PLACEHOLDER')

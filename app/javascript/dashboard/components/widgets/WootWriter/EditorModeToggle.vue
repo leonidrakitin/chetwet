@@ -83,7 +83,7 @@ const translateValue = computed(() => {
       {{ $t('CONVERSATION.REPLYBOX.PRIVATE_NOTE') }}
     </div>
     <div
-      class="absolute shadow-sm rounded-full h-7 w-[var(--chip-width)] ease-in-out translate-x-[var(--translate-x)] rtl:translate-x-[var(--rtl-translate-x)] bg-n-surface-2"
+      class="absolute shadow-sm rounded-full h-7 w-[var(--chip-width)] ease-in-out translate-x-[var(--translate-x)] rtl:translate-x-[var(--rtl-translate-x)] bg-n-glass-strong"
       :class="{
         'transition-all duration-300': !disabled && !isReplyRestricted,
       }"

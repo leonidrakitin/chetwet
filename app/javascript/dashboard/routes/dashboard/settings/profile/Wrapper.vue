@@ -9,7 +9,7 @@ defineProps({
 
 <template>
   <div
-    class="flex flex-col justify-between flex-1 h-full m-0 overflow-auto bg-n-surface-1"
+    class="flex flex-col justify-between flex-1 h-full m-2.5 overflow-auto bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep"
   >
     <router-view v-slot="{ Component }">
       <keep-alive v-if="keepAlive">

@@ -57,7 +57,7 @@ const textColorClass = computed(() => {
 
 <template>
   <div
-    class="h-9 bg-n-alpha-white gap-2 overflow-hidden items-center flex px-2 rounded-lg border border-n-container"
+    class="h-9 bg-n-alpha-white gap-2 overflow-hidden items-center flex px-2 rounded-lg border border-n-border-hairline"
   >
     <FileIcon class="flex-shrink-0" :file-type="fileDetails.type" />
     <span

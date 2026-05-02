@@ -179,7 +179,7 @@ defineExpose({ open, dialogRef });
           v-for="template in templates"
           :key="template.id"
           type="button"
-          class="flex flex-col gap-2 p-4 text-start border border-n-weak rounded-xl bg-n-surface-1 hover:border-n-blue-9 hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          class="flex flex-col gap-2 p-4 text-start border border-n-weak rounded-xl bg-n-glass-soft hover:border-n-blue-9 hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           @click="handleTemplateSelect(template)"
         >
           <div class="flex items-center gap-2">
@@ -250,7 +250,7 @@ defineExpose({ open, dialogRef });
           <textarea
             v-model="clarifications[question.purpose]"
             rows="2"
-            class="w-full px-3 py-2 text-sm border border-n-weak rounded-lg bg-n-surface-1 resize-none focus:outline-none focus:ring-2 focus:ring-n-brand/30 focus:border-n-brand"
+            class="w-full px-3 py-2 text-sm border border-n-weak rounded-lg bg-n-glass-soft resize-none focus:outline-none focus:ring-2 focus:ring-n-brand/30 focus:border-n-brand"
             :placeholder="t('YOUR_ANSWER')"
           />
         </div>
@@ -296,7 +296,7 @@ defineExpose({ open, dialogRef });
 
       <div v-else-if="adaptedData" class="space-y-6">
         <!-- Assistant Info -->
-        <div class="p-4 border border-n-weak rounded-lg bg-n-surface-1">
+        <div class="p-4 border border-n-weak rounded-lg bg-n-glass-soft">
           <h4 class="text-sm font-medium text-n-slate-12 mb-3">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_ASSISTANT') }}
           </h4>
@@ -321,7 +321,7 @@ defineExpose({ open, dialogRef });
         </div>
 
         <!-- Scenarios -->
-        <div class="p-4 border border-n-weak rounded-lg bg-n-surface-1">
+        <div class="p-4 border border-n-weak rounded-lg bg-n-glass-soft">
           <h4 class="text-sm font-medium text-n-slate-12 mb-3">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_SCENARIOS') }}
           </h4>
@@ -350,7 +350,7 @@ defineExpose({ open, dialogRef });
         </div>
 
         <!-- FAQ Count -->
-        <div class="p-4 border border-n-weak rounded-lg bg-n-surface-1">
+        <div class="p-4 border border-n-weak rounded-lg bg-n-glass-soft">
           <div class="flex items-center gap-3">
             <div class="p-2 bg-n-blue-5 rounded-lg">
               <Icon

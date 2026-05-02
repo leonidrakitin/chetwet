@@ -95,7 +95,7 @@ function proceed() {
 
         <!-- Preview bubble -->
         <div
-          class="mt-4 p-3 bg-n-surface-2 rounded-lg border border-n-container"
+          class="mt-4 p-3 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
         >
           <p class="text-xs text-n-slate-9 mb-2">
             {{ t('ONBOARDING.GREETING_STEP.PREVIEW_LABEL') }}

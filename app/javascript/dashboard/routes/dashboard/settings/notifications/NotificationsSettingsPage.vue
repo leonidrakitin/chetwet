@@ -159,7 +159,7 @@ onMounted(async () => {
     </div>
 
     <template v-else>
-      <div class="rounded-xl border border-n-weak bg-n-surface-1">
+      <div class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft">
         <div
           class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-slate-50/60 to-transparent dark:from-slate-950/20"
         >
@@ -223,7 +223,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="rounded-xl border border-n-weak bg-n-surface-1">
+      <div class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft">
         <div
           class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-amber-50/60 to-transparent dark:from-amber-950/20"
         >
@@ -385,7 +385,9 @@ onMounted(async () => {
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="rounded-xl border border-n-weak bg-n-surface-1">
+        <div
+          class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
+        >
           <div
             class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-violet-50/60 to-transparent dark:from-violet-950/20"
           >
@@ -503,7 +505,9 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="rounded-xl border border-n-weak bg-n-surface-1">
+        <div
+          class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
+        >
           <div
             class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-blue-50/60 to-transparent dark:from-blue-950/20"
           >

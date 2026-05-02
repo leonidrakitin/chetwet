@@ -70,7 +70,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="group relative flex items-center gap-3 rounded-2xl border border-weak/50 bg-n-surface-1/95 px-4 py-3 shadow-lg shadow-black/[0.08] backdrop-blur-2xl dark:border-n-slate-6/20 dark:bg-n-slate-3/95 dark:shadow-black/25"
+    class="group relative flex items-center gap-3 rounded-2xl border border-n-border-glass bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass px-4 py-3 shadow-glass-deep"
     role="alert"
     @click="emit('dismiss')"
   >

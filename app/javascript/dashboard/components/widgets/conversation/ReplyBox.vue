@@ -1508,10 +1508,10 @@ export default {
 }
 
 .reply-box {
-  @apply relative mb-3 mx-3 border border-n-container rounded-[1.25rem] bg-n-surface-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)];
+  @apply relative mb-3 mx-3 border border-n-border-glass-soft rounded-[1.25rem] bg-n-glass-strong backdrop-blur-glass-pane shadow-glass-soft;
 
   &.is-private {
-    @apply bg-n-solid-amber dark:border-n-amber-3/20 border-n-amber-12/10;
+    @apply bg-n-accent-yellow/30 border-n-accent-yellow/60;
   }
 }
 
