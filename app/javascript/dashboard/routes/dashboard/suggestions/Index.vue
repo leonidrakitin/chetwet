@@ -109,7 +109,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
+  <section
+    class="flex flex-col w-full h-full overflow-hidden m-2.5 bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep"
+  >
     <header class="sticky top-0 z-10 px-6">
       <div
         class="flex items-start sm:items-center justify-between w-full py-6 gap-2 max-w-5xl mx-auto"

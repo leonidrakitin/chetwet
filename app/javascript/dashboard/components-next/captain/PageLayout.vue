@@ -115,7 +115,9 @@ const handleCreateAssistant = () => {
 </script>
 
 <template>
-  <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
+  <section
+    class="flex flex-col w-full h-full overflow-hidden bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card m-2.5 shadow-glass-deep"
+  >
     <header class="sticky top-0 z-10 px-6">
       <div class="w-full max-w-5xl mx-auto">
         <div
@@ -130,7 +132,7 @@ const handleCreateAssistant = () => {
               <div class="flex items-center gap-2">
                 <span
                   v-if="!isFetchingAssistants"
-                  class="text-xl font-medium truncate text-n-slate-12"
+                  class="font-interDisplay text-xl font-bold tracking-tight truncate text-n-text-display"
                 >
                   {{ activeAssistantName }}
                 </span>
@@ -164,11 +166,11 @@ const handleCreateAssistant = () => {
             <div class="flex items-center gap-4">
               <div
                 v-if="showAssistantSwitcher && !showPaywall && headerTitle"
-                class="w-0.5 h-4 rounded-2xl bg-n-weak"
+                class="w-0.5 h-4 rounded-2xl bg-n-border-hairline"
               />
               <span
                 v-if="headerTitle"
-                class="text-xl font-medium text-n-slate-12"
+                class="font-interDisplay text-2xl font-bold tracking-tight text-n-text-display"
               >
                 {{ headerTitle }}
               </span>
@@ -176,7 +178,7 @@ const handleCreateAssistant = () => {
                 v-if="!isEmpty && showKnowMore"
                 class="flex items-center gap-2"
               >
-                <div class="w-0.5 h-4 rounded-2xl bg-n-weak" />
+                <div class="w-0.5 h-4 rounded-2xl bg-n-border-hairline" />
                 <slot name="knowMore" />
               </div>
             </div>

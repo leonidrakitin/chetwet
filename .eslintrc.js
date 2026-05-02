@@ -28,6 +28,13 @@ module.exports = {
         'no-console': 'off',
       },
     },
+    {
+      // Static design preview pages — mock UI, no i18n needed.
+      files: ['app/javascript/dashboard/routes/dashboard/designPreview/**/*.vue'],
+      rules: {
+        'vue/no-bare-strings-in-template': 'off',
+      },
+    },
   ],
   plugins: ['html', 'prettier'],
   parserOptions: {

@@ -21,10 +21,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="items-center bg-n-slate-2 flex justify-center h-full w-full">
-    <EmptyState
-      :title="$t('APP_GLOBAL.ACCOUNT_SUSPENDED.TITLE')"
-      :message="$t('APP_GLOBAL.ACCOUNT_SUSPENDED.MESSAGE')"
-    />
+  <div class="flex justify-center items-center w-full h-full m-2.5">
+    <div
+      class="bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep px-10 py-12 max-w-xl w-full"
+    >
+      <EmptyState
+        :title="$t('APP_GLOBAL.ACCOUNT_SUSPENDED.TITLE')"
+        :message="$t('APP_GLOBAL.ACCOUNT_SUSPENDED.MESSAGE')"
+      />
+    </div>
   </div>
 </template>

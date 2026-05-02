@@ -158,7 +158,7 @@ defineExpose({ open, dialogRef });
         v-for="template in templates"
         :key="template.id"
         type="button"
-        class="flex flex-col gap-2 p-4 text-start border border-n-weak rounded-xl bg-n-surface-1 hover:border-n-blue-9 hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        class="flex flex-col gap-2 p-4 text-start border border-n-border-glass-soft rounded-xl bg-n-glass-soft hover:border-n-blue-9 hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         :disabled="isCreating"
         @click="handleSelect(template)"
       >
@@ -265,7 +265,7 @@ defineExpose({ open, dialogRef });
           </label>
           <select
             v-model="form.locale"
-            class="appearance-none rounded-lg border-0 outline-1 outline -outline-offset-1 outline-n-weak bg-n-surface-1 py-2 px-3 text-sm"
+            class="appearance-none rounded-lg border border-n-border-glass-soft bg-n-glass-soft py-2 px-3 text-sm text-n-text-display"
           >
             <option value="ru">
               {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.OPTIONS.RU') }}

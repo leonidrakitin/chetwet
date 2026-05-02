@@ -82,7 +82,7 @@ const STATUS_BADGE_CLASSES = {
 };
 
 function statusBadgeClass(status) {
-  return STATUS_BADGE_CLASSES[status] ?? 'bg-n-slate-6 text-n-slate-12';
+  return STATUS_BADGE_CLASSES[status] ?? 'bg-n-slate-6 text-n-text-display';
 }
 
 function sourceLabel(source) {
@@ -334,21 +334,21 @@ onUnmounted(() => {
   >
     <template #body>
       <div class="flex flex-col gap-6">
-        <p class="text-n-slate-11 text-sm">
+        <p class="text-n-text-muted text-sm">
           {{ $t('CAPTAIN.MIGRATIONS.DESCRIPTION') }}
         </p>
 
         <div
-          class="rounded-lg border border-n-slate-8 bg-n-surface-2 p-4 flex flex-col gap-4"
+          class="rounded-lg border border-n-border-glass-soft bg-n-glass-soft p-4 flex flex-col gap-4"
         >
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-n-slate-12">
+              <label class="mb-1 block text-sm font-medium text-n-text-display">
                 {{ $t('CAPTAIN.MIGRATIONS.SOURCE') }}
               </label>
               <select
                 v-model="form.source"
-                class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
               >
                 <option v-for="s in SOURCES" :key="s.value" :value="s.value">
                   {{ $t(s.labelKey) }}
@@ -356,12 +356,12 @@ onUnmounted(() => {
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-n-slate-12">
+              <label class="mb-1 block text-sm font-medium text-n-text-display">
                 {{ $t('CAPTAIN.MIGRATIONS.INBOX') }}
               </label>
               <select
                 v-model="form.inboxId"
-                class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
                 :disabled="isFetchingInboxes || !inboxes.length"
               >
                 <option value="">
@@ -380,12 +380,12 @@ onUnmounted(() => {
 
           <!-- Telegram session select (live source) -->
           <div v-if="isTelegramLive">
-            <label class="mb-1 block text-sm font-medium text-n-slate-12">
+            <label class="mb-1 block text-sm font-medium text-n-text-display">
               {{ $t('CAPTAIN.MIGRATIONS.TELEGRAM_SESSION') }}
             </label>
             <select
               v-model="form.telegramSessionId"
-              class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+              class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
               :disabled="isFetchingSessions || !telegramSessions.length"
             >
               <option value="">
@@ -403,29 +403,29 @@ onUnmounted(() => {
 
           <!-- VK access token (vk_personal) -->
           <div v-if="isVkLive">
-            <label class="mb-1 block text-sm font-medium text-n-slate-12">
+            <label class="mb-1 block text-sm font-medium text-n-text-display">
               {{ $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN') }}
             </label>
             <input
               v-model="form.vkAccessToken"
               type="password"
-              class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+              class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
               :placeholder="
                 $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN_PLACEHOLDER')
               "
             />
-            <p class="mt-1 text-xs text-n-slate-11">
+            <p class="mt-1 text-xs text-n-text-muted">
               {{ $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN_HELP') }}
             </p>
           </div>
 
           <!-- File upload (file-based sources) -->
           <div v-if="!isLiveSource">
-            <label class="mb-1 block text-sm font-medium text-n-slate-12">
+            <label class="mb-1 block text-sm font-medium text-n-text-display">
               {{ $t('CAPTAIN.MIGRATIONS.FILE') }}
             </label>
             <div
-              class="flex min-h-[80px] cursor-pointer items-center justify-center rounded border border-dashed border-n-slate-8 bg-n-surface-1 px-4 py-4 text-n-slate-11"
+              class="flex min-h-[80px] cursor-pointer items-center justify-center rounded border border-dashed border-n-border-glass-soft bg-n-glass-soft px-4 py-4 text-n-text-muted"
               @drop="onDrop"
               @dragover="onDragOver"
               @click="$refs.fileInput?.click()"
@@ -449,12 +449,12 @@ onUnmounted(() => {
 
           <!-- Date limit (live source) -->
           <div v-if="isLiveSource">
-            <label class="mb-1 block text-sm font-medium text-n-slate-12">
+            <label class="mb-1 block text-sm font-medium text-n-text-display">
               {{ $t('CAPTAIN.MIGRATIONS.DATE_LIMIT') }}
             </label>
             <select
               v-model="form.dateLimitMonths"
-              class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+              class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
             >
               <option
                 v-for="opt in DATE_LIMIT_OPTIONS"
@@ -471,9 +471,9 @@ onUnmounted(() => {
               <input
                 v-model="form.dryRun"
                 type="checkbox"
-                class="rounded border-n-slate-8"
+                class="rounded border-n-border-glass-soft"
               />
-              <span class="text-sm text-n-slate-12">
+              <span class="text-sm text-n-text-display">
                 {{ $t('CAPTAIN.MIGRATIONS.DRY_RUN') }}
               </span>
             </label>
@@ -481,9 +481,9 @@ onUnmounted(() => {
               <input
                 v-model="form.includeGroups"
                 type="checkbox"
-                class="rounded border-n-slate-8"
+                class="rounded border-n-border-glass-soft"
               />
-              <span class="text-sm text-n-slate-12">
+              <span class="text-sm text-n-text-display">
                 {{ $t('CAPTAIN.MIGRATIONS.INCLUDE_GROUPS') }}
               </span>
             </label>
@@ -495,27 +495,27 @@ onUnmounted(() => {
             class="grid grid-cols-1 gap-4 sm:grid-cols-2"
           >
             <div>
-              <label class="mb-1 block text-sm font-medium text-n-slate-12">
+              <label class="mb-1 block text-sm font-medium text-n-text-display">
                 {{ $t('CAPTAIN.MIGRATIONS.AGENT_EXTERNAL_ID') }}
               </label>
               <input
                 v-model="form.agentExternalId"
                 type="text"
-                class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
                 :placeholder="
                   $t('CAPTAIN.MIGRATIONS.AGENT_EXTERNAL_ID_PLACEHOLDER')
                 "
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-n-slate-12">
+              <label class="mb-1 block text-sm font-medium text-n-text-display">
                 {{ $t('CAPTAIN.MIGRATIONS.MAX_MESSAGES_PER_DIALOG') }}
               </label>
               <input
                 v-model="form.maxMessagesPerDialog"
                 type="number"
                 min="1"
-                class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
               />
             </div>
           </div>
@@ -524,7 +524,7 @@ onUnmounted(() => {
           <div v-if="isLiveSource">
             <button
               type="button"
-              class="text-sm text-n-slate-11 hover:text-n-slate-12"
+              class="text-sm text-n-text-muted hover:text-n-text-display"
               @click="showAdvanced = !showAdvanced"
             >
               {{ $t('CAPTAIN.MIGRATIONS.ADVANCED_OPTIONS') }}
@@ -535,25 +535,29 @@ onUnmounted(() => {
               class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2"
             >
               <div>
-                <label class="mb-1 block text-sm font-medium text-n-slate-12">
+                <label
+                  class="mb-1 block text-sm font-medium text-n-text-display"
+                >
                   {{ $t('CAPTAIN.MIGRATIONS.SESSION_GAP_MINUTES') }}
                 </label>
                 <input
                   v-model="form.sessionGapMinutes"
                   type="number"
                   min="1"
-                  class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                  class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-n-slate-12">
+                <label
+                  class="mb-1 block text-sm font-medium text-n-text-display"
+                >
                   {{ $t('CAPTAIN.MIGRATIONS.MAX_CHATS') }}
                 </label>
                 <input
                   v-model="form.maxChats"
                   type="number"
                   min="1"
-                  class="w-full rounded border border-n-slate-8 bg-n-surface-1 px-3 py-2 text-n-slate-12"
+                  class="w-full rounded border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-n-text-display"
                 />
               </div>
             </div>
@@ -580,18 +584,18 @@ onUnmounted(() => {
         </div>
 
         <div>
-          <h3 class="mb-3 text-base font-medium text-n-slate-12">
+          <h3 class="mb-3 text-base font-medium text-n-text-display">
             {{ $t('CAPTAIN.MIGRATIONS.RECENT') }}
           </h3>
           <div
             v-if="isFetchingMigrations && !migrations.length"
-            class="text-n-slate-11 text-sm"
+            class="text-n-text-muted text-sm"
           >
             {{ $t('CAPTAIN.MIGRATIONS.LOADING') }}
           </div>
           <div
             v-else-if="!migrations.length"
-            class="rounded border border-n-slate-8 bg-n-surface-2 p-4 text-n-slate-11 text-sm"
+            class="rounded border border-n-border-glass-soft bg-n-glass-soft p-4 text-n-text-muted text-sm"
           >
             {{ $t('CAPTAIN.MIGRATIONS.EMPTY_STATE') }}
           </div>
@@ -599,12 +603,12 @@ onUnmounted(() => {
             <div
               v-for="m in migrations"
               :key="m.id"
-              class="rounded-lg border border-n-slate-8 bg-n-surface-2 p-4"
+              class="rounded-lg border border-n-border-glass-soft bg-n-glass-soft p-4"
             >
               <!-- Card header -->
               <div class="flex items-start justify-between gap-2 mb-3">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-sm font-medium text-n-slate-12">
+                  <span class="text-sm font-medium text-n-text-display">
                     {{ sourceLabel(m.source) }}
                   </span>
                   <span
@@ -615,7 +619,7 @@ onUnmounted(() => {
                   </span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                  <span class="text-xs text-n-slate-11">
+                  <span class="text-xs text-n-text-muted">
                     {{
                       m.created_at
                         ? new Date(m.created_at).toLocaleString()
@@ -638,7 +642,7 @@ onUnmounted(() => {
 
               <!-- processing -->
               <template v-if="m.status === 'processing'">
-                <p class="text-xs text-n-slate-11 mb-1">
+                <p class="text-xs text-n-text-muted mb-1">
                   {{ $t('CAPTAIN.MIGRATIONS.PROCESSING_LABEL') }}
                 </p>
                 <div class="h-2 bg-n-slate-6 rounded-full overflow-hidden mb-1">
@@ -647,7 +651,7 @@ onUnmounted(() => {
                     :style="{ width: (m.progress_percent ?? 0) + '%' }"
                   />
                 </div>
-                <p class="text-xs text-n-slate-11">
+                <p class="text-xs text-n-text-muted">
                   {{
                     $t('CAPTAIN.MIGRATIONS.DIALOGS_PROGRESS', {
                       processed: m.processed ?? 0,
@@ -662,7 +666,7 @@ onUnmounted(() => {
               <template v-else-if="m.status === 'completed'">
                 <div class="flex flex-wrap gap-2 mb-2">
                   <span
-                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-text-display"
                   >
                     {{ $t('CAPTAIN.MIGRATIONS.STEP_DIALOGS_FOUND') }}:
                     <span class="font-medium">
@@ -675,7 +679,7 @@ onUnmounted(() => {
                   </span>
                   <span
                     v-if="m.report?.preprocess_stats?.sessions_created"
-                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-text-display"
                   >
                     {{ $t('CAPTAIN.MIGRATIONS.STEP_SESSIONS') }}:
                     <span class="font-medium">
@@ -683,7 +687,7 @@ onUnmounted(() => {
                     </span>
                   </span>
                   <span
-                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-text-display"
                   >
                     {{ $t('CAPTAIN.MIGRATIONS.STEP_AFTER_CLEANING') }}:
                     <span class="font-medium">
@@ -691,7 +695,7 @@ onUnmounted(() => {
                     </span>
                   </span>
                   <span
-                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-text-display"
                   >
                     {{ $t('CAPTAIN.MIGRATIONS.STEP_IMPORTED') }}:
                     <span class="font-medium">
@@ -699,7 +703,7 @@ onUnmounted(() => {
                     </span>
                   </span>
                   <span
-                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-slate-12"
+                    class="px-3 py-1.5 bg-n-surface-3 rounded-full text-xs text-n-text-display"
                   >
                     {{ $t('CAPTAIN.MIGRATIONS.STEP_FAQS') }}:
                     <span class="font-medium">
@@ -707,7 +711,7 @@ onUnmounted(() => {
                     </span>
                   </span>
                 </div>
-                <p v-if="m.report?.summary" class="text-xs text-n-slate-11">
+                <p v-if="m.report?.summary" class="text-xs text-n-text-muted">
                   {{ m.report.summary }}
                 </p>
               </template>
@@ -721,7 +725,7 @@ onUnmounted(() => {
 
               <!-- pending -->
               <template v-else>
-                <p class="text-xs text-n-slate-11">
+                <p class="text-xs text-n-text-muted">
                   {{ $t('CAPTAIN.MIGRATIONS.PENDING_LABEL') }}
                 </p>
               </template>

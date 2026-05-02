@@ -777,7 +777,7 @@ const menuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="bg-n-surface-1 flex flex-col text-sm pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[216px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-n-container"
+    class="flex flex-col text-sm pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[216px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-n-border-glass-soft bg-n-glass-pane backdrop-blur-glass-pane backdrop-saturate-glass"
     :class="[
       {
         'shadow-[0_18px_48px_rgba(15,23,42,0.18)] md:shadow-none':
@@ -812,7 +812,7 @@ const menuItems = computed(() => {
           >
             <Logo class="size-4.5" />
           </div>
-          <div class="flex-shrink-0 w-px h-4 bg-n-container" />
+          <div class="flex-shrink-0 w-px h-4 bg-n-border-hairline" />
           <SidebarAccountSwitcher
             class="flex-grow min-w-0"
             @show-create-account-modal="emit('showCreateAccountModal')"
@@ -826,7 +826,7 @@ const menuItems = computed(() => {
         <RouterLink
           v-if="!isEffectivelyCollapsed"
           :to="{ name: 'search' }"
-          class="flex gap-2 items-center px-3 py-2 w-full h-10 rounded-xl outline outline-1 outline-n-container bg-n-surface-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-100 ease-out hover:bg-n-alpha-1"
+          class="flex gap-2 items-center px-3 py-2 w-full h-10 rounded-pill outline outline-1 outline-n-border-glass bg-n-glass-soft backdrop-blur-glass-rail shadow-pill-soft transition-all duration-150 ease-out hover:bg-n-glass-strong"
         >
           <span class="flex-shrink-0 i-lucide-search size-4 text-n-slate-10" />
           <span class="flex-grow text-start text-n-slate-10">
@@ -841,7 +841,7 @@ const menuItems = computed(() => {
         <RouterLink
           v-else
           :to="{ name: 'search' }"
-          class="flex items-center justify-center size-9 rounded-xl outline outline-1 outline-n-container bg-n-surface-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-100 ease-out hover:bg-n-alpha-1"
+          class="flex items-center justify-center size-9 rounded-full outline outline-1 outline-n-border-glass bg-n-glass-soft backdrop-blur-glass-rail shadow-pill-soft transition-all duration-150 ease-out hover:bg-n-glass-strong"
           :title="t('COMBOBOX.SEARCH_PLACEHOLDER')"
         >
           <span class="i-lucide-search size-4 text-n-slate-11" />
@@ -855,9 +855,9 @@ const menuItems = computed(() => {
               class="dark:hover:!bg-n-slate-9/30"
               :class="[
                 isEffectivelyCollapsed
-                  ? '!size-9 !outline-n-container !text-n-slate-11'
-                  : '!h-10 !rounded-xl !outline-n-container !text-n-slate-11',
-                { '!bg-n-alpha-1': isOpen },
+                  ? '!size-9 !rounded-full !outline-n-border-glass !text-n-text-body'
+                  : '!h-10 !rounded-pill !outline-n-border-glass !text-n-text-body',
+                { '!bg-n-glass-strong': isOpen },
               ]"
               @click="onComposeOpen(toggle)"
             />
@@ -884,7 +884,7 @@ const menuItems = computed(() => {
       class="flex relative flex-col flex-shrink-0 gap-1 justify-between items-center"
     >
       <div
-        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-n-surface-1 to-transparent"
+        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-n-glass-pane to-transparent"
       />
       <SidebarChangelogCard
         v-if="
@@ -901,7 +901,7 @@ const menuItems = computed(() => {
         "
       />
       <div
-        class="px-2 py-2.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-n-container bg-n-surface-1"
+        class="px-2 py-2.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-n-border-hairline bg-transparent"
         :class="isEffectivelyCollapsed ? 'justify-center' : 'justify-between'"
       >
         <SidebarProfileMenu

@@ -278,5 +278,40 @@ export const colors = {
       color: 'rgb(var(--label-background) / <alpha-value>)',
       border: 'rgba(var(--label-border))',
     },
+    // Glassmorphism design tokens
+    canvas: {
+      1: 'rgb(var(--canvas-grad-1) / <alpha-value>)',
+      2: 'rgb(var(--canvas-grad-2) / <alpha-value>)',
+      3: 'rgb(var(--canvas-grad-3) / <alpha-value>)',
+      4: 'rgb(var(--canvas-grad-4) / <alpha-value>)',
+    },
+    glass: {
+      strong: 'rgba(var(--glass-strong))',
+      soft: 'rgba(var(--glass-soft))',
+      pane: 'rgba(var(--glass-pane))',
+      rail: 'rgba(var(--glass-rail))',
+    },
+    border: {
+      glass: 'rgba(var(--border-glass))',
+      'glass-soft': 'rgba(var(--border-glass-soft))',
+      hairline: 'rgba(var(--border-hairline))',
+    },
+    text: {
+      display: 'rgb(var(--text-display) / <alpha-value>)',
+      body: 'rgb(var(--text-body) / <alpha-value>)',
+      muted: 'rgb(var(--text-muted) / <alpha-value>)',
+    },
+    accent: {
+      active: 'rgb(var(--accent-active) / <alpha-value>)',
+      'active-fg': 'rgb(var(--accent-active-fg) / <alpha-value>)',
+      yellow: 'rgb(var(--accent-yellow) / <alpha-value>)',
+      'yellow-fg': 'rgb(var(--accent-yellow-fg) / <alpha-value>)',
+      'blue-from': 'rgb(var(--accent-blue-from) / <alpha-value>)',
+      'blue-to': 'rgb(var(--accent-blue-to) / <alpha-value>)',
+    },
+    status: {
+      online: 'rgb(var(--status-online) / <alpha-value>)',
+      unread: 'rgb(var(--status-unread) / <alpha-value>)',
+    },
   },
 };

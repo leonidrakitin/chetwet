@@ -49,6 +49,36 @@ const tailwindConfig = {
         460: '460',
         520: '520',
       },
+      borderRadius: {
+        chip: '14px',
+        pill: '18px',
+        card: '24px',
+        'card-lg': '28px',
+      },
+      boxShadow: {
+        'glass-soft':
+          '0 1px 0 rgba(var(--shadow-glass-inset)) inset, 0 4px 14px -6px rgba(var(--shadow-glass-soft))',
+        'glass-deep':
+          '0 1px 0 rgba(var(--shadow-glass-inset)) inset, 0 20px 50px -22px rgba(var(--shadow-glass-deep)), 0 4px 14px -6px rgba(var(--shadow-glass-soft))',
+        'pill-active': '0 10px 22px -10px rgba(var(--shadow-pill-active))',
+        'pill-soft':
+          '0 1px 0 rgba(var(--shadow-glass-inset)) inset, 0 6px 14px -6px rgba(var(--shadow-glass-soft))',
+        'inset-hairline':
+          '0 1px 0 rgba(var(--shadow-glass-inset)) inset',
+        'tooltip-dark': '0 8px 20px -8px rgba(0, 0, 0, 0.4)',
+      },
+      backdropBlur: {
+        'glass-rail': '14px',
+        'glass-pane': '16px',
+        'glass-card': '22px',
+      },
+      backdropSaturate: {
+        glass: '1.5',
+      },
+      backgroundImage: {
+        'canvas-radial':
+          'radial-gradient(1200px 700px at 100% 0%, rgb(var(--canvas-grad-2)) 0%, transparent 60%), radial-gradient(900px 600px at 0% 100%, rgb(var(--canvas-grad-3)) 0%, transparent 60%), radial-gradient(700px 500px at 50% 40%, rgb(var(--canvas-grad-4)) 0%, transparent 65%)',
+      },
       typography: {
         bubble: {
           css: {

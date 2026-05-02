@@ -254,11 +254,12 @@ const deleteConversation = () => {
 
 <template>
   <div
-    class="relative flex items-start flex-grow-0 flex-shrink-0 w-auto max-w-full py-0 border border-transparent rounded-2xl cursor-pointer conversation hover:bg-n-alpha-1 group transition-colors duration-100"
+    class="relative flex items-start flex-grow-0 flex-shrink-0 w-auto max-w-full py-0 border border-transparent rounded-2xl cursor-pointer conversation group transition-all duration-150 [&.active_.conversation--user]:text-n-accent-active-fg [&.active_p]:!text-n-accent-active-fg/75 [&.active_span]:!text-n-accent-active-fg/75"
     :class="{
-      'active animate-card-select bg-n-blue-3/70 border-n-blue-7/30 shadow-[0_8px_20px_rgba(39,129,246,0.08)]':
+      'active animate-card-select !bg-n-accent-active !text-n-accent-active-fg !border-n-accent-active shadow-pill-active':
         isActiveChat,
-      'bg-n-slate-2/70 border-n-container': selected && !isActiveChat,
+      'bg-n-glass-soft border-n-border-glass-soft': selected && !isActiveChat,
+      'hover:bg-n-glass-soft/70': !isActiveChat,
       'px-0': compact,
       'px-2': !compact,
     }"
@@ -374,7 +375,7 @@ const deleteConversation = () => {
           />
         </span>
         <span
-          class="rounded-full text-xxs font-semibold h-5 leading-5 ltr:ml-auto rtl:mr-auto mt-1 min-w-[1.25rem] px-1.5 py-0 text-center text-white bg-n-brand"
+          class="rounded-full text-xxs font-semibold h-5 leading-5 ltr:ml-auto rtl:mr-auto mt-1 min-w-[1.25rem] px-1.5 py-0 text-center text-white bg-n-status-unread"
           :class="hasUnread ? 'block' : 'hidden'"
         >
           {{ unreadCount > 9 ? '9+' : unreadCount }}

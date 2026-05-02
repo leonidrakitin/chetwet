@@ -418,10 +418,10 @@ function handleRetry() {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-n-brand/5 via-n-background to-n-brand/10 dark:from-n-background dark:via-n-solid-1 dark:to-n-background p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-n-canvas-1 bg-canvas-radial p-4"
   >
     <div
-      class="w-full max-w-lg mx-auto flex flex-col bg-white dark:bg-n-solid-2 rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden"
+      class="w-full max-w-lg mx-auto flex flex-col bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep overflow-hidden"
     >
       <!-- Header -->
       <div class="flex items-center justify-between px-6 pt-4">

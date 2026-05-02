@@ -130,7 +130,9 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-grow overflow-hidden bg-n-background text-n-slate-12">
+  <div
+    class="flex flex-grow overflow-hidden text-n-text-display bg-n-canvas-1 bg-canvas-radial font-inter"
+  >
     <NextSidebar
       :is-mobile-sidebar-open="isMobileSidebarOpen"
       @toggle-account-modal="toggleAccountModal"
@@ -141,7 +143,7 @@ export default {
     />
 
     <main
-      class="flex flex-1 h-full w-full min-h-0 px-0 overflow-hidden bg-n-background"
+      class="flex flex-1 h-full w-full min-h-0 px-0 overflow-hidden bg-transparent"
     >
       <UpgradePage
         v-show="showUpgradePage"

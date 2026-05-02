@@ -113,7 +113,7 @@ const handleEnterKey = event => {
     <MessageList :messages="messages" :is-loading="isLoading" />
 
     <div
-      class="flex items-center mx-6 bg-n-background outline outline-1 outline-n-weak rounded-xl p-3"
+      class="flex items-center mx-6 bg-n-glass-soft border border-n-border-glass-soft rounded-xl p-3"
     >
       <input
         v-model="newMessage"

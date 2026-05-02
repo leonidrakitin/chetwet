@@ -434,10 +434,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full w-full min-w-0 bg-n-surface-1">
+  <div
+    class="flex flex-col h-full w-full min-w-0 m-2.5 bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep overflow-hidden"
+  >
     <!-- Header -->
     <div
-      class="flex items-center justify-between gap-3 px-4 py-3 md:px-6 md:py-4 border-b border-n-weak flex-shrink-0"
+      class="flex items-center justify-between gap-3 px-4 py-3 md:px-6 md:py-4 border-b border-n-border-hairline flex-shrink-0"
     >
       <div class="flex items-center gap-2 min-w-0">
         <Button

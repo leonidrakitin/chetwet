@@ -15,6 +15,7 @@ import OnboardingWizard from './onboarding/Index.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
 import YclientsConnect from './settings/integrations/YclientsConnect.vue';
+import designPreviewRoutes from './designPreview/designPreview.routes';
 
 export default {
   routes: [
@@ -24,6 +25,7 @@ export default {
       component: YclientsConnect,
       meta: {},
     },
+    ...designPreviewRoutes,
     {
       path: frontendURL('onboarding/wizard'),
       name: 'onboarding_wizard',

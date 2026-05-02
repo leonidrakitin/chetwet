@@ -22,18 +22,20 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <div
-    class="flex flex-col flex-1 items-center justify-center w-full h-full gap-6 bg-n-slate-2"
-  >
-    <EmptyState
-      :title="$t('APP_GLOBAL.NO_ACCOUNTS.TITLE')"
-      :message="message"
-    />
-    <NextButton
-      variant="smooth"
-      color-scheme="secondary"
-      :label="$t('APP_GLOBAL.NO_ACCOUNTS.LOGOUT')"
-      @click="handleLogout"
-    />
+  <div class="flex flex-1 items-center justify-center w-full h-full m-2.5">
+    <div
+      class="bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep px-10 py-12 max-w-xl w-full flex flex-col items-center gap-6"
+    >
+      <EmptyState
+        :title="$t('APP_GLOBAL.NO_ACCOUNTS.TITLE')"
+        :message="message"
+      />
+      <NextButton
+        variant="smooth"
+        color-scheme="secondary"
+        :label="$t('APP_GLOBAL.NO_ACCOUNTS.LOGOUT')"
+        @click="handleLogout"
+      />
+    </div>
   </div>
 </template>

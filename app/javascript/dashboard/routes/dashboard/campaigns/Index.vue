@@ -144,11 +144,11 @@ onMounted(() => {
 
 <template>
   <div
-    class="flex flex-col h-full w-full min-w-0 overflow-hidden bg-n-surface-1"
+    class="flex flex-col h-full w-full min-w-0 overflow-hidden m-2.5 bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep"
   >
     <!-- Header -->
     <div
-      class="sticky top-0 z-10 px-4 md:px-6 bg-n-surface-1 border-b border-n-weak flex-shrink-0"
+      class="sticky top-0 z-10 px-4 md:px-6 bg-transparent border-b border-n-border-hairline flex-shrink-0"
     >
       <div
         class="flex items-start sm:items-center justify-between w-full py-4 md:py-5 gap-4"

@@ -1010,7 +1010,7 @@ watch(isConversationAssigneeEnabled, enabled => {
 
 <template>
   <div
-    class="flex flex-col flex-shrink-0 conversations-list-wrap bg-n-surface-1 ltr:border-r rtl:border-l border-n-container"
+    class="flex flex-col flex-shrink-0 conversations-list-wrap bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card m-2.5 shadow-glass-deep"
     :class="[
       { hidden: !showConversationList },
       isOnExpandedLayout ? 'basis-full' : 'w-[340px] 2xl:w-[412px]',

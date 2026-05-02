@@ -145,6 +145,34 @@
     --black-alpha-2: 15, 23, 42, 0.04;
     --border-blue: 39, 129, 246, 0.5;
     --white-alpha: 255, 255, 255, 0.8;
+
+    // Glassmorphism design tokens (light)
+    --canvas-grad-1: 220 229 240;
+    --canvas-grad-2: 214 227 242;
+    --canvas-grad-3: 232 238 247;
+    --canvas-grad-4: 226 233 242;
+    --glass-strong: 255, 255, 255, 0.7;
+    --glass-soft: 255, 255, 255, 0.55;
+    --glass-pane: 255, 255, 255, 0.55;
+    --glass-rail: 255, 255, 255, 0.7;
+    --border-glass: 255, 255, 255, 0.9;
+    --border-glass-soft: 255, 255, 255, 0.7;
+    --border-hairline: 15, 23, 42, 0.06;
+    --text-display: 26 27 31;
+    --text-body: 71 85 105;
+    --text-muted: 100 116 139;
+    --accent-active: 26 27 31;
+    --accent-active-fg: 255 255 255;
+    --accent-yellow: 251 229 107;
+    --accent-yellow-fg: 63 48 0;
+    --accent-blue-from: 59 110 224;
+    --accent-blue-to: 91 141 239;
+    --status-online: 48 164 108;
+    --status-unread: 229 72 77;
+    --shadow-glass-inset: 255, 255, 255, 0.9;
+    --shadow-glass-soft: 28, 56, 96, 0.08;
+    --shadow-glass-deep: 28, 56, 96, 0.16;
+    --shadow-pill-active: 0, 0, 0, 0.45;
   }
 
   .dark {
@@ -291,6 +319,34 @@
     --border-blue: 39, 129, 246, 0.5;
     --border-container: 255, 255, 255, 0.04;
     --white-alpha: 255, 255, 255, 0.14;
+
+    // Glassmorphism design tokens (dark)
+    --canvas-grad-1: 12 19 30;
+    --canvas-grad-2: 10 17 28;
+    --canvas-grad-3: 18 26 38;
+    --canvas-grad-4: 9 14 22;
+    --glass-strong: 24, 33, 44, 0.7;
+    --glass-soft: 24, 33, 44, 0.5;
+    --glass-pane: 24, 33, 44, 0.6;
+    --glass-rail: 24, 33, 44, 0.7;
+    --border-glass: 255, 255, 255, 0.08;
+    --border-glass-soft: 255, 255, 255, 0.06;
+    --border-hairline: 255, 255, 255, 0.06;
+    --text-display: 237 238 240;
+    --text-body: 176 180 186;
+    --text-muted: 119 123 132;
+    --accent-active: 237 238 240;
+    --accent-active-fg: 17 17 19;
+    --accent-yellow: 255 214 10;
+    --accent-yellow-fg: 63 48 0;
+    --accent-blue-from: 39 129 246;
+    --accent-blue-to: 91 141 239;
+    --status-online: 18 165 148;
+    --status-unread: 229 70 102;
+    --shadow-glass-inset: 255, 255, 255, 0.06;
+    --shadow-glass-soft: 0, 0, 0, 0.4;
+    --shadow-glass-deep: 0, 0, 0, 0.55;
+    --shadow-pill-active: 0, 0, 0, 0.6;
   }
 }
 // NEXT COLORS END

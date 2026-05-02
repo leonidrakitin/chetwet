@@ -18,7 +18,9 @@ const showSettingsHeader = computed(
 </script>
 
 <template>
-  <div class="flex flex-col h-full m-0 bg-n-surface-1 w-full">
+  <div
+    class="flex flex-col w-full h-full min-h-0 m-2.5 bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card-lg shadow-glass-deep overflow-hidden"
+  >
     <SettingsHeader
       v-if="showSettingsHeader"
       :icon="icon"
