@@ -89,7 +89,7 @@ const summary = computed(() => ({
         <div class="text-sm font-medium truncate">
           {{ agent.name }}
         </div>
-        <div class="text-xs text-n-slate-11 truncate">
+        <div class="text-xs text-n-text-body truncate">
           {{ agent.email }}
         </div>
       </div>
@@ -113,7 +113,7 @@ const summary = computed(() => ({
         />
       </div>
 
-      <div class="flex gap-4 text-xs text-n-slate-11 mt-1">
+      <div class="flex gap-4 text-xs text-n-text-body mt-1">
         <span v-if="agent.online_duration > 0" class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-green-500" />
           {{

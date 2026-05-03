@@ -104,7 +104,7 @@ const providerFilterLabel = computed(() => `${t('SCHEDULE.PROVIDER')}:`);
 
 <template>
   <div
-    class="flex flex-col gap-3 px-2 py-3 sm:px-4 sm:py-3 border-b border-n-weak"
+    class="flex flex-col gap-3 px-2 py-3 sm:px-4 sm:py-3 border-b border-n-border-glass-soft"
   >
     <div
       class="flex flex-col gap-3 min-w-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
@@ -135,7 +135,7 @@ const providerFilterLabel = computed(() => `${t('SCHEDULE.PROVIDER')}:`);
           />
         </div>
         <span
-          class="text-base sm:text-lg font-semibold text-n-slate-12 truncate min-w-0 flex-1 sm:flex-none"
+          class="text-base sm:text-lg font-semibold text-n-text-display truncate min-w-0 flex-1 sm:flex-none"
         >
           {{ formattedDate }}
         </span>
@@ -148,12 +148,12 @@ const providerFilterLabel = computed(() => `${t('SCHEDULE.PROVIDER')}:`);
           v-if="viewMode === 'week'"
           class="flex flex-col gap-1 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2 min-w-0"
         >
-          <span class="text-xs sm:text-sm text-n-slate-11 shrink-0">
+          <span class="text-xs sm:text-sm text-n-text-body shrink-0">
             {{ providerFilterLabel }}
           </span>
           <select
             :value="selectedProviderId"
-            class="w-full sm:w-auto min-w-0 max-w-full px-3 py-2 text-sm border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+            class="w-full sm:w-auto min-w-0 max-w-full px-3 py-2 text-sm border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand"
             @change="
               $emit('update:selectedProviderId', Number($event.target.value))
             "
@@ -169,15 +169,15 @@ const providerFilterLabel = computed(() => `${t('SCHEDULE.PROVIDER')}:`);
         </div>
 
         <div
-          class="grid grid-cols-2 sm:inline-flex sm:rounded-lg sm:border sm:border-n-weak sm:overflow-hidden gap-1 sm:gap-0 w-full sm:w-auto"
+          class="grid grid-cols-2 sm:inline-flex sm:rounded-lg sm:border sm:border-n-border-glass-soft sm:overflow-hidden gap-1 sm:gap-0 w-full sm:w-auto"
         >
           <button
             type="button"
-            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-weak sm:border-0"
+            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-border-glass-soft sm:border-0"
             :class="[
               viewMode === 'day'
                 ? 'bg-n-brand text-white'
-                : 'bg-n-solid-1 text-n-slate-11 hover:bg-n-solid-2',
+                : 'bg-n-glass-soft text-n-text-body hover:bg-n-glass-strong',
             ]"
             @click="setViewMode('day')"
           >
@@ -185,11 +185,11 @@ const providerFilterLabel = computed(() => `${t('SCHEDULE.PROVIDER')}:`);
           </button>
           <button
             type="button"
-            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-weak sm:border-0 sm:border-l"
+            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-border-glass-soft sm:border-0 sm:border-l"
             :class="[
               viewMode === 'week'
                 ? 'bg-n-brand text-white'
-                : 'bg-n-solid-1 text-n-slate-11 hover:bg-n-solid-2',
+                : 'bg-n-glass-soft text-n-text-body hover:bg-n-glass-strong',
             ]"
             @click="setViewMode('week')"
           >
@@ -197,11 +197,11 @@ const providerFilterLabel = computed(() => `${t('SCHEDULE.PROVIDER')}:`);
           </button>
           <button
             type="button"
-            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-weak sm:border-0 sm:border-l"
+            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-border-glass-soft sm:border-0 sm:border-l"
             :class="[
               viewMode === 'month'
                 ? 'bg-n-brand text-white'
-                : 'bg-n-solid-1 text-n-slate-11 hover:bg-n-solid-2',
+                : 'bg-n-glass-soft text-n-text-body hover:bg-n-glass-strong',
             ]"
             @click="setViewMode('month')"
           >
@@ -209,11 +209,11 @@ const providerFilterLabel = computed(() => `${t('SCHEDULE.PROVIDER')}:`);
           </button>
           <button
             type="button"
-            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-weak sm:border-0 sm:border-l"
+            class="px-2.5 py-2 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors rounded-md sm:rounded-none border border-n-border-glass-soft sm:border-0 sm:border-l"
             :class="[
               viewMode === 'agenda'
                 ? 'bg-n-brand text-white'
-                : 'bg-n-solid-1 text-n-slate-11 hover:bg-n-solid-2',
+                : 'bg-n-glass-soft text-n-text-body hover:bg-n-glass-strong',
             ]"
             @click="setViewMode('agenda')"
           >

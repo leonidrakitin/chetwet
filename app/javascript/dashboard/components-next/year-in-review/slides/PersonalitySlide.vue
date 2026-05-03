@@ -71,7 +71,9 @@ const personalityMessage = computed(() => {
       <div class="mb-4 md:mb-6">
         <img :src="clockImage" alt="Clock" class="w-auto h-28" />
         <div class="flex items-center justify-start flex-1 mt-9">
-          <div class="text-n-slate-1 dark:text-n-slate-12 flex gap-3 flex-col">
+          <div
+            class="text-n-slate-1 dark:text-n-text-display flex gap-3 flex-col"
+          >
             <div class="text-2xl md:text-4xl tracking-tight">
               {{ t('YEAR_IN_REVIEW.PERSONALITY.TITLE') }}
             </div>
@@ -89,7 +91,7 @@ const personalityMessage = computed(() => {
           class="w-8 h-8 md:w-12 md:h-12 lg:w-16 lg:h-16"
         />
         <p
-          class="text-xl md:text-3xl lg:text-3xl font-medium tracking-[-0.2px] text-n-slate-12 dark:text-n-slate-1"
+          class="text-xl md:text-3xl lg:text-3xl font-medium tracking-[-0.2px] text-n-text-display dark:text-n-slate-1"
         >
           {{ personalityMessage }}
         </p>

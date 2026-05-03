@@ -44,7 +44,7 @@ const handleAssign = () => {
 <template>
   <div
     v-on-click-outside="onClose"
-    class="absolute ltr:right-2 rtl:left-2 top-12 origin-top-right z-20 w-60 bg-n-alpha-3 backdrop-blur-[100px] border-n-weak rounded-lg border border-solid shadow-md"
+    class="absolute ltr:right-2 rtl:left-2 top-12 origin-top-right z-20 w-60 bg-n-alpha-3 backdrop-blur-[100px] border-n-border-glass-soft rounded-lg border border-solid shadow-md"
     role="dialog"
     aria-labelledby="label-dialog-title"
   >
@@ -78,7 +78,7 @@ const handleAssign = () => {
         :aria-label="t('BULK_ACTION.LABELS.ASSIGN_LABELS')"
       >
         <li v-if="!hasFilteredLabels" class="p-2 text-center">
-          <span class="text-sm text-n-slate-11">{{
+          <span class="text-sm text-n-text-body">{{
             t('BULK_ACTION.LABELS.NO_LABELS_FOUND')
           }}</span>
         </li>
@@ -105,14 +105,14 @@ const handleAssign = () => {
               {{ label.title }}
             </span>
             <span
-              class="rounded-md h-3 w-3 flex-shrink-0 border border-solid border-n-weak"
+              class="rounded-md h-3 w-3 flex-shrink-0 border border-solid border-n-border-glass-soft"
               :style="{ backgroundColor: label.color }"
             />
           </label>
         </li>
       </ul>
       <div v-else class="p-2 text-center">
-        <span class="text-sm text-n-slate-11">{{
+        <span class="text-sm text-n-text-body">{{
           t('CONTACTS_BULK_ACTIONS.NO_LABELS_FOUND')
         }}</span>
       </div>

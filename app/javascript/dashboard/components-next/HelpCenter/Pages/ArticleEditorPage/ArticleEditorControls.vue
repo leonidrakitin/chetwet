@@ -193,7 +193,7 @@ onMounted(() => {
             :size="20"
             rounded-full
           />
-          <span class="text-sm text-n-slate-12 hover:text-n-slate-11">
+          <span class="text-sm text-n-text-display hover:text-n-text-body">
             {{ authorName || '-' }}
           </span>
         </Button>
@@ -222,7 +222,7 @@ onMounted(() => {
         >
           <span
             v-if="selectedCategory"
-            class="text-sm text-n-slate-12 hover:text-n-slate-11"
+            class="text-sm text-n-text-display hover:text-n-text-body"
           >
             {{
               `${selectedCategory.icon || ''} ${selectedCategory.name || t('HELP_CENTER.EDIT_ARTICLE_PAGE.EDIT_ARTICLE.UNCATEGORIZED')}`
@@ -250,7 +250,7 @@ onMounted(() => {
           variant="ghost"
           color="slate"
           :disabled="isNewArticle"
-          class="!px-2 font-normal hover:!bg-transparent hover:!text-n-slate-11"
+          class="!px-2 font-normal hover:!bg-transparent hover:!text-n-text-body"
           @click="openProperties = !openProperties"
         />
         <ArticleEditorProperties

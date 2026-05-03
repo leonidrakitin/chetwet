@@ -26,7 +26,7 @@ const showDropdown = ref(false);
       @click="showDropdown = !showDropdown"
     >
       <span class="i-lucide-plus" />
-      <span class="text-sm text-n-slate-11">
+      <span class="text-sm text-n-text-body">
         {{ t('LABEL.TAG_BUTTON') }}
       </span>
     </button>

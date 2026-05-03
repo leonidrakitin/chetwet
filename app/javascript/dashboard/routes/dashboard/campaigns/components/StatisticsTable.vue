@@ -70,7 +70,7 @@ function getReplyRateClass(rate) {
     return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
   if (r >= 10)
     return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
-  return 'bg-n-alpha-2 text-n-slate-10';
+  return 'bg-n-alpha-2 text-n-text-body/60';
 }
 
 function getDeliveryRateClass(rate) {
@@ -82,9 +82,9 @@ function getDeliveryRateClass(rate) {
 </script>
 
 <template>
-  <div class="rounded-xl border border-n-weak bg-n-solid-1">
-    <div class="px-6 py-4 border-b border-n-weak">
-      <h3 class="text-sm font-semibold text-n-slate-12">
+  <div class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft">
+    <div class="px-6 py-4 border-b border-n-border-glass-soft">
+      <h3 class="text-sm font-semibold text-n-text-display">
         {{ t('CAMPAIGNS.STATISTICS.TABLE.TITLE') }}
       </h3>
     </div>
@@ -94,7 +94,7 @@ function getDeliveryRateClass(rate) {
       class="flex flex-col items-center justify-center py-12 gap-3"
     >
       <span class="i-lucide-inbox size-8 text-n-slate-9" />
-      <span class="text-sm text-n-slate-10">
+      <span class="text-sm text-n-text-body/60">
         {{ t('CAMPAIGNS.STATISTICS.TABLE.NO_DATA') }}
       </span>
     </div>
@@ -102,50 +102,50 @@ function getDeliveryRateClass(rate) {
     <div v-else class="overflow-x-auto">
       <table class="w-full">
         <thead>
-          <tr class="border-b border-n-weak">
+          <tr class="border-b border-n-border-glass-soft">
             <th
-              class="text-left px-6 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider"
+              class="text-left px-6 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.CAMPAIGN') }}
             </th>
             <th
-              class="text-right px-4 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider"
+              class="text-right px-4 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.SENT') }}
             </th>
             <th
-              class="text-right px-4 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider"
+              class="text-right px-4 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.FAILED') }}
             </th>
             <th
-              class="text-right px-4 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider hidden lg:table-cell"
+              class="text-right px-4 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider hidden lg:table-cell"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.SKIPPED') }}
             </th>
             <th
-              class="text-right px-4 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider hidden lg:table-cell"
+              class="text-right px-4 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider hidden lg:table-cell"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.REPLIED') }}
             </th>
             <th
-              class="text-right px-4 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider hidden md:table-cell"
+              class="text-right px-4 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider hidden md:table-cell"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.DELIVERY_RATE') }}
             </th>
             <th
-              class="text-right px-4 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider"
+              class="text-right px-4 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.REPLY_RATE') }}
             </th>
             <th
-              class="text-right px-6 py-3 text-xs font-semibold text-n-slate-10 uppercase tracking-wider hidden xl:table-cell"
+              class="text-right px-6 py-3 text-xs font-semibold text-n-text-body/60 uppercase tracking-wider hidden xl:table-cell"
             >
               {{ t('CAMPAIGNS.STATISTICS.COLUMNS.LAST_SENT') }}
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-n-weak">
+        <tbody class="divide-y divide-n-border-glass-soft">
           <tr
             v-for="row in rows"
             :key="row.id"
@@ -153,12 +153,12 @@ function getDeliveryRateClass(rate) {
             @click="emit('selectCampaign', row.id)"
           >
             <td class="px-6 py-4">
-              <span class="text-sm font-medium text-n-slate-12">{{
+              <span class="text-sm font-medium text-n-text-display">{{
                 row.name
               }}</span>
             </td>
             <td class="px-4 py-4 text-right">
-              <span class="text-sm text-n-slate-11 tabular-nums">{{
+              <span class="text-sm text-n-text-body tabular-nums">{{
                 row.sent.toLocaleString()
               }}</span>
             </td>
@@ -178,7 +178,7 @@ function getDeliveryRateClass(rate) {
               }}</span>
             </td>
             <td class="px-4 py-4 text-right hidden lg:table-cell">
-              <span class="text-sm text-n-slate-11 tabular-nums">{{
+              <span class="text-sm text-n-text-body tabular-nums">{{
                 row.replied
               }}</span>
             </td>

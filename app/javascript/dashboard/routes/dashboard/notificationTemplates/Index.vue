@@ -186,7 +186,7 @@ onMounted(() => {
         class="flex items-start sm:items-center justify-between w-full py-4 md:py-5 gap-4"
       >
         <div class="flex items-center gap-2 min-w-0">
-          <h1 class="text-lg font-semibold text-n-slate-12 truncate">
+          <h1 class="text-lg font-semibold text-n-text-display truncate">
             {{ t('NOTIFICATION_TEMPLATES.HEADER') }}
           </h1>
           <span
@@ -210,7 +210,7 @@ onMounted(() => {
               type="search"
               :placeholder="t('NOTIFICATION_TEMPLATES.SEARCH.PLACEHOLDER')"
               :custom-input-class="[
-                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
+                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-glass-soft ltr:!pl-8 !py-1 rtl:!pr-8',
               ]"
               class="w-full sm:w-48"
               @input="searchQuery = $event.target.value"
@@ -218,14 +218,14 @@ onMounted(() => {
               <template #prefix>
                 <Icon
                   icon="i-lucide-search"
-                  class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
+                  class="absolute -translate-y-1/2 text-n-text-body size-4 top-1/2 ltr:left-2 rtl:right-2"
                 />
               </template>
             </Input>
 
             <select
               v-model="inboxFilter"
-              class="h-8 w-full sm:w-40 rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-8 w-full sm:w-40 rounded-lg border border-n-border-glass-soft bg-n-alpha-1 pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             >
               <option value="">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.PLACEHOLDER') }}
@@ -254,8 +254,8 @@ onMounted(() => {
                 class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
                 :class="
                   viewMode === mode.key
-                    ? 'bg-n-solid-active shadow-sm text-n-blue-11'
-                    : 'text-n-slate-10 hover:text-n-slate-12'
+                    ? 'bg-n-glass-pane shadow-sm text-n-blue-11'
+                    : 'text-n-text-body/60 hover:text-n-text-display'
                 "
                 @click="viewMode = mode.key"
               >
@@ -288,14 +288,14 @@ onMounted(() => {
         <span class="i-lucide-mail-plus size-8 text-n-slate-9" />
       </div>
       <div class="flex flex-col items-center gap-1 text-center">
-        <p class="text-base font-medium text-n-slate-12">
+        <p class="text-base font-medium text-n-text-display">
           {{
             searchQuery
               ? t('NOTIFICATION_TEMPLATES.EMPTY_SEARCH_TITLE')
               : t('NOTIFICATION_TEMPLATES.EMPTY_TITLE')
           }}
         </p>
-        <p class="text-sm text-n-slate-10 max-w-sm">
+        <p class="text-sm text-n-text-body/60 max-w-sm">
           {{
             searchQuery
               ? t('NOTIFICATION_TEMPLATES.EMPTY_SEARCH_DESCRIPTION')
@@ -328,7 +328,7 @@ onMounted(() => {
       <template #item="{ element }">
         <div class="relative group">
           <div
-            class="drag-handle absolute top-[14px] left-1 bottom-auto w-6 h-6 z-10 opacity-50 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-grab flex items-center justify-center rounded text-n-slate-9 hover:text-n-slate-12"
+            class="drag-handle absolute top-[14px] left-1 bottom-auto w-6 h-6 z-10 opacity-50 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-grab flex items-center justify-center rounded text-n-slate-9 hover:text-n-text-display"
           >
             <span class="i-lucide-grip-vertical size-4" />
           </div>

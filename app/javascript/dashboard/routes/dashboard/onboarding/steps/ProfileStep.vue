@@ -56,10 +56,10 @@ function proceed() {
     >
       <Icon icon="i-lucide-user" class="size-8 text-n-brand" />
     </div>
-    <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
+    <h1 class="text-2xl font-bold text-n-text-display mb-2">
       {{ t('ONBOARDING.PROFILE_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-8">
+    <p class="text-sm text-n-text-body/60 mb-8">
       {{ t('ONBOARDING.PROFILE_STEP.SUBTITLE') }}
     </p>
     <div class="w-full max-w-xs flex flex-col gap-4">

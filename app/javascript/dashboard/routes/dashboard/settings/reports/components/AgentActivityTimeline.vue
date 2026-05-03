@@ -106,7 +106,7 @@ const dateLabel = computed(() => {
 
 <template>
   <div
-    class="flex flex-col gap-4 p-4 bg-n-solid-2 rounded-xl outline outline-1 outline-n-container"
+    class="flex flex-col gap-4 p-4 bg-n-glass-strong rounded-xl outline outline-1 outline-n-border-glass-soft"
     @wheel.prevent="zoomTimeline"
   >
     <div class="flex justify-between items-center">
@@ -133,7 +133,7 @@ const dateLabel = computed(() => {
       </div>
     </div>
 
-    <div class="ml-48 text-sm font-medium text-n-slate-12">
+    <div class="ml-48 text-sm font-medium text-n-text-display">
       {{ dateLabel }}
     </div>
 
@@ -153,7 +153,7 @@ const dateLabel = computed(() => {
       />
     </div>
 
-    <div class="text-xs text-n-slate-11 text-center">
+    <div class="text-xs text-n-text-body text-center">
       {{ t('AGENT_ACTIVITY_REPORTS.TIMEZONE_DESCRIPTION') }}
     </div>
   </div>

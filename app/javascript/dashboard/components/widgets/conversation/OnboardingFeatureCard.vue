@@ -36,11 +36,11 @@ defineProps({
     </div>
     <div class="mt-auto">
       <p
-        class="text-base text-n-slate-12 font-interDisplay font-semibold tracking-[0.3px]"
+        class="text-base text-n-text-display font-interDisplay font-semibold tracking-[0.3px]"
       >
         {{ title }}
       </p>
-      <p class="text-n-slate-11 text-sm">
+      <p class="text-n-text-body text-sm">
         {{ description }}
       </p>
       <router-link

@@ -119,9 +119,9 @@ const toggleSelected = option => {
         @click="toggle"
       >
         <template #icon>
-          <Icon :icon="placeholderIcon" class="text-n-slate-11" />
+          <Icon :icon="placeholderIcon" class="text-n-text-body" />
         </template>
-        <span class="text-n-slate-11">{{
+        <span class="text-n-text-body">{{
           placeholder || t('COMBOBOX.PLACEHOLDER')
         }}</span>
       </Button>
@@ -132,7 +132,7 @@ const toggleSelected = option => {
         <input
           v-model="searchTerm"
           autofocus
-          class="p-1.5 pl-8 text-n-slate-11 bg-n-alpha-1 rounded-lg w-full"
+          class="p-1.5 pl-8 text-n-text-body bg-n-alpha-1 rounded-lg w-full"
           :placeholder="searchPlaceholder || t('COMBOBOX.SEARCH_PLACEHOLDER')"
         />
       </div>

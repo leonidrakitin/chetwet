@@ -60,12 +60,12 @@ export default {
     <div class="flex flex-col justify-start sm:justify-center gap-6">
       <div class="flex flex-col gap-1.5 items-start sm:items-center">
         <h1
-          class="text-n-slate-12 text-left sm:text-center text-4xl sm:text-5xl mb-6 font-semibold"
+          class="text-n-text-display text-left sm:text-center text-4xl sm:text-5xl mb-6 font-semibold"
         >
           {{ $t('HELP_CENTER.UPGRADE_PAGE.TITLE') }}
         </h1>
         <p
-          class="max-w-2xl text-base font-normal leading-6 text-left sm:text-center text-n-slate-11"
+          class="max-w-2xl text-base font-normal leading-6 text-left sm:text-center text-n-text-body"
         >
           {{
             isOnChatwootCloud
@@ -98,14 +98,14 @@ export default {
               :icon="feature.icon"
               icon-lib="lucide"
               :size="26"
-              class="mt-px text-n-slate-12"
+              class="mt-px text-n-text-display"
             />
           </div>
           <div>
-            <h5 class="font-semibold text-lg text-n-slate-12">
+            <h5 class="font-semibold text-lg text-n-text-display">
               {{ feature.title }}
             </h5>
-            <p class="text-sm leading-6 text-n-slate-12">
+            <p class="text-sm leading-6 text-n-text-display">
               {{ feature.description }}
             </p>
           </div>

@@ -18,6 +18,10 @@ provideDropdownContext({
   toggle,
   closeMenu,
 });
+
+defineExpose({
+  closeMenu,
+});
 </script>
 
 <template>

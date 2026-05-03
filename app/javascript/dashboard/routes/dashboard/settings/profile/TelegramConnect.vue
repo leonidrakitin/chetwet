@@ -91,7 +91,7 @@ onMounted(() => {
 
     <!-- Link generated state -->
     <div v-else-if="telegramLink" class="flex flex-col gap-3">
-      <p class="text-sm text-n-slate-11">
+      <p class="text-sm text-n-text-body">
         {{ t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.LINK_HINT') }}
       </p>
       <NextButton
@@ -100,14 +100,14 @@ onMounted(() => {
         :label="t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.OPEN_TELEGRAM')"
         @click="openLink"
       />
-      <p class="text-xs text-n-slate-10">
+      <p class="text-xs text-n-text-body/60">
         {{ t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.WAITING') }}
       </p>
     </div>
 
     <!-- Default state -->
     <div v-else class="flex flex-col gap-3">
-      <p class="text-sm text-n-slate-11">
+      <p class="text-sm text-n-text-body">
         {{ t('PROFILE_SETTINGS.FORM.TELEGRAM_CONNECT.DESCRIPTION_NEW') }}
       </p>
       <NextButton

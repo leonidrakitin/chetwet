@@ -145,7 +145,7 @@ defineExpose({ open, dialogRef });
   >
     <div
       v-if="isFetching"
-      class="flex items-center justify-center py-10 text-n-slate-11"
+      class="flex items-center justify-center py-10 text-n-text-body"
     >
       <Spinner />
     </div>
@@ -164,14 +164,14 @@ defineExpose({ open, dialogRef });
       >
         <div class="flex items-center gap-2">
           <Icon :icon="templateIcon(template)" class="size-5 text-n-blue-11" />
-          <span class="text-sm font-medium text-n-slate-12">
+          <span class="text-sm font-medium text-n-text-display">
             {{ template.name }}
           </span>
         </div>
-        <p class="text-xs text-n-slate-11 line-clamp-3">
+        <p class="text-xs text-n-text-body line-clamp-3">
           {{ template.description }}
         </p>
-        <div class="flex items-center gap-3 mt-1 text-xs text-n-slate-11">
+        <div class="flex items-center gap-3 mt-1 text-xs text-n-text-body">
           <span class="flex items-center gap-1">
             <Icon icon="i-lucide-workflow" class="size-3.5" />
             {{
@@ -193,17 +193,17 @@ defineExpose({ open, dialogRef });
 
       <button
         type="button"
-        class="flex flex-col gap-2 p-4 text-start border border-dashed border-n-weak rounded-xl bg-n-alpha-1 hover:border-n-blue-9 hover:bg-n-alpha-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        class="flex flex-col gap-2 p-4 text-start border border-dashed border-n-border-glass-soft rounded-xl bg-n-alpha-1 hover:border-n-blue-9 hover:bg-n-alpha-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         :disabled="isCreating"
         @click="handleCreateEmpty"
       >
         <div class="flex items-center gap-2">
           <Icon icon="i-lucide-plus" class="size-5 text-n-blue-11" />
-          <span class="text-sm font-medium text-n-slate-12">
+          <span class="text-sm font-medium text-n-text-display">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.EMPTY.TITLE') }}
           </span>
         </div>
-        <p class="text-xs text-n-slate-11 line-clamp-3">
+        <p class="text-xs text-n-text-body line-clamp-3">
           {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.EMPTY.DESCRIPTION') }}
         </p>
       </button>
@@ -212,7 +212,7 @@ defineExpose({ open, dialogRef });
     <div v-else class="flex flex-col gap-5">
       <section>
         <h4
-          class="text-xs font-medium uppercase text-n-slate-11 mb-2 tracking-wide"
+          class="text-xs font-medium uppercase text-n-text-body mb-2 tracking-wide"
         >
           {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.SECTIONS.SCENARIOS') }}
         </h4>
@@ -220,12 +220,12 @@ defineExpose({ open, dialogRef });
           <li
             v-for="scenario in selectedTemplate.scenarios"
             :key="scenario.key"
-            class="p-3 border border-n-weak rounded-lg bg-n-alpha-1"
+            class="p-3 border border-n-border-glass-soft rounded-lg bg-n-alpha-1"
           >
-            <div class="text-sm font-medium text-n-slate-12">
+            <div class="text-sm font-medium text-n-text-display">
               {{ scenario.title }}
             </div>
-            <div class="text-xs text-n-slate-11 mt-0.5">
+            <div class="text-xs text-n-text-body mt-0.5">
               {{ scenario.description }}
             </div>
           </li>
@@ -236,16 +236,18 @@ defineExpose({ open, dialogRef });
         v-if="selectedTemplate.documents_seed.length"
         class="flex flex-col gap-2"
       >
-        <h4 class="text-xs font-medium uppercase text-n-slate-11 tracking-wide">
+        <h4
+          class="text-xs font-medium uppercase text-n-text-body tracking-wide"
+        >
           {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.SECTIONS.DOCUMENTS_HINT') }}
         </h4>
         <ul class="flex flex-col gap-1 list-disc pl-5">
           <li
             v-for="(doc, index) in selectedTemplate.documents_seed"
             :key="`doc-${index}`"
-            class="text-xs text-n-slate-11"
+            class="text-xs text-n-text-body"
           >
-            <span class="font-medium text-n-slate-12">{{ doc.title }}</span>
+            <span class="font-medium text-n-text-display">{{ doc.title }}</span>
             <span v-if="doc.hint" class="block">{{ doc.hint }}</span>
           </li>
         </ul>
@@ -260,7 +262,7 @@ defineExpose({ open, dialogRef });
           "
         />
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-n-slate-12">
+          <label class="text-sm font-medium text-n-text-display">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.LABEL') }}
           </label>
           <select
@@ -274,7 +276,7 @@ defineExpose({ open, dialogRef });
               {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.OPTIONS.EN') }}
             </option>
           </select>
-          <p class="text-xs text-n-slate-11">
+          <p class="text-xs text-n-text-body">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.FORM.LOCALE.HINT') }}
           </p>
         </div>

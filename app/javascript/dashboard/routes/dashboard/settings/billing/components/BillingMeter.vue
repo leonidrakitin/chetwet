@@ -32,7 +32,7 @@ const colorClass = computed(() => {
 
 <template>
   <div
-    class="flex gap-5 items-center justify-between text-xs uppercase text-n-slate-10"
+    class="flex gap-5 items-center justify-between text-xs uppercase text-n-text-body/60"
   >
     <div class="font-medium tracking-wider">
       {{ title }}

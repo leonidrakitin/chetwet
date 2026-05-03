@@ -73,7 +73,7 @@ const handleSendMessage = template => {
     />
     <div
       v-if="showTemplatesMenu"
-      class="absolute top-full mt-1.5 max-h-96 overflow-y-auto ltr:left-0 rtl:right-0 flex flex-col gap-2 p-4 items-center w-[21.875rem] h-auto bg-n-solid-2 border border-n-strong shadow-sm rounded-lg"
+      class="absolute top-full mt-1.5 max-h-96 overflow-y-auto ltr:left-0 rtl:right-0 flex flex-col gap-2 p-4 items-center w-[21.875rem] h-auto bg-n-glass-strong border border-n-border-glass shadow-sm rounded-lg"
     >
       <div class="w-full">
         <Input
@@ -100,16 +100,16 @@ const handleSendMessage = template => {
         @click="handleTemplateClick(template)"
       >
         <div class="flex justify-between items-center">
-          <span class="text-sm text-n-slate-12">{{
+          <span class="text-sm text-n-text-display">{{
             template.friendly_name
           }}</span>
         </div>
-        <p class="mb-0 text-xs leading-5 text-n-slate-11 line-clamp-2">
+        <p class="mb-0 text-xs leading-5 text-n-text-body line-clamp-2">
           {{ template.body || t('CONTENT_TEMPLATES.PICKER.NO_CONTENT') }}
         </p>
       </div>
       <template v-if="filteredTemplates.length === 0">
-        <p class="pt-2 w-full text-sm text-n-slate-11">
+        <p class="pt-2 w-full text-sm text-n-text-body">
           {{ t('COMPOSE_NEW_CONVERSATION.FORM.TWILIO_OPTIONS.EMPTY_STATE') }}
         </p>
       </template>

@@ -63,7 +63,7 @@ const closeBanner = event => {
           @click="closeBanner"
         >
           <Icon
-            icon="i-lucide-x size-4 mt-0.5 text-n-slate-1 dark:text-n-slate-12"
+            icon="i-lucide-x size-4 mt-0.5 text-n-slate-1 dark:text-n-text-display"
           />
         </button>
       </div>

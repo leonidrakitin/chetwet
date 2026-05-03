@@ -21,7 +21,7 @@ const onDelete = noteId => {
     :layout="{ type: 'grid', width: '600px' }"
   >
     <Variant title="Multiple Notes">
-      <div class="flex flex-col border rounded-lg border-n-strong">
+      <div class="flex flex-col border rounded-lg border-n-border-glass">
         <ContactNoteItem
           v-for="note in notes"
           :key="note.id"

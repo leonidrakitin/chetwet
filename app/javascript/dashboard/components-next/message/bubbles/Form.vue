@@ -114,7 +114,7 @@ const onOptionSelect = index => {
         <dt
           class="mt-2 italic"
           :class="
-            isInputSelectWithSelection ? 'text-n-green-11' : 'text-n-slate-11'
+            isInputSelectWithSelection ? 'text-n-green-11' : 'text-n-text-body'
           "
         >
           {{ item.label || t('CONVERSATION.RESPONSE') }}
@@ -131,7 +131,7 @@ const onOptionSelect = index => {
       </template>
     </dl>
     <div v-else-if="isPendingConfirmation" class="mt-4">
-      <div class="text-xs text-n-slate-10 mb-1">
+      <div class="text-xs text-n-text-body/60 mb-1">
         {{ t('CONVERSATION.APPROVAL_DRAFT.SELECTED_OPTION') }}
       </div>
       <div

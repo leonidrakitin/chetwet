@@ -8,7 +8,6 @@ const props = defineProps({
   label: { type: String, default: '' },
   icon: { type: [String, Object], default: '' },
   expandable: { type: Boolean, default: false },
-  isExpanded: { type: Boolean, default: false },
   isActive: { type: Boolean, default: false },
   hasActiveChild: { type: Boolean, default: false },
   getterKeys: { type: Object, default: () => ({}) },
@@ -26,36 +25,33 @@ const count = computed(() =>
 <template>
   <component
     :is="to ? 'router-link' : 'div'"
-    class="flex items-center gap-2 px-2 py-1.5 rounded-pill h-8 min-w-0 transition-all duration-150"
+    class="flex items-center gap-3 px-[14px] rounded-pill h-12 min-w-0 transition-all duration-150 backdrop-blur-glass-rail backdrop-saturate-glass border text-[13.5px] font-medium"
     role="button"
     draggable="false"
     :to="to"
     :title="label"
     :class="{
-      '!text-n-accent-active-fg bg-n-accent-active font-medium shadow-pill-active':
+      '!text-n-accent-active-fg bg-n-accent-active border-n-accent-active shadow-pill-active':
         isActive && !hasActiveChild,
-      'text-n-text-display font-medium': hasActiveChild,
-      'text-n-text-body hover:bg-n-glass-soft': !isActive && !hasActiveChild,
+      'text-n-text-display bg-n-glass-strong border-n-border-glass shadow-pill-soft':
+        hasActiveChild,
+      'text-n-text-body bg-n-glass-soft border-n-border-glass-soft shadow-inset-hairline hover:bg-n-glass-strong hover:border-n-border-glass':
+        !isActive && !hasActiveChild,
     }"
     @click.stop="emit('toggle')"
   >
-    <div v-if="icon" class="relative flex items-center gap-2">
-      <Icon v-if="icon" :icon="icon" class="size-4" />
+    <div
+      v-if="icon"
+      class="relative flex items-center flex-shrink-0 size-[18px]"
+    >
+      <Icon :icon="icon" class="size-[18px]" />
       <span
         v-if="showBadge"
         class="size-2 -top-px ltr:-right-px rtl:-left-px bg-n-brand absolute rounded-full border border-n-solid-2"
       />
     </div>
     <div class="flex items-center gap-1.5 flex-grow min-w-0 flex-1">
-      <span
-        class="truncate"
-        :class="{
-          'text-body-main': !isActive,
-          'font-medium text-sm': isActive || hasActiveChild,
-        }"
-      >
-        {{ label }}
-      </span>
+      <span class="truncate">{{ label }}</span>
       <span
         v-if="dynamicCount && !expandable"
         class="rounded-md capitalize text-xs leading-5 font-medium text-center outline outline-1 px-1 flex-shrink-0"
@@ -67,11 +63,5 @@ const count = computed(() =>
         {{ count }}
       </span>
     </div>
-    <span
-      v-if="expandable"
-      v-show="isExpanded"
-      class="i-lucide-chevron-up size-3"
-      @click.stop="emit('toggle')"
-    />
   </component>
 </template>

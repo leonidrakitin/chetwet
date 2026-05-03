@@ -126,7 +126,7 @@ defineExpose({
         class="flex flex-wrap w-full gap-2 px-3 py-2.5 border rounded-lg cursor-pointer bg-n-alpha-black2 min-h-[42px] transition-all duration-500 ease-in-out"
         :class="{
           'border-n-ruby-8': hasError,
-          'border-n-weak dark:border-n-weak hover:border-n-slate-6 dark:hover:border-n-slate-6':
+          'border-n-border-glass-soft dark:border-n-border-glass-soft hover:border-n-slate-6 dark:hover:border-n-slate-6':
             !hasError && !open,
           'border-n-brand': open,
           'cursor-not-allowed pointer-events-none opacity-50': disabled,
@@ -139,17 +139,17 @@ defineExpose({
           class="flex items-center justify-center max-w-full gap-1 px-2 py-0.5 rounded-lg bg-n-alpha-black1"
           @click.stop
         >
-          <span class="flex-grow min-w-0 text-sm truncate text-n-slate-12">
+          <span class="flex-grow min-w-0 text-sm truncate text-n-text-display">
             {{ tag.label }}
           </span>
           <span
-            class="flex-shrink-0 cursor-pointer i-lucide-x size-3 text-n-slate-11"
+            class="flex-shrink-0 cursor-pointer i-lucide-x size-3 text-n-text-body"
             @click="removeTag(tag.value)"
           />
         </div>
         <span
           v-if="selectedTags.length === 0"
-          class="flex items-center text-sm text-n-slate-11"
+          class="flex items-center text-sm text-n-text-body"
         >
           {{ selectPlaceholder }}
         </span>
@@ -173,7 +173,7 @@ defineExpose({
         class="mt-2 mb-0 text-xs truncate transition-all duration-500 ease-in-out"
         :class="{
           'text-n-ruby-9': hasError,
-          'text-n-slate-11': !hasError,
+          'text-n-text-body': !hasError,
         }"
       >
         {{ message }}

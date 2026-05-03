@@ -417,7 +417,7 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <select
             v-model="selectedRange"
-            class="h-9 cursor-pointer appearance-none rounded-lg border border-n-weak bg-n-solid-2 px-3 pr-8 text-sm font-medium text-n-slate-12 outline-none transition hover:border-n-brand focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+            class="h-9 cursor-pointer appearance-none rounded-lg border border-n-border-glass-soft bg-n-glass-strong px-3 pr-8 text-sm font-medium text-n-text-display outline-none transition hover:border-n-brand focus:border-n-brand focus:ring-1 focus:ring-n-brand"
             @change="onRangeChange"
           >
             <option
@@ -433,10 +433,10 @@ onMounted(() => {
         <!-- Loading -->
         <div
           v-if="loading"
-          class="flex items-center justify-center rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+          class="flex items-center justify-center rounded-xl bg-n-glass-strong p-12 shadow outline outline-1 outline-n-border-glass-soft"
         >
           <Spinner />
-          <span class="ml-3 text-sm text-n-slate-11">
+          <span class="ml-3 text-sm text-n-text-body">
             {{ $t('SEGMENT_REPORTS.LOADING') }}
           </span>
         </div>
@@ -444,7 +444,7 @@ onMounted(() => {
         <!-- Error -->
         <div
           v-else-if="errorMsg"
-          class="flex flex-col items-center gap-3 rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+          class="flex flex-col items-center gap-3 rounded-xl bg-n-glass-strong p-12 shadow outline outline-1 outline-n-border-glass-soft"
         >
           <p class="text-sm text-n-ruby-11">
             {{ errorMsg }}
@@ -458,15 +458,15 @@ onMounted(() => {
           <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             <!-- Total card -->
             <div
-              class="flex flex-col gap-1 rounded-xl bg-n-solid-2 px-4 py-4 shadow outline outline-1 outline-n-container"
+              class="flex flex-col gap-1 rounded-xl bg-n-glass-strong px-4 py-4 shadow outline outline-1 outline-n-border-glass-soft"
             >
-              <span class="text-xs font-medium text-n-slate-11">
+              <span class="text-xs font-medium text-n-text-body">
                 {{ $t('SEGMENT_REPORTS.TOTAL_CLIENTS') }}
               </span>
-              <span class="text-xl font-bold text-n-slate-12">
+              <span class="text-xl font-bold text-n-text-display">
                 {{ totalClients.toLocaleString('ru-RU') }}
               </span>
-              <span class="text-xs text-n-slate-11">
+              <span class="text-xs text-n-text-body">
                 {{ formatRub(totalRevenue) }}
               </span>
             </div>
@@ -475,7 +475,7 @@ onMounted(() => {
             <div
               v-for="seg in segments"
               :key="seg.name"
-              class="flex cursor-pointer flex-col gap-1 rounded-xl bg-n-solid-2 px-4 py-4 shadow outline outline-1 outline-n-container transition hover:outline-n-brand"
+              class="flex cursor-pointer flex-col gap-1 rounded-xl bg-n-glass-strong px-4 py-4 shadow outline outline-1 outline-n-border-glass-soft transition hover:outline-n-brand"
               @click="openDetails(seg.name)"
             >
               <div class="flex items-center gap-2">
@@ -483,14 +483,14 @@ onMounted(() => {
                   class="inline-block size-3 rounded-full"
                   :style="{ backgroundColor: seg.color }"
                 />
-                <span class="text-xs font-medium text-n-slate-11">
+                <span class="text-xs font-medium text-n-text-body">
                   {{ seg.name }}
                 </span>
               </div>
-              <span class="text-xl font-bold text-n-slate-12">
+              <span class="text-xl font-bold text-n-text-display">
                 {{ seg.count.toLocaleString('ru-RU') }}
               </span>
-              <span class="text-xs text-n-slate-11">
+              <span class="text-xs text-n-text-body">
                 {{ formatRub(seg.revenue) }}
               </span>
             </div>
@@ -499,9 +499,9 @@ onMounted(() => {
           <!-- Charts row 1: Donut + Clients bar -->
           <div class="grid gap-6 lg:grid-cols-2">
             <div
-              class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+              class="flex flex-col rounded-xl bg-n-glass-strong p-6 shadow outline outline-1 outline-n-border-glass-soft"
             >
-              <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+              <h2 class="mb-4 text-base font-semibold text-n-text-display">
                 {{ $t('SEGMENT_REPORTS.DONUT_TITLE') }}
               </h2>
               <VueApexCharts
@@ -513,9 +513,9 @@ onMounted(() => {
             </div>
 
             <div
-              class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+              class="flex flex-col rounded-xl bg-n-glass-strong p-6 shadow outline outline-1 outline-n-border-glass-soft"
             >
-              <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+              <h2 class="mb-4 text-base font-semibold text-n-text-display">
                 {{ $t('SEGMENT_REPORTS.BAR_TITLE') }}
               </h2>
               <VueApexCharts
@@ -529,9 +529,9 @@ onMounted(() => {
 
           <!-- Charts row 2: Revenue bar -->
           <div
-            class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+            class="flex flex-col rounded-xl bg-n-glass-strong p-6 shadow outline outline-1 outline-n-border-glass-soft"
           >
-            <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+            <h2 class="mb-4 text-base font-semibold text-n-text-display">
               {{ $t('SEGMENT_REPORTS.REVENUE_BAR_TITLE') }}
             </h2>
             <VueApexCharts
@@ -544,9 +544,9 @@ onMounted(() => {
 
           <!-- Trends line chart -->
           <div
-            class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+            class="flex flex-col rounded-xl bg-n-glass-strong p-6 shadow outline outline-1 outline-n-border-glass-soft"
           >
-            <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+            <h2 class="mb-4 text-base font-semibold text-n-text-display">
               {{ $t('SEGMENT_REPORTS.TRENDS_TITLE') }}
             </h2>
             <div
@@ -572,7 +572,7 @@ onMounted(() => {
       <section class="flex flex-col gap-1 pt-10 pb-5">
         <div>
           <button
-            class="flex items-center p-0 text-sm font-normal cursor-pointer text-n-slate-11"
+            class="flex items-center p-0 text-sm font-normal cursor-pointer text-n-text-body"
             @click="closeDetails"
           >
             <i class="i-lucide-chevron-left -ml-1 text-lg" />
@@ -580,7 +580,7 @@ onMounted(() => {
           </button>
         </div>
         <div class="flex w-full items-center justify-between gap-5">
-          <span class="text-xl font-medium text-n-slate-12">
+          <span class="text-xl font-medium text-n-text-display">
             {{ `${$t('SEGMENT_REPORTS.DETAILS.TITLE')}: ${activeSegment}` }}
           </span>
           <div class="flex-shrink-0">
@@ -598,10 +598,10 @@ onMounted(() => {
         <!-- Details loading -->
         <div
           v-if="detailsLoading && !detailsData"
-          class="flex items-center justify-center rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+          class="flex items-center justify-center rounded-xl bg-n-glass-strong p-12 shadow outline outline-1 outline-n-border-glass-soft"
         >
           <Spinner />
-          <span class="ml-3 text-sm text-n-slate-11">
+          <span class="ml-3 text-sm text-n-text-body">
             {{ $t('SEGMENT_REPORTS.DETAILS.LOADING') }}
           </span>
         </div>
@@ -609,7 +609,7 @@ onMounted(() => {
         <!-- Details error -->
         <div
           v-else-if="detailsError && !detailsData"
-          class="flex flex-col items-center gap-3 rounded-xl bg-n-solid-2 p-12 shadow outline outline-1 outline-n-container"
+          class="flex flex-col items-center gap-3 rounded-xl bg-n-glass-strong p-12 shadow outline outline-1 outline-n-border-glass-soft"
         >
           <p class="text-sm text-n-ruby-11">
             {{ detailsError }}
@@ -624,17 +624,17 @@ onMounted(() => {
         <template v-else-if="detailsData">
           <!-- Metrics bar (CSAT-style) -->
           <div
-            class="flex flex-col gap-14 rounded-xl bg-n-solid-2 px-6 py-5 shadow outline outline-1 outline-n-container sm:flex-row"
+            class="flex flex-col gap-14 rounded-xl bg-n-glass-strong px-6 py-5 shadow outline outline-1 outline-n-border-glass-soft sm:flex-row"
           >
             <div
               class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
             >
               <span
-                class="inline-flex items-center gap-1 text-sm font-medium text-n-slate-11"
+                class="inline-flex items-center gap-1 text-sm font-medium text-n-text-body"
               >
                 {{ $t('SEGMENT_REPORTS.DETAILS.CRITERIA') }}
               </span>
-              <span class="text-sm text-n-slate-12">
+              <span class="text-sm text-n-text-display">
                 {{ detailsData.criteria }}
               </span>
             </div>
@@ -644,7 +644,7 @@ onMounted(() => {
             <div
               class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
             >
-              <span class="text-sm font-medium text-n-slate-11">
+              <span class="text-sm font-medium text-n-text-body">
                 {{ $t('SEGMENT_REPORTS.DETAILS.JOINED') }}
               </span>
               <span class="text-2xl font-medium text-n-teal-11">
@@ -657,7 +657,7 @@ onMounted(() => {
             <div
               class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
             >
-              <span class="text-sm font-medium text-n-slate-11">
+              <span class="text-sm font-medium text-n-text-body">
                 {{ $t('SEGMENT_REPORTS.DETAILS.LEFT') }}
               </span>
               <span class="text-2xl font-medium text-n-ruby-11">
@@ -670,10 +670,10 @@ onMounted(() => {
             <div
               class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
             >
-              <span class="text-sm font-medium text-n-slate-11">
+              <span class="text-sm font-medium text-n-text-body">
                 {{ $t('SEGMENT_REPORTS.DETAILS.AVG_CHECK') }}
               </span>
-              <span class="text-2xl font-medium text-n-slate-12">
+              <span class="text-2xl font-medium text-n-text-display">
                 {{ formatRub(detailsData.avg_metrics.avg_check) }}
               </span>
             </div>
@@ -683,10 +683,10 @@ onMounted(() => {
             <div
               class="flex min-w-[8rem] flex-col items-start justify-center gap-2"
             >
-              <span class="text-sm font-medium text-n-slate-11">
+              <span class="text-sm font-medium text-n-text-body">
                 {{ $t('SEGMENT_REPORTS.DETAILS.AVG_PURCHASES') }}
               </span>
-              <span class="text-2xl font-medium text-n-slate-12">
+              <span class="text-2xl font-medium text-n-text-display">
                 {{ detailsData.avg_metrics.avg_purchase_count }}
               </span>
             </div>
@@ -695,9 +695,9 @@ onMounted(() => {
           <!-- Notifications -->
           <div
             v-if="detailsData.notifications.length"
-            class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+            class="flex flex-col rounded-xl bg-n-glass-strong p-6 shadow outline outline-1 outline-n-border-glass-soft"
           >
-            <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+            <h2 class="mb-4 text-base font-semibold text-n-text-display">
               {{ $t('SEGMENT_REPORTS.DETAILS.NOTIFICATIONS') }}
             </h2>
             <ul class="flex flex-col gap-2">
@@ -707,14 +707,14 @@ onMounted(() => {
                 class="flex items-center gap-3 rounded-lg bg-n-alpha-3 px-4 py-3"
               >
                 <span
-                  class="rounded bg-n-alpha-5 px-2 py-0.5 text-xs font-medium uppercase text-n-slate-11"
+                  class="rounded bg-n-alpha-5 px-2 py-0.5 text-xs font-medium uppercase text-n-text-body"
                 >
                   {{ notif.type }}
                 </span>
-                <span class="text-sm text-n-slate-12">
+                <span class="text-sm text-n-text-display">
                   {{ notif.subject }}
                 </span>
-                <span class="ml-auto text-xs text-n-slate-11">
+                <span class="ml-auto text-xs text-n-text-body">
                   {{ notif.sent_at }}
                 </span>
               </li>
@@ -724,16 +724,16 @@ onMounted(() => {
           <!-- Suggestions -->
           <div
             v-if="detailsData.improvement_suggestions.length"
-            class="flex flex-col rounded-xl bg-n-solid-2 p-6 shadow outline outline-1 outline-n-container"
+            class="flex flex-col rounded-xl bg-n-glass-strong p-6 shadow outline outline-1 outline-n-border-glass-soft"
           >
-            <h2 class="mb-4 text-base font-semibold text-n-slate-12">
+            <h2 class="mb-4 text-base font-semibold text-n-text-display">
               {{ $t('SEGMENT_REPORTS.DETAILS.SUGGESTIONS') }}
             </h2>
             <ul class="flex flex-col gap-2">
               <li
                 v-for="(suggestion, idx) in detailsData.improvement_suggestions"
                 :key="idx"
-                class="flex items-start gap-2 text-sm text-n-slate-11"
+                class="flex items-start gap-2 text-sm text-n-text-body"
               >
                 <span
                   class="mt-1 inline-block size-1.5 flex-shrink-0 rounded-full bg-n-brand"
@@ -745,29 +745,31 @@ onMounted(() => {
 
           <!-- Clients table (CSAT-style) -->
           <div
-            class="overflow-hidden rounded-xl bg-n-solid-2 shadow outline outline-1 outline-n-container"
+            class="overflow-hidden rounded-xl bg-n-glass-strong shadow outline outline-1 outline-n-border-glass-soft"
           >
             <div v-if="detailsData.clients.length" class="overflow-x-auto">
               <table class="w-full">
-                <thead class="border-b border-n-border-hairline bg-n-solid-2">
+                <thead
+                  class="border-b border-n-border-hairline bg-n-glass-strong"
+                >
                   <tr>
                     <th
-                      class="px-5 py-3 text-left text-sm font-medium text-n-slate-12"
+                      class="px-5 py-3 text-left text-sm font-medium text-n-text-display"
                     >
                       {{ $t('SEGMENT_REPORTS.DETAILS.COL_NAME') }}
                     </th>
                     <th
-                      class="px-5 py-3 text-right text-sm font-medium text-n-slate-12"
+                      class="px-5 py-3 text-right text-sm font-medium text-n-text-display"
                     >
                       {{ $t('SEGMENT_REPORTS.DETAILS.COL_PURCHASES') }}
                     </th>
                     <th
-                      class="px-5 py-3 text-right text-sm font-medium text-n-slate-12"
+                      class="px-5 py-3 text-right text-sm font-medium text-n-text-display"
                     >
                       {{ $t('SEGMENT_REPORTS.DETAILS.COL_LAST_PURCHASE') }}
                     </th>
                     <th
-                      class="px-5 py-3 text-right text-sm font-medium text-n-slate-12"
+                      class="px-5 py-3 text-right text-sm font-medium text-n-text-display"
                     >
                       {{ $t('SEGMENT_REPORTS.DETAILS.COL_TOTAL_SPENT') }}
                     </th>
@@ -779,17 +781,19 @@ onMounted(() => {
                     :key="client.id"
                     class="transition-colors hover:bg-n-slate-2 dark:hover:bg-n-solid-3"
                   >
-                    <td class="px-5 py-4 text-sm text-n-slate-12">
+                    <td class="px-5 py-4 text-sm text-n-text-display">
                       {{ client.name }}
                     </td>
-                    <td class="px-5 py-4 text-right text-sm text-n-slate-12">
+                    <td
+                      class="px-5 py-4 text-right text-sm text-n-text-display"
+                    >
                       {{ client.purchase_count }}
                     </td>
-                    <td class="px-5 py-4 text-right text-sm text-n-slate-11">
+                    <td class="px-5 py-4 text-right text-sm text-n-text-body">
                       {{ client.last_purchase || '—' }}
                     </td>
                     <td
-                      class="px-5 py-4 text-right text-sm font-medium text-n-slate-12"
+                      class="px-5 py-4 text-right text-sm font-medium text-n-text-display"
                     >
                       {{ formatRub(client.total_spent) }}
                     </td>
@@ -802,7 +806,7 @@ onMounted(() => {
               v-else
               class="flex flex-col items-center justify-center px-6 py-12"
             >
-              <p class="text-sm text-n-slate-11">
+              <p class="text-sm text-n-text-body">
                 {{ $t('SEGMENT_REPORTS.DETAILS.NO_CLIENTS') }}
               </p>
             </div>
@@ -810,9 +814,9 @@ onMounted(() => {
             <!-- Pagination -->
             <div
               v-if="detailsData.pagination?.total_pages > 1"
-              class="flex items-center justify-between border-t border-n-weak px-6 py-4"
+              class="flex items-center justify-between border-t border-n-border-glass-soft px-6 py-4"
             >
-              <p class="mb-0 truncate text-sm text-n-slate-11">
+              <p class="mb-0 truncate text-sm text-n-text-body">
                 {{ paginationLabel }}
               </p>
               <nav class="inline-flex items-center gap-1.5">

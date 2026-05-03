@@ -144,7 +144,7 @@ const tooltip = useHeatmapTooltip();
       </div>
       <div />
       <div
-        class="grid grid-cols-[repeat(24,_1fr)] gap-[5px] w-full text-[8px] font-semibold h-5 text-n-slate-11"
+        class="grid grid-cols-[repeat(24,_1fr)] gap-[5px] w-full text-[8px] font-semibold h-5 text-n-text-body"
       >
         <div
           v-for="ii in 24"
@@ -161,10 +161,10 @@ const tooltip = useHeatmapTooltip();
           v-for="row in dataRows"
           :key="row.dateKey"
           v-memo="[row.dateKey]"
-          class="h-8 min-w-[70px] text-n-slate-12 text-[10px] font-semibold flex flex-col items-end justify-center"
+          class="h-8 min-w-[70px] text-n-text-display text-[10px] font-semibold flex flex-col items-end justify-center"
         >
           {{ getDayOfTheWeek(new Date(row.dateKey)) }}
-          <time class="font-normal text-n-slate-11">
+          <time class="font-normal text-n-text-body">
             {{ formatDate(row.dateKey) }}
           </time>
         </div>
@@ -192,7 +192,7 @@ const tooltip = useHeatmapTooltip();
       </div>
       <div />
       <div
-        class="grid grid-cols-[repeat(24,_1fr)] gap-[5px] w-full text-[8px] font-semibold h-5 text-n-slate-12"
+        class="grid grid-cols-[repeat(24,_1fr)] gap-[5px] w-full text-[8px] font-semibold h-5 text-n-text-display"
       >
         <div
           v-for="ii in 24"

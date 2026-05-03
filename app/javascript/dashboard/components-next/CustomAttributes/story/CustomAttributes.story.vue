@@ -32,14 +32,16 @@ const handleDelete = type => {
     :layout="{ type: 'grid', width: '600px' }"
   >
     <Variant title="Create View">
-      <div class="flex flex-col gap-4 p-4 border rounded-lg border-n-strong">
+      <div
+        class="flex flex-col gap-4 p-4 border rounded-lg border-n-border-glass"
+      >
         <div
           v-for="attribute in Attributes"
           :key="attribute.attributeKey"
           class="grid grid-cols-[140px,1fr] group-hover/attribute items-center gap-1 min-h-10"
         >
           <div class="flex items-center justify-between truncate">
-            <span class="text-sm font-medium text-n-slate-12">
+            <span class="text-sm font-medium text-n-text-display">
               {{ attribute.attributeDisplayName }}
             </span>
           </div>
@@ -56,14 +58,16 @@ const handleDelete = type => {
     </Variant>
 
     <Variant title="Saved View">
-      <div class="flex flex-col gap-4 p-4 border rounded-lg border-n-strong">
+      <div
+        class="flex flex-col gap-4 p-4 border rounded-lg border-n-border-glass"
+      >
         <div
           v-for="attribute in Attributes"
           :key="attribute.attributeKey"
           class="grid grid-cols-[140px,1fr] group-hover/attribute items-center gap-1 min-h-10"
         >
           <div class="flex items-center justify-between truncate">
-            <span class="text-sm font-medium text-n-slate-12">
+            <span class="text-sm font-medium text-n-text-display">
               {{ attribute.attributeDisplayName }}
             </span>
           </div>

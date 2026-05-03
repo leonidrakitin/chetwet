@@ -69,11 +69,15 @@ onMounted(fetchConfig);
       :label="t('CAPTAIN_SETTINGS.APPROVAL_BOT.BOT_TOKEN_LABEL')"
       :placeholder="t('CAPTAIN_SETTINGS.APPROVAL_BOT.BOT_TOKEN_PLACEHOLDER')"
     />
-    <p v-if="botName" class="text-sm text-n-slate-11">
+    <p v-if="botName" class="text-sm text-n-text-body">
       {{ t('CAPTAIN_SETTINGS.APPROVAL_BOT.CONNECTED_AS', { name: botName }) }}
     </p>
-    <label class="flex items-center gap-2 text-sm text-n-slate-12">
-      <input v-model="enabled" type="checkbox" class="rounded border-n-weak" />
+    <label class="flex items-center gap-2 text-sm text-n-text-display">
+      <input
+        v-model="enabled"
+        type="checkbox"
+        class="rounded border-n-border-glass-soft"
+      />
       {{ t('CAPTAIN_SETTINGS.APPROVAL_BOT.ENABLED_LABEL') }}
     </label>
     <div>

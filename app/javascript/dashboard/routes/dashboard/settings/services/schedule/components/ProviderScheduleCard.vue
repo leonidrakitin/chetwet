@@ -116,9 +116,9 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="border border-n-weak rounded-lg overflow-hidden">
+  <div class="border border-n-border-glass-soft rounded-lg overflow-hidden">
     <button
-      class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-solid-2 transition-colors"
+      class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-glass-strong transition-colors"
       @click="toggleExpanded"
     >
       <div class="flex items-center gap-3">
@@ -128,8 +128,8 @@ const handleSubmit = () => {
           {{ provider.name.charAt(0).toUpperCase() }}
         </div>
         <div>
-          <div class="font-medium text-n-slate-12">{{ provider.name }}</div>
-          <div class="text-xs text-n-slate-10">
+          <div class="font-medium text-n-text-display">{{ provider.name }}</div>
+          <div class="text-xs text-n-text-body/60">
             {{
               hasOwnSchedule
                 ? t('SCHEDULE.SETTINGS.CUSTOM_SCHEDULE')
@@ -139,12 +139,15 @@ const handleSubmit = () => {
         </div>
       </div>
       <i
-        class="i-lucide-chevron-down text-n-slate-10 transition-transform"
+        class="i-lucide-chevron-down text-n-text-body/60 transition-transform"
         :class="{ 'rotate-180': isExpanded }"
       />
     </button>
 
-    <div v-if="isExpanded" class="px-4 pb-4 border-t border-n-weak">
+    <div
+      v-if="isExpanded"
+      class="px-4 pb-4 border-t border-n-border-glass-soft"
+    >
       <div v-if="isLoadingSchedule" class="py-4 text-center">
         {{ t('SCHEDULE.SETTINGS.LOADING') }}
       </div>
@@ -154,10 +157,10 @@ const handleSubmit = () => {
           <input
             type="checkbox"
             :checked="!form.inherit_account_schedule"
-            class="rounded border-n-weak text-n-brand focus:ring-n-brand"
+            class="rounded border-n-border-glass-soft text-n-brand focus:ring-n-brand"
             @change="handleInheritToggle"
           />
-          <label class="text-sm text-n-slate-12">
+          <label class="text-sm text-n-text-display">
             {{ t('SCHEDULE.SETTINGS.USE_CUSTOM_SCHEDULE') }}
           </label>
         </div>
@@ -165,12 +168,12 @@ const handleSubmit = () => {
         <template v-if="!form.inherit_account_schedule">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-n-slate-12 mb-1">
+              <label class="block text-sm font-medium text-n-text-display mb-1">
                 {{ t('SCHEDULE.SETTINGS.TIMEZONE') }}
               </label>
               <select
                 v-model="form.timezone"
-                class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+                class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand"
               >
                 <option v-for="tz in TIMEZONES" :key="tz" :value="tz">
                   {{ tz }}

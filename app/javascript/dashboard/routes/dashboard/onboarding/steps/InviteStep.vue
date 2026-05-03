@@ -62,28 +62,30 @@ function proceed() {
     >
       <Icon icon="i-lucide-users" class="size-8 text-n-brand" />
     </div>
-    <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
+    <h1 class="text-2xl font-bold text-n-text-display mb-2">
       {{ t('ONBOARDING.INVITE_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-6">
+    <p class="text-sm text-n-text-body/60 mb-6">
       {{ t('ONBOARDING.INVITE_STEP.SUBTITLE') }}
     </p>
 
     <div class="w-full max-w-sm">
-      <label class="text-sm font-medium text-n-slate-11 mb-1.5 block text-left">
+      <label
+        class="text-sm font-medium text-n-text-body mb-1.5 block text-left"
+      >
         {{ t('ONBOARDING.INVITE_STEP.EMAILS_LABEL') }}
       </label>
       <div
-        class="flex flex-wrap gap-1.5 rounded-lg border border-n-weak bg-white dark:bg-n-solid-3 px-2 py-2 min-h-[42px] focus-within:border-n-brand focus-within:ring-1 focus-within:ring-n-brand"
+        class="flex flex-wrap gap-1.5 rounded-lg border border-n-border-glass-soft bg-white dark:bg-n-solid-3 px-2 py-2 min-h-[42px] focus-within:border-n-brand focus-within:ring-1 focus-within:ring-n-brand"
       >
         <span
           v-for="email in emails"
           :key="email"
-          class="inline-flex items-center gap-1 rounded-md bg-n-alpha-2 px-2 py-0.5 text-xs text-n-slate-12"
+          class="inline-flex items-center gap-1 rounded-md bg-n-alpha-2 px-2 py-0.5 text-xs text-n-text-display"
         >
           {{ email }}
           <button
-            class="text-n-slate-9 hover:text-n-slate-12"
+            class="text-n-slate-9 hover:text-n-text-display"
             @click="removeEmail(email)"
           >
             <Icon icon="i-lucide-x" class="size-3" />
@@ -95,7 +97,7 @@ function proceed() {
           :placeholder="
             emails.length ? '' : t('ONBOARDING.INVITE_STEP.EMAILS_PLACEHOLDER')
           "
-          class="flex-1 min-w-[120px] border-none bg-transparent p-0 text-sm text-n-slate-12 outline-none placeholder:text-n-slate-8"
+          class="flex-1 min-w-[120px] border-none bg-transparent p-0 text-sm text-n-text-display outline-none placeholder:text-n-slate-8"
           @keydown="handleKeydown"
           @blur="addEmail"
         />
@@ -110,7 +112,7 @@ function proceed() {
           <span
             v-for="agent in agents"
             :key="agent.id"
-            class="inline-flex items-center gap-1 rounded-md bg-n-alpha-1 px-2 py-0.5 text-xs text-n-slate-10"
+            class="inline-flex items-center gap-1 rounded-md bg-n-alpha-1 px-2 py-0.5 text-xs text-n-text-body/60"
           >
             <Icon icon="i-lucide-user" class="size-3" />
             {{ agent.name || agent.email }}

@@ -63,7 +63,7 @@ defineExpose({ validate });
 <template>
   <li class="list-none">
     <div
-      class="flex items-start gap-2 p-3 rounded-lg border border-n-weak bg-n-alpha-2"
+      class="flex items-start gap-2 p-3 rounded-lg border border-n-border-glass-soft bg-n-alpha-2"
       :class="{
         'animate-wiggle border-n-ruby-9': showErrors && validationError,
       }"
@@ -90,7 +90,7 @@ defineExpose({ validate });
         />
         <label class="flex items-center gap-2 cursor-pointer">
           <Checkbox v-model="required" />
-          <span class="text-sm text-n-slate-11">
+          <span class="text-sm text-n-text-body">
             {{ t('CAPTAIN.CUSTOM_TOOLS.FORM.PARAM_REQUIRED.LABEL') }}
           </span>
         </label>

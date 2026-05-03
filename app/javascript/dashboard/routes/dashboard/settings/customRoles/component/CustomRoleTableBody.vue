@@ -35,19 +35,19 @@ const getFormattedPermissions = role => {
   >
     <template #default>
       <BaseTableCell>
-        <span class="text-body-main text-n-slate-12 truncate block">
+        <span class="text-body-main text-n-text-display truncate block">
           {{ customRole.name }}
         </span>
       </BaseTableCell>
 
       <BaseTableCell>
-        <span class="text-body-main text-n-slate-11 truncate block">
+        <span class="text-body-main text-n-text-body truncate block">
           {{ customRole.description }}
         </span>
       </BaseTableCell>
 
       <BaseTableCell>
-        <span class="text-body-main text-n-slate-11 block">
+        <span class="text-body-main text-n-text-body block">
           {{ getFormattedPermissions(customRole) }}
         </span>
       </BaseTableCell>

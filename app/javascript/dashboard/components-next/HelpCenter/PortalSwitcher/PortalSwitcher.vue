@@ -92,7 +92,7 @@ const redirectToPortalHomePage = () => {
 
 <template>
   <div
-    class="pt-5 pb-3 bg-n-alpha-3 backdrop-blur-[100px] outline outline-n-container outline-1 z-50 absolute w-[27.5rem] rounded-xl shadow-md flex flex-col gap-4"
+    class="pt-5 pb-3 bg-n-alpha-3 backdrop-blur-[100px] outline outline-n-border-glass-soft outline-1 z-50 absolute w-[27.5rem] rounded-xl shadow-md flex flex-col gap-4"
   >
     <div
       class="flex items-center justify-between gap-4 px-6 pb-3 border-b border-n-alpha-2"
@@ -100,7 +100,7 @@ const redirectToPortalHomePage = () => {
       <div class="flex flex-col gap-1">
         <div class="flex items-center gap-2">
           <h2
-            class="text-base font-medium cursor-pointer text-n-slate-12 w-fit hover:underline"
+            class="text-base font-medium cursor-pointer text-n-text-display w-fit hover:underline"
             @click="redirectToPortalHomePage"
           >
             {{ t('HELP_CENTER.PORTAL_SWITCHER.PORTALS') }}
@@ -111,11 +111,11 @@ const redirectToPortalHomePage = () => {
             color="slate"
             icon-lib="lucide"
             size="sm"
-            class="!w-6 !h-6 hover:bg-n-slate-2 text-n-slate-11 !p-0.5 rounded-md"
+            class="!w-6 !h-6 hover:bg-n-slate-2 text-n-text-body !p-0.5 rounded-md"
             @click="onClickPreviewPortal"
           />
         </div>
-        <p class="text-sm text-n-slate-11">
+        <p class="text-sm text-n-text-body">
           {{ t('HELP_CENTER.PORTAL_SWITCHER.CREATE_PORTAL') }}
         </p>
       </div>
@@ -143,11 +143,11 @@ const redirectToPortalHomePage = () => {
       >
         <div v-if="portal.custom_domain" class="flex items-center gap-1">
           <span class="i-lucide-link size-3" />
-          <span class="text-sm truncate text-n-slate-11">
+          <span class="text-sm truncate text-n-text-body">
             {{ portal.custom_domain || '' }}
           </span>
         </div>
-        <span class="text-sm font-medium truncate text-n-slate-12">
+        <span class="text-sm font-medium truncate text-n-text-display">
           {{ portal.name || '' }}
         </span>
         <Avatar

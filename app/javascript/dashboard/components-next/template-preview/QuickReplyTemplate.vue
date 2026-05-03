@@ -14,7 +14,7 @@ const actions = computed(() => props.message.actions || []);
 
 <template>
   <div
-    class="rounded-xl divide-y bg-n-alpha-2 divide-n-strong text-n-slate-12 max-w-80"
+    class="rounded-xl divide-y bg-n-alpha-2 divide-n-strong text-n-text-display max-w-80"
   >
     <div class="p-3">
       <span

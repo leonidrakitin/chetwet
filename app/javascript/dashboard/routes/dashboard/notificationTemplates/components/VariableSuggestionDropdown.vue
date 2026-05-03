@@ -55,7 +55,7 @@ defineExpose({ filteredKeys });
 <template>
   <div
     data-variable-suggestion
-    class="z-50 min-w-[15rem] max-h-64 overflow-y-auto rounded-xl border border-n-weak bg-n-solid-1 shadow-lg py-1"
+    class="z-50 min-w-[15rem] max-h-64 overflow-y-auto rounded-xl border border-n-border-glass-soft bg-n-glass-soft shadow-lg py-1"
     :style="{ top: `${top}px`, left: `${left}px` }"
   >
     <p v-if="!filteredKeys.length" class="px-3 py-2 text-xs text-n-slate-9">
@@ -96,7 +96,7 @@ defineExpose({ filteredKeys });
           :class="{ 'bg-n-alpha-2': getFlatIndex(key) === selectedIdx }"
           @mousedown.prevent="emit('select', key)"
         >
-          <p class="text-sm font-medium text-n-slate-12">
+          <p class="text-sm font-medium text-n-text-display">
             {{ t(`NOTIFICATION_TEMPLATES.VARIABLES.${key}`) }}
           </p>
           <p class="text-xs text-n-slate-9">

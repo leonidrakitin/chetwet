@@ -110,10 +110,10 @@ onMounted(async () => {
       @mouseleave="emit('mouseleave')"
     >
       <div
-        class="bg-n-alpha-3 backdrop-blur-[100px] outline outline-1 -outline-offset-1 w-56 outline-n-weak rounded-xl shadow-lg py-2 px-2"
+        class="bg-n-alpha-3 backdrop-blur-[100px] outline outline-1 -outline-offset-1 w-56 outline-n-border-glass-soft rounded-xl shadow-lg py-2 px-2"
       >
         <div
-          class="px-2 py-1.5 text-xs font-medium text-n-slate-11 uppercase tracking-wider border-b border-n-weak mb-1"
+          class="px-2 py-1.5 text-xs font-medium text-n-text-body uppercase tracking-wider border-b border-n-border-glass-soft mb-1"
         >
           {{ label }}
         </div>
@@ -124,7 +124,7 @@ onMounted(async () => {
             <!-- SubGroup with children -->
             <li v-if="child.children" class="py-0.5">
               <button
-                class="flex items-center gap-2 px-2 py-1.5 w-full rounded-lg text-n-slate-11 hover:bg-n-alpha-2 transition-colors duration-150 ease-out text-left rtl:text-right"
+                class="flex items-center gap-2 px-2 py-1.5 w-full rounded-lg text-n-text-body hover:bg-n-alpha-2 transition-colors duration-150 ease-out text-left rtl:text-right"
                 @click="toggleSubGroup(child.name)"
               >
                 <Icon
@@ -153,8 +153,8 @@ onMounted(async () => {
                     <button
                       class="flex items-center gap-2 px-2 py-1.5 w-full rounded-lg text-sm text-left rtl:text-right transition-colors duration-150 ease-out"
                       :class="{
-                        'text-n-slate-12 bg-n-alpha-2': isActive(subChild),
-                        'text-n-slate-11 hover:bg-n-alpha-2':
+                        'text-n-text-display bg-n-alpha-2': isActive(subChild),
+                        'text-n-text-body hover:bg-n-alpha-2':
                           !isActive(subChild),
                       }"
                       @click="navigateAndClose(subChild.to)"
@@ -176,8 +176,8 @@ onMounted(async () => {
               <button
                 class="flex items-center gap-2 px-2 py-1.5 w-full rounded-lg text-sm text-left rtl:text-right transition-colors duration-150 ease-out"
                 :class="{
-                  'text-n-slate-12 bg-n-alpha-2': isActive(child),
-                  'text-n-slate-11 hover:bg-n-alpha-2': !isActive(child),
+                  'text-n-text-display bg-n-alpha-2': isActive(child),
+                  'text-n-text-body hover:bg-n-alpha-2': !isActive(child),
                 }"
                 @click="navigateAndClose(child.to)"
               >

@@ -43,7 +43,7 @@ const messageClass = computed(() => {
     case 'success':
       return 'text-n-teal-10 dark:text-n-teal-10';
     default:
-      return 'text-n-slate-11 dark:text-n-slate-11';
+      return 'text-n-text-body dark:text-n-text-body';
   }
 });
 
@@ -80,17 +80,17 @@ watch(
 
 <template>
   <div class="flex flex-col min-w-0 gap-1">
-    <label v-if="label" class="mb-0.5 text-sm font-medium text-n-slate-12">
+    <label v-if="label" class="mb-0.5 text-sm font-medium text-n-text-display">
       {{ label }}
     </label>
     <div
       class="flex flex-col w-full gap-2 px-3 py-3 transition-all duration-500 ease-in-out border rounded-lg editor-wrapper bg-n-alpha-black2"
       :class="[
         {
-          'cursor-not-allowed opacity-50 pointer-events-none !bg-n-alpha-black2 disabled:border-n-weak dark:disabled:border-n-weak':
+          'cursor-not-allowed opacity-50 pointer-events-none !bg-n-alpha-black2 disabled:border-n-border-glass-soft dark:disabled:border-n-border-glass-soft':
             disabled,
           'border-n-brand dark:border-n-brand': isFocused,
-          'hover:border-n-slate-6 dark:hover:border-n-slate-6 border-n-weak dark:border-n-weak':
+          'hover:border-n-slate-6 dark:hover:border-n-slate-6 border-n-border-glass-soft dark:border-n-border-glass-soft':
             !isFocused && messageType !== 'error',
           'border-n-ruby-8 dark:border-n-ruby-8 hover:border-n-ruby-9 dark:hover:border-n-ruby-9':
             messageType === 'error' && !isFocused,
@@ -124,7 +124,7 @@ watch(
       >
         <span
           v-if="showCharacterCount && !slots.actions"
-          class="text-xs tabular-nums text-n-slate-10"
+          class="text-xs tabular-nums text-n-text-body/60"
         >
           {{ characterCount }} / {{ maxLength }}
         </span>
@@ -154,7 +154,7 @@ watch(
           @apply m-0 !important;
 
           &::before {
-            @apply text-n-slate-11 dark:text-n-slate-11;
+            @apply text-n-text-body dark:text-n-text-body;
           }
         }
       }

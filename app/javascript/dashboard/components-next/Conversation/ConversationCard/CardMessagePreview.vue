@@ -42,7 +42,7 @@ const unreadMessagesCount = computed(() => {
 
 <template>
   <div class="flex items-end w-full gap-2 pb-1">
-    <p class="w-full mb-0 text-sm leading-7 text-n-slate-12 line-clamp-2">
+    <p class="w-full mb-0 text-sm leading-7 text-n-text-display line-clamp-2">
       {{ lastNonActivityMessageContent }}
     </p>
     <div class="flex items-center flex-shrink-0 gap-2 pb-2">
@@ -50,7 +50,7 @@ const unreadMessagesCount = computed(() => {
         v-if="assignee.name"
         :name="assignee.name"
         :src="assignee.thumbnail"
-        :size="20"
+        :size="24"
         :status="assignee.status"
         rounded-full
       />

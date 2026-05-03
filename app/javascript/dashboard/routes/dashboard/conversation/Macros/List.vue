@@ -83,7 +83,7 @@ onMounted(() => {
     </div>
     <div
       v-if="uiFlags.isFetching"
-      class="flex items-center gap-2 justify-center p-6 text-n-slate-12"
+      class="flex items-center gap-2 justify-center p-6 text-n-text-display"
     >
       <span class="text-sm">{{ $t('MACROS.LOADING') }}</span>
       <Spinner class="size-5" />

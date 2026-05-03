@@ -77,7 +77,7 @@ const handleAction = ({ action, value }) => {
   <CardLayout>
     <div class="flex justify-between w-full gap-1">
       <h6
-        class="text-base font-normal text-n-slate-12 line-clamp-1 hover:underline transition-colors"
+        class="text-base font-normal text-n-text-display line-clamp-1 hover:underline transition-colors"
       >
         {{ name }}
       </h6>
@@ -103,10 +103,10 @@ const handleAction = ({ action, value }) => {
       </div>
     </div>
     <div class="flex items-center justify-between w-full gap-4">
-      <span class="text-sm truncate text-n-slate-11">
+      <span class="text-sm truncate text-n-text-body">
         {{ description || 'Description not available' }}
       </span>
-      <span class="text-sm text-n-slate-11 line-clamp-1 shrink-0">
+      <span class="text-sm text-n-text-body line-clamp-1 shrink-0">
         {{ lastUpdatedAt }}
       </span>
     </div>

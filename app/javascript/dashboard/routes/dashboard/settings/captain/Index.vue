@@ -56,7 +56,7 @@ const providerNames = {
               :class="
                 provider === primaryProvider
                   ? 'bg-n-teal-3 text-n-teal-12 dark:bg-n-teal-9 dark:text-n-teal-3'
-                  : 'bg-n-slate-3 text-n-slate-12 dark:bg-n-solid-3 dark:text-n-slate-11'
+                  : 'bg-n-slate-3 text-n-text-display dark:bg-n-solid-3 dark:text-n-text-body'
               "
             >
               {{ providerNames[provider] || provider }}

@@ -154,7 +154,7 @@ onBeforeUnmount(() => {
         v-if="!isEnabledDay || isHoliday"
         class="flex-1 flex items-center justify-center min-h-[200px]"
       >
-        <div class="text-center text-n-slate-11">
+        <div class="text-center text-n-text-body">
           <p class="text-lg font-medium">
             {{
               isHoliday

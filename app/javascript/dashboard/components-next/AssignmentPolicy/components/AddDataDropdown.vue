@@ -100,7 +100,7 @@ const handleClickOutside = () => {
     <div
       v-if="showPopover"
       ref="dropdownRef"
-      class="z-50 flex flex-col items-start absolute bg-n-alpha-3 backdrop-blur-[50px] border-0 gap-4 outline outline-1 outline-n-weak rounded-xl max-w-96 min-w-80 max-h-[20rem] overflow-y-auto py-2"
+      class="z-50 flex flex-col items-start absolute bg-n-alpha-3 backdrop-blur-[50px] border-0 gap-4 outline outline-1 outline-n-border-glass-soft rounded-xl max-w-96 min-w-80 max-h-[20rem] overflow-y-auto py-2"
       :class="[
         shouldShowAbove ? 'bottom-full mb-2' : 'top-full mt-2',
         shouldAlignRight ? 'right-0' : 'left-0',
@@ -115,7 +115,7 @@ const handleClickOutside = () => {
           <template #prefix>
             <Icon
               icon="i-lucide-search"
-              class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-3 rtl:right-3"
+              class="absolute -translate-y-1/2 text-n-text-body size-4 top-1/2 ltr:left-3 rtl:right-3"
             />
           </template>
         </Input>
@@ -130,7 +130,7 @@ const handleClickOutside = () => {
           <Icon
             v-if="item.icon"
             :icon="item.icon"
-            class="size-4 text-n-slate-12 flex-shrink-0 mt-0.5"
+            class="size-4 text-n-text-display flex-shrink-0 mt-0.5"
           />
           <span
             v-else-if="item.color"
@@ -149,7 +149,7 @@ const handleClickOutside = () => {
             <div class="flex items-center gap-1 min-w-0 w-full">
               <span
                 :title="item.name || item.title"
-                class="text-sm text-n-slate-12 truncate min-w-0 flex-1"
+                class="text-sm text-n-text-display truncate min-w-0 flex-1"
               >
                 {{ item.name || item.title }}
               </span>
@@ -157,7 +157,7 @@ const handleClickOutside = () => {
             <span
               v-if="item.email || item.phoneNumber"
               :title="item.email || item.phoneNumber"
-              class="text-sm text-n-slate-11 truncate min-w-0 w-full block"
+              class="text-sm text-n-text-body truncate min-w-0 w-full block"
             >
               {{ item.email || item.phoneNumber }}
             </span>

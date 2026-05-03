@@ -102,74 +102,75 @@ const STYLE_CONFIG = {
   colors: {
     blue: {
       solid:
-        'bg-n-brand text-white shadow-sm hover:enabled:brightness-105 focus-visible:brightness-105 outline-transparent',
+        'bg-n-brand text-white shadow-pill-soft hover:enabled:brightness-105 focus-visible:brightness-105 outline-transparent',
       faded:
-        'bg-n-brand/10 text-n-blue-11 hover:enabled:bg-n-brand/15 focus-visible:bg-n-brand/15 outline-transparent',
-      outline: 'text-n-blue-11 outline-n-brand',
+        'bg-n-brand/10 text-n-blue-11 backdrop-blur-glass-rail backdrop-saturate-glass hover:enabled:bg-n-brand/15 focus-visible:bg-n-brand/15 outline-transparent',
+      outline:
+        'bg-n-glass-soft text-n-blue-11 outline-n-brand backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-glass-strong focus-visible:bg-n-glass-strong',
       ghost:
-        'text-n-blue-11 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
+        'text-n-blue-11 hover:enabled:bg-n-glass-soft focus-visible:bg-n-glass-soft outline-transparent',
       link: 'text-n-blue-11 hover:enabled:underline focus-visible:underline outline-transparent',
     },
     black: {
       solid:
-        'bg-n-slate-12 text-white shadow-sm hover:enabled:brightness-105 focus-visible:brightness-105 outline-transparent',
+        'bg-n-accent-active text-n-accent-active-fg shadow-pill-active hover:enabled:brightness-110 focus-visible:brightness-110 outline-transparent',
       faded:
-        'bg-n-slate-12/10 text-n-slate-12 hover:enabled:bg-n-slate-12/15 focus-visible:bg-n-slate-12/15 outline-transparent',
+        'bg-n-glass-soft text-n-text-display border border-n-border-glass-soft backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-glass-strong hover:enabled:border-n-border-glass focus-visible:bg-n-glass-strong outline-transparent',
       outline:
-        'text-n-slate-12 outline-n-slate-12 hover:enabled:bg-n-slate-12/10 focus-visible:bg-n-slate-12/10',
+        'bg-n-glass-soft text-n-text-display outline-n-border-glass backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-glass-strong focus-visible:bg-n-glass-strong',
       ghost:
-        'text-n-slate-12 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
-      link: 'text-n-slate-12 hover:enabled:underline focus-visible:underline outline-transparent',
+        'text-n-text-display hover:enabled:bg-n-glass-soft focus-visible:bg-n-glass-soft outline-transparent',
+      link: 'text-n-text-display hover:enabled:underline focus-visible:underline outline-transparent',
     },
     ruby: {
       solid:
-        'bg-n-ruby-9 text-white hover:enabled:bg-n-ruby-10 focus-visible:bg-n-ruby-10 outline-transparent',
+        'bg-n-ruby-9 text-white shadow-pill-soft hover:enabled:bg-n-ruby-10 focus-visible:bg-n-ruby-10 outline-transparent',
       faded:
-        'bg-n-ruby-9/10 text-n-ruby-11 hover:enabled:bg-n-ruby-9/20 focus-visible:bg-n-ruby-9/20 outline-transparent',
+        'bg-n-ruby-9/10 text-n-ruby-11 backdrop-blur-glass-rail backdrop-saturate-glass hover:enabled:bg-n-ruby-9/20 focus-visible:bg-n-ruby-9/20 outline-transparent',
       outline:
-        'text-n-ruby-11 hover:enabled:bg-n-ruby-9/10 focus-visible:bg-n-ruby-9/10 outline-n-ruby-8',
+        'bg-n-glass-soft text-n-ruby-11 outline-n-ruby-8 backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-ruby-9/10 focus-visible:bg-n-ruby-9/10',
       ghost:
-        'text-n-ruby-11 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
+        'text-n-ruby-11 hover:enabled:bg-n-glass-soft focus-visible:bg-n-glass-soft outline-transparent',
       link: 'text-n-ruby-9 dark:text-n-ruby-11 hover:enabled:underline focus-visible:underline outline-transparent',
     },
     amber: {
       solid:
-        'bg-n-amber-9 text-white hover:enabled:bg-n-amber-10 focus-visible:bg-n-amber-10 outline-transparent',
+        'bg-n-amber-9 text-white shadow-pill-soft hover:enabled:bg-n-amber-10 focus-visible:bg-n-amber-10 outline-transparent',
       faded:
-        'bg-n-amber-9/10 text-n-slate-12 hover:enabled:bg-n-amber-9/20 focus-visible:bg-n-amber-9/20 outline-transparent',
+        'bg-n-amber-9/10 text-n-text-display backdrop-blur-glass-rail backdrop-saturate-glass hover:enabled:bg-n-amber-9/20 focus-visible:bg-n-amber-9/20 outline-transparent',
       outline:
-        'text-n-amber-11 hover:enabled:bg-n-amber-9/10 focus-visible:bg-n-amber-9/10 outline-n-amber-9',
+        'bg-n-glass-soft text-n-amber-11 outline-n-amber-9 backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-amber-9/10 focus-visible:bg-n-amber-9/10',
       link: 'text-n-amber-9 hover:enabled:underline focus-visible:underline outline-transparent',
       ghost:
-        'text-n-amber-9 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
+        'text-n-amber-9 hover:enabled:bg-n-glass-soft focus-visible:bg-n-glass-soft outline-transparent',
     },
     slate: {
       solid:
-        'bg-n-button-color text-n-slate-12 shadow-sm hover:enabled:bg-n-alpha-1 focus-visible:bg-n-alpha-1 outline-n-container',
+        'bg-n-glass-strong text-n-text-display border border-n-border-glass-soft shadow-pill-soft backdrop-blur-glass-rail backdrop-saturate-glass hover:enabled:bg-n-glass-pane hover:enabled:border-n-border-glass focus-visible:bg-n-glass-pane outline-transparent',
       faded:
-        'bg-n-slate-9/10 text-n-slate-12 hover:enabled:bg-n-slate-9/15 focus-visible:bg-n-slate-9/15 outline-transparent',
+        'bg-n-glass-soft text-n-text-body border border-n-border-glass-soft backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-glass-strong hover:enabled:border-n-border-glass focus-visible:bg-n-glass-strong outline-transparent',
       outline:
-        'text-n-slate-11 outline-n-strong hover:enabled:bg-n-slate-9/10 focus-visible:bg-n-slate-9/10',
-      link: 'text-n-slate-11 hover:enabled:text-n-slate-12 focus-visible:text-n-slate-12 hover:enabled:underline focus-visible:underline outline-transparent',
+        'bg-n-glass-soft text-n-text-body outline-n-border-glass-soft backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-glass-strong hover:enabled:outline-n-border-glass focus-visible:bg-n-glass-strong',
+      link: 'text-n-text-body hover:enabled:text-n-text-display focus-visible:text-n-text-display hover:enabled:underline focus-visible:underline outline-transparent',
       ghost:
-        'text-n-slate-12 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
+        'text-n-text-body hover:enabled:bg-n-glass-soft focus-visible:bg-n-glass-soft outline-transparent',
     },
     teal: {
       solid:
-        'bg-n-teal-9 text-white hover:enabled:bg-n-teal-10 focus-visible:bg-n-teal-10 outline-transparent',
+        'bg-n-teal-9 text-white shadow-pill-soft hover:enabled:bg-n-teal-10 focus-visible:bg-n-teal-10 outline-transparent',
       faded:
-        'bg-n-teal-9/10 text-n-teal-11 hover:enabled:bg-n-teal-9/20 focus-visible:bg-n-teal-9/20 outline-transparent',
+        'bg-n-teal-9/10 text-n-teal-11 backdrop-blur-glass-rail backdrop-saturate-glass hover:enabled:bg-n-teal-9/20 focus-visible:bg-n-teal-9/20 outline-transparent',
       outline:
-        'text-n-teal-11 hover:enabled:bg-n-teal-9/10 focus-visible:bg-n-teal-9/10 outline-n-teal-9',
+        'bg-n-glass-soft text-n-teal-11 outline-n-teal-9 backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:enabled:bg-n-teal-9/10 focus-visible:bg-n-teal-9/10',
       link: 'text-n-teal-9 hover:enabled:underline focus-visible:underline outline-transparent',
       ghost:
-        'text-n-teal-9 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent',
+        'text-n-teal-9 hover:enabled:bg-n-glass-soft focus-visible:bg-n-glass-soft outline-transparent',
     },
   },
   sizes: {
     regular: {
-      xs: 'h-6 px-2',
-      sm: 'h-8 px-3',
+      xs: 'h-6 px-2.5',
+      sm: 'h-8 px-3.5',
       md: 'h-10 px-4.5',
       lg: 'h-12 px-5',
     },
@@ -203,7 +204,12 @@ const STYLE_CONFIG = {
     center: 'justify-center',
     end: 'justify-end',
   },
-  base: 'inline-flex items-center min-w-0 gap-2 transition-all duration-100 ease-out border-0 rounded-xl outline-1 outline disabled:opacity-50',
+  base: 'inline-flex items-center min-w-0 gap-2 transition-all duration-150 ease-out border-0 outline-1 outline disabled:opacity-50',
+  shape: {
+    pill: 'rounded-pill',
+    circle: 'rounded-full',
+    none: '',
+  },
 };
 
 const variantClasses = computed(() => {
@@ -221,10 +227,16 @@ const variantClasses = computed(() => {
 const isIconOnly = computed(() => !props.label && !slots.default);
 const isLink = computed(() => computedVariant.value === 'link');
 
+const shapeClass = computed(() => {
+  if (isLink.value) return STYLE_CONFIG.shape.none;
+  return isIconOnly.value ? STYLE_CONFIG.shape.circle : STYLE_CONFIG.shape.pill;
+});
+
 const buttonClasses = computed(() => {
   const sizeConfig = isIconOnly.value ? 'iconOnly' : 'regular';
   const classes = [
     variantClasses.value,
+    shapeClass.value,
     computedVariant.value !== 'link' &&
       STYLE_CONFIG.sizes[sizeConfig][computedSize.value],
   ].filter(Boolean);

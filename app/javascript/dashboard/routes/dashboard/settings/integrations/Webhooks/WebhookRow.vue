@@ -38,10 +38,10 @@ const subscribedEvents = computed(() => {
   <BaseTableRow :item="webhook">
     <template #default>
       <BaseTableCell>
-        <div class="flex gap-2 font-medium break-words text-n-slate-12">
+        <div class="flex gap-2 font-medium break-words text-n-text-display">
           <template v-if="webhook.name">
             {{ webhook.name }}
-            <span class="text-n-slate-11">
+            <span class="text-n-text-body">
               {{ webhook.url }}
             </span>
           </template>
@@ -49,7 +49,7 @@ const subscribedEvents = computed(() => {
             {{ webhook.url }}
           </template>
         </div>
-        <div class="block mt-1 text-sm text-n-slate-11">
+        <div class="block mt-1 text-sm text-n-text-body">
           <span class="font-medium">
             {{ $t('INTEGRATION_SETTINGS.WEBHOOK.SUBSCRIBED_EVENTS') }}:
           </span>

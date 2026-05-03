@@ -27,7 +27,7 @@ watch(
       class="px-2 py-1 rounded text-sm time-input no-margin rounded-lg bg-n-alpha-2 hover:bg-n-alpha-1 active:bg-n-alpha-1"
     />
 
-    <span class="text-n-slate-10 text-sm">{{
+    <span class="text-n-text-body/60 text-sm">{{
       t('AGENT_ACTIVITY_REPORTS.FILTERS.TIME_RANGE_SEPARATOR')
     }}</span>
 

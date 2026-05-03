@@ -67,9 +67,9 @@ useEventListener(document, 'keydown', onKeydown);
         @mousedown="handleMouseDown"
       >
         <div
-          class="relative max-h-full overflow-auto bg-n-alpha-3 shadow-md modal-container rtl:text-right skip-context-menu"
+          class="relative max-h-full overflow-auto bg-n-glass-pane backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass shadow-glass-deep modal-container rtl:text-right skip-context-menu"
           :class="{
-            'rounded-xl w-[37.5rem]': !fullWidth,
+            'rounded-card w-[37.5rem]': !fullWidth,
             'items-center rounded-none flex h-full justify-center w-full':
               fullWidth,
             [size]: true,

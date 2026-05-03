@@ -76,7 +76,7 @@ const getInboxName = inboxId => {
 <template>
   <div class="py-4 flex-col flex gap-3">
     <div class="flex items-center w-full gap-8 justify-between pt-1 pb-3">
-      <label class="text-sm font-medium text-n-slate-12">
+      <label class="text-sm font-medium text-n-text-display">
         {{ t(`${BASE_KEY}.FORM.INBOX_CAPACITY_LIMIT.LABEL`) }}
       </label>
 
@@ -92,7 +92,7 @@ const getInboxName = inboxId => {
 
     <div
       v-if="isFetching"
-      class="flex items-center justify-center py-3 w-full text-n-slate-11"
+      class="flex items-center justify-center py-3 w-full text-n-text-body"
     >
       <Spinner />
     </div>
@@ -101,7 +101,7 @@ const getInboxName = inboxId => {
       v-else-if="!inboxCapacityLimits.length"
       class="custom-dashed-border flex items-center justify-center py-6 w-full"
     >
-      <span class="text-sm text-n-slate-11">
+      <span class="text-sm text-n-text-body">
         {{ t(`${BASE_KEY}.FORM.INBOX_CAPACITY_LIMIT.EMPTY_STATE`) }}
       </span>
     </div>
@@ -113,7 +113,7 @@ const getInboxName = inboxId => {
         class="flex flex-col xs:flex-row items-stretch gap-3"
       >
         <div
-          class="flex items-center rounded-lg outline-1 outline cursor-not-allowed text-n-slate-11 outline-n-weak py-2.5 px-3 text-sm w-full min-w-0"
+          class="flex items-center rounded-lg outline-1 outline cursor-not-allowed text-n-text-body outline-n-border-glass-soft py-2.5 px-3 text-sm w-full min-w-0"
           :title="getInboxName(limit.inboxId)"
         >
           <span class="truncate min-w-0">
@@ -125,11 +125,13 @@ const getInboxName = inboxId => {
           <div
             class="py-2.5 px-3 rounded-lg gap-2 outline outline-1 flex-1 xs:flex-shrink-0 flex items-center min-w-0"
             :class="[
-              !isLimitValid(limit) ? 'outline-n-ruby-8' : 'outline-n-weak',
+              !isLimitValid(limit)
+                ? 'outline-n-ruby-8'
+                : 'outline-n-border-glass-soft',
             ]"
           >
             <label
-              class="text-sm text-n-slate-12 ltr:pr-2 rtl:pl-2 truncate min-w-0 flex-shrink"
+              class="text-sm text-n-text-display ltr:pr-2 rtl:pl-2 truncate min-w-0 flex-shrink"
               :title="
                 t(
                   `${BASE_KEY}.FORM.INBOX_CAPACITY_LIMIT.FIELD.MAX_CONVERSATIONS`
@@ -154,7 +156,7 @@ const getInboxName = inboxId => {
               :class="[
                 !isLimitValid(limit)
                   ? 'placeholder:text-n-ruby-9 !text-n-ruby-9'
-                  : 'placeholder:text-n-slate-10 text-n-slate-12',
+                  : 'placeholder:text-n-text-body/60 text-n-text-display',
               ]"
               :placeholder="
                 t(`${BASE_KEY}.FORM.INBOX_CAPACITY_LIMIT.FIELD.SET_LIMIT`)

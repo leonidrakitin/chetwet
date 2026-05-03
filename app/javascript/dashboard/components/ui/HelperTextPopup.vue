@@ -12,12 +12,12 @@ defineProps({
     <fluent-icon
       icon="info"
       size="14"
-      class="mt-0.5 text-n-slate-11 absolute"
+      class="mt-0.5 text-n-text-body absolute"
     />
     <div
-      class="bg-n-background w-fit ltr:left-4 rtl:right-4 top-0 border p-2.5 group-hover:flex items-center hidden absolute border-n-weak rounded-lg shadow-md"
+      class="bg-n-glass-pane backdrop-blur-glass-card backdrop-saturate-glass w-fit ltr:left-4 rtl:right-4 top-0 border p-2.5 group-hover:flex items-center hidden absolute border-n-border-glass rounded-card shadow-glass-soft"
     >
-      <p class="text-n-slate-12 mb-0 text-xs">
+      <p class="text-n-text-display mb-0 text-xs">
         {{ message }}
       </p>
     </div>

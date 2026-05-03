@@ -128,17 +128,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="rounded-xl border border-n-weak bg-n-solid-1 p-5 mb-6">
+  <div
+    class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft p-5 mb-6"
+  >
     <div
       class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5"
     >
       <div class="flex items-center gap-2">
-        <h3 class="text-sm font-semibold text-n-slate-12">
+        <h3 class="text-sm font-semibold text-n-text-display">
           {{ t('CAMPAIGNS.STATISTICS.CHART.TITLE') }}
         </h3>
         <div
           v-if="chartData.datasets.length"
-          class="hidden md:flex items-center gap-3 pl-3 ml-1 border-l border-n-weak"
+          class="hidden md:flex items-center gap-3 pl-3 ml-1 border-l border-n-border-glass-soft"
         >
           <div
             v-for="ds in chartData.datasets"
@@ -149,7 +151,7 @@ onUnmounted(() => {
               class="size-2 rounded-full"
               :style="{ backgroundColor: ds.color }"
             />
-            <span class="text-xs text-n-slate-10">{{ ds.label }}</span>
+            <span class="text-xs text-n-text-body/60">{{ ds.label }}</span>
           </div>
         </div>
       </div>
@@ -162,8 +164,8 @@ onUnmounted(() => {
           class="px-3 py-1 text-xs font-medium rounded-md transition-colors"
           :class="
             selectedMetric === metric.key
-              ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
-              : 'text-n-slate-10 hover:text-n-slate-12'
+              ? 'bg-n-glass-soft text-n-text-display shadow-sm'
+              : 'text-n-text-body/60 hover:text-n-text-display'
           "
           @click="selectedMetric = metric.key"
         >
@@ -181,7 +183,7 @@ onUnmounted(() => {
       class="flex flex-col items-center justify-center h-56 gap-2"
     >
       <span class="i-lucide-bar-chart-3 size-8 text-n-slate-9" />
-      <span class="text-sm text-n-slate-10">
+      <span class="text-sm text-n-text-body/60">
         {{ t('CAMPAIGNS.STATISTICS.CHART.NO_DATA') }}
       </span>
     </div>
@@ -302,7 +304,7 @@ onUnmounted(() => {
 
     <div
       v-if="chartData.datasets.length"
-      class="flex md:hidden items-center justify-center gap-4 mt-4 pt-4 border-t border-n-weak"
+      class="flex md:hidden items-center justify-center gap-4 mt-4 pt-4 border-t border-n-border-glass-soft"
     >
       <div
         v-for="ds in chartData.datasets"
@@ -313,7 +315,7 @@ onUnmounted(() => {
           class="size-2.5 rounded-full"
           :style="{ backgroundColor: ds.color }"
         />
-        <span class="text-xs text-n-slate-10">{{ ds.label }}</span>
+        <span class="text-xs text-n-text-body/60">{{ ds.label }}</span>
       </div>
     </div>
   </div>

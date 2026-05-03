@@ -65,20 +65,20 @@ const formatDuration = minutes => {
 <template>
   <div class="flex flex-col gap-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-lg font-semibold text-n-slate-12">
+      <h2 class="text-lg font-semibold text-n-text-display">
         {{ t('SCHEDULE.REPORTS.HEADER') }}
       </h2>
       <div class="flex items-center gap-2">
         <input
           v-model="dateRange.start"
           type="date"
-          class="px-3 py-1.5 text-sm border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12"
+          class="px-3 py-1.5 text-sm border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display"
         />
-        <span class="text-n-slate-10">—</span>
+        <span class="text-n-text-body/60">—</span>
         <input
           v-model="dateRange.end"
           type="date"
-          class="px-3 py-1.5 text-sm border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12"
+          class="px-3 py-1.5 text-sm border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display"
         />
         <Button :label="t('SCHEDULE.REPORTS.APPLY')" sm @click="fetchReports" />
       </div>
@@ -87,32 +87,40 @@ const formatDuration = minutes => {
     <Spinner v-if="isLoading" class="m-auto" />
 
     <div v-else class="grid grid-cols-4 gap-4">
-      <div class="p-4 bg-n-solid-1 rounded-lg border border-n-weak">
-        <div class="text-sm text-n-slate-10">
+      <div
+        class="p-4 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
+      >
+        <div class="text-sm text-n-text-body/60">
           {{ t('SCHEDULE.REPORTS.TOTAL_BOOKINGS') }}
         </div>
-        <div class="text-2xl font-bold text-n-slate-12">
+        <div class="text-2xl font-bold text-n-text-display">
           {{ bookingStats.total || 0 }}
         </div>
       </div>
-      <div class="p-4 bg-n-solid-1 rounded-lg border border-n-weak">
-        <div class="text-sm text-n-slate-10">
+      <div
+        class="p-4 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
+      >
+        <div class="text-sm text-n-text-body/60">
           {{ t('SCHEDULE.REPORTS.CONFIRMED') }}
         </div>
         <div class="text-2xl font-bold text-blue-600">
           {{ bookingStats.confirmed || 0 }}
         </div>
       </div>
-      <div class="p-4 bg-n-solid-1 rounded-lg border border-n-weak">
-        <div class="text-sm text-n-slate-10">
+      <div
+        class="p-4 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
+      >
+        <div class="text-sm text-n-text-body/60">
           {{ t('SCHEDULE.REPORTS.COMPLETED') }}
         </div>
         <div class="text-2xl font-bold text-green-600">
           {{ bookingStats.completed || 0 }}
         </div>
       </div>
-      <div class="p-4 bg-n-solid-1 rounded-lg border border-n-weak">
-        <div class="text-sm text-n-slate-10">
+      <div
+        class="p-4 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
+      >
+        <div class="text-sm text-n-text-body/60">
           {{ t('SCHEDULE.REPORTS.CANCELLED') }}
         </div>
         <div class="text-2xl font-bold text-red-600">
@@ -122,8 +130,10 @@ const formatDuration = minutes => {
     </div>
 
     <div class="grid grid-cols-2 gap-6">
-      <div class="p-4 bg-n-solid-1 rounded-lg border border-n-weak">
-        <h3 class="text-sm font-semibold text-n-slate-12 mb-4">
+      <div
+        class="p-4 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
+      >
+        <h3 class="text-sm font-semibold text-n-text-display mb-4">
           {{ t('SCHEDULE.REPORTS.PROVIDER_UTILIZATION') }}
         </h3>
         <div class="space-y-3">
@@ -132,7 +142,7 @@ const formatDuration = minutes => {
             :key="provider.id"
             class="flex items-center gap-3"
           >
-            <div class="w-24 text-sm text-n-slate-12 truncate">
+            <div class="w-24 text-sm text-n-text-display truncate">
               {{ provider.name }}
             </div>
             <div class="flex-1 h-4 bg-n-solid-3 rounded overflow-hidden">
@@ -144,15 +154,17 @@ const formatDuration = minutes => {
                 }"
               />
             </div>
-            <div class="w-16 text-sm text-right text-n-slate-11">
+            <div class="w-16 text-sm text-right text-n-text-body">
               {{ provider.utilization_rate }}%
             </div>
           </div>
         </div>
       </div>
 
-      <div class="p-4 bg-n-solid-1 rounded-lg border border-n-weak">
-        <h3 class="text-sm font-semibold text-n-slate-12 mb-4">
+      <div
+        class="p-4 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
+      >
+        <h3 class="text-sm font-semibold text-n-text-display mb-4">
           {{ t('SCHEDULE.REPORTS.PEAK_HOURS') }}
         </h3>
         <div class="flex items-end gap-1 h-32">
@@ -166,30 +178,32 @@ const formatDuration = minutes => {
               :style="{ height: `${(hour.count / maxPeakHour) * 100}%` }"
               :title="`${hour.label}: ${hour.count} bookings`"
             />
-            <div class="text-xs text-n-slate-10 mt-1">{{ hour.hour }}</div>
+            <div class="text-xs text-n-text-body/60 mt-1">{{ hour.hour }}</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="p-4 bg-n-solid-1 rounded-lg border border-n-weak">
-      <h3 class="text-sm font-semibold text-n-slate-12 mb-4">
+    <div
+      class="p-4 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
+    >
+      <h3 class="text-sm font-semibold text-n-text-display mb-4">
         {{ t('SCHEDULE.REPORTS.SERVICE_POPULARITY') }}
       </h3>
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b border-n-weak">
-              <th class="text-left text-sm text-n-slate-10 py-2">
+            <tr class="border-b border-n-border-glass-soft">
+              <th class="text-left text-sm text-n-text-body/60 py-2">
                 {{ t('SCHEDULE.REPORTS.SERVICE') }}
               </th>
-              <th class="text-right text-sm text-n-slate-10 py-2">
+              <th class="text-right text-sm text-n-text-body/60 py-2">
                 {{ t('SCHEDULE.REPORTS.DURATION') }}
               </th>
-              <th class="text-right text-sm text-n-slate-10 py-2">
+              <th class="text-right text-sm text-n-text-body/60 py-2">
                 {{ t('SCHEDULE.REPORTS.BOOKINGS') }}
               </th>
-              <th class="text-right text-sm text-n-slate-10 py-2">
+              <th class="text-right text-sm text-n-text-body/60 py-2">
                 {{ t('SCHEDULE.REPORTS.REVENUE') }}
               </th>
             </tr>
@@ -198,16 +212,20 @@ const formatDuration = minutes => {
             <tr
               v-for="service in servicePopularity"
               :key="service.id"
-              class="border-b border-n-weak last:border-0"
+              class="border-b border-n-border-glass-soft last:border-0"
             >
-              <td class="text-sm text-n-slate-12 py-2">{{ service.name }}</td>
-              <td class="text-sm text-right text-n-slate-11 py-2">
+              <td class="text-sm text-n-text-display py-2">
+                {{ service.name }}
+              </td>
+              <td class="text-sm text-right text-n-text-body py-2">
                 {{ formatDuration(service.duration_minutes) }}
               </td>
-              <td class="text-sm text-right text-n-slate-11 py-2">
+              <td class="text-sm text-right text-n-text-body py-2">
                 {{ service.booking_count }}
               </td>
-              <td class="text-sm text-right text-n-slate-12 py-2 font-medium">
+              <td
+                class="text-sm text-right text-n-text-display py-2 font-medium"
+              >
                 {{ service.revenue ? `$${service.revenue.toFixed(2)}` : '—' }}
               </td>
             </tr>

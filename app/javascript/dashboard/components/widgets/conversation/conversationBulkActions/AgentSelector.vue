@@ -131,7 +131,7 @@ export default {
                 hide-offline-status
                 rounded-full
               />
-              <span class="my-0 text-n-slate-12">
+              <span class="my-0 text-n-text-display">
                 {{ agent.name }}
               </span>
             </div>
@@ -183,7 +183,7 @@ export default {
 
 <style scoped lang="scss">
 .bulk-action__agents {
-  @apply max-w-[75%] absolute ltr:right-2 rtl:left-2 top-12 origin-top-right w-auto z-20 min-w-[15rem] bg-n-alpha-3 backdrop-blur-[100px] border-n-weak rounded-lg border border-solid shadow-md;
+  @apply max-w-[75%] absolute ltr:right-2 rtl:left-2 top-12 origin-top-right w-auto z-20 min-w-[15rem] bg-n-alpha-3 backdrop-blur-[100px] border-n-border-glass-soft rounded-lg border border-solid shadow-md;
   .header {
     @apply p-2.5;
 
@@ -198,9 +198,9 @@ export default {
       @apply h-full;
     }
     .agent-list-search {
-      @apply py-0 px-2.5 bg-n-alpha-black2 border border-solid border-n-strong rounded-md;
+      @apply py-0 px-2.5 bg-n-alpha-black2 border border-solid border-n-border-glass rounded-md;
       .search-icon {
-        @apply text-n-slate-10;
+        @apply text-n-text-body/60;
       }
 
       .agent--search_input {

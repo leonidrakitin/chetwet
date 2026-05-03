@@ -34,8 +34,8 @@ export default {
       <Spinner class="text-n-brand" />
     </div>
     <div v-else class="flex flex-col items-center gap-2">
-      <fluent-icon icon="mail-inbox" size="40" class="text-n-slate-11" />
-      <span class="text-sm font-medium text-n-slate-11">
+      <fluent-icon icon="mail-inbox" size="40" class="text-n-text-body" />
+      <span class="text-sm font-medium text-n-text-body">
         {{ emptyMessage }}
       </span>
     </div>

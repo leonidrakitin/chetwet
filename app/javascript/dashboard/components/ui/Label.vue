@@ -113,7 +113,7 @@ export default {
 
 <style scoped lang="scss">
 .label {
-  @apply items-center font-medium text-xs rounded-[4px] gap-1 p-1 bg-n-slate-3 text-n-slate-12 border border-solid border-n-strong h-6;
+  @apply items-center font-medium text-xs rounded-[4px] gap-1 p-1 bg-n-slate-3 text-n-text-display border border-solid border-n-border-glass h-6;
 
   &.small {
     @apply text-xs py-0.5 px-1 leading-tight h-5;
@@ -143,10 +143,10 @@ export default {
     }
   }
   &.secondary {
-    @apply bg-n-slate-5 text-n-slate-12 border border-solid border-n-slate-7;
+    @apply bg-n-slate-5 text-n-text-display border border-solid border-n-slate-7;
 
     a {
-      @apply text-n-slate-12;
+      @apply text-n-text-display;
     }
     .label-color-dot {
       @apply bg-n-slate-9;
@@ -184,19 +184,19 @@ export default {
   }
 
   &.smooth {
-    @apply bg-transparent text-n-slate-11 dark:text-n-slate-12 border border-solid border-n-strong;
+    @apply bg-transparent text-n-text-body dark:text-n-text-display border border-solid border-n-border-glass;
   }
 
   &.dashed {
-    @apply bg-transparent text-n-slate-11 dark:text-n-slate-12 border border-dashed border-n-strong;
+    @apply bg-transparent text-n-text-body dark:text-n-text-display border border-dashed border-n-border-glass;
   }
 }
 
 .label-close--button {
-  @apply text-n-slate-11 -mb-0.5 rounded-sm cursor-pointer flex items-center justify-center hover:bg-n-slate-3;
+  @apply text-n-text-body -mb-0.5 rounded-sm cursor-pointer flex items-center justify-center hover:bg-n-slate-3;
 
   svg {
-    @apply text-n-slate-11;
+    @apply text-n-text-body;
   }
 }
 

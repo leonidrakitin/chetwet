@@ -163,7 +163,7 @@ export default {
   @apply text-sm text-n-ruby-8;
 }
 .input-group {
-  @apply border-b border-solid border-n-weak my-1 flex items-center gap-2;
+  @apply border-b border-solid border-n-border-glass-soft my-1 flex items-center gap-2;
 
   .input-group-label {
     @apply border-transparent bg-transparent text-xs font-semibold pl-0;

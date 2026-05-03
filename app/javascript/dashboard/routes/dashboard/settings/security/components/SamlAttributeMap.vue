@@ -13,14 +13,14 @@ const toggleExpanded = () => {
 
 <template>
   <section
-    class="rounded-xl border border-n-weak bg-n-solid-1 w-full text-sm text-n-slate-12 mb-5 overflow-hidden"
+    class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft w-full text-sm text-n-text-display mb-5 overflow-hidden"
   >
     <button
       type="button"
-      class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-n-solid-2 transition-colors"
+      class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-n-glass-strong transition-colors"
       @click="toggleExpanded"
     >
-      <h4 class="font-medium text-n-slate-12">
+      <h4 class="font-medium text-n-text-display">
         {{ t('SECURITY_SETTINGS.SAML.ATTRIBUTE_MAPPING.TITLE') }}
       </h4>
       <Icon
@@ -35,11 +35,11 @@ const toggleExpanded = () => {
       :class="isExpanded ? 'h-auto' : 'h-0'"
     >
       <div class="px-4 pb-3">
-        <p class="text-n-slate-11 mb-2">
+        <p class="text-n-text-body mb-2">
           {{ t('SECURITY_SETTINGS.SAML.ATTRIBUTE_MAPPING.DESCRIPTION') }}
         </p>
         <!-- eslint-disable vue/no-bare-strings-in-template -->
-        <ul class="list-none text-n-slate-12 space-y-1">
+        <ul class="list-none text-n-text-display space-y-1">
           <li><code class="px-1 rounded bg-n-slate-3">email</code></li>
           <li><code class="px-1 rounded bg-n-slate-3">first_name</code></li>
           <li><code class="px-1 rounded bg-n-slate-3">last_name</code></li>

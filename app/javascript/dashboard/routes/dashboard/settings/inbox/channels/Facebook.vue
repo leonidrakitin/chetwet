@@ -262,7 +262,7 @@ export default {
         <div class="w-3/5">
           <div class="w-full mb-2">
             <div class="input-wrap" :class="{ error: v$.selectedPage.$error }">
-              <span class="text-n-slate-12 text-start">
+              <span class="text-n-text-display text-start">
                 {{ $t('INBOX_MGMT.ADD.FB.CHOOSE_PAGE') }}
               </span>
               <ComboBox

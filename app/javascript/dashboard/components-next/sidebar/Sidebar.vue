@@ -15,13 +15,10 @@ import { BUS_EVENTS } from 'shared/constants/busEvents';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import SidebarGroup from './SidebarGroup.vue';
-import SidebarProfileMenu from './SidebarProfileMenu.vue';
 import SidebarChangelogCard from './SidebarChangelogCard.vue';
 import SidebarChangelogButton from './SidebarChangelogButton.vue';
 import ChannelLeaf from './ChannelLeaf.vue';
 import ChannelIcon from 'next/icon/ChannelIcon.vue';
-import SidebarAccountSwitcher from './SidebarAccountSwitcher.vue';
-import Logo from 'next/icon/Logo.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 
 const props = defineProps({
@@ -34,7 +31,6 @@ const props = defineProps({
 const emit = defineEmits([
   'closeKeyShortcutModal',
   'openKeyShortcutModal',
-  'showCreateAccountModal',
   'closeMobileSidebar',
 ]);
 
@@ -77,12 +73,6 @@ const toggleShortcutModalFn = show => {
 
 useSidebarKeyboardShortcuts(toggleShortcutModalFn);
 
-const expandedItem = ref(null);
-
-const setExpandedItem = name => {
-  expandedItem.value = expandedItem.value === name ? null : name;
-};
-
 const {
   sidebarWidth,
   isCollapsed,
@@ -104,12 +94,19 @@ const startX = ref(0);
 const startWidth = ref(0);
 
 provideSidebarContext({
-  expandedItem,
-  setExpandedItem,
   isCollapsed: isEffectivelyCollapsed,
   sidebarWidth,
   isResizing,
+  snapToExpanded,
 });
+
+const onToggleSidebar = () => {
+  if (isCollapsed.value) {
+    snapToExpanded();
+  } else {
+    snapToCollapsed();
+  }
+};
 
 // Get clientX from mouse or touch event
 const getClientX = event =>
@@ -777,7 +774,7 @@ const menuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="flex flex-col text-sm pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[216px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-n-border-glass-soft bg-n-glass-pane backdrop-blur-glass-pane backdrop-saturate-glass"
+    class="flex flex-col text-sm pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full min-h-0 z-40 w-[216px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 bg-transparent"
     :class="[
       {
         'shadow-[0_18px_48px_rgba(15,23,42,0.18)] md:shadow-none':
@@ -789,51 +786,27 @@ const menuItems = computed(() => {
     ]"
     :style="isMobile ? undefined : { width: `${sidebarWidth}px` }"
   >
-    <section
-      class="grid"
-      :class="isEffectivelyCollapsed ? 'mt-3 mb-6 gap-4' : 'mt-3 mb-5 gap-3'"
+    <div
+      class="flex flex-col flex-1 gap-4 min-h-0 min-w-0 pt-3 pb-3"
+      :class="isEffectivelyCollapsed ? 'px-1.5' : 'px-2'"
     >
       <div
-        class="flex gap-2 items-center min-w-0"
-        :class="{
-          'justify-center px-1': isEffectivelyCollapsed,
-          'px-3': !isEffectivelyCollapsed,
-        }"
-      >
-        <template v-if="isEffectivelyCollapsed">
-          <SidebarAccountSwitcher
-            is-collapsed
-            @show-create-account-modal="emit('showCreateAccountModal')"
-          />
-        </template>
-        <template v-else>
-          <div
-            class="grid flex-shrink-0 place-content-center size-8 rounded-2xl bg-n-brand/10 text-n-blue-11"
-          >
-            <Logo class="size-4.5" />
-          </div>
-          <div class="flex-shrink-0 w-px h-4 bg-n-border-hairline" />
-          <SidebarAccountSwitcher
-            class="flex-grow min-w-0"
-            @show-create-account-modal="emit('showCreateAccountModal')"
-          />
-        </template>
-      </div>
-      <div
-        class="flex gap-2"
-        :class="isEffectivelyCollapsed ? 'flex-col items-center gap-2' : 'px-3'"
+        class="flex flex-shrink-0 gap-2"
+        :class="isEffectivelyCollapsed ? 'flex-col items-center' : ''"
       >
         <RouterLink
           v-if="!isEffectivelyCollapsed"
           :to="{ name: 'search' }"
           class="flex gap-2 items-center px-3 py-2 w-full h-10 rounded-pill outline outline-1 outline-n-border-glass bg-n-glass-soft backdrop-blur-glass-rail shadow-pill-soft transition-all duration-150 ease-out hover:bg-n-glass-strong"
         >
-          <span class="flex-shrink-0 i-lucide-search size-4 text-n-slate-10" />
-          <span class="flex-grow text-start text-n-slate-10">
+          <span
+            class="flex-shrink-0 i-lucide-search size-4 text-n-text-body/60"
+          />
+          <span class="flex-grow text-start text-n-text-body/60">
             {{ t('COMBOBOX.SEARCH_PLACEHOLDER') }}
           </span>
           <span
-            class="hidden tracking-wide pointer-events-none select-none text-n-slate-10"
+            class="hidden tracking-wide pointer-events-none select-none text-n-text-body/60"
           >
             {{ searchShortcut }}
           </span>
@@ -844,7 +817,7 @@ const menuItems = computed(() => {
           class="flex items-center justify-center size-9 rounded-full outline outline-1 outline-n-border-glass bg-n-glass-soft backdrop-blur-glass-rail shadow-pill-soft transition-all duration-150 ease-out hover:bg-n-glass-strong"
           :title="t('COMBOBOX.SEARCH_PLACEHOLDER')"
         >
-          <span class="i-lucide-search size-4 text-n-slate-11" />
+          <span class="i-lucide-search size-4 text-n-text-body" />
         </RouterLink>
         <ComposeConversation align-position="right" @close="onComposeClose">
           <template #trigger="{ toggle, isOpen }">
@@ -864,13 +837,8 @@ const menuItems = computed(() => {
           </template>
         </ComposeConversation>
       </div>
-    </section>
-    <nav
-      class="grid overflow-y-scroll flex-grow gap-2 pb-5 no-scrollbar min-w-0"
-      :class="isEffectivelyCollapsed ? 'px-1.5' : 'px-2'"
-    >
       <ul
-        class="flex flex-col gap-1.5 m-0 list-none min-w-0"
+        class="flex flex-1 flex-col gap-1.5 m-0 list-none min-h-0 min-w-0 overflow-y-auto no-scrollbar"
         :class="{ 'items-center': isEffectivelyCollapsed }"
       >
         <SidebarGroup
@@ -879,37 +847,51 @@ const menuItems = computed(() => {
           v-bind="item"
         />
       </ul>
-    </nav>
-    <section
-      class="flex relative flex-col flex-shrink-0 gap-1 justify-between items-center"
-    >
       <div
-        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-n-glass-pane to-transparent"
-      />
-      <SidebarChangelogCard
-        v-if="
-          isOnChatwootCloud &&
-          !isACustomBrandedInstance &&
-          !isEffectivelyCollapsed
-        "
-      />
-      <SidebarChangelogButton
-        v-if="
-          isOnChatwootCloud &&
-          !isACustomBrandedInstance &&
-          isEffectivelyCollapsed
-        "
-      />
-      <div
-        class="px-2 py-2.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-n-border-hairline bg-transparent"
-        :class="isEffectivelyCollapsed ? 'justify-center' : 'justify-between'"
+        class="flex flex-shrink-0 flex-col gap-2 items-center"
+        :class="isEffectivelyCollapsed ? '' : ''"
       >
-        <SidebarProfileMenu
-          :is-collapsed="isEffectivelyCollapsed"
-          @open-key-shortcut-modal="emit('openKeyShortcutModal')"
+        <SidebarChangelogCard
+          v-if="
+            isOnChatwootCloud &&
+            !isACustomBrandedInstance &&
+            !isEffectivelyCollapsed
+          "
         />
+        <SidebarChangelogButton
+          v-if="
+            isOnChatwootCloud &&
+            !isACustomBrandedInstance &&
+            isEffectivelyCollapsed
+          "
+        />
+        <button
+          type="button"
+          class="flex items-center justify-center cursor-pointer transition-all duration-150 bg-n-glass-soft text-n-text-body border border-n-border-glass-soft backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline hover:bg-n-glass-strong hover:border-n-border-glass"
+          :class="
+            isEffectivelyCollapsed
+              ? 'rounded-full size-9'
+              : 'w-full h-9 rounded-pill gap-1.5 text-xs font-medium'
+          "
+          :title="
+            isEffectivelyCollapsed ? t('SIDEBAR.EXPAND') : t('SIDEBAR.COLLAPSE')
+          "
+          @click="onToggleSidebar"
+        >
+          <span
+            class="inline-flex size-3.5"
+            :class="
+              isEffectivelyCollapsed
+                ? 'i-lucide-chevron-right rtl:i-lucide-chevron-left'
+                : 'i-lucide-chevron-left rtl:i-lucide-chevron-right'
+            "
+          />
+          <span v-if="!isEffectivelyCollapsed">
+            {{ t('SIDEBAR.COLLAPSE') }}
+          </span>
+        </button>
       </div>
-    </section>
+    </div>
     <!-- Resize Handle (desktop only) -->
     <div
       class="hidden md:block absolute top-0 h-full w-1 cursor-col-resize z-40 ltr:right-0 rtl:left-0 group"

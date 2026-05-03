@@ -75,7 +75,7 @@ const makeDayOff = () => {
     :class="
       isEnabled
         ? 'border-n-brand/30 bg-gradient-to-br from-n-brand/5 to-n-brand/10 shadow-sm hover:shadow-md hover:border-n-brand/50'
-        : 'border-n-weak/50 bg-n-solid-2/50 hover:bg-n-solid-2'
+        : 'border-n-border-glass-soft/50 bg-n-glass-strong/50 hover:bg-n-glass-strong'
     "
   >
     <div class="flex items-stretch">
@@ -118,7 +118,7 @@ const makeDayOff = () => {
 
       <div class="flex flex-1 flex-col py-2 pl-3 pr-4">
         <div class="mb-1 flex items-center justify-between">
-          <span class="text-sm font-medium text-n-slate-12">
+          <span class="text-sm font-medium text-n-text-display">
             {{ dayLabelFull }}
           </span>
           <div class="flex items-center gap-2">
@@ -157,11 +157,11 @@ const makeDayOff = () => {
             class="flex items-center gap-2"
           >
             <div
-              class="flex flex-1 items-center gap-1 rounded-lg border bg-n-solid-1 px-2 py-1.5 transition-all duration-150"
+              class="flex flex-1 items-center gap-1 rounded-lg border bg-n-glass-soft px-2 py-1.5 transition-all duration-150"
               :class="
                 isSlotInvalid(slot)
                   ? 'border-red-400/50 bg-red-50/50'
-                  : 'border-n-weak/50 hover:border-n-weak'
+                  : 'border-n-border-glass-soft/50 hover:border-n-border-glass-soft'
               "
             >
               <svg
@@ -180,7 +180,7 @@ const makeDayOff = () => {
               <input
                 type="time"
                 :value="slot.start"
-                class="w-full flex-1 bg-transparent text-sm font-medium text-n-slate-12 outline-none"
+                class="w-full flex-1 bg-transparent text-sm font-medium text-n-text-display outline-none"
                 @change="updateSlot(index, 'start', $event.target.value)"
               />
               <span class="text-n-slate-6">
@@ -189,13 +189,13 @@ const makeDayOff = () => {
               <input
                 type="time"
                 :value="slot.end"
-                class="w-full flex-1 bg-transparent text-sm font-medium text-n-slate-12 outline-none"
+                class="w-full flex-1 bg-transparent text-sm font-medium text-n-text-display outline-none"
                 @change="updateSlot(index, 'end', $event.target.value)"
               />
             </div>
 
             <button
-              class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-transparent text-n-slate-8 opacity-0 transition-all duration-150 hover:border-n-weak hover:bg-n-solid-3 group-hover:opacity-100"
+              class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-transparent text-n-slate-8 opacity-0 transition-all duration-150 hover:border-n-border-glass-soft hover:bg-n-solid-3 group-hover:opacity-100"
               :class="{ 'opacity-100': hasMultipleSlots }"
               :title="t('SCHEDULE.SETTINGS.REMOVE_SLOT')"
               @click="removeSlot(index)"
@@ -218,7 +218,7 @@ const makeDayOff = () => {
 
           <div class="mt-1 flex items-center gap-2">
             <button
-              class="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-n-weak px-2.5 py-1 text-xs font-medium text-n-slate-10 transition-all duration-150 hover:border-n-brand hover:text-n-brand"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-n-border-glass-soft px-2.5 py-1 text-xs font-medium text-n-text-body/60 transition-all duration-150 hover:border-n-brand hover:text-n-brand"
               @click="addSlot"
             >
               <svg
@@ -282,7 +282,7 @@ const makeDayOff = () => {
 
         <div v-else class="flex items-center gap-2">
           <button
-            class="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-n-weak px-3 py-1.5 text-xs font-medium text-n-slate-8 transition-all duration-150 hover:border-n-brand hover:text-n-brand"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-n-border-glass-soft px-3 py-1.5 text-xs font-medium text-n-slate-8 transition-all duration-150 hover:border-n-brand hover:text-n-brand"
             @click="toggleEnabled"
           >
             <svg

@@ -44,7 +44,7 @@ const triggerClick = () => {
     <component
       :is="componentIs"
       v-bind="$attrs"
-      class="flex text-left rtl:text-right items-center p-2 reset-base text-sm text-n-slate-12 w-full border-0"
+      class="flex text-left rtl:text-right items-center p-2 reset-base text-sm text-n-text-display w-full border-0"
       :class="{
         'hover:bg-n-alpha-2 rounded-lg w-full gap-3': !$slots.default,
       }"
@@ -54,7 +54,7 @@ const triggerClick = () => {
     >
       <slot>
         <slot name="icon">
-          <Icon v-if="icon" class="size-4 text-n-slate-11" :icon="icon" />
+          <Icon v-if="icon" class="size-4 text-n-text-body" :icon="icon" />
         </slot>
         <slot name="label">{{ label }}</slot>
       </slot>

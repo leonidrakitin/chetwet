@@ -38,7 +38,7 @@ const visibilityLabel = computed(() => {
   <BaseTableRow :item="macro">
     <template #default>
       <BaseTableCell class="max-w-0 min-w-0">
-        <span class="text-body-main text-n-slate-12 truncate block">
+        <span class="text-body-main text-n-text-display truncate block">
           {{ macro.name }}
         </span>
       </BaseTableCell>
@@ -51,11 +51,11 @@ const visibilityLabel = computed(() => {
             rounded-full
             class="flex-shrink-0"
           />
-          <span class="text-body-main text-n-slate-12 truncate">
+          <span class="text-body-main text-n-text-display truncate">
             {{ createdByName }}
           </span>
         </div>
-        <span v-else class="text-body-main text-n-slate-11">--</span>
+        <span v-else class="text-body-main text-n-text-body">--</span>
       </BaseTableCell>
 
       <BaseTableCell class="max-w-0">
@@ -66,15 +66,15 @@ const visibilityLabel = computed(() => {
             rounded-full
             class="flex-shrink-0"
           />
-          <span class="text-body-main text-n-slate-12 truncate">
+          <span class="text-body-main text-n-text-display truncate">
             {{ updatedByName }}
           </span>
         </div>
-        <span v-else class="text-body-main text-n-slate-11">--</span>
+        <span v-else class="text-body-main text-n-text-body">--</span>
       </BaseTableCell>
 
       <BaseTableCell class="max-w-0">
-        <span class="text-body-main text-n-slate-12 whitespace-nowrap">
+        <span class="text-body-main text-n-text-display whitespace-nowrap">
           {{ visibilityLabel }}
         </span>
       </BaseTableCell>

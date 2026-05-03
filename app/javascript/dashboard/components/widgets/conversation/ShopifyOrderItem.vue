@@ -27,7 +27,7 @@ const getStatusClass = status => {
   const classes = {
     paid: 'bg-n-teal-5 text-n-teal-12',
   };
-  return classes[status] || 'bg-n-solid-3 text-n-slate-12';
+  return classes[status] || 'bg-n-solid-3 text-n-text-display';
 };
 
 const getStatusI18nKey = (type, status = '') => {
@@ -56,13 +56,13 @@ const getFulfillmentClass = status => {
     partial: 'text-n-amber-9',
     unfulfilled: 'text-n-ruby-9',
   };
-  return classes[status] || 'text-n-slate-11';
+  return classes[status] || 'text-n-text-body';
 };
 </script>
 
 <template>
   <div
-    class="py-3 border-b border-n-weak last:border-b-0 flex flex-col gap-1.5"
+    class="py-3 border-b border-n-border-glass-soft last:border-b-0 flex flex-col gap-1.5"
   >
     <div class="flex justify-between items-center">
       <div class="font-medium flex">
@@ -70,7 +70,7 @@ const getFulfillmentClass = status => {
           :href="order.admin_url"
           target="_blank"
           rel="noopener noreferrer"
-          class="hover:underline text-n-slate-12 cursor-pointer truncate"
+          class="hover:underline text-n-text-display cursor-pointer truncate"
         >
           {{ $t('CONVERSATION_SIDEBAR.SHOPIFY.ORDER_ID', { id: order.id }) }}
           <i class="i-lucide-external-link pl-5" />
@@ -84,11 +84,11 @@ const getFulfillmentClass = status => {
         {{ financialStatus }}
       </div>
     </div>
-    <div class="text-sm text-n-slate-12">
-      <span class="text-n-slate-11 border-r border-n-weak pr-2">
+    <div class="text-sm text-n-text-display">
+      <span class="text-n-text-body border-r border-n-border-glass-soft pr-2">
         {{ formatDate(order.created_at) }}
       </span>
-      <span class="text-n-slate-11 pl-2">
+      <span class="text-n-text-body pl-2">
         {{ formatCurrency(order.total_price, order.currency) }}
       </span>
     </div>

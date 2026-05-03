@@ -120,7 +120,7 @@ onUnmounted(() =>
     <!-- Trigger button -->
     <button
       type="button"
-      class="inline-flex items-center gap-1.5 rounded-md border border-n-weak bg-n-alpha-1 px-2.5 py-1.5 text-xs font-medium text-n-slate-11 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+      class="inline-flex items-center gap-1.5 rounded-md border border-n-border-glass-soft bg-n-alpha-1 px-2.5 py-1.5 text-xs font-medium text-n-text-body hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
       @click="isOpen = !isOpen"
     >
       <span class="i-lucide-braces size-3.5" />
@@ -134,11 +134,11 @@ onUnmounted(() =>
     <!-- Popup -->
     <div
       v-if="isOpen"
-      class="absolute bottom-full mb-1.5 left-0 z-50 w-72 rounded-xl border border-n-weak bg-white dark:bg-n-solid-2 shadow-lg"
+      class="absolute bottom-full mb-1.5 left-0 z-50 w-72 rounded-xl border border-n-border-glass-soft bg-white dark:bg-n-glass-strong shadow-lg"
     >
       <!-- Category tabs -->
       <div
-        class="flex gap-0.5 border-b border-n-weak px-2 pt-2 overflow-x-auto"
+        class="flex gap-0.5 border-b border-n-border-glass-soft px-2 pt-2 overflow-x-auto"
       >
         <button
           v-for="cat in categories"
@@ -148,7 +148,7 @@ onUnmounted(() =>
           :class="
             activeCategory === cat.key
               ? 'text-n-brand border-n-brand'
-              : 'text-n-slate-10 border-transparent hover:text-n-slate-12'
+              : 'text-n-text-body/60 border-transparent hover:text-n-text-display'
           "
           @click="activeCategory = cat.key"
         >
@@ -175,7 +175,7 @@ onUnmounted(() =>
           >
             {{ toToken(v.key) }}
           </span>
-          <span class="text-xs text-n-slate-11 truncate min-w-0">
+          <span class="text-xs text-n-text-body truncate min-w-0">
             {{ v.description }}
           </span>
         </div>
@@ -183,7 +183,7 @@ onUnmounted(() =>
 
       <!-- Footer hint -->
       <div
-        class="border-t border-n-weak px-3 py-1.5 text-[10px] text-n-slate-9 flex items-center gap-1"
+        class="border-t border-n-border-glass-soft px-3 py-1.5 text-[10px] text-n-slate-9 flex items-center gap-1"
       >
         <span class="i-lucide-mouse-pointer-2 size-3" />
         {{ t('NOTIFICATION_TEMPLATES.VARIABLES.PICKER_HINT') }}

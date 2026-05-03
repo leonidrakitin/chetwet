@@ -368,7 +368,7 @@ onMounted(() => {
       class="[&>div]:!items-start"
     >
       <div
-        class="rounded-xl outline outline-1 -outline-offset-1 outline-n-weak hover:outline-n-strong px-2 py-2"
+        class="rounded-xl outline outline-1 -outline-offset-1 outline-n-border-glass-soft hover:outline-n-border-glass px-2 py-2"
       >
         <TagInput
           :model-value="selectedAgentNames"
@@ -421,17 +421,17 @@ onMounted(() => {
                 <div
                   class="flex-shrink-0 size-10 rounded-xl bg-n-slate-3 flex items-center justify-center"
                 >
-                  <span class="i-lucide-zap text-xl text-n-slate-11" />
+                  <span class="i-lucide-zap text-xl text-n-text-body" />
                 </div>
                 <div class="flex-grow">
                   <div
                     class="flex items-start justify-between gap-4 mb-4 ltr:pr-4 rtl:pl-4"
                   >
                     <div class="flex flex-col items-start">
-                      <span class="text-heading-3 text-n-slate-12 mb-1">
+                      <span class="text-heading-3 text-n-text-display mb-1">
                         {{ assignmentPolicy.name }}
                       </span>
-                      <p class="text-body-main text-n-slate-11">
+                      <p class="text-body-main text-n-text-body">
                         {{ $t('INBOX_MGMT.ASSIGNMENT.POLICY_LABEL') }}
                       </p>
                     </div>
@@ -449,7 +449,7 @@ onMounted(() => {
                       <span
                         class="w-1.5 h-1.5 rounded-full bg-n-slate-11 flex-shrink-0"
                       />
-                      <span class="text-body-main text-n-slate-12">
+                      <span class="text-body-main text-n-text-display">
                         {{ assignmentOrderLabel }}
                       </span>
                     </li>
@@ -457,7 +457,7 @@ onMounted(() => {
                       <span
                         class="w-1.5 h-1.5 rounded-full bg-n-slate-11 flex-shrink-0"
                       />
-                      <span class="text-body-main text-n-slate-12">
+                      <span class="text-body-main text-n-text-display">
                         {{ assignmentMethodLabel }}
                       </span>
                     </li>
@@ -491,13 +491,13 @@ onMounted(() => {
                   <div
                     class="flex-shrink-0 size-10 rounded-xl bg-n-slate-3 dark:bg-n-slate-4 flex items-center justify-center"
                   >
-                    <i class="i-lucide-zap text-xl text-n-slate-11" />
+                    <i class="i-lucide-zap text-xl text-n-text-body" />
                   </div>
                   <div class="flex-grow">
-                    <h4 class="text-heading-3 text-n-slate-12 mb-0.5">
+                    <h4 class="text-heading-3 text-n-text-display mb-0.5">
                       {{ $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_POLICY_LINKED') }}
                     </h4>
-                    <p class="text-body-main text-n-slate-11">
+                    <p class="text-body-main text-n-text-body">
                       {{
                         $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_POLICY_DESCRIPTION')
                       }}
@@ -547,12 +547,12 @@ onMounted(() => {
 
               <!-- Default Rules Info -->
               <div
-                class="px-4 py-4 border-t border-n-weak bg-n-slate-2 rounded-b-xl"
+                class="px-4 py-4 border-t border-n-border-glass-soft bg-n-slate-2 rounded-b-xl"
               >
                 <div class="flex items-start gap-3">
-                  <Icon icon="i-lucide-info" class="mt-0.5 text-n-slate-11" />
+                  <Icon icon="i-lucide-info" class="mt-0.5 text-n-text-body" />
                   <div>
-                    <p class="text-body-main text-n-slate-11 mb-2">
+                    <p class="text-body-main text-n-text-body mb-2">
                       {{ $t('INBOX_MGMT.ASSIGNMENT.CURRENT_BEHAVIOR') }}
                     </p>
                     <ul class="space-y-1">
@@ -560,7 +560,7 @@ onMounted(() => {
                         <span
                           class="w-1 h-1 rounded-full bg-n-slate-10 flex-shrink-0"
                         />
-                        <span class="text-body-main text-n-slate-11">
+                        <span class="text-body-main text-n-text-body">
                           {{ $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_RULE_1') }}
                         </span>
                       </li>
@@ -568,7 +568,7 @@ onMounted(() => {
                         <span
                           class="w-1 h-1 rounded-full bg-n-slate-10 flex-shrink-0"
                         />
-                        <span class="text-body-main text-n-slate-11">
+                        <span class="text-body-main text-n-text-body">
                           {{ $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_RULE_2') }}
                         </span>
                       </li>
@@ -587,13 +587,13 @@ onMounted(() => {
                 <div
                   class="flex-shrink-0 size-10 rounded-xl bg-n-slate-3 dark:bg-n-slate-4 flex items-center justify-center"
                 >
-                  <Icon icon="i-lucide-zap" class="text-xl text-n-slate-11" />
+                  <Icon icon="i-lucide-zap" class="text-xl text-n-text-body" />
                 </div>
                 <div class="flex-grow">
-                  <h4 class="text-heading-3 text-n-slate-12 mb-0.5">
+                  <h4 class="text-heading-3 text-n-text-display mb-0.5">
                     {{ $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_RULES_TITLE') }}
                   </h4>
-                  <p class="text-body-main text-n-slate-11 mb-4">
+                  <p class="text-body-main text-n-text-body mb-4">
                     {{ $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_RULES_DESCRIPTION') }}
                   </p>
 
@@ -602,7 +602,7 @@ onMounted(() => {
                       <span
                         class="w-1.5 h-1.5 rounded-full bg-n-slate-11 flex-shrink-0"
                       />
-                      <span class="text-body-main text-n-slate-12">
+                      <span class="text-body-main text-n-text-display">
                         {{ $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_RULE_1') }}
                       </span>
                     </li>
@@ -610,7 +610,7 @@ onMounted(() => {
                       <span
                         class="w-1.5 h-1.5 rounded-full bg-n-slate-11 flex-shrink-0"
                       />
-                      <span class="text-body-main text-n-slate-12">
+                      <span class="text-body-main text-n-text-display">
                         {{ $t('INBOX_MGMT.ASSIGNMENT.DEFAULT_RULE_2') }}
                       </span>
                     </li>
@@ -620,7 +620,7 @@ onMounted(() => {
 
                   <!-- Upgrade prompt when advanced_assignment is not enabled -->
                   <div v-if="!hasAdvancedAssignment">
-                    <p class="text-body-main text-n-slate-11 mb-1">
+                    <p class="text-body-main text-n-text-body mb-1">
                       {{ $t('INBOX_MGMT.ASSIGNMENT.UPGRADE_PROMPT') }}
                     </p>
                     <NextButton
@@ -649,7 +649,7 @@ onMounted(() => {
                 @blur="v$.maxAssignmentLimit.$touch"
               />
 
-              <p class="mt-1.5 text-label-small text-n-slate-11">
+              <p class="mt-1.5 text-label-small text-n-text-body">
                 {{
                   $t('INBOX_MGMT.AUTO_ASSIGNMENT.MAX_ASSIGNMENT_LIMIT_SUB_TEXT')
                 }}
@@ -674,10 +674,10 @@ onMounted(() => {
       :on-close="cancelDeletePolicy"
     >
       <div class="p-6">
-        <h3 class="text-lg font-medium text-n-slate-12 mb-4">
+        <h3 class="text-lg font-medium text-n-text-display mb-4">
           {{ $t('INBOX_MGMT.ASSIGNMENT_POLICY.DELETE_CONFIRM_TITLE') }}
         </h3>
-        <p class="text-sm text-n-slate-11 mb-6 ml-13">
+        <p class="text-sm text-n-text-body mb-6 ml-13">
           {{ $t('INBOX_MGMT.ASSIGNMENT_POLICY.DELETE_CONFIRM_MESSAGE') }}
         </p>
         <div class="flex justify-end gap-2">

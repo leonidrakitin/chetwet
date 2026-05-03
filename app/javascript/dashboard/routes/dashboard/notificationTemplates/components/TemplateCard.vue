@@ -133,7 +133,7 @@ const formattedLastSent = computed(() => {
 
 <template>
   <div
-    class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-weak border-l-[3px] bg-n-solid-1 hover:border-n-strong hover:shadow-lg transition-all duration-200 cursor-pointer"
+    class="relative flex flex-col gap-3 p-4 rounded-xl border border-n-border-glass-soft border-l-[3px] bg-n-glass-soft hover:border-n-border-glass hover:shadow-lg transition-all duration-200 cursor-pointer"
     :class="[borderColorClass, { 'opacity-60': !template.enabled }]"
     @click="handleEdit"
   >
@@ -152,7 +152,7 @@ const formattedLastSent = computed(() => {
             :class="template.enabled ? 'bg-n-teal-9' : 'bg-n-slate-8'"
           />
           <h3
-            class="text-sm font-semibold text-n-slate-12 leading-snug break-words"
+            class="text-sm font-semibold text-n-text-display leading-snug break-words"
           >
             {{ template.name }}
           </h3>
@@ -169,27 +169,27 @@ const formattedLastSent = computed(() => {
           />
           <div
             v-if="menuOpen"
-            class="absolute right-0 top-8 z-50 min-w-36 rounded-lg border border-n-weak bg-n-solid-1 shadow-lg py-1"
+            class="absolute right-0 top-8 z-50 min-w-36 rounded-lg border border-n-border-glass-soft bg-n-glass-soft shadow-lg py-1"
           >
             <button
-              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-text-display hover:bg-n-alpha-1 transition-colors"
               @click.stop="handlePreview"
             >
-              <span class="i-lucide-eye size-4 text-n-slate-10" />
+              <span class="i-lucide-eye size-4 text-n-text-body/60" />
               {{ t('NOTIFICATION_TEMPLATES.PREVIEW.BUTTON_TEXT') }}
             </button>
             <button
-              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-text-display hover:bg-n-alpha-1 transition-colors"
               @click.stop="handleEdit"
             >
-              <span class="i-lucide-pencil size-4 text-n-slate-10" />
+              <span class="i-lucide-pencil size-4 text-n-text-body/60" />
               {{ t('NOTIFICATION_TEMPLATES.EDIT.BUTTON_TEXT') }}
             </button>
             <button
-              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-text-display hover:bg-n-alpha-1 transition-colors"
               @click.stop="handleClone"
             >
-              <span class="i-lucide-copy size-4 text-n-slate-10" />
+              <span class="i-lucide-copy size-4 text-n-text-body/60" />
               {{ t('NOTIFICATION_TEMPLATES.CLONE.BUTTON_TEXT') }}
             </button>
             <button
@@ -219,7 +219,7 @@ const formattedLastSent = computed(() => {
         <span
           v-for="att in allAttachments"
           :key="att.id"
-          class="flex items-center gap-1 text-xs text-n-slate-10"
+          class="flex items-center gap-1 text-xs text-n-text-body/60"
         >
           <span class="size-3" :class="getAttachmentIcon(att.type)" />
           <span class="max-w-20 truncate">{{ att.name }}</span>
@@ -252,7 +252,7 @@ const formattedLastSent = computed(() => {
           </div>
         </div>
 
-        <div class="text-xs text-n-slate-10 text-right">
+        <div class="text-xs text-n-text-body/60 text-right">
           <span>
             {{
               t('NOTIFICATION_TEMPLATES.CARD.SENT_COUNT_LINE', {

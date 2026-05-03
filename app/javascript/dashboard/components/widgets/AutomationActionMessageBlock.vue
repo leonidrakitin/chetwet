@@ -81,7 +81,7 @@ const firstMessagePreview = computed(() => {
     <div
       v-for="(msg, idx) in messages"
       :key="idx"
-      class="flex flex-col gap-1 border border-solid rounded-lg p-2 border-n-strong bg-n-slate-2 dark:bg-n-solid-2"
+      class="flex flex-col gap-1 border border-solid rounded-lg p-2 border-n-border-glass bg-n-slate-2 dark:bg-n-glass-strong"
     >
       <div class="flex items-center justify-between">
         <span class="text-xs text-n-slate-8 dark:text-n-slate-6">
@@ -115,7 +115,7 @@ const firstMessagePreview = computed(() => {
     />
     <div
       v-if="firstMessagePreview"
-      class="rounded-lg p-2 bg-n-slate-3 dark:bg-n-solid-3 border border-n-weak text-sm text-n-slate-8 dark:text-n-slate-6"
+      class="rounded-lg p-2 bg-n-slate-3 dark:bg-n-solid-3 border border-n-border-glass-soft text-sm text-n-slate-8 dark:text-n-slate-6"
     >
       <span class="font-medium"
         >{{ $t('AUTOMATION.ACTION.PREVIEW_LABEL') }}:</span

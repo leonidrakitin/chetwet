@@ -163,13 +163,13 @@ defineExpose({ open, dialogRef });
   >
     <!-- Step 1: Template Selection -->
     <div v-if="step === 'template'" class="py-4">
-      <p class="text-sm text-n-slate-11 mb-6">
+      <p class="text-sm text-n-text-body mb-6">
         {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.DESCRIPTION') }}
       </p>
 
       <div
         v-if="isFetching"
-        class="flex items-center justify-center py-10 text-n-slate-11"
+        class="flex items-center justify-center py-10 text-n-text-body"
       >
         <Spinner />
       </div>
@@ -179,7 +179,7 @@ defineExpose({ open, dialogRef });
           v-for="template in templates"
           :key="template.id"
           type="button"
-          class="flex flex-col gap-2 p-4 text-start border border-n-weak rounded-xl bg-n-glass-soft hover:border-n-blue-9 hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          class="flex flex-col gap-2 p-4 text-start border border-n-border-glass-soft rounded-xl bg-n-glass-soft hover:border-n-blue-9 hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           @click="handleTemplateSelect(template)"
         >
           <div class="flex items-center gap-2">
@@ -187,14 +187,14 @@ defineExpose({ open, dialogRef });
               :icon="templateIcon(template)"
               class="size-5 text-n-blue-11"
             />
-            <span class="text-sm font-medium text-n-slate-12">
+            <span class="text-sm font-medium text-n-text-display">
               {{ template.name }}
             </span>
           </div>
-          <p class="text-xs text-n-slate-11 line-clamp-3">
+          <p class="text-xs text-n-text-body line-clamp-3">
             {{ template.description }}
           </p>
-          <div class="flex items-center gap-3 mt-1 text-xs text-n-slate-11">
+          <div class="flex items-center gap-3 mt-1 text-xs text-n-text-body">
             <span class="flex items-center gap-1">
               <Icon icon="i-lucide-workflow" class="size-3.5" />
               {{
@@ -220,20 +220,20 @@ defineExpose({ open, dialogRef });
     <div v-if="step === 'clarifying'" class="py-4">
       <button
         type="button"
-        class="text-xs text-n-slate-11 hover:text-n-blue-11 mb-4 flex items-center gap-1"
+        class="text-xs text-n-text-body hover:text-n-blue-11 mb-4 flex items-center gap-1"
         @click="step = 'template'"
       >
         <Icon icon="i-lucide-arrow-left" class="size-3" />
         {{ t('BACK') }}
       </button>
 
-      <h3 class="text-lg font-medium text-n-slate-12 mb-4">
+      <h3 class="text-lg font-medium text-n-text-display mb-4">
         {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.CLARIFYING_QUESTIONS_TITLE') }}
       </h3>
 
       <div
         v-if="isFetching"
-        class="flex items-center justify-center py-10 text-n-slate-11"
+        class="flex items-center justify-center py-10 text-n-text-body"
       >
         <Spinner />
       </div>
@@ -244,19 +244,19 @@ defineExpose({ open, dialogRef });
           :key="question.purpose"
           class="space-y-2"
         >
-          <label class="block text-sm font-medium text-n-slate-12">
+          <label class="block text-sm font-medium text-n-text-display">
             {{ question.question }}
           </label>
           <textarea
             v-model="clarifications[question.purpose]"
             rows="2"
-            class="w-full px-3 py-2 text-sm border border-n-weak rounded-lg bg-n-glass-soft resize-none focus:outline-none focus:ring-2 focus:ring-n-brand/30 focus:border-n-brand"
+            class="w-full px-3 py-2 text-sm border border-n-border-glass-soft rounded-lg bg-n-glass-soft resize-none focus:outline-none focus:ring-2 focus:ring-n-brand/30 focus:border-n-brand"
             :placeholder="t('YOUR_ANSWER')"
           />
         </div>
       </div>
 
-      <div v-else class="text-sm text-n-slate-11">
+      <div v-else class="text-sm text-n-text-body">
         {{ t('NO_ADDITIONAL_INFORMATION_NEEDED') }}
       </div>
 
@@ -276,44 +276,46 @@ defineExpose({ open, dialogRef });
     <div v-if="step === 'preview'" class="py-4">
       <button
         type="button"
-        class="text-xs text-n-slate-11 hover:text-n-blue-11 mb-4 flex items-center gap-1"
+        class="text-xs text-n-text-body hover:text-n-blue-11 mb-4 flex items-center gap-1"
         @click="step = 'clarifying'"
       >
         <Icon icon="i-lucide-arrow-left" class="size-3" />
         {{ t('BACK') }}
       </button>
 
-      <h3 class="text-lg font-medium text-n-slate-12 mb-4">
+      <h3 class="text-lg font-medium text-n-text-display mb-4">
         {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_TITLE') }}
       </h3>
 
       <div
         v-if="isFetching"
-        class="flex items-center justify-center py-10 text-n-slate-11"
+        class="flex items-center justify-center py-10 text-n-text-body"
       >
         <Spinner />
       </div>
 
       <div v-else-if="adaptedData" class="space-y-6">
         <!-- Assistant Info -->
-        <div class="p-4 border border-n-weak rounded-lg bg-n-glass-soft">
-          <h4 class="text-sm font-medium text-n-slate-12 mb-3">
+        <div
+          class="p-4 border border-n-border-glass-soft rounded-lg bg-n-glass-soft"
+        >
+          <h4 class="text-sm font-medium text-n-text-display mb-3">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_ASSISTANT') }}
           </h4>
           <div class="space-y-2">
             <div>
-              <label class="text-xs text-n-slate-10 uppercase font-medium">
+              <label class="text-xs text-n-text-body/60 uppercase font-medium">
                 {{ t('NAME') }}
               </label>
-              <p class="text-sm text-n-slate-12 mt-1">
+              <p class="text-sm text-n-text-display mt-1">
                 {{ adaptedData.assistant.name }}
               </p>
             </div>
             <div>
-              <label class="text-xs text-n-slate-10 uppercase font-medium">
+              <label class="text-xs text-n-text-body/60 uppercase font-medium">
                 {{ t('DESCRIPTION') }}
               </label>
-              <p class="text-sm text-n-slate-11 mt-1">
+              <p class="text-sm text-n-text-body mt-1">
                 {{ adaptedData.assistant.description }}
               </p>
             </div>
@@ -321,26 +323,28 @@ defineExpose({ open, dialogRef });
         </div>
 
         <!-- Scenarios -->
-        <div class="p-4 border border-n-weak rounded-lg bg-n-glass-soft">
-          <h4 class="text-sm font-medium text-n-slate-12 mb-3">
+        <div
+          class="p-4 border border-n-border-glass-soft rounded-lg bg-n-glass-soft"
+        >
+          <h4 class="text-sm font-medium text-n-text-display mb-3">
             {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_SCENARIOS') }}
           </h4>
           <div class="space-y-3">
             <div
               v-for="scenario in adaptedData.scenarios"
               :key="scenario.title"
-              class="p-3 border border-n-weak rounded-lg"
+              class="p-3 border border-n-border-glass-soft rounded-lg"
             >
               <div class="flex items-start gap-2">
                 <Icon
                   icon="i-lucide-workflow"
-                  class="size-4 text-n-slate-10 mt-0.5 flex-shrink-0"
+                  class="size-4 text-n-text-body/60 mt-0.5 flex-shrink-0"
                 />
                 <div>
-                  <p class="text-sm font-medium text-n-slate-12">
+                  <p class="text-sm font-medium text-n-text-display">
                     {{ scenario.title }}
                   </p>
-                  <p class="text-xs text-n-slate-11 mt-1">
+                  <p class="text-xs text-n-text-body mt-1">
                     {{ scenario.description }}
                   </p>
                 </div>
@@ -350,7 +354,9 @@ defineExpose({ open, dialogRef });
         </div>
 
         <!-- FAQ Count -->
-        <div class="p-4 border border-n-weak rounded-lg bg-n-glass-soft">
+        <div
+          class="p-4 border border-n-border-glass-soft rounded-lg bg-n-glass-soft"
+        >
           <div class="flex items-center gap-3">
             <div class="p-2 bg-n-blue-5 rounded-lg">
               <Icon
@@ -359,10 +365,10 @@ defineExpose({ open, dialogRef });
               />
             </div>
             <div>
-              <p class="text-sm font-medium text-n-slate-12">
+              <p class="text-sm font-medium text-n-text-display">
                 {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_FAQ') }}
               </p>
-              <p class="text-xs text-n-slate-11">
+              <p class="text-xs text-n-text-body">
                 {{
                   t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_FAQ_COUNT', {
                     count: adaptedData.faq_seed.length,
@@ -382,21 +388,21 @@ defineExpose({ open, dialogRef });
               icon="i-lucide-info"
               class="size-4 text-n-brand mt-0.5 flex-shrink-0"
             />
-            <p class="text-xs text-n-slate-11">
+            <p class="text-xs text-n-text-body">
               {{ t('CAPTAIN.ASSISTANTS.TEMPLATES.PREVIEW_ADAPTATION_NOTE') }}
             </p>
           </div>
         </div>
       </div>
 
-      <div v-else class="text-sm text-n-slate-11 text-center py-8">
+      <div v-else class="text-sm text-n-text-body text-center py-8">
         {{ t('ERROR_MESSAGE') }}
       </div>
 
       <div class="mt-6 flex justify-end gap-3">
         <button
           type="button"
-          class="px-4 py-2 bg-n-slate-2 text-n-slate-12 rounded-lg text-sm font-medium hover:bg-n-slate-3 transition-colors"
+          class="px-4 py-2 bg-n-slate-2 text-n-text-display rounded-lg text-sm font-medium hover:bg-n-slate-3 transition-colors"
           :disabled="isFetching"
           @click="step = 'clarifying'"
         >

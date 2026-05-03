@@ -41,7 +41,7 @@ const product = computed(() => {
       />
     </div>
     <div class="flex flex-col min-w-0 flex-1 p-3 gap-1">
-      <span class="text-sm font-medium text-n-slate-12 truncate">
+      <span class="text-sm font-medium text-n-text-display truncate">
         {{ product.title }}
       </span>
       <span v-if="product.price" class="text-sm font-semibold text-n-green-11">
@@ -49,11 +49,11 @@ const product = computed(() => {
       </span>
       <p
         v-if="product.description"
-        class="text-xs text-n-slate-11 line-clamp-2"
+        class="text-xs text-n-text-body line-clamp-2"
       >
         {{ product.description }}
       </p>
-      <span class="mt-1 text-xs text-n-slate-10 flex items-center gap-1">
+      <span class="mt-1 text-xs text-n-text-body/60 flex items-center gap-1">
         <Icon icon="i-lucide-external-link" class="size-3" />
         {{ $t('CONVERSATION.VIEW_PRODUCT') }}
       </span>
@@ -75,7 +75,7 @@ const product = computed(() => {
       />
     </div>
     <div class="flex flex-col min-w-0 flex-1 ml-3 gap-1">
-      <span class="text-sm font-medium text-n-slate-12 truncate">
+      <span class="text-sm font-medium text-n-text-display truncate">
         {{ product.title }}
       </span>
       <span v-if="product.price" class="text-sm font-semibold text-n-green-11">
@@ -83,7 +83,7 @@ const product = computed(() => {
       </span>
       <p
         v-if="product.description"
-        class="text-xs text-n-slate-11 line-clamp-2"
+        class="text-xs text-n-text-body line-clamp-2"
       >
         {{ product.description }}
       </p>

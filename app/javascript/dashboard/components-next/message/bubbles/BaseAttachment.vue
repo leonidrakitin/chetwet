@@ -41,7 +41,7 @@ const senderName = computed(() => {
           </slot>
         </div>
         <div class="space-y-1 overflow-hidden">
-          <div v-if="senderName" class="text-n-slate-12 text-sm truncate">
+          <div v-if="senderName" class="text-n-text-display text-sm truncate">
             {{
               t(senderTranslationKey, {
                 sender: senderName,
@@ -49,10 +49,10 @@ const senderName = computed(() => {
             }}
           </div>
           <slot>
-            <div v-if="title" class="truncate text-sm text-n-slate-12">
+            <div v-if="title" class="truncate text-sm text-n-text-display">
               {{ title }}
             </div>
-            <div v-if="content" class="truncate text-sm text-n-slate-11">
+            <div v-if="content" class="truncate text-sm text-n-text-body">
               {{ content }}
             </div>
           </slot>

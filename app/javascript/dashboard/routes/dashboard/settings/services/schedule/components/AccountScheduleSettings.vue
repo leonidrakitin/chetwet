@@ -47,16 +47,16 @@ const handleSubmit = () => {
 
 <template>
   <div
-    class="flex flex-col gap-6 p-6 bg-n-solid-1 rounded-lg border border-n-weak"
+    class="flex flex-col gap-6 p-6 bg-n-glass-soft rounded-lg border border-n-border-glass-soft"
   >
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">
+        <label class="block text-sm font-medium text-n-text-display mb-1">
           {{ t('SCHEDULE.SETTINGS.TIMEZONE') }}
         </label>
         <select
           v-model="form.timezone"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+          class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand"
         >
           <option v-for="tz in TIMEZONES" :key="tz" :value="tz">
             {{ tz }}
@@ -65,12 +65,12 @@ const handleSubmit = () => {
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">
+        <label class="block text-sm font-medium text-n-text-display mb-1">
           {{ t('SCHEDULE.SETTINGS.SLOT_INTERVAL') }}
         </label>
         <select
           v-model="form.slot_interval_minutes"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+          class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand"
         >
           <option
             v-for="interval in SLOT_INTERVALS"

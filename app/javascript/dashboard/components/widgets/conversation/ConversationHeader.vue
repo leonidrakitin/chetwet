@@ -108,7 +108,7 @@ const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
       <Avatar
         :name="currentContact.name"
         :src="currentContact.thumbnail"
-        :size="32"
+        :size="40"
         :status="currentContact.availability_status"
         hide-offline-status
         rounded-full

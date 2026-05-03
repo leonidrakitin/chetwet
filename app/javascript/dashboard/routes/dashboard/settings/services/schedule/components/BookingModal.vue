@@ -35,7 +35,7 @@ const STATUS_OPTIONS = [
 
 /** Segmented control: idle + selected styles (aligned with calendar card colors). */
 const STATUS_SEGMENT_IDLE =
-  'border border-n-weak bg-n-solid-2 text-n-slate-11 shadow-sm hover:bg-n-solid-3 hover:border-n-slate-6';
+  'border border-n-border-glass-soft bg-n-glass-strong text-n-text-body shadow-sm hover:bg-n-solid-3 hover:border-n-slate-6';
 
 const STATUS_SEGMENT_SELECTED = {
   pending:
@@ -267,12 +267,12 @@ const isServiceSelected = serviceId =>
   >
     <div class="flex flex-col gap-4">
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+        <label class="block text-sm font-medium text-n-text-display mb-1">{{
           t('SCHEDULE.MODAL.PROVIDER')
         }}</label>
         <select
           v-model="form.service_provider_id"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+          class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand"
         >
           <option
             v-for="provider in providers"
@@ -285,17 +285,17 @@ const isServiceSelected = serviceId =>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+        <label class="block text-sm font-medium text-n-text-display mb-1">{{
           t('SCHEDULE.MODAL.DATE_TIME')
         }}</label>
         <input
           v-model="form.scheduled_at"
           type="datetime-local"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+          class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand"
         />
         <p
           v-if="!isEditing && initialDurationMinutes"
-          class="mt-1 text-xs text-n-slate-10"
+          class="mt-1 text-xs text-n-text-body/60"
         >
           {{ t('SCHEDULE.MODAL.PLANNED_DURATION') }}: {{ initialDurationMinutes
           }}{{ t('SCHEDULE.MODAL.MIN') }}
@@ -303,7 +303,7 @@ const isServiceSelected = serviceId =>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+        <label class="block text-sm font-medium text-n-text-display mb-1">{{
           t('SCHEDULE.MODAL.CONTACT')
         }}</label>
         <ContactSearchCombobox
@@ -314,7 +314,7 @@ const isServiceSelected = serviceId =>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+        <label class="block text-sm font-medium text-n-text-display mb-1">{{
           t('SCHEDULE.MODAL.SERVICES')
         }}</label>
         <div class="flex flex-wrap gap-2">
@@ -325,7 +325,7 @@ const isServiceSelected = serviceId =>
             :class="
               isServiceSelected(service.id)
                 ? 'bg-n-brand border-n-brand text-white'
-                : 'bg-n-solid-1 border-n-weak text-n-slate-12 hover:border-n-brand'
+                : 'bg-n-glass-soft border-n-border-glass-soft text-n-text-display hover:border-n-brand'
             "
             @click="toggleService(service)"
           >
@@ -338,36 +338,36 @@ const isServiceSelected = serviceId =>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+        <label class="block text-sm font-medium text-n-text-display mb-1">{{
           t('SCHEDULE.MODAL.CUSTOMER_NOTES')
         }}</label>
         <textarea
           v-model="form.customer_notes"
           rows="2"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+          class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+        <label class="block text-sm font-medium text-n-text-display mb-1">{{
           t('SCHEDULE.MODAL.INTERNAL_NOTES')
         }}</label>
         <textarea
           v-model="form.internal_notes"
           rows="2"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+          class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
         />
       </div>
 
       <div v-if="isEditing">
         <label
           id="booking-status-label"
-          class="block text-sm font-medium text-n-slate-12 mb-2"
+          class="block text-sm font-medium text-n-text-display mb-2"
         >
           {{ t('SCHEDULE.MODAL.STATUS') }}
         </label>
         <div
-          class="rounded-2xl border border-n-weak/80 bg-n-solid-2/80 p-1.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"
+          class="rounded-2xl border border-n-border-glass-soft/80 bg-n-glass-strong/80 p-1.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"
         >
           <div
             role="radiogroup"
@@ -398,13 +398,13 @@ const isServiceSelected = serviceId =>
       </div>
 
       <div v-if="isEditing && form.status === 'cancelled'">
-        <label class="block text-sm font-medium text-n-slate-12 mb-1">{{
+        <label class="block text-sm font-medium text-n-text-display mb-1">{{
           t('SCHEDULE.MODAL.CANCEL_REASON')
         }}</label>
         <textarea
           v-model="form.cancellation_reason"
           rows="2"
-          class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+          class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
         />
       </div>
     </div>
@@ -445,7 +445,7 @@ const isServiceSelected = serviceId =>
     width="md"
     @close="closeDeleteConfirm"
   >
-    <p class="text-sm text-n-slate-11">
+    <p class="text-sm text-n-text-body">
       {{ t('SCHEDULE.MODAL.DELETE_CONFIRM') }}
     </p>
     <template #footer>

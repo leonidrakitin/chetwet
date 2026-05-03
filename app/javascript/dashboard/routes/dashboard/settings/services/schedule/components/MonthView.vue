@@ -105,28 +105,30 @@ const getStatusColor = status => {
 
 <template>
   <div class="flex flex-col w-full">
-    <div class="grid grid-cols-7 border-b border-n-weak">
+    <div class="grid grid-cols-7 border-b border-n-border-glass-soft">
       <div
         v-for="day in DAYS_OF_WEEK"
         :key="day"
-        class="py-2 text-center text-sm font-medium text-n-slate-10"
+        class="py-2 text-center text-sm font-medium text-n-text-body/60"
       >
         {{ day }}
       </div>
     </div>
 
-    <div class="flex-1 grid grid-rows-6 border-l border-t border-n-weak">
+    <div
+      class="flex-1 grid grid-rows-6 border-l border-t border-n-border-glass-soft"
+    >
       <div
         v-for="(week, weekIndex) in weeks"
         :key="weekIndex"
-        class="grid grid-cols-7 border-b border-n-weak"
+        class="grid grid-cols-7 border-b border-n-border-glass-soft"
       >
         <div
           v-for="(day, dayIndex) in week"
           :key="dayIndex"
-          class="min-h-[80px] p-1 border-r border-n-weak cursor-pointer hover:bg-n-solid-2 transition-colors"
+          class="min-h-[80px] p-1 border-r border-n-border-glass-soft cursor-pointer hover:bg-n-glass-strong transition-colors"
           :class="{
-            'bg-n-solid-1': day && isSameMonth(day, date),
+            'bg-n-glass-soft': day && isSameMonth(day, date),
             'bg-n-solid-3': day && !isSameMonth(day, date),
             'ring-2 ring-n-brand ring-inset': day && isSameDay(day, date),
           }"
@@ -137,8 +139,8 @@ const getStatusColor = status => {
               class="flex items-center justify-center w-6 h-6 text-sm rounded-full"
               :class="{
                 'bg-n-brand text-white': isToday(day),
-                'text-n-slate-12': !isToday(day) && isSameMonth(day, date),
-                'text-n-slate-10': !isToday(day) && !isSameMonth(day, date),
+                'text-n-text-display': !isToday(day) && isSameMonth(day, date),
+                'text-n-text-body/60': !isToday(day) && !isSameMonth(day, date),
               }"
             >
               {{ format(day, 'd') }}
@@ -157,7 +159,7 @@ const getStatusColor = status => {
               </div>
               <div
                 v-if="getBookingsForDay(day).length > 3"
-                class="text-xs text-n-slate-10 px-1"
+                class="text-xs text-n-text-body/60 px-1"
               >
                 +{{ getBookingsForDay(day).length - 3 }}
                 {{ t('SCHEDULE.MORE') }}
@@ -169,7 +171,7 @@ const getStatusColor = status => {
             </div>
             <div
               v-else-if="isSameMonth(day, date) && isDayExplicitlyDisabled(day)"
-              class="text-xs text-n-slate-10 mt-auto"
+              class="text-xs text-n-text-body/60 mt-auto"
             >
               {{ t('SCHEDULE.NOT_WORKING_DAY') }}
             </div>

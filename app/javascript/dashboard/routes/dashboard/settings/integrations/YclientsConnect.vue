@@ -340,10 +340,10 @@ watch(
           </div>
 
           <div class="text-center">
-            <h1 class="text-lg font-semibold text-n-slate-12">
+            <h1 class="text-lg font-semibold text-n-text-display">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS_TITLE') }}
             </h1>
-            <p class="mt-1.5 text-sm leading-relaxed text-n-slate-11">
+            <p class="mt-1.5 text-sm leading-relaxed text-n-text-body">
               {{
                 t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUCCESS_DESCRIPTION')
               }}
@@ -396,10 +396,10 @@ watch(
               alt="YCLIENTS"
               class="h-8 dark:invert"
             />
-            <h1 class="text-lg font-semibold text-n-slate-12">
+            <h1 class="text-lg font-semibold text-n-text-display">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_TITLE') }}
             </h1>
-            <p class="text-sm leading-relaxed text-n-slate-11">
+            <p class="text-sm leading-relaxed text-n-text-body">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_SUBTITLE') }}
             </p>
           </div>
@@ -409,7 +409,7 @@ watch(
             class="rounded-2xl border border-n-border-glass-soft bg-n-glass-soft p-5"
           >
             <p
-              class="mb-3 text-xs font-medium uppercase tracking-wide text-n-slate-10"
+              class="mb-3 text-xs font-medium uppercase tracking-wide text-n-text-body/60"
             >
               {{
                 t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_REGISTERED_AT')
@@ -432,14 +432,14 @@ watch(
                   />
                 </div>
                 <div class="min-w-0">
-                  <p class="text-xs text-n-slate-10">
+                  <p class="text-xs text-n-text-body/60">
                     {{
                       t(
                         'INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_SALON_NAME'
                       )
                     }}
                   </p>
-                  <p class="truncate text-sm font-medium text-n-slate-12">
+                  <p class="truncate text-sm font-medium text-n-text-display">
                     {{ displayUserData.salon_name }}
                   </p>
                 </div>
@@ -456,12 +456,12 @@ watch(
                   <fluent-icon icon="mail" size="14" class="text-n-blue-11" />
                 </div>
                 <div class="min-w-0">
-                  <p class="text-xs text-n-slate-10">
+                  <p class="text-xs text-n-text-body/60">
                     {{
                       t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_EMAIL')
                     }}
                   </p>
-                  <p class="truncate text-sm font-medium text-n-slate-12">
+                  <p class="truncate text-sm font-medium text-n-text-display">
                     {{ displayUserData.email }}
                   </p>
                 </div>
@@ -478,12 +478,12 @@ watch(
                   <fluent-icon icon="call" size="14" class="text-n-blue-11" />
                 </div>
                 <div class="min-w-0">
-                  <p class="text-xs text-n-slate-10">
+                  <p class="text-xs text-n-text-body/60">
                     {{
                       t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_PHONE')
                     }}
                   </p>
-                  <p class="truncate text-sm font-medium text-n-slate-12">
+                  <p class="truncate text-sm font-medium text-n-text-display">
                     {{ formatPhoneDisplay(displayUserData.phone) }}
                   </p>
                 </div>
@@ -497,7 +497,7 @@ watch(
                   !displayUserData.phone &&
                   !displayUserData.salon_name
                 "
-                class="text-sm text-n-slate-10"
+                class="text-sm text-n-text-body/60"
               >
                 {{
                   t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.DATA_NOT_AVAILABLE')
@@ -509,7 +509,7 @@ watch(
           <!-- ── NOT LOGGED IN ── -->
           <template v-if="!isLoggedIn">
             <div class="flex flex-col gap-3">
-              <p class="text-sm leading-relaxed text-n-slate-11">
+              <p class="text-sm leading-relaxed text-n-text-body">
                 {{
                   replaceInstallationName(
                     t(
@@ -530,7 +530,7 @@ watch(
             <!-- divider -->
             <div class="flex items-center gap-3">
               <div class="h-px flex-1 bg-n-container" />
-              <span class="text-xs text-n-slate-10">
+              <span class="text-xs text-n-text-body/60">
                 {{
                   t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_OR_DIVIDER')
                 }}
@@ -559,7 +559,7 @@ watch(
               />
             </div>
 
-            <p class="text-center text-xs leading-relaxed text-n-slate-10">
+            <p class="text-center text-xs leading-relaxed text-n-text-body/60">
               {{
                 t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.WELCOME_CHANGE_HINT')
               }}
@@ -590,7 +590,7 @@ watch(
             <template v-else>
               <!-- account picker -->
               <div v-if="accounts.length > 1" class="flex flex-col gap-1.5">
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-sm font-medium text-n-text-display">
                   {{
                     t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SELECT_ACCOUNT')
                   }}
@@ -650,22 +650,22 @@ watch(
         <!-- feature bar below the card -->
         <div class="mt-4 flex flex-col items-center gap-3">
           <div class="flex flex-wrap justify-center gap-4">
-            <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+            <span class="flex items-center gap-1.5 text-xs text-n-text-body/60">
               <fluent-icon icon="people" size="12" />
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_CONTACTS') }}
             </span>
-            <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+            <span class="flex items-center gap-1.5 text-xs text-n-text-body/60">
               <fluent-icon icon="calendar" size="12" />
               {{
                 t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_APPOINTMENTS')
               }}
             </span>
-            <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+            <span class="flex items-center gap-1.5 text-xs text-n-text-body/60">
               <fluent-icon icon="bot" size="12" />
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.FEATURE_AI') }}
             </span>
           </div>
-          <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
+          <span class="flex items-center gap-1.5 text-xs text-n-text-body/60">
             {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.POWERED_BY') }}
             <img
               :src="yclientsImage('yclients.png')"
@@ -694,10 +694,10 @@ watch(
             >
               <fluent-icon icon="edit" size="24" class="text-n-blue-11" />
             </div>
-            <h1 class="text-lg font-semibold text-n-slate-12">
+            <h1 class="text-lg font-semibold text-n-text-display">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_TITLE') }}
             </h1>
-            <p class="text-sm leading-relaxed text-n-slate-11">
+            <p class="text-sm leading-relaxed text-n-text-body">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.EDIT_INTRO') }}
             </p>
           </div>
@@ -750,10 +750,10 @@ watch(
               alt="YCLIENTS"
               class="h-8 dark:invert"
             />
-            <h1 class="text-lg font-semibold text-n-slate-12">
+            <h1 class="text-lg font-semibold text-n-text-display">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.TITLE') }}
             </h1>
-            <p class="text-sm leading-relaxed text-n-slate-11">
+            <p class="text-sm leading-relaxed text-n-text-body">
               {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SUBTITLE') }}
             </p>
           </div>
@@ -766,9 +766,9 @@ watch(
               <fluent-icon
                 icon="person-lock"
                 size="24"
-                class="text-n-slate-10"
+                class="text-n-text-body/60"
               />
-              <p class="text-sm text-n-slate-11">
+              <p class="text-sm text-n-text-body">
                 {{ t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.LOGIN_REQUIRED') }}
               </p>
               <a
@@ -846,7 +846,7 @@ watch(
 
               <template v-else>
                 <div v-if="accounts.length > 1" class="flex flex-col gap-1.5">
-                  <label class="text-sm font-medium text-n-slate-12">
+                  <label class="text-sm font-medium text-n-text-display">
                     {{
                       t('INTEGRATION_SETTINGS.YCLIENTS_CONNECT.SELECT_ACCOUNT')
                     }}

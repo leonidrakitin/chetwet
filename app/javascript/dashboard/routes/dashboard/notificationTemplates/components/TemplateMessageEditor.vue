@@ -434,16 +434,16 @@ defineExpose({ insertAtCursor, focus });
 <template>
   <div
     ref="wrapperRef"
-    class="relative flex flex-col min-h-[8rem] rounded-lg border border-n-weak bg-n-alpha-1 focus-within:border-n-brand transition-colors"
+    class="relative flex flex-col min-h-[8rem] rounded-lg border border-n-border-glass-soft bg-n-alpha-1 focus-within:border-n-brand transition-colors"
   >
     <!-- Toolbar -->
     <div
-      class="flex items-center gap-0.5 border-b border-n-weak px-1.5 py-1 flex-wrap"
+      class="flex items-center gap-0.5 border-b border-n-border-glass-soft px-1.5 py-1 flex-wrap"
     >
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.BOLD')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="wrapSelection('**')"
       >
         <span class="i-lucide-bold size-3.5" />
@@ -451,7 +451,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.ITALIC')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="wrapSelection('_')"
       >
         <span class="i-lucide-italic size-3.5" />
@@ -459,7 +459,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.STRIKETHROUGH')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="wrapSelection('~~')"
       >
         <span class="i-lucide-strikethrough size-3.5" />
@@ -467,7 +467,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.CODE')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="wrapSelection('`')"
       >
         <span class="i-lucide-code size-3.5" />
@@ -475,7 +475,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.LINK')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="insertLink"
       >
         <span class="i-lucide-link size-3.5" />
@@ -483,7 +483,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.UNORDERED_LIST')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="wrapSelection('\n- ', '')"
       >
         <span class="i-lucide-list size-3.5" />
@@ -491,7 +491,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.ORDERED_LIST')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="wrapSelection('\n1. ', '')"
       >
         <span class="i-lucide-list-ordered size-3.5" />
@@ -500,7 +500,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.UNDO')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="execCmd('undo')"
       >
         <span class="i-lucide-undo-2 size-3.5" />
@@ -508,7 +508,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.REDO')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="execCmd('redo')"
       >
         <span class="i-lucide-redo-2 size-3.5" />
@@ -517,7 +517,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.ATTACHMENTS')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="$emit('toggleAttachments')"
       >
         <span class="i-lucide-paperclip size-3.5" />
@@ -525,7 +525,7 @@ defineExpose({ insertAtCursor, focus });
       <button
         v-tooltip.top="t('NOTIFICATION_TEMPLATES.TOOLBAR.INSERT_VARIABLE')"
         type="button"
-        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12 transition-colors"
+        class="rounded p-1.5 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display transition-colors"
         @mousedown.prevent="insertAt"
       >
         <span class="i-lucide-at-sign size-3.5" />
@@ -538,7 +538,7 @@ defineExpose({ insertAtCursor, focus });
       contenteditable="true"
       role="textbox"
       :data-placeholder="placeholder"
-      class="min-h-24 w-full px-3 py-2 text-sm text-n-slate-12 focus:outline-none break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
+      class="min-h-24 w-full px-3 py-2 text-sm text-n-text-display focus:outline-none break-words empty:before:content-[attr(data-placeholder)] empty:before:text-n-slate-9"
       @input="onInput"
       @keydown="onKeydown"
       @paste="onPaste"

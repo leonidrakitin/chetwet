@@ -125,7 +125,7 @@ const addButton = () => {
 
 <template>
   <div class="flex flex-col gap-2">
-    <label class="text-sm font-medium text-n-slate-12">
+    <label class="text-sm font-medium text-n-text-display">
       {{ t('NOTIFICATION_TEMPLATES.BUTTONS.LABEL') }}
     </label>
 
@@ -134,17 +134,17 @@ const addButton = () => {
       <div
         v-for="btn in modelValue"
         :key="btn.id"
-        class="flex items-center gap-2 rounded-lg border border-n-weak bg-n-alpha-1 px-3 py-2"
+        class="flex items-center gap-2 rounded-lg border border-n-border-glass-soft bg-n-alpha-1 px-3 py-2"
       >
         <span
-          class="i-lucide-mouse-pointer-click size-4 text-n-slate-10 flex-shrink-0"
+          class="i-lucide-mouse-pointer-click size-4 text-n-text-body/60 flex-shrink-0"
         />
         <div class="flex-1 min-w-0">
-          <span class="text-sm font-medium text-n-slate-12">{{
+          <span class="text-sm font-medium text-n-text-display">{{
             btn.label
           }}</span>
           <span
-            class="ml-2 text-xs text-n-slate-10 inline-flex items-center gap-1"
+            class="ml-2 text-xs text-n-text-body/60 inline-flex items-center gap-1"
           >
             <span class="i-lucide-arrow-right size-3" />
             <span v-if="btn.type === 'url'">{{ btn.url }}</span>
@@ -152,7 +152,7 @@ const addButton = () => {
           </span>
         </div>
         <button
-          class="text-n-slate-10 hover:text-n-ruby-11 transition-colors flex-shrink-0"
+          class="text-n-text-body/60 hover:text-n-ruby-11 transition-colors flex-shrink-0"
           @click="removeButton(btn.id)"
         >
           <span class="i-lucide-x size-4" />
@@ -160,7 +160,10 @@ const addButton = () => {
       </div>
     </div>
 
-    <p v-if="modelValue.length >= MAX_BUTTONS" class="text-xs text-n-slate-10">
+    <p
+      v-if="modelValue.length >= MAX_BUTTONS"
+      class="text-xs text-n-text-body/60"
+    >
       {{ t('NOTIFICATION_TEMPLATES.BUTTONS.MAX_REACHED') }}
     </p>
 
@@ -168,7 +171,7 @@ const addButton = () => {
     <button
       v-if="modelValue.length < MAX_BUTTONS && !showForm"
       type="button"
-      class="inline-flex items-center gap-1.5 self-start rounded-lg border border-dashed border-n-weak px-3 py-1.5 text-xs text-n-slate-10 hover:border-n-brand hover:text-n-slate-12 transition-colors"
+      class="inline-flex items-center gap-1.5 self-start rounded-lg border border-dashed border-n-border-glass-soft px-3 py-1.5 text-xs text-n-text-body/60 hover:border-n-brand hover:text-n-text-display transition-colors"
       @click="showForm = true"
     >
       <span class="i-lucide-plus size-3.5" />
@@ -178,17 +181,17 @@ const addButton = () => {
     <!-- New button form -->
     <div
       v-if="showForm"
-      class="flex flex-col gap-2 rounded-lg border border-n-weak bg-n-alpha-1 p-3"
+      class="flex flex-col gap-2 rounded-lg border border-n-border-glass-soft bg-n-alpha-1 p-3"
     >
       <input
         v-model="newButtonLabel"
         type="text"
         :placeholder="t('NOTIFICATION_TEMPLATES.BUTTONS.BUTTON_LABEL')"
-        class="h-8 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+        class="h-8 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
       />
       <select
         v-model="newButtonType"
-        class="h-8 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+        class="h-8 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
       >
         <option value="url">
           {{ t('NOTIFICATION_TEMPLATES.BUTTONS.TYPE_URL') }}
@@ -203,13 +206,13 @@ const addButton = () => {
         v-model="newButtonUrl"
         type="url"
         :placeholder="t('NOTIFICATION_TEMPLATES.BUTTONS.URL')"
-        class="h-8 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+        class="h-8 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
       />
 
       <select
         v-if="newButtonType === 'template'"
         v-model="newButtonTemplateId"
-        class="h-8 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+        class="h-8 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
       >
         <option value="">
           {{ t('NOTIFICATION_TEMPLATES.BUTTONS.TEMPLATE') }}
@@ -242,7 +245,7 @@ const addButton = () => {
         </button>
         <button
           type="button"
-          class="rounded-lg border border-n-weak px-3 py-1.5 text-xs text-n-slate-10 hover:bg-n-alpha-1 transition-colors"
+          class="rounded-lg border border-n-border-glass-soft px-3 py-1.5 text-xs text-n-text-body/60 hover:bg-n-alpha-1 transition-colors"
           @click="showForm = false"
         >
           {{ t('NOTIFICATION_TEMPLATES.COMMON.CANCEL') }}
@@ -254,16 +257,16 @@ const addButton = () => {
   <Modal v-model:show="showQuickCreate" :on-close="closeQuickCreate">
     <div class="flex flex-col gap-4 p-6">
       <div class="flex flex-col gap-1">
-        <p class="text-base font-semibold text-n-slate-12">
+        <p class="text-base font-semibold text-n-text-display">
           {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.TITLE') }}
         </p>
-        <p class="text-sm text-n-slate-10">
+        <p class="text-sm text-n-text-body/60">
           {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.DESCRIPTION') }}
         </p>
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
+        <label class="text-sm font-medium text-n-text-display">
           {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.NAME_LABEL') }}
         </label>
         <input
@@ -272,12 +275,12 @@ const addButton = () => {
           :placeholder="
             t('NOTIFICATION_TEMPLATES.QUICK_CREATE.NAME_PLACEHOLDER')
           "
-          class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+          class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
         />
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-n-slate-12">
+        <label class="text-sm font-medium text-n-text-display">
           {{ t('NOTIFICATION_TEMPLATES.QUICK_CREATE.MESSAGE_LABEL') }}
         </label>
         <textarea
@@ -285,7 +288,7 @@ const addButton = () => {
           :placeholder="
             t('NOTIFICATION_TEMPLATES.QUICK_CREATE.MESSAGE_PLACEHOLDER')
           "
-          class="min-h-[6rem] w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 py-2 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+          class="min-h-[6rem] w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
         />
       </div>
 

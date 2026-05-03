@@ -55,8 +55,8 @@ const handleImageError = () => {
     @click="showGallery = true"
   >
     <div v-if="hasError" class="flex items-center gap-1 text-center rounded-lg">
-      <Icon icon="i-lucide-circle-off" class="text-n-slate-11" />
-      <p class="mb-0 text-n-slate-11">
+      <Icon icon="i-lucide-circle-off" class="text-n-text-body" />
+      <p class="mb-0 text-n-text-body">
         {{ $t('COMPONENTS.MEDIA.IMAGE_UNAVAILABLE') }}
       </p>
     </div>

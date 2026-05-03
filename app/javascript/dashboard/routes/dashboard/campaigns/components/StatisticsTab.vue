@@ -77,17 +77,17 @@ const handleSelectCampaign = () => {
             <span class="i-lucide-bar-chart-3 size-5" />
           </div>
           <div class="min-w-0">
-            <h2 class="text-xl font-semibold text-n-slate-12 leading-tight">
+            <h2 class="text-xl font-semibold text-n-text-display leading-tight">
               {{ t('CAMPAIGNS.STATISTICS.TITLE') }}
             </h2>
-            <p class="text-sm text-n-slate-10 mt-1">
+            <p class="text-sm text-n-text-body/60 mt-1">
               {{ t('CAMPAIGNS.STATISTICS.SUBTITLE') }}
             </p>
           </div>
         </div>
 
         <div
-          class="inline-flex items-center gap-0.5 rounded-lg border border-n-weak bg-n-alpha-1 p-0.5 self-start sm:self-auto shrink-0"
+          class="inline-flex items-center gap-0.5 rounded-lg border border-n-border-glass-soft bg-n-alpha-1 p-0.5 self-start sm:self-auto shrink-0"
         >
           <button
             v-for="period in periods"
@@ -95,8 +95,8 @@ const handleSelectCampaign = () => {
             class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
             :class="
               selectedPeriod === period.key
-                ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
-                : 'text-n-slate-10 hover:text-n-slate-12'
+                ? 'bg-n-glass-soft text-n-text-display shadow-sm'
+                : 'text-n-text-body/60 hover:text-n-text-display'
             "
             @click="selectedPeriod = period.key"
           >

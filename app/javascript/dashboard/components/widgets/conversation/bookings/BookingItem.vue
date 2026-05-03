@@ -69,11 +69,11 @@ const handleCancel = () => {
 
 <template>
   <div
-    class="py-3 border-b border-n-weak last:border-b-0 flex flex-col gap-1.5"
+    class="py-3 border-b border-n-border-glass-soft last:border-b-0 flex flex-col gap-1.5"
     :class="{ 'opacity-60': isPast }"
   >
     <div class="flex justify-between items-start gap-2">
-      <div class="font-medium text-n-slate-12 truncate flex-1">
+      <div class="font-medium text-n-text-display truncate flex-1">
         {{ serviceName }}
       </div>
       <span
@@ -84,8 +84,8 @@ const handleCancel = () => {
       </span>
     </div>
 
-    <div class="text-sm text-n-slate-11">
-      <span class="border-r border-n-weak pr-2">
+    <div class="text-sm text-n-text-body">
+      <span class="border-r border-n-border-glass-soft pr-2">
         {{ bookingDate }}
       </span>
       <span v-if="providerName" class="pl-2">
@@ -93,7 +93,7 @@ const handleCancel = () => {
       </span>
     </div>
 
-    <div v-if="booking.customer_notes" class="text-xs text-n-slate-10 mt-1">
+    <div v-if="booking.customer_notes" class="text-xs text-n-text-body/60 mt-1">
       {{ booking.customer_notes }}
     </div>
 

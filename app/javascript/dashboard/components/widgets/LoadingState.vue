@@ -9,9 +9,9 @@ defineProps({
 <template>
   <div class="flex items-center justify-center p-8">
     <h6
-      class="flex items-center gap-3 text-base text-center w-100 text-n-slate-11"
+      class="flex items-center gap-3 text-base text-center w-100 text-n-text-body"
     >
-      <span class="text-body-main !text-base text-n-slate-12">
+      <span class="text-body-main !text-base text-n-text-display">
         {{ message }}
       </span>
       <Spinner class="text-n-brand" />

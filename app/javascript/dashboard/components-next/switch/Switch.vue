@@ -27,8 +27,12 @@ const updateValue = () => {
 <template>
   <button
     type="button"
-    class="group relative h-4 rounded-full w-7 flex-shrink-0 select-none focus:outline-none focus:ring-1 focus:ring-n-brand focus:ring-offset-n-slate-2 focus:ring-offset-2 transition-colors duration-200 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed"
-    :class="modelValue ? 'bg-n-brand' : 'bg-n-slate-6'"
+    class="group relative h-4 rounded-full w-7 flex-shrink-0 select-none border focus:outline-none focus:ring-1 focus:ring-n-accent-active focus:ring-offset-n-slate-2 focus:ring-offset-2 transition-colors duration-200 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed"
+    :class="
+      modelValue
+        ? 'bg-n-accent-active border-n-accent-active shadow-pill-active'
+        : 'bg-n-glass-soft border-n-border-glass-soft shadow-inset-hairline'
+    "
     role="switch"
     :disabled="disabled"
     :aria-checked="modelValue"
@@ -44,7 +48,12 @@ const updateValue = () => {
       "
     >
       <span
-        class="block h-3 w-3 rounded-full bg-n-background shadow-md transition-[width] duration-[180ms] ease-in-out group-active:w-[18px]"
+        class="block h-3 w-3 rounded-full transition-[width] duration-[180ms] ease-in-out group-active:w-[18px]"
+        :class="
+          modelValue
+            ? 'bg-n-accent-active-fg shadow-md'
+            : 'bg-n-text-display/80 shadow-sm'
+        "
       />
     </span>
   </button>

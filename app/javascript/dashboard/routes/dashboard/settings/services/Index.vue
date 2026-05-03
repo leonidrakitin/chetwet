@@ -231,7 +231,7 @@ onBeforeMount(() => {
         feature-name="services"
       >
         <template v-if="currentRecords?.length" #count>
-          <span class="text-body-main text-n-slate-11">
+          <span class="text-body-main text-n-text-body">
             {{ $t('SERVICES_MGMT.COUNT', { n: currentRecords.length }) }}
           </span>
         </template>
@@ -293,7 +293,7 @@ onBeforeMount(() => {
           <BaseTableRow v-for="item in items" :key="item.id" :item="item">
             <template #default>
               <BaseTableCell>
-                <span class="text-body-main text-n-slate-12">
+                <span class="text-body-main text-n-text-display">
                   {{ item.name }}
                 </span>
               </BaseTableCell>
@@ -316,7 +316,7 @@ onBeforeMount(() => {
               </BaseTableCell>
 
               <BaseTableCell v-if="activeTab === 'services'">
-                <span class="text-body-main text-n-slate-11">
+                <span class="text-body-main text-n-text-body">
                   {{
                     item.formatted_duration ||
                     `${item.duration_minutes} ${$t('SERVICES_MGMT.DURATION.MIN')}`
@@ -325,7 +325,7 @@ onBeforeMount(() => {
               </BaseTableCell>
 
               <BaseTableCell v-if="activeTab === 'services'">
-                <span class="text-body-main text-n-slate-11">
+                <span class="text-body-main text-n-text-body">
                   {{
                     item.price
                       ? `${item.price} ${item.currency}`

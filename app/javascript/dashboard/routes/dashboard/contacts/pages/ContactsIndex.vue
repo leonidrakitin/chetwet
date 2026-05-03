@@ -461,7 +461,7 @@ onMounted(async () => {
     >
       <div
         v-if="isFetchingList && !(isSearchView && hasContacts)"
-        class="flex items-center justify-center py-10 text-n-slate-11"
+        class="flex items-center justify-center py-10 text-n-text-body"
       >
         <Spinner />
       </div>
@@ -489,7 +489,7 @@ onMounted(async () => {
           v-else-if="showEmptyText"
           class="flex items-center justify-center py-10"
         >
-          <span class="text-base text-n-slate-11">
+          <span class="text-base text-n-text-body">
             {{ emptyStateMessage }}
           </span>
         </div>

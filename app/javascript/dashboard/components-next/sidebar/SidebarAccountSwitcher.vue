@@ -80,7 +80,7 @@ const emitNewAccount = () => {
         @click="() => showAccountSwitcher && toggle()"
       >
         <span
-          class="text-sm font-medium leading-5 text-n-slate-12 truncate"
+          class="text-sm font-medium leading-5 text-n-text-display truncate"
           aria-live="polite"
         >
           {{ currentAccount.name }}
@@ -89,7 +89,7 @@ const emitNewAccount = () => {
         <span
           v-if="showAccountSwitcher"
           aria-hidden="true"
-          class="i-lucide-chevron-down size-4 text-n-slate-10 flex-shrink-0"
+          class="i-lucide-chevron-down size-4 text-n-text-body/60 flex-shrink-0"
         />
       </button>
     </template>
@@ -111,14 +111,14 @@ const emitNewAccount = () => {
               class="text-left rtl:text-right flex gap-2 items-center"
             >
               <span
-                class="text-n-slate-12 max-w-36 truncate min-w-0"
+                class="text-n-text-display max-w-36 truncate min-w-0"
                 :title="account.name"
               >
                 {{ account.name }}
               </span>
               <div class="flex-shrink-0 w-px h-3 bg-n-strong" />
               <span
-                class="text-n-slate-11 max-w-24 truncate capitalize"
+                class="text-n-text-body max-w-24 truncate capitalize"
                 :title="account.name"
               >
                 {{

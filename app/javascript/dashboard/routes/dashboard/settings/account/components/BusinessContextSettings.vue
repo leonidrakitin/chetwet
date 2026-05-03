@@ -158,7 +158,7 @@ async function updateBusinessContext() {
       </WithLabel>
 
       <div>
-        <label class="block text-sm font-medium text-n-slate-12 mb-2">
+        <label class="block text-sm font-medium text-n-text-display mb-2">
           {{ $t('GENERAL_SETTINGS.BUSINESS_CONTEXT.DESCRIPTION_LABEL') }}
         </label>
         <textarea
@@ -172,12 +172,12 @@ async function updateBusinessContext() {
           maxlength="200"
         />
         <div class="flex items-center justify-between mt-1">
-          <p v-if="exampleText" class="text-xs text-n-slate-10 italic">
+          <p v-if="exampleText" class="text-xs text-n-text-body/60 italic">
             {{ $t('ONBOARDING_WIZARD.EXAMPLE_LABEL') }}: {{ exampleText }}
           </p>
           <p
             class="text-xs ml-auto"
-            :class="isOverLimit ? 'text-red-500' : 'text-n-slate-10'"
+            :class="isOverLimit ? 'text-red-500' : 'text-n-text-body/60'"
           >
             {{ characterCount }}/{{ maxCharacters }}
           </p>

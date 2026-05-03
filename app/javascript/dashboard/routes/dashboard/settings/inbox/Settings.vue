@@ -666,7 +666,7 @@ export default {
             }"
           >
             <div class="flex flex-col gap-1 items-start mb-4">
-              <label class="text-heading-3 text-n-slate-12">
+              <label class="text-heading-3 text-n-text-display">
                 {{ $t('INBOX_MGMT.ADD.WEBSITE_CHANNEL.CHANNEL_AVATAR.LABEL') }}
               </label>
               <Avatar
@@ -889,7 +889,7 @@ export default {
               >
                 <div class="flex items-center gap-6">
                   <div class="flex items-center gap-2">
-                    <label class="text-n-slate-11 text-heading-3">
+                    <label class="text-n-text-body text-heading-3">
                       {{
                         $t(
                           'INBOX_MGMT.WIDGET_BUILDER.WIDGET_OPTIONS.WIDGET_BUBBLE_POSITION_LABEL'
@@ -917,7 +917,7 @@ export default {
                   </div>
                   <div class="h-3 w-px bg-n-weak rounded-lg" />
                   <div class="flex items-center gap-2">
-                    <label class="text-n-slate-11 text-heading-3">
+                    <label class="text-n-text-body text-heading-3">
                       {{
                         $t(
                           'INBOX_MGMT.WIDGET_BUILDER.WIDGET_OPTIONS.WIDGET_BUBBLE_TYPE_LABEL'

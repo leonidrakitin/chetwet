@@ -54,9 +54,9 @@ const handleAttributeAction = async action => {
       <span
         class="min-w-0 text-sm"
         :class="{
-          'cursor-pointer text-n-slate-11 hover:text-n-slate-12 py-2 select-none font-medium':
+          'cursor-pointer text-n-text-body hover:text-n-text-display py-2 select-none font-medium':
             !isEditingView,
-          'text-n-slate-12 truncate flex-1': isEditingView,
+          'text-n-text-display truncate flex-1': isEditingView,
         }"
         @click="toggleAttributeListDropdown(!props.isEditingView)"
       >

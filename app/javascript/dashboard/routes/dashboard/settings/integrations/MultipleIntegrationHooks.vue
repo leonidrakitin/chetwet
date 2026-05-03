@@ -112,7 +112,7 @@ async function syncYclientsContacts() {
       :search-placeholder="$t('INTEGRATION_APPS.SEARCH_PLACEHOLDER')"
     >
       <template v-if="hooks?.length" #count>
-        <span class="text-body-main text-n-slate-11">
+        <span class="text-body-main text-n-text-body">
           {{ $t('INTEGRATION_APPS.COUNT', { n: hooks.length }) }}
         </span>
       </template>
@@ -162,13 +162,13 @@ async function syncYclientsContacts() {
                 v-for="property in hook.properties"
                 :key="property"
               >
-                <span class="text-body-main text-n-slate-12">
+                <span class="text-body-main text-n-text-display">
                   {{ property }}
                 </span>
               </BaseTableCell>
 
               <BaseTableCell v-if="isHookTypeInbox">
-                <span class="text-body-main text-n-slate-11 break-words">
+                <span class="text-body-main text-n-text-body break-words">
                   {{ inboxName(hook) }}
                 </span>
               </BaseTableCell>

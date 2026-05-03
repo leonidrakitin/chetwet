@@ -448,9 +448,11 @@ onMounted(() => {
     <template #body>
       <div class="flex flex-col gap-4 pb-8 max-w-2xl ltr:mr-auto rtl:ml-auto">
         <!-- ── Basic Settings ─────────────────────────────────── -->
-        <div class="rounded-xl border border-n-weak bg-n-solid-1">
+        <div
+          class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
+        >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-border-glass-soft bg-n-glass-strong"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-amber-3 flex-shrink-0"
@@ -458,10 +460,10 @@ onMounted(() => {
               <span class="i-lucide-bot size-5 text-n-amber-11" />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-n-slate-12">
+              <h3 class="text-sm font-semibold text-n-text-display">
                 {{ t('CAPTAIN.ASSISTANTS.SETTINGS.BASIC_SETTINGS.TITLE') }}
               </h3>
-              <p class="text-xs text-n-slate-10 mt-0.5">
+              <p class="text-xs text-n-text-body/60 mt-0.5">
                 {{
                   t('CAPTAIN.ASSISTANTS.SETTINGS.BASIC_SETTINGS.DESCRIPTION')
                 }}
@@ -477,9 +479,11 @@ onMounted(() => {
         </div>
 
         <!-- ── System Settings ────────────────────────────────── -->
-        <div class="rounded-xl border border-n-weak bg-n-solid-1">
+        <div
+          class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
+        >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-border-glass-soft bg-n-glass-strong"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-blue-3 flex-shrink-0"
@@ -487,10 +491,10 @@ onMounted(() => {
               <span class="i-lucide-settings-2 size-5 text-n-blue-11" />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-n-slate-12">
+              <h3 class="text-sm font-semibold text-n-text-display">
                 {{ t('CAPTAIN.ASSISTANTS.SETTINGS.SYSTEM_SETTINGS.TITLE') }}
               </h3>
-              <p class="text-xs text-n-slate-10 mt-0.5">
+              <p class="text-xs text-n-text-body/60 mt-0.5">
                 {{
                   t('CAPTAIN.ASSISTANTS.SETTINGS.SYSTEM_SETTINGS.DESCRIPTION')
                 }}
@@ -506,9 +510,11 @@ onMounted(() => {
         </div>
 
         <!-- ── Connected Inboxes ──────────────────────────────── -->
-        <div class="rounded-xl border border-n-weak bg-n-solid-1">
+        <div
+          class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
+        >
           <div
-            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-border-glass-soft bg-n-glass-strong"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
@@ -517,7 +523,7 @@ onMounted(() => {
                 <span class="i-lucide-inbox size-5 text-n-teal-11" />
               </div>
               <div class="min-w-0">
-                <h3 class="text-sm font-semibold text-n-slate-12">
+                <h3 class="text-sm font-semibold text-n-text-display">
                   {{ t('CAPTAIN.INBOXES.HEADER') }}
                 </h3>
               </div>
@@ -567,10 +573,10 @@ onMounted(() => {
         <!-- ── Tools & Sources ────────────────────────────────── -->
         <div
           v-if="isCaptainV2Enabled"
-          class="rounded-xl border border-n-weak bg-n-solid-1"
+          class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
         >
           <div
-            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center justify-between gap-3 px-5 py-4 border-b border-n-border-glass-soft bg-n-glass-strong"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
@@ -579,10 +585,10 @@ onMounted(() => {
                 <span class="i-lucide-blocks size-5 text-n-violet-11" />
               </div>
               <div class="min-w-0">
-                <h3 class="text-sm font-semibold text-n-slate-12">
+                <h3 class="text-sm font-semibold text-n-text-display">
                   {{ t('CAPTAIN.CUSTOM_TOOLS.HEADER') }}
                 </h3>
-                <p class="text-xs text-n-slate-10 mt-0.5">
+                <p class="text-xs text-n-text-body/60 mt-0.5">
                   {{ t('CAPTAIN.CUSTOM_TOOLS.FORM_DESCRIPTION') }}
                 </p>
               </div>
@@ -649,7 +655,7 @@ onMounted(() => {
               <template #item-actions="{ item }">
                 <Policy :permissions="['administrator']">
                   <button
-                    class="flex-shrink-0 p-1 rounded text-n-slate-9 hover:text-n-slate-12 hover:bg-n-alpha-2 transition-colors"
+                    class="flex-shrink-0 p-1 rounded text-n-slate-9 hover:text-n-text-display hover:bg-n-alpha-2 transition-colors"
                     :title="$t('CAPTAIN.CUSTOM_TOOLS.OPTIONS.EDIT_TOOL')"
                     @click.stop="handleEditTool(item)"
                   >
@@ -671,10 +677,10 @@ onMounted(() => {
         <!-- ── Controls (Guardrails & Guidelines) ─────────────── -->
         <div
           v-if="isCaptainV2Enabled"
-          class="rounded-xl border border-n-weak bg-n-solid-1"
+          class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
         >
           <div
-            class="flex items-center gap-3 px-5 py-4 border-b border-n-weak bg-n-solid-2"
+            class="flex items-center gap-3 px-5 py-4 border-b border-n-border-glass-soft bg-n-glass-strong"
           >
             <div
               class="flex items-center justify-center size-9 rounded-lg bg-n-green-3 flex-shrink-0"
@@ -682,10 +688,10 @@ onMounted(() => {
               <span class="i-lucide-shield-check size-5 text-n-green-11" />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-n-slate-12">
+              <h3 class="text-sm font-semibold text-n-text-display">
                 {{ t('CAPTAIN.ASSISTANTS.SETTINGS.CONTROL_ITEMS.TITLE') }}
               </h3>
-              <p class="text-xs text-n-slate-10 mt-0.5">
+              <p class="text-xs text-n-text-body/60 mt-0.5">
                 {{ t('CAPTAIN.ASSISTANTS.SETTINGS.CONTROL_ITEMS.DESCRIPTION') }}
               </p>
             </div>

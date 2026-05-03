@@ -61,18 +61,18 @@ const handleBlur = e => {
 <template>
   <div ref="containerRef" class="relative" @focusout="handleBlur">
     <div
-      class="flex flex-wrap items-center gap-1 min-h-[2.5rem] w-full rounded-lg border border-n-weak bg-n-solid-1 px-2 py-1 cursor-pointer"
+      class="flex flex-wrap items-center gap-1 min-h-[2.5rem] w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-2 py-1 cursor-pointer"
       @click="open = !open"
     >
       <span
         v-for="id in modelValue"
         :key="id"
-        class="inline-flex items-center gap-1 rounded-md bg-n-alpha-2 px-2 py-0.5 text-xs text-n-slate-12"
+        class="inline-flex items-center gap-1 rounded-md bg-n-alpha-2 px-2 py-0.5 text-xs text-n-text-display"
       >
         {{ segmentById[id]?.name || `#${id}` }}
         <button
           type="button"
-          class="text-n-slate-9 hover:text-n-slate-12"
+          class="text-n-slate-9 hover:text-n-text-display"
           @click.stop="remove(id)"
         >
           <span class="i-lucide-x size-3" />
@@ -85,14 +85,14 @@ const handleBlur = e => {
 
     <div
       v-if="open"
-      class="absolute z-50 mt-1 w-full rounded-lg border border-n-weak bg-n-solid-1 shadow-lg"
+      class="absolute z-50 mt-1 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft shadow-lg"
     >
       <div class="p-2">
         <input
           v-model="search"
           type="text"
           :placeholder="t('NOTIFICATION_TEMPLATES.FORM.SEGMENTS.SEARCH')"
-          class="h-8 w-full rounded-md border border-n-weak bg-n-alpha-1 px-2.5 text-xs text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+          class="h-8 w-full rounded-md border border-n-border-glass-soft bg-n-alpha-1 px-2.5 text-xs text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
           @click.stop
         />
       </div>
@@ -104,7 +104,7 @@ const handleBlur = e => {
           @mousedown.prevent="toggle(segment.id)"
         >
           <span class="i-lucide-filter size-3 text-n-slate-9 flex-shrink-0" />
-          <span class="flex-1 text-n-slate-12 truncate">
+          <span class="flex-1 text-n-text-display truncate">
             {{ segment.name }}
           </span>
           <span

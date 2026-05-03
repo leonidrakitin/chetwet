@@ -117,7 +117,7 @@ const onAgentSelect = index => {
     <ul
       v-if="items.length"
       ref="tagAgentsRef"
-      class="vertical dropdown menu mention--box bg-n-solid-1 p-1 rounded-xl text-sm overflow-auto absolute w-full z-20 shadow-md left-0 leading-[1.2] bottom-full max-h-[12.5rem] border border-solid border-n-strong"
+      class="vertical dropdown menu mention--box bg-n-glass-soft p-1 rounded-xl text-sm overflow-auto absolute w-full z-20 shadow-md left-0 leading-[1.2] bottom-full max-h-[12.5rem] border border-solid border-n-border-glass"
       role="listbox"
     >
       <li
@@ -132,7 +132,7 @@ const onAgentSelect = index => {
         <!-- Section Header -->
         <div
           v-if="item.type === 'header'"
-          class="px-2 py-2 text-xs font-medium tracking-wide capitalize text-n-slate-11"
+          class="px-2 py-2 text-xs font-medium tracking-wide capitalize text-n-text-body"
         >
           {{ item.title }}
         </div>
@@ -158,17 +158,18 @@ const onAgentSelect = index => {
             class="overflow-hidden flex-1 max-w-full whitespace-nowrap text-ellipsis"
           >
             <h5
-              class="overflow-hidden mb-0 text-sm capitalize whitespace-nowrap text-n-slate-11 text-ellipsis"
+              class="overflow-hidden mb-0 text-sm capitalize whitespace-nowrap text-n-text-body text-ellipsis"
               :class="{
-                'text-n-slate-12': getSelectableIndex(item) === selectedIndex,
+                'text-n-text-display':
+                  getSelectableIndex(item) === selectedIndex,
               }"
             >
               {{ item.displayName }}
             </h5>
             <div
-              class="overflow-hidden text-xs whitespace-nowrap text-ellipsis text-n-slate-10"
+              class="overflow-hidden text-xs whitespace-nowrap text-ellipsis text-n-text-body/60"
               :class="{
-                'text-n-slate-11': getSelectableIndex(item) === selectedIndex,
+                'text-n-text-body': getSelectableIndex(item) === selectedIndex,
               }"
             >
               {{ item.displayInfo }}

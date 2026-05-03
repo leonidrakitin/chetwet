@@ -122,13 +122,7 @@ onMounted(() => {
   <div
     v-if="shouldShowCopilotPanel"
     v-on-click-outside="() => closeCopilotPanel()"
-    class="bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass h-full overflow-hidden flex-col fixed top-0 ltr:right-0 rtl:left-0 z-40 w-full max-w-sm transition-transform duration-300 ease-in-out md:static md:w-[320px] md:min-w-[320px] md:m-2.5 md:rounded-card-lg md:border md:border-n-border-glass md:shadow-glass-deep 2xl:min-w-[360px] 2xl:w-[360px]"
-    :class="[
-      {
-        'md:flex': shouldShowCopilotPanel,
-        'md:hidden': !shouldShowCopilotPanel,
-      },
-    ]"
+    class="bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass flex flex-col min-h-0 h-full overflow-hidden fixed top-0 ltr:right-0 rtl:left-0 z-40 w-full max-w-sm transition-transform duration-300 ease-in-out md:static md:w-[320px] md:min-w-[320px] md:mt-2.5 md:mb-2.5 md:mr-2.5 md:ml-0 md:rounded-card-lg md:border md:border-n-border-glass md:shadow-glass-deep 2xl:min-w-[340px] 2xl:w-[340px]"
   >
     <Copilot
       :messages="messages"

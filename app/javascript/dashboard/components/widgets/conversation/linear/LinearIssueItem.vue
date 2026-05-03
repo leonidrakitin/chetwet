@@ -53,13 +53,13 @@ const unlinkIssue = () => {
         @unlink-issue="unlinkIssue"
       />
 
-      <h3 class="mt-2 text-sm font-medium text-n-slate-12">
+      <h3 class="mt-2 text-sm font-medium text-n-text-display">
         {{ issue.title }}
       </h3>
 
       <p
         v-if="issue.description"
-        class="mt-1 text-sm text-n-slate-11 line-clamp-3"
+        class="mt-1 text-sm text-n-text-body line-clamp-3"
       >
         {{ issue.description }}
       </p>
@@ -69,7 +69,7 @@ const unlinkIssue = () => {
       <div class="flex items-center gap-2">
         <div v-if="assignee" class="flex items-center gap-1.5">
           <Avatar :src="assignee.thumbnail" :name="assignee.name" :size="16" />
-          <span class="text-xs capitalize truncate text-n-slate-12">
+          <span class="text-xs capitalize truncate text-n-text-display">
             {{ assignee.name }}
           </span>
         </div>
@@ -82,7 +82,7 @@ const unlinkIssue = () => {
             class="size-4"
             :style="{ color: issue.state?.color }"
           />
-          <span class="text-xs text-n-slate-12">
+          <span class="text-xs text-n-text-display">
             {{ issue.state?.name }}
           </span>
         </div>
@@ -91,7 +91,7 @@ const unlinkIssue = () => {
 
         <div v-if="priorityLabel" class="flex items-center gap-1.5">
           <CardPriorityIcon :priority="priorityLabel.toLowerCase()" />
-          <span class="text-xs text-n-slate-12">
+          <span class="text-xs text-n-text-display">
             {{ priorityLabel }}
           </span>
         </div>

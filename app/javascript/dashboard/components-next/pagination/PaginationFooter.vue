@@ -71,10 +71,10 @@ const pageInfo = computed(() => {
 
 <template>
   <div
-    class="flex justify-between h-[3.375rem] w-full border-t border-n-border-hairline mx-auto bg-transparent py-3 px-6 items-center"
+    class="flex justify-between h-[3.375rem] w-full border-t border-n-border-glass-soft mx-auto bg-transparent py-3 px-6 items-center"
   >
     <div class="flex items-center gap-3">
-      <span class="min-w-0 text-body-main line-clamp-1 text-n-slate-11">
+      <span class="min-w-0 text-body-main line-clamp-1 text-n-text-body">
         {{ currentPageInformation }}
       </span>
     </div>
@@ -99,11 +99,11 @@ const pageInfo = computed(() => {
       />
       <div class="inline-flex items-center gap-2 text-sm">
         <span
-          class="px-3 tabular-nums py-0.5 font-420 bg-n-input-background text-body-main text-n-slate-12 rounded-md"
+          class="px-3 tabular-nums py-0.5 font-420 bg-n-glass-soft border border-n-border-glass-soft shadow-inset-hairline text-body-main text-n-text-display rounded-pill"
         >
           {{ formatFullNumber(currentPage) }}
         </span>
-        <span class="truncate text-body-main text-n-slate-11">
+        <span class="truncate text-body-main text-n-text-body">
           {{ pageInfo }}
         </span>
       </div>

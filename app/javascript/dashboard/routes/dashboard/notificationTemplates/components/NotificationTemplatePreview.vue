@@ -136,12 +136,12 @@ const hasContent = computed(() => previewBlocks.value.length > 0);
 
 <template>
   <div class="flex flex-col gap-3">
-    <p class="text-xs font-medium text-n-slate-11 uppercase tracking-wide">
+    <p class="text-xs font-medium text-n-text-body uppercase tracking-wide">
       {{ t('NOTIFICATION_TEMPLATES.PREVIEW.TITLE') }}
     </p>
 
     <div
-      class="flex flex-col gap-3 rounded-xl bg-n-alpha-1 border border-n-weak p-4 min-h-48"
+      class="flex flex-col gap-3 rounded-xl bg-n-alpha-1 border border-n-border-glass-soft p-4 min-h-48"
     >
       <div v-if="hasContent" class="flex flex-col items-end gap-3">
         <div
@@ -178,7 +178,7 @@ const hasContent = computed(() => previewBlocks.value.length > 0);
             <div
               v-for="att in block.otherAttachments"
               :key="att.id"
-              class="flex items-center gap-1 rounded-lg border border-n-weak bg-n-solid-1 px-2 py-1 text-xs text-n-slate-11"
+              class="flex items-center gap-1 rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-2 py-1 text-xs text-n-text-body"
             >
               <span class="size-3" :class="getAttachmentIcon(att.type)" />
               <span class="max-w-24 truncate">{{ att.name }}</span>

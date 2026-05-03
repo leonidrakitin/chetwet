@@ -88,13 +88,13 @@ const approvalLabels = {
   >
     <template #subHeader>
       <div class="flex items-center gap-3 pb-4">
-        <label class="text-sm text-n-slate-11" for="days-range">
+        <label class="text-sm text-n-text-body" for="days-range">
           {{ t('CAPTAIN.INSIGHTS.RANGE_LABEL') }}
         </label>
         <select
           id="days-range"
           v-model.number="days"
-          class="bg-n-alpha-1 border border-n-strong rounded-md text-sm px-2 py-1"
+          class="bg-n-alpha-1 border border-n-border-glass rounded-md text-sm px-2 py-1"
         >
           <option :value="7">{{ t('CAPTAIN.INSIGHTS.RANGES.WEEK') }}</option>
           <option :value="30">{{ t('CAPTAIN.INSIGHTS.RANGES.MONTH') }}</option>
@@ -115,35 +115,37 @@ const approvalLabels = {
       <div v-else class="flex flex-col gap-6 pb-8">
         <!-- Summary cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="p-4 rounded-md bg-n-alpha-1 border border-n-strong">
-            <div class="text-xs text-n-slate-11">
+          <div class="p-4 rounded-md bg-n-alpha-1 border border-n-border-glass">
+            <div class="text-xs text-n-text-body">
               {{ t('CAPTAIN.INSIGHTS.TOTALS.CONVERSATIONS') }}
             </div>
-            <div class="text-2xl font-semibold text-n-slate-12">
+            <div class="text-2xl font-semibold text-n-text-display">
               {{ data.conversations_with_captain }}
             </div>
           </div>
-          <div class="p-4 rounded-md bg-n-alpha-1 border border-n-strong">
-            <div class="text-xs text-n-slate-11">
+          <div class="p-4 rounded-md bg-n-alpha-1 border border-n-border-glass">
+            <div class="text-xs text-n-text-body">
               {{ t('CAPTAIN.INSIGHTS.TOTALS.HANDOFF_RATE') }}
             </div>
-            <div class="text-2xl font-semibold text-n-slate-12">
+            <div class="text-2xl font-semibold text-n-text-display">
               {{ Math.round((data.escalations?.handoff_rate || 0) * 100) }}%
             </div>
           </div>
-          <div class="p-4 rounded-md bg-n-alpha-1 border border-n-strong">
-            <div class="text-xs text-n-slate-11">
+          <div class="p-4 rounded-md bg-n-alpha-1 border border-n-border-glass">
+            <div class="text-xs text-n-text-body">
               {{ t('CAPTAIN.INSIGHTS.TOTALS.PENDING_HUMAN') }}
             </div>
-            <div class="text-2xl font-semibold text-n-slate-12">
+            <div class="text-2xl font-semibold text-n-text-display">
               {{ data.escalations?.pending_human_interaction || 0 }}
             </div>
           </div>
         </div>
 
         <!-- Routing -->
-        <section class="rounded-md border border-n-strong bg-n-alpha-1 p-4">
-          <h2 class="text-sm font-medium text-n-slate-12 mb-3">
+        <section
+          class="rounded-md border border-n-border-glass bg-n-alpha-1 p-4"
+        >
+          <h2 class="text-sm font-medium text-n-text-display mb-3">
             {{ t('CAPTAIN.INSIGHTS.ROUTING.HEADER') }}
           </h2>
           <div class="flex flex-col gap-2">
@@ -152,16 +154,16 @@ const approvalLabels = {
               :key="key"
               class="flex items-center gap-3 text-sm"
             >
-              <div class="w-32 text-n-slate-11">{{ routingLabels[key] }}</div>
+              <div class="w-32 text-n-text-body">{{ routingLabels[key] }}</div>
               <div class="flex-1 h-2 rounded bg-n-alpha-2 overflow-hidden">
                 <div
                   class="h-full bg-n-brand"
                   :style="{ width: routingPercent(key) + '%' }"
                 />
               </div>
-              <div class="w-16 text-right text-n-slate-12">
+              <div class="w-16 text-right text-n-text-display">
                 {{ data.routing?.[key] || 0 }}
-                <span class="text-n-slate-10">
+                <span class="text-n-text-body/60">
                   ({{ routingPercent(key) }}%)
                 </span>
               </div>
@@ -170,8 +172,10 @@ const approvalLabels = {
         </section>
 
         <!-- Confidence -->
-        <section class="rounded-md border border-n-strong bg-n-alpha-1 p-4">
-          <h2 class="text-sm font-medium text-n-slate-12 mb-3">
+        <section
+          class="rounded-md border border-n-border-glass bg-n-alpha-1 p-4"
+        >
+          <h2 class="text-sm font-medium text-n-text-display mb-3">
             {{ t('CAPTAIN.INSIGHTS.CONFIDENCE.HEADER') }}
           </h2>
           <div class="flex flex-col gap-2">
@@ -180,7 +184,7 @@ const approvalLabels = {
               :key="key"
               class="flex items-center gap-3 text-sm"
             >
-              <div class="w-32 text-n-slate-11">
+              <div class="w-32 text-n-text-body">
                 {{ confidenceLabels[key] }}
               </div>
               <div class="flex-1 h-2 rounded bg-n-alpha-2 overflow-hidden">
@@ -189,9 +193,9 @@ const approvalLabels = {
                   :style="{ width: confidencePercent(key) + '%' }"
                 />
               </div>
-              <div class="w-16 text-right text-n-slate-12">
+              <div class="w-16 text-right text-n-text-display">
                 {{ data.confidence_buckets?.[key] || 0 }}
-                <span class="text-n-slate-10">
+                <span class="text-n-text-body/60">
                   ({{ confidencePercent(key) }}%)
                 </span>
               </div>
@@ -201,8 +205,10 @@ const approvalLabels = {
 
         <!-- Approvals + Top assistants -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <section class="rounded-md border border-n-strong bg-n-alpha-1 p-4">
-            <h2 class="text-sm font-medium text-n-slate-12 mb-3">
+          <section
+            class="rounded-md border border-n-border-glass bg-n-alpha-1 p-4"
+          >
+            <h2 class="text-sm font-medium text-n-text-display mb-3">
               {{ t('CAPTAIN.INSIGHTS.APPROVALS.HEADER') }}
             </h2>
             <dl class="flex flex-col gap-2 text-sm">
@@ -211,16 +217,18 @@ const approvalLabels = {
                 :key="key"
                 class="flex justify-between"
               >
-                <dt class="text-n-slate-11">{{ approvalLabels[key] }}</dt>
-                <dd class="text-n-slate-12">
+                <dt class="text-n-text-body">{{ approvalLabels[key] }}</dt>
+                <dd class="text-n-text-display">
                   {{ data.approvals?.[key] || 0 }}
                 </dd>
               </div>
             </dl>
           </section>
 
-          <section class="rounded-md border border-n-strong bg-n-alpha-1 p-4">
-            <h2 class="text-sm font-medium text-n-slate-12 mb-3">
+          <section
+            class="rounded-md border border-n-border-glass bg-n-alpha-1 p-4"
+          >
+            <h2 class="text-sm font-medium text-n-text-display mb-3">
               {{ t('CAPTAIN.INSIGHTS.TOP_ASSISTANTS.HEADER') }}
             </h2>
             <ul
@@ -232,11 +240,11 @@ const approvalLabels = {
                 :key="row.id"
                 class="flex justify-between"
               >
-                <span class="text-n-slate-11">{{ row.name }}</span>
-                <span class="text-n-slate-12">{{ row.conversations }}</span>
+                <span class="text-n-text-body">{{ row.name }}</span>
+                <span class="text-n-text-display">{{ row.conversations }}</span>
               </li>
             </ul>
-            <p v-else class="text-sm text-n-slate-11">
+            <p v-else class="text-sm text-n-text-body">
               {{ t('CAPTAIN.INSIGHTS.TOP_ASSISTANTS.EMPTY') }}
             </p>
           </section>

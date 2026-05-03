@@ -123,17 +123,19 @@ onMounted(() => {
 
 <template>
   <div
-    class="bg-n-alpha-3 backdrop-blur-[100px] border-0 outline outline-1 outline-n-container absolute rounded-xl z-50 gap-2 flex flex-col min-w-[136px] shadow-lg pb-2 px-2"
+    class="bg-n-glass-pane backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass shadow-glass-soft absolute rounded-card z-50 gap-2 flex flex-col min-w-[136px] pb-2 px-2"
     :class="{
       'pt-2': !showSearch,
     }"
   >
     <div
       v-if="showSearch"
-      class="sticky top-0 bg-n-alpha-3 backdrop-blur-sm pt-2 z-20"
+      class="sticky top-0 bg-n-glass-pane backdrop-blur-glass-rail pt-2 z-20"
     >
       <div class="relative">
-        <span class="absolute i-lucide-search size-3.5 top-2 left-3" />
+        <span
+          class="absolute i-lucide-search size-3.5 top-2.5 left-3 text-n-text-body"
+        />
         <input
           ref="searchInput"
           v-model="searchQuery"
@@ -141,7 +143,7 @@ onMounted(() => {
           :placeholder="
             searchPlaceholder || t('DROPDOWN_MENU.SEARCH_PLACEHOLDER')
           "
-          class="reset-base w-full h-8 py-2 pl-10 pr-2 text-sm focus:outline-none border-none rounded-lg bg-n-alpha-black2 dark:bg-n-solid-1 text-n-slate-12"
+          class="reset-base w-full h-9 py-2 pl-10 pr-2 text-sm focus:outline-none border border-n-border-glass-soft rounded-pill bg-n-glass-soft text-n-text-display placeholder:text-n-text-body/60"
           @input="handleSearchInput"
         />
       </div>
@@ -154,7 +156,7 @@ onMounted(() => {
       >
         <p
           v-if="section.title"
-          class="px-2 py-2 text-xs mb-0 font-medium text-n-slate-11 uppercase tracking-wide sticky z-10 bg-n-alpha-3 backdrop-blur-sm"
+          class="px-2 py-2 text-xs mb-0 font-medium text-n-text-body uppercase tracking-wide sticky z-10 bg-n-glass-pane backdrop-blur-glass-rail"
           :class="showSearch ? 'top-10' : 'top-0'"
         >
           {{ section.title }}
@@ -167,7 +169,7 @@ onMounted(() => {
         </div>
         <div
           v-else-if="!section.items.length && section.emptyState"
-          class="text-sm text-n-slate-11 px-2 py-1.5"
+          class="text-sm text-n-text-body px-2 py-1.5"
         >
           {{ section.emptyState }}
         </div>
@@ -175,11 +177,11 @@ onMounted(() => {
           v-for="(item, itemIndex) in section.items"
           :key="item.value || itemIndex"
           type="button"
-          class="inline-flex items-center justify-start w-full h-8 min-w-0 gap-2 px-2 py-1.5 transition-all duration-200 ease-in-out border-0 rounded-lg z-60 hover:bg-n-alpha-1 dark:hover:bg-n-alpha-2 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
+          class="inline-flex items-center justify-start w-full h-9 min-w-0 gap-2 px-3 py-1.5 transition-all duration-150 ease-out border-0 rounded-pill z-60 hover:bg-n-glass-soft disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
           :class="{
-            'bg-n-alpha-1 dark:bg-n-solid-active': item.isSelected,
+            'bg-n-glass-strong text-n-text-display': item.isSelected,
             'text-n-ruby-11': item.action === 'delete',
-            'text-n-slate-12': item.action !== 'delete',
+            'text-n-text-body': item.action !== 'delete' && !item.isSelected,
           }"
           :disabled="item.disabled"
           @click="handleAction(item)"
@@ -209,7 +211,7 @@ onMounted(() => {
         </button>
         <div
           v-if="sectionIndex < filteredMenuSections.length - 1"
-          class="h-px bg-n-alpha-2 mx-2 my-1"
+          class="h-px bg-n-border-glass-soft mx-2 my-1"
         />
       </div>
     </template>
@@ -218,11 +220,11 @@ onMounted(() => {
         v-for="(item, index) in filteredMenuItems"
         :key="index"
         type="button"
-        class="inline-flex items-center justify-start w-full h-8 min-w-0 gap-2 px-2 py-1.5 transition-all duration-200 ease-in-out border-0 rounded-lg z-60 hover:bg-n-alpha-1 dark:hover:bg-n-alpha-2 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
+        class="inline-flex items-center justify-start w-full h-9 min-w-0 gap-2 px-3 py-1.5 transition-all duration-150 ease-out border-0 rounded-pill z-60 hover:bg-n-glass-soft disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
         :class="{
-          'bg-n-alpha-1 dark:bg-n-solid-active': item.isSelected,
+          'bg-n-glass-strong text-n-text-display': item.isSelected,
           'text-n-ruby-11': item.action === 'delete',
-          'text-n-slate-12': item.action !== 'delete',
+          'text-n-text-body': item.action !== 'delete' && !item.isSelected,
         }"
         :disabled="item.disabled"
         @click="handleAction(item)"
@@ -253,7 +255,7 @@ onMounted(() => {
     </template>
     <div
       v-if="shouldShowEmptyState"
-      class="text-sm text-n-slate-11 px-2 py-1.5"
+      class="text-sm text-n-text-body px-2 py-1.5"
     >
       {{
         isSearching

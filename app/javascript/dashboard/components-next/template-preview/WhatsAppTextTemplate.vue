@@ -9,7 +9,7 @@ defineProps({
 
 <template>
   <div
-    class="flex flex-col gap-2 p-3 rounded-xl bg-n-alpha-2 text-n-slate-12 max-w-80"
+    class="flex flex-col gap-2 p-3 rounded-xl bg-n-alpha-2 text-n-text-display max-w-80"
   >
     <div v-if="message.title" class="text-base font-bold">
       {{ message.title }}
@@ -19,7 +19,7 @@ defineProps({
       <span v-dompurify-html="message.content" />
     </div>
 
-    <div v-if="message.footer" class="text-xs opacity-70 text-n-slate-11">
+    <div v-if="message.footer" class="text-xs opacity-70 text-n-text-body">
       {{ message.footer }}
     </div>
   </div>

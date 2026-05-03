@@ -81,7 +81,7 @@ const statusColor = computed(() => {
     in_progress: 'text-n-amber-11 bg-n-amber-3',
     completed: 'text-n-teal-11 bg-n-teal-3',
   };
-  return colors[deliveryStatus.value] || 'text-n-slate-11 bg-n-slate-3';
+  return colors[deliveryStatus.value] || 'text-n-text-body bg-n-slate-3';
 });
 
 const progressColor = computed(() => {
@@ -114,7 +114,7 @@ const strokeDashoffset = computed(() => {
 
 <template>
   <div
-    class="relative flex items-center justify-between p-4 rounded-xl border border-n-weak border-l-[3px] border-l-violet-400 bg-n-solid-1 hover:border-n-strong hover:shadow-md transition-all duration-200 cursor-pointer w-full"
+    class="relative flex items-center justify-between p-4 rounded-xl border border-n-border-glass-soft border-l-[3px] border-l-violet-400 bg-n-glass-soft hover:border-n-border-glass hover:shadow-md transition-all duration-200 cursor-pointer w-full"
     :class="{ 'opacity-60': !campaign.enabled }"
     @click="handleEdit"
   >
@@ -126,7 +126,7 @@ const strokeDashoffset = computed(() => {
             :class="campaign.enabled ? 'bg-n-teal-9' : 'bg-n-slate-8'"
           />
           <h3
-            class="text-base font-semibold text-n-slate-12 leading-snug truncate"
+            class="text-base font-semibold text-n-text-display leading-snug truncate"
           >
             {{ campaign.name || campaign.title }}
           </h3>
@@ -137,7 +137,7 @@ const strokeDashoffset = computed(() => {
           </span>
         </div>
 
-        <p class="text-sm text-n-slate-10 truncate max-w-2xl">
+        <p class="text-sm text-n-text-body/60 truncate max-w-2xl">
           {{ displayMessage }}
         </p>
       </div>
@@ -169,7 +169,7 @@ const strokeDashoffset = computed(() => {
               />
             </svg>
             <span
-              class="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-n-slate-12"
+              class="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-n-text-display"
             >
               {{
                 t('CAMPAIGNS.CARD.PROGRESS_PERCENT', {
@@ -179,7 +179,7 @@ const strokeDashoffset = computed(() => {
             </span>
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-xs text-n-slate-11 whitespace-nowrap">
+            <span class="text-xs text-n-text-body whitespace-nowrap">
               {{
                 t('CAMPAIGNS.CARD.SENT_OF_TOTAL', {
                   sent: sentCount,
@@ -207,7 +207,7 @@ const strokeDashoffset = computed(() => {
           <span class="text-[10px] text-n-slate-9">
             {{ t('CAMPAIGNS.SCHEDULED') }}
           </span>
-          <span class="text-xs text-n-slate-11 whitespace-nowrap">
+          <span class="text-xs text-n-text-body whitespace-nowrap">
             {{ formattedScheduledAt }}
           </span>
         </div>
@@ -218,7 +218,7 @@ const strokeDashoffset = computed(() => {
           <span class="text-[10px] text-n-slate-9">
             {{ t('NOTIFICATION_TEMPLATES.LAST_SENT') }}
           </span>
-          <span class="text-xs text-n-slate-11 whitespace-nowrap">
+          <span class="text-xs text-n-text-body whitespace-nowrap">
             {{ formattedLastSent }}
           </span>
         </div>
@@ -244,20 +244,20 @@ const strokeDashoffset = computed(() => {
         />
         <div
           v-if="menuOpen"
-          class="absolute right-0 top-10 z-50 min-w-36 rounded-lg border border-n-weak bg-n-solid-1 shadow-lg py-1"
+          class="absolute right-0 top-10 z-50 min-w-36 rounded-lg border border-n-border-glass-soft bg-n-glass-soft shadow-lg py-1"
         >
           <button
-            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-text-display hover:bg-n-alpha-1 transition-colors"
             @click.stop="handlePreview"
           >
-            <span class="i-lucide-eye size-4 text-n-slate-10" />
+            <span class="i-lucide-eye size-4 text-n-text-body/60" />
             {{ t('NOTIFICATION_TEMPLATES.PREVIEW.BUTTON_TEXT') }}
           </button>
           <button
-            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-slate-12 hover:bg-n-alpha-1 transition-colors"
+            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-n-text-display hover:bg-n-alpha-1 transition-colors"
             @click.stop="handleEdit"
           >
-            <span class="i-lucide-pencil size-4 text-n-slate-10" />
+            <span class="i-lucide-pencil size-4 text-n-text-body/60" />
             {{ t('NOTIFICATION_TEMPLATES.EDIT.BUTTON_TEXT') }}
           </button>
           <button

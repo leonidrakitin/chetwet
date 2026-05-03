@@ -90,12 +90,12 @@ const handleDragOver = e => {
 
 <template>
   <div
-    class="shrink-0 w-[calc((100vw-3rem)/2)] sm:w-auto sm:flex-1 sm:min-w-[120px] border-r border-n-weak last:border-r-0"
+    class="shrink-0 w-[calc((100vw-3rem)/2)] sm:w-auto sm:flex-1 sm:min-w-[120px] border-r border-n-border-glass-soft last:border-r-0"
   >
     <div
-      class="h-12 px-2 flex items-center justify-center border-b border-n-weak bg-n-solid-1"
+      class="h-12 px-2 flex items-center justify-center border-b border-n-border-glass-soft bg-n-glass-soft"
     >
-      <span class="text-sm font-medium text-n-slate-12 truncate">{{
+      <span class="text-sm font-medium text-n-text-display truncate">{{
         provider.name
       }}</span>
     </div>
@@ -109,9 +109,9 @@ const handleDragOver = e => {
       <div
         v-for="slot in timeSlots"
         :key="`${slot.hour}-${slot.minute}`"
-        class="border-b border-n-weak transition-colors"
+        class="border-b border-n-border-glass-soft transition-colors"
         :class="{
-          'bg-n-solid-2': !workingSlotForTime(slot.hour, slot.minute),
+          'bg-n-glass-strong': !workingSlotForTime(slot.hour, slot.minute),
           'bg-n-slate-2': workingSlotForTime(slot.hour, slot.minute),
         }"
         :style="`height: ${SLOT_HEIGHT}px;`"

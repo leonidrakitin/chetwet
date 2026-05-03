@@ -147,7 +147,7 @@ const handleDocumentableClick = () => {
           >
             {{ $t('CAPTAIN.RESPONSES.QUESTION_BADGE') }}
           </span>
-          <span class="text-sm font-medium text-n-slate-12 line-clamp-2">
+          <span class="text-sm font-medium text-n-text-display line-clamp-2">
             {{ question }}
           </span>
           <span
@@ -190,7 +190,7 @@ const handleDocumentableClick = () => {
         >
           {{ $t('CAPTAIN.RESPONSES.ANSWER_BADGE') }}
         </span>
-        <span class="text-n-slate-11 text-sm line-clamp-4 flex-1">
+        <span class="text-n-text-body text-sm line-clamp-4 flex-1">
           {{ answer }}
         </span>
       </div>
@@ -246,14 +246,14 @@ const handleDocumentableClick = () => {
         <div class="inline-flex items-center gap-3 min-w-0">
           <span
             v-if="status === 'approved'"
-            class="text-sm shrink-0 truncate text-n-slate-11 inline-flex items-center gap-1"
+            class="text-sm shrink-0 truncate text-n-text-body inline-flex items-center gap-1"
           >
             <Icon icon="i-woot-captain" class="size-3.5" />
             {{ assistant?.name || '' }}
           </span>
           <div
             v-if="documentable"
-            class="text-sm text-n-slate-11 grid grid-cols-[auto_1fr] items-center gap-1 min-w-0"
+            class="text-sm text-n-text-body grid grid-cols-[auto_1fr] items-center gap-1 min-w-0"
           >
             <Icon
               v-if="documentable.type === 'Captain::Document'"
@@ -299,7 +299,7 @@ const handleDocumentableClick = () => {
           </div>
         </div>
         <div
-          class="shrink-0 text-sm text-n-slate-11 line-clamp-1 inline-flex items-center gap-1"
+          class="shrink-0 text-sm text-n-text-body line-clamp-1 inline-flex items-center gap-1"
         >
           <Icon icon="i-ph-calendar-dot" class="size-3.5" />
           {{ timestamp }}

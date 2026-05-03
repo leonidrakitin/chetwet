@@ -63,15 +63,17 @@ function formatFullDate(dateStr) {
 <template>
   <div
     v-if="hasScheduled"
-    class="rounded-xl border border-n-weak bg-n-solid-1 mb-6 overflow-hidden"
+    class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft mb-6 overflow-hidden"
   >
-    <div class="px-5 py-3 border-b border-n-weak flex items-center gap-2">
+    <div
+      class="px-5 py-3 border-b border-n-border-glass-soft flex items-center gap-2"
+    >
       <span
         class="flex items-center justify-center size-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400"
       >
         <span class="i-lucide-clock size-4" />
       </span>
-      <h3 class="text-sm font-semibold text-n-slate-12">
+      <h3 class="text-sm font-semibold text-n-text-display">
         {{
           t('CAMPAIGNS.STATISTICS.SCHEDULED.TITLE', {
             count: scheduledCampaigns.length,
@@ -84,7 +86,7 @@ function formatFullDate(dateStr) {
       <span class="i-lucide-loader-2 size-5 text-n-slate-9 animate-spin" />
     </div>
 
-    <div v-else class="divide-y divide-n-weak">
+    <div v-else class="divide-y divide-n-border-glass-soft">
       <div
         v-for="campaign in scheduledCampaigns"
         :key="campaign.id"
@@ -96,12 +98,12 @@ function formatFullDate(dateStr) {
             :class="campaign.enabled ? 'bg-green-500' : 'bg-n-slate-8'"
           />
           <div class="min-w-0">
-            <span class="text-sm font-medium text-n-slate-12 truncate">
+            <span class="text-sm font-medium text-n-text-display truncate">
               {{ campaign.name }}
             </span>
             <span
               v-if="campaign.inbox_name"
-              class="text-xs text-n-slate-10 ml-2"
+              class="text-xs text-n-text-body/60 ml-2"
             >
               ({{ campaign.inbox_name }})
             </span>
@@ -110,7 +112,7 @@ function formatFullDate(dateStr) {
 
         <div class="flex items-center gap-4 shrink-0">
           <div class="text-right">
-            <div class="text-sm font-medium text-n-slate-12 tabular-nums">
+            <div class="text-sm font-medium text-n-text-display tabular-nums">
               {{ formatScheduledAt(campaign.scheduled_at) }}
             </div>
             <div class="text-xs text-n-slate-9 tabular-nums">
@@ -120,14 +122,14 @@ function formatFullDate(dateStr) {
 
           <div class="flex items-center gap-1">
             <button
-              class="p-1.5 rounded-lg hover:bg-n-alpha-2 text-n-slate-11 hover:text-n-slate-12 transition-colors"
+              class="p-1.5 rounded-lg hover:bg-n-alpha-2 text-n-text-body hover:text-n-text-display transition-colors"
               :title="t('CAMPAIGNS.STATISTICS.SCHEDULED.EDIT')"
               @click="emit('edit', campaign)"
             >
               <span class="i-lucide-pencil size-4" />
             </button>
             <button
-              class="p-1.5 rounded-lg hover:bg-red-500/10 text-n-slate-11 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              class="p-1.5 rounded-lg hover:bg-red-500/10 text-n-text-body hover:text-red-600 dark:hover:text-red-400 transition-colors"
               :title="t('CAMPAIGNS.STATISTICS.SCHEDULED.CANCEL')"
               @click="emit('delete', campaign)"
             >

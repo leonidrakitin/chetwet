@@ -328,6 +328,8 @@
     "REPORTS": "Reports",
     "SETTINGS": "Settings",
     "CONTACTS": "Contacts",
+    "COLLAPSE": "Collapse",
+    "EXPAND": "Expand",
     "ACTIVE": "Active",
     "CAPTAIN": "Captain",
     "CAPTAIN_ASSISTANTS": "Assistants",
@@ -426,7 +428,10 @@
     "SUGGESTIONS": "Suggestions",
     "COMPANIES": "Компании",
     "ALL_COMPANIES": "Все компании",
-    "CAPTAIN_TOOLS": "Инструменты"
+    "CAPTAIN_TOOLS": "Инструменты",
+    "EXPAND": "Expand",
+    "COLLAPSE": "Collapse",
+    "NOTIFICATIONS": "Notifications"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

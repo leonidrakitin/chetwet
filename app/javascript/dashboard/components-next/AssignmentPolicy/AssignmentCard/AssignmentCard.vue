@@ -20,7 +20,7 @@ const handleClick = () => {
   <CardLayout class="[&>div]:px-5 cursor-pointer" @click="handleClick">
     <div class="flex flex-col items-start gap-2">
       <div class="flex justify-between w-full items-center">
-        <h3 class="text-n-slate-12 text-heading-2">{{ title }}</h3>
+        <h3 class="text-n-text-display text-heading-2">{{ title }}</h3>
         <Button
           xs
           slate
@@ -29,7 +29,7 @@ const handleClick = () => {
           @click.stop="handleClick"
         />
       </div>
-      <p class="text-n-slate-11 text-body-para mb-0">{{ description }}</p>
+      <p class="text-n-text-body text-body-para mb-0">{{ description }}</p>
     </div>
 
     <ul class="flex flex-col items-start gap-3 mt-3">
@@ -40,7 +40,7 @@ const handleClick = () => {
       >
         <Icon
           :icon="feature.icon"
-          class="text-n-slate-11 size-4 flex-shrink-0"
+          class="text-n-text-body size-4 flex-shrink-0"
         />
         {{ feature.label }}
       </li>

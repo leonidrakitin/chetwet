@@ -49,7 +49,7 @@ const onLastPage = () => {
 
 <template>
   <div
-    class="flex items-center h-8 outline outline-1 outline-n-weak rounded-lg"
+    class="flex items-center h-8 outline outline-1 outline-n-border-glass-soft rounded-lg"
   >
     <NextButton
       faded
@@ -75,11 +75,11 @@ const onLastPage = () => {
     <div
       class="flex items-center gap-3 px-3 tabular-nums bg-n-slate-9/10 h-full"
     >
-      <span class="text-sm text-n-slate-12">
+      <span class="text-sm text-n-text-display">
         {{ currentPage }}
       </span>
-      <span class="text-n-slate-11">/</span>
-      <span class="text-sm text-n-slate-11">
+      <span class="text-n-text-body">/</span>
+      <span class="text-sm text-n-text-body">
         {{ totalPages }}
       </span>
     </div>

@@ -21,7 +21,7 @@ const collapsed = ref(props.collapsedByDefault);
 </script>
 
 <template>
-  <div class="rounded-xl border border-n-weak bg-n-solid-1">
+  <div class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft">
     <!-- Category header -->
     <button
       class="flex items-center gap-3 w-full px-4 py-3 hover:bg-n-alpha-1 transition-colors rounded-t-xl"
@@ -34,10 +34,10 @@ const collapsed = ref(props.collapsedByDefault);
         <span class="size-5" :class="[icon, iconColor]" />
       </div>
       <div class="flex flex-col items-start min-w-0 flex-1">
-        <span class="text-sm font-semibold text-n-slate-12 truncate">
+        <span class="text-sm font-semibold text-n-text-display truncate">
           {{ title }}
         </span>
-        <span v-if="description" class="text-xs text-n-slate-10">
+        <span v-if="description" class="text-xs text-n-text-body/60">
           {{ description }}
         </span>
       </div>
@@ -53,7 +53,7 @@ const collapsed = ref(props.collapsedByDefault);
     <!-- Items list -->
     <div
       v-show="!collapsed"
-      class="border-t border-n-weak divide-y divide-n-weak"
+      class="border-t border-n-border-glass-soft divide-y divide-n-border-glass-soft"
     >
       <div
         v-for="item in items"
@@ -64,7 +64,7 @@ const collapsed = ref(props.collapsedByDefault);
         <div
           class="flex items-center justify-center size-8 rounded-lg bg-n-alpha-1 flex-shrink-0"
         >
-          <span class="size-4 text-n-slate-10" :class="item.icon" />
+          <span class="size-4 text-n-text-body/60" :class="item.icon" />
         </div>
 
         <!-- Name + description -->
@@ -72,12 +72,14 @@ const collapsed = ref(props.collapsedByDefault);
           class="flex flex-col items-start min-w-0 flex-1 text-left"
           @click="$emit('edit', item)"
         >
-          <span class="text-sm font-medium text-n-slate-12 truncate max-w-full">
+          <span
+            class="text-sm font-medium text-n-text-display truncate max-w-full"
+          >
             {{ item.title }}
           </span>
           <span
             v-if="item.description"
-            class="text-xs text-n-slate-10 truncate max-w-full"
+            class="text-xs text-n-text-body/60 truncate max-w-full"
           >
             {{ item.description }}
           </span>

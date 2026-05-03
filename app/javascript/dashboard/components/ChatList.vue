@@ -446,7 +446,7 @@ const groupedItems = computed(() => {
       id: '__header_all',
       sectionId: 'all',
       label: t('CHAT_LIST.SECTIONS.ALL'),
-      badgeClass: 'bg-n-alpha-2 text-n-slate-12',
+      badgeClass: 'bg-n-alpha-2 text-n-text-display',
       items: remaining,
     },
   ];
@@ -1055,7 +1055,7 @@ watch(isConversationAssigneeEnabled, enabled => {
 
     <p
       v-if="!chatListLoading && !conversationList.length"
-      class="flex overflow-auto justify-center items-center p-6 text-sm text-n-slate-11"
+      class="flex overflow-auto justify-center items-center p-6 text-sm text-n-text-body"
     >
       {{ $t('CHAT_LIST.LIST.404') }}
     </p>
@@ -1100,15 +1100,15 @@ watch(isConversationAssigneeEnabled, enabled => {
             >
               {{ item.label }}
             </span>
-            <span class="text-xs font-medium text-n-slate-10">
+            <span class="text-xs font-medium text-n-text-body/60">
               {{ item.count }}
             </span>
           </div>
           <span
             v-if="!collapsedSections.has(item.sectionId)"
-            class="i-lucide-minus text-n-slate-10 size-4"
+            class="i-lucide-minus text-n-text-body/60 size-4"
           />
-          <span v-else class="i-lucide-plus text-n-slate-10 size-4" />
+          <span v-else class="i-lucide-plus text-n-text-body/60 size-4" />
         </div>
         <ConversationItem
           v-else
@@ -1133,7 +1133,7 @@ watch(isConversationAssigneeEnabled, enabled => {
       </div>
       <p
         v-else-if="showEndOfListMessage"
-        class="p-4 text-center text-sm text-n-slate-11"
+        class="p-4 text-center text-sm text-n-text-body"
       >
         {{ $t('CHAT_LIST.EOF') }}
       </p>

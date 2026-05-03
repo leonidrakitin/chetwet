@@ -194,11 +194,11 @@ onMounted(() => {
           v-if="shouldShowWhatsAppWebhookDetails"
           class="w-[50%] max-w-[50%] ml-[25%]"
         >
-          <p class="mt-8 font-medium text-n-slate-11">
+          <p class="mt-8 font-medium text-n-text-body">
             {{ $t('INBOX_MGMT.ADD.WHATSAPP.API_CALLBACK.WEBHOOK_URL') }}
           </p>
           <woot-code lang="html" :script="currentInbox.callback_webhook_url" />
-          <p class="mt-8 font-medium text-n-slate-11">
+          <p class="mt-8 font-medium text-n-text-body">
             {{
               $t(
                 'INBOX_MGMT.ADD.WHATSAPP.API_CALLBACK.WEBHOOK_VERIFICATION_TOKEN'
@@ -236,7 +236,9 @@ onMounted(() => {
           <p class="mt-2 text-sm text-n-slate-9">
             {{ $t('INBOX_MGMT.FINISH.WHATSAPP_QR_INSTRUCTION') }}
           </p>
-          <div class="rounded-lg shadow outline-1 outline-n-strong outline">
+          <div
+            class="rounded-lg shadow outline-1 outline-n-border-glass outline"
+          >
             <img
               :src="qrCodes.whatsapp"
               alt="WhatsApp QR Code"
@@ -251,7 +253,9 @@ onMounted(() => {
           <p class="mt-2 text-sm text-n-slate-9">
             {{ $t('INBOX_MGMT.FINISH.MESSENGER_QR_INSTRUCTION') }}
           </p>
-          <div class="rounded-lg shadow outline-1 outline-n-strong outline">
+          <div
+            class="rounded-lg shadow outline-1 outline-n-border-glass outline"
+          >
             <img
               :src="qrCodes.messenger"
               alt="Messenger QR Code"
@@ -267,7 +271,9 @@ onMounted(() => {
             {{ $t('INBOX_MGMT.FINISH.TELEGRAM_QR_INSTRUCTION') }}
           </p>
 
-          <div class="rounded-lg shadow outline-1 outline-n-strong outline">
+          <div
+            class="rounded-lg shadow outline-1 outline-n-border-glass outline"
+          >
             <img
               :src="qrCodes.telegram"
               alt="Telegram QR Code"

@@ -107,7 +107,7 @@ const getHolidayForDay = dayIndex => {
 <template>
   <div class="flex flex-col gap-3">
     <div class="flex items-center justify-between">
-      <label class="text-sm font-semibold text-n-slate-12">
+      <label class="text-sm font-semibold text-n-text-display">
         {{ t('SCHEDULE.SETTINGS.WORKING_HOURS') }}
       </label>
       <div class="flex items-center gap-3 text-xs text-n-slate-8">

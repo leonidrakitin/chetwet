@@ -96,7 +96,7 @@ const confirmPlaceHolderText = computed(() =>
         feature-name="team_management"
       >
         <template v-if="teamsList?.length" #count>
-          <span class="text-body-main text-n-slate-11">
+          <span class="text-body-main text-n-text-body">
             {{ $t('TEAMS_SETTINGS.COUNT', { n: teamsList.length }) }}
           </span>
         </template>
@@ -110,12 +110,15 @@ const confirmPlaceHolderText = computed(() =>
     <template #body>
       <span
         v-if="!filteredTeamsList.length && searchQuery"
-        class="flex-1 flex items-center justify-center py-20 text-center text-body-main !text-base text-n-slate-11"
+        class="flex-1 flex items-center justify-center py-20 text-center text-body-main !text-base text-n-text-body"
       >
         {{ $t('TEAMS_SETTINGS.NO_RESULTS') }}
       </span>
 
-      <div v-else class="divide-y divide-n-weak border-t border-n-weak">
+      <div
+        v-else
+        class="divide-y divide-n-border-glass-soft border-t border-n-border-glass-soft"
+      >
         <div
           v-for="team in filteredTeamsList"
           :key="team.id"
@@ -123,18 +126,18 @@ const confirmPlaceHolderText = computed(() =>
         >
           <div class="flex items-start gap-4">
             <div
-              class="flex items-center flex-shrink-0 size-10 justify-center rounded-xl outline outline-1 outline-n-weak -outline-offset-1"
+              class="flex items-center flex-shrink-0 size-10 justify-center rounded-xl outline outline-1 outline-n-border-glass-soft -outline-offset-1"
             >
               <Icon
                 icon="i-lucide-users-round"
-                class="size-4 text-n-slate-11"
+                class="size-4 text-n-text-body"
               />
             </div>
             <div class="flex flex-col items-start gap-1">
-              <span class="block text-heading-3 text-n-slate-12 capitalize">
+              <span class="block text-heading-3 text-n-text-display capitalize">
                 {{ team.name }}
               </span>
-              <p class="mb-0 text-n-slate-11 text-body-main">
+              <p class="mb-0 text-n-text-body text-body-main">
                 {{ team.description }}
               </p>
             </div>

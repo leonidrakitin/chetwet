@@ -89,7 +89,7 @@ const resetDemo = () => {
     :layout="{ type: 'grid', width: '320px' }"
   >
     <Variant title="Interactive Demo">
-      <div class="p-4 bg-n-solid-2 rounded-md mx-auto w-64 h-[400px]">
+      <div class="p-4 bg-n-glass-strong rounded-md mx-auto w-64 h-[400px]">
         <GroupedStackedChangelogCard
           :posts="visibleCards"
           :current-index="currentIndex"

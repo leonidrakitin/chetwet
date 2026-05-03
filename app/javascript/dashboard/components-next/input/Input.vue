@@ -46,7 +46,7 @@ const messageClass = computed(() => {
     case 'success':
       return 'text-n-teal-10 dark:text-n-teal-10';
     default:
-      return 'text-n-slate-11 dark:text-n-slate-11';
+      return 'text-n-text-body dark:text-n-text-body';
   }
 });
 
@@ -55,7 +55,7 @@ const inputOutlineClass = computed(() => {
     case 'error':
       return 'outline-n-ruby-8 dark:outline-n-ruby-8 hover:outline-n-ruby-9 dark:hover:outline-n-ruby-9 disabled:outline-n-ruby-8 dark:disabled:outline-n-ruby-8 focus:outline-n-ruby-9 dark:focus:outline-n-ruby-9';
     default:
-      return 'outline-n-container dark:outline-n-container hover:outline-n-strong dark:hover:outline-n-slate-7 disabled:outline-n-container dark:disabled:outline-n-container focus:outline-n-brand dark:focus:outline-n-brand';
+      return 'outline-n-border-glass-soft dark:outline-n-border-glass-soft hover:outline-n-border-glass dark:hover:outline-n-border-glass disabled:outline-n-border-glass-soft dark:disabled:outline-n-border-glass-soft focus:outline-n-accent-active dark:focus:outline-n-accent-active';
   }
 });
 
@@ -108,7 +108,7 @@ onMounted(() => {
     <label
       v-if="label"
       :for="uniqueId"
-      class="mb-0.5 text-heading-3 text-n-slate-12"
+      class="mb-0.5 text-heading-3 text-n-text-display"
     >
       {{ label }}
     </label>
@@ -137,7 +137,7 @@ onMounted(() => {
           ? max
           : undefined
       "
-      class="block w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-xl bg-n-glass-soft shadow-[0_1px_2px_rgba(15,23,42,0.04)] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-n-slate-10 dark:placeholder:text-n-slate-10 disabled:cursor-not-allowed disabled:opacity-50 text-n-text-display transition-all duration-200 ease-out [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      class="block w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-pill bg-n-glass-soft shadow-inset-hairline backdrop-blur-glass-rail backdrop-saturate-glass file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-n-text-body/60 dark:placeholder:text-n-text-body/60 disabled:cursor-not-allowed disabled:opacity-50 text-n-text-display transition-all duration-200 ease-out [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       @input="handleInput"
       @focus="handleFocus"
       @blur="handleBlur"

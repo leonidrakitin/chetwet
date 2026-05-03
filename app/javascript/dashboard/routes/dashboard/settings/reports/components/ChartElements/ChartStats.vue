@@ -37,11 +37,11 @@ const trendColor = (value, key) => {
 </script>
 
 <template>
-  <div class="text-n-slate-11">
+  <div class="text-n-text-body">
     <span class="text-sm">
       {{ metric.NAME }}
     </span>
-    <div class="flex items-end text-n-slate-12">
+    <div class="flex items-end text-n-text-display">
       <div v-if="fetchingStatus === STATUS.FETCHING">
         <Spinner />
       </div>

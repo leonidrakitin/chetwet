@@ -46,12 +46,13 @@ const modelValue = defineModel({
     <select
       v-model="modelValue"
       :disabled="disabled"
-      class="appearance-none bg-none rounded-lg border-0 outline-1 outline -outline-offset-1 transition-all duration-200 bg-n-glass-soft !mb-0 py-2 px-3 pr-10 text-sm text-n-text-display"
+      class="appearance-none bg-none rounded-pill border-0 outline-1 outline -outline-offset-1 transition-all duration-200 bg-n-glass-soft backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline !mb-0 h-9 py-2 px-4 pr-10 text-sm text-n-text-display"
       :class="{
-        'outline-n-weak hover:outline-n-slate-6 focus:outline-n-blue-9':
+        'outline-n-border-glass-soft hover:outline-n-border-glass focus:outline-n-accent-active':
           !error && !disabled,
-        'outline-n-red-9 focus:outline-n-red-9': error && !disabled,
-        'outline-n-weak bg-n-slate-2 cursor-not-allowed opacity-60': disabled,
+        'outline-n-ruby-9 focus:outline-n-ruby-9': error && !disabled,
+        'outline-n-border-glass-soft bg-n-glass-soft cursor-not-allowed opacity-60':
+          disabled,
       }"
     >
       <option v-if="placeholder" value="" disabled>
@@ -89,7 +90,7 @@ const modelValue = defineModel({
     >
       <Icon
         icon="i-lucide-chevron-down"
-        class="size-4 text-n-slate-11"
+        class="size-4 text-n-text-body"
         :class="{ 'opacity-50': disabled }"
       />
     </div>

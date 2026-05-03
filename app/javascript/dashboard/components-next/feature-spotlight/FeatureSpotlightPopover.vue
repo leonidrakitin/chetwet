@@ -50,10 +50,10 @@ const openLink = link => {
       ]"
     >
       <section
-        class="absolute top-full mt-6 ltr:left-0 rtl:right-0 outline outline-1 outline-n-weak bg-n-alpha-3 backdrop-blur-[100px] rounded-xl p-4 w-80 z-20"
+        class="absolute top-full mt-6 ltr:left-0 rtl:right-0 outline outline-1 outline-n-border-glass-soft bg-n-alpha-3 backdrop-blur-[100px] rounded-xl p-4 w-80 z-20"
       >
         <div
-          class="absolute -top-[0.77rem] ltr:left-12 rtl:right-12 w-6 h-6 ltr:rotate-45 rtl:-rotate-45 rtl:rounded-tr ltr:rounded-tl rtl:border-r ltr:border-l border-t border-n-weak bg-n-alpha-3 z-10"
+          class="absolute -top-[0.77rem] ltr:left-12 rtl:right-12 w-6 h-6 ltr:rotate-45 rtl:-rotate-45 rtl:rounded-tr ltr:rounded-tl rtl:border-r ltr:border-l border-t border-n-border-glass-soft bg-n-alpha-3 z-10"
         />
 
         <div class="relative flex flex-col items-start gap-4 z-20">
@@ -89,7 +89,7 @@ const openLink = link => {
             </template>
           </div>
 
-          <p v-if="note" class="text-n-slate-12 text-start text-sm mb-0">
+          <p v-if="note" class="text-n-text-display text-start text-sm mb-0">
             {{ note }}
           </p>
 

@@ -165,7 +165,7 @@ watch(
     />
 
     <div class="flex flex-col gap-3">
-      <label class="text-sm font-medium text-n-slate-12">
+      <label class="text-sm font-medium text-n-text-display">
         {{ t('CAPTAIN.ASSISTANTS.FORM.TONE.LABEL') }}
       </label>
       <div class="flex flex-wrap gap-2">
@@ -177,7 +177,7 @@ watch(
           :class="
             state.tone === option
               ? 'bg-n-brand border-n-brand text-white'
-              : 'bg-transparent border-n-weak text-n-slate-11 hover:border-n-slate-8'
+              : 'bg-transparent border-n-border-glass-soft text-n-text-body hover:border-n-slate-8'
           "
           @click="state.tone = option"
         >
@@ -187,12 +187,12 @@ watch(
         </button>
       </div>
       <div
-        class="flex items-start gap-2.5 rounded-xl bg-n-alpha-1 border border-n-weak px-4 py-3"
+        class="flex items-start gap-2.5 rounded-xl bg-n-alpha-1 border border-n-border-glass-soft px-4 py-3"
       >
         <span
           class="i-lucide-message-circle shrink-0 mt-0.5 size-4 text-n-slate-9"
         />
-        <p class="text-sm text-n-slate-11 italic leading-relaxed">
+        <p class="text-sm text-n-text-body italic leading-relaxed">
           {{
             t(
               `CAPTAIN.ASSISTANTS.FORM.TONE.EXAMPLES.${state.tone.toUpperCase()}`
@@ -209,11 +209,11 @@ watch(
           type="checkbox"
           class="w-4 h-4 rounded accent-n-brand cursor-pointer"
         />
-        <span class="text-sm font-medium text-n-slate-12">
+        <span class="text-sm font-medium text-n-text-display">
           {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.LABEL') }}
         </span>
       </label>
-      <p class="text-sm text-n-slate-11 italic pl-7">
+      <p class="text-sm text-n-text-body italic pl-7">
         {{ t('CAPTAIN.ASSISTANTS.FORM.EMOJIFY.DESCRIPTION') }}
       </p>
       <div class="flex flex-col gap-1.5 pl-7">
@@ -221,7 +221,7 @@ watch(
           class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
           :class="
             !state.emojify
-              ? 'bg-n-alpha-1 border border-n-weak text-n-slate-12 font-medium'
+              ? 'bg-n-alpha-1 border border-n-border-glass-soft text-n-text-display font-medium'
               : 'text-n-slate-9'
           "
         >
@@ -232,7 +232,7 @@ watch(
           class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
           :class="
             state.emojify
-              ? 'bg-n-alpha-1 border border-n-weak text-n-slate-12 font-medium'
+              ? 'bg-n-alpha-1 border border-n-border-glass-soft text-n-text-display font-medium'
               : 'text-n-slate-9'
           "
         >
@@ -241,14 +241,16 @@ watch(
         </div>
       </div>
 
-      <div class="flex flex-col gap-2 pl-7 border-t border-n-weak pt-4 mt-1">
-        <label class="text-sm font-medium text-n-slate-12">
+      <div
+        class="flex flex-col gap-2 pl-7 border-t border-n-border-glass-soft pt-4 mt-1"
+      >
+        <label class="text-sm font-medium text-n-text-display">
           {{ t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.LABEL') }}
         </label>
-        <p class="text-sm text-n-slate-11">
+        <p class="text-sm text-n-text-body">
           {{ t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.DESCRIPTION') }}
         </p>
-        <p v-if="!state.emojify" class="text-sm text-n-slate-10">
+        <p v-if="!state.emojify" class="text-sm text-n-text-body/60">
           {{ t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.DISABLED_HINT') }}
         </p>
         <template v-else>
@@ -256,12 +258,12 @@ watch(
             <span
               v-for="(emoji, index) in state.allowedEmojis"
               :key="`${emoji}-${index}`"
-              class="inline-flex items-center gap-1 rounded-lg border border-n-weak bg-n-alpha-1 px-2 py-1 text-lg leading-none"
+              class="inline-flex items-center gap-1 rounded-lg border border-n-border-glass-soft bg-n-alpha-1 px-2 py-1 text-lg leading-none"
             >
               <span aria-hidden="true">{{ emoji }}</span>
               <button
                 type="button"
-                class="text-n-slate-10 hover:text-n-slate-12 p-0.5 rounded"
+                class="text-n-text-body/60 hover:text-n-text-display p-0.5 rounded"
                 :aria-label="
                   t('CAPTAIN.ASSISTANTS.FORM.ALLOWED_EMOJIS.REMOVE_ARIA')
                 "

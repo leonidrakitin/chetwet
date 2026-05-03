@@ -137,10 +137,10 @@ function proceed() {
     >
       <Icon icon="i-lucide-inbox" class="size-8 text-n-brand" />
     </div>
-    <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
+    <h1 class="text-2xl font-bold text-n-text-display mb-2">
       {{ t('ONBOARDING.INBOX_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-6">
+    <p class="text-sm text-n-text-body/60 mb-6">
       {{ t('ONBOARDING.INBOX_STEP.SUBTITLE') }}
     </p>
 
@@ -154,7 +154,7 @@ function proceed() {
           :class="
             channelType === ch.id
               ? 'bg-n-brand/10 text-n-brand outline-n-brand/30'
-              : 'bg-white dark:bg-n-solid-3 text-n-slate-11 outline-n-container hover:outline-n-brand/30'
+              : 'bg-white dark:bg-n-solid-3 text-n-text-body outline-n-border-glass-soft hover:outline-n-brand/30'
           "
           @click="channelType = ch.id"
         >
@@ -204,7 +204,7 @@ function proceed() {
             :placeholder="t('ONBOARDING.INBOX_STEP.BOT_TOKEN_PLACEHOLDER')"
             @enter="proceed"
           />
-          <p class="text-xs text-n-slate-10 -mt-2">
+          <p class="text-xs text-n-text-body/60 -mt-2">
             {{ t('ONBOARDING.INBOX_STEP.BOT_TOKEN_HELP') }}
             <a
               href="https://t.me/BotFather"
@@ -260,7 +260,7 @@ function proceed() {
             :placeholder="t('ONBOARDING.INBOX_STEP.ACCESS_TOKEN_PLACEHOLDER')"
             @enter="proceed"
           />
-          <p class="text-xs text-n-slate-10 -mt-2">
+          <p class="text-xs text-n-text-body/60 -mt-2">
             {{ t('ONBOARDING.INBOX_STEP.VK_TOKEN_HELP') }}
             <a
               href="https://dev.vk.com/api/bots/getting-started"
@@ -291,7 +291,7 @@ function proceed() {
             :placeholder="t('ONBOARDING.INBOX_STEP.CLIENT_SECRET_PLACEHOLDER')"
             @enter="proceed"
           />
-          <p class="text-xs text-n-slate-10 -mt-2">
+          <p class="text-xs text-n-text-body/60 -mt-2">
             {{ t('ONBOARDING.INBOX_STEP.AVITO_HELP') }}
             <a
               href="https://developers.avito.ru/"

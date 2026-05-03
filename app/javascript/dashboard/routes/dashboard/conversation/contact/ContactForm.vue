@@ -281,7 +281,7 @@ export default {
     @submit.prevent="handleSubmit"
   >
     <div class="flex flex-col mb-4 items-start gap-1 w-full">
-      <label class="mb-0.5 text-sm font-medium text-n-slate-12">
+      <label class="mb-0.5 text-sm font-medium text-n-text-display">
         {{ $t('CONTACT_FORM.FORM.AVATAR.LABEL') }}
       </label>
       <Avatar
@@ -398,7 +398,7 @@ export default {
         class="flex items-stretch w-full mb-4"
       >
         <span
-          class="flex items-center h-10 px-2 text-sm border-solid border-y ltr:border-l rtl:border-r ltr:rounded-l-md rtl:rounded-r-md bg-n-solid-3 text-n-slate-11 border-n-weak"
+          class="flex items-center h-10 px-2 text-sm border-solid border-y ltr:border-l rtl:border-r ltr:rounded-l-md rtl:rounded-r-md bg-n-solid-3 text-n-text-body border-n-border-glass-soft"
         >
           {{ socialProfile.prefixURL }}
         </span>

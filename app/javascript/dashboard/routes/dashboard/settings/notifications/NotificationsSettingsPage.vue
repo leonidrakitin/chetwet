@@ -143,10 +143,10 @@ onMounted(async () => {
 <template>
   <div class="w-full max-w-4xl mx-auto flex flex-col gap-6">
     <div class="flex flex-col gap-1">
-      <h2 class="text-xl font-semibold text-n-slate-12">
+      <h2 class="text-xl font-semibold text-n-text-display">
         {{ t('NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.TITLE') }}
       </h2>
-      <p class="text-sm text-n-slate-10">
+      <p class="text-sm text-n-text-body/60">
         {{ t('NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.DESCRIPTION') }}
       </p>
     </div>
@@ -161,7 +161,7 @@ onMounted(async () => {
     <template v-else>
       <div class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft">
         <div
-          class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-slate-50/60 to-transparent dark:from-slate-950/20"
+          class="px-5 py-4 border-b border-n-border-glass-soft rounded-t-xl bg-gradient-to-r from-slate-50/60 to-transparent dark:from-slate-950/20"
         >
           <div class="flex items-center gap-2.5">
             <div
@@ -172,7 +172,7 @@ onMounted(async () => {
               />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-n-slate-12">
+              <h3 class="text-sm font-semibold text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.QUIET_HOURS.TITLE'
@@ -192,7 +192,7 @@ onMounted(async () => {
         <div class="px-5 py-4">
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.QUIET_HOURS.FROM'
@@ -206,7 +206,7 @@ onMounted(async () => {
               />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.QUIET_HOURS.TO'
@@ -225,7 +225,7 @@ onMounted(async () => {
 
       <div class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft">
         <div
-          class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-amber-50/60 to-transparent dark:from-amber-950/20"
+          class="px-5 py-4 border-b border-n-border-glass-soft rounded-t-xl bg-gradient-to-r from-amber-50/60 to-transparent dark:from-amber-950/20"
         >
           <div class="flex items-center gap-2.5">
             <div
@@ -236,7 +236,7 @@ onMounted(async () => {
               />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-n-slate-12">
+              <h3 class="text-sm font-semibold text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.LIMITS.TITLE'
@@ -256,7 +256,7 @@ onMounted(async () => {
         <div class="px-5 py-4 flex flex-col gap-5">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.LIMITS.MAX_PER_DAY.LABEL'
@@ -283,7 +283,7 @@ onMounted(async () => {
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.LIMITS.PER_CONTACT_GAP.LABEL'
@@ -310,10 +310,12 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="flex flex-col gap-4 pt-2 border-t border-n-weak">
+          <div
+            class="flex flex-col gap-4 pt-2 border-t border-n-border-glass-soft"
+          >
             <div class="flex items-start justify-between gap-4">
               <div class="flex flex-col gap-0.5">
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-sm font-medium text-n-text-display">
                   {{
                     t(
                       'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.LIMITS.STOP_IF_REPLIED.LABEL'
@@ -335,7 +337,7 @@ onMounted(async () => {
               v-if="stopIfReplied"
               class="flex flex-col gap-1.5 pl-4 border-l-2 border-amber-200 dark:border-amber-800"
             >
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.LIMITS.STOP_IF_REPLIED_RETRY_MINUTES.LABEL'
@@ -363,7 +365,7 @@ onMounted(async () => {
 
             <div class="flex items-start justify-between gap-4">
               <div class="flex flex-col gap-0.5">
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-sm font-medium text-n-text-display">
                   {{
                     t(
                       'NOTIFICATION_TEMPLATES.NOTIFICATIONS_SETTINGS.LIMITS.SKIP_IF_HAS_ACTIVE_DIALOG.LABEL'
@@ -389,7 +391,7 @@ onMounted(async () => {
           class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
         >
           <div
-            class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-violet-50/60 to-transparent dark:from-violet-950/20"
+            class="px-5 py-4 border-b border-n-border-glass-soft rounded-t-xl bg-gradient-to-r from-violet-50/60 to-transparent dark:from-violet-950/20"
           >
             <div class="flex items-center gap-2.5">
               <div
@@ -401,7 +403,7 @@ onMounted(async () => {
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="text-sm font-semibold text-n-slate-12">
+                  <h3 class="text-sm font-semibold text-n-text-display">
                     {{ t('NOTIFICATION_TEMPLATES.CASCADE.MARKETING.TITLE') }}
                   </h3>
                   <span
@@ -444,10 +446,10 @@ onMounted(async () => {
               <div
                 v-for="(inbox, index) in marketingChain"
                 :key="inbox.id"
-                class="flex items-center gap-3 rounded-lg bg-n-alpha-1 border border-n-weak px-3 py-2.5 group"
+                class="flex items-center gap-3 rounded-lg bg-n-alpha-1 border border-n-border-glass-soft px-3 py-2.5 group"
               >
                 <div
-                  class="flex items-center justify-center size-5 rounded-full bg-n-alpha-2 text-[11px] font-semibold text-n-slate-10 flex-shrink-0"
+                  class="flex items-center justify-center size-5 rounded-full bg-n-alpha-2 text-[11px] font-semibold text-n-text-body/60 flex-shrink-0"
                 >
                   {{ index + 1 }}
                 </div>
@@ -456,7 +458,7 @@ onMounted(async () => {
                   class="size-5 flex-shrink-0 text-n-slate-9"
                 />
                 <span
-                  class="flex-1 text-sm font-medium text-n-slate-12 truncate min-w-0"
+                  class="flex-1 text-sm font-medium text-n-text-display truncate min-w-0"
                 >
                   {{ inbox.name }}
                 </span>
@@ -483,12 +485,12 @@ onMounted(async () => {
               />
               <div
                 v-if="showMarketingPicker && availableForMarketing.length"
-                class="absolute top-full left-0 mt-1 z-20 bg-n-solid-3 border border-n-weak rounded-lg shadow-lg py-1 min-w-52 max-h-60 overflow-y-auto"
+                class="absolute top-full left-0 mt-1 z-20 bg-n-solid-3 border border-n-border-glass-soft rounded-lg shadow-lg py-1 min-w-52 max-h-60 overflow-y-auto"
               >
                 <button
                   v-for="inbox in availableForMarketing"
                   :key="inbox.id"
-                  class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-slate-12 text-left"
+                  class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-text-display text-left"
                   @click="
                     addToChain(marketingChain, inbox);
                     showMarketingPicker = false;
@@ -509,7 +511,7 @@ onMounted(async () => {
           class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft"
         >
           <div
-            class="px-5 py-4 border-b border-n-weak rounded-t-xl bg-gradient-to-r from-blue-50/60 to-transparent dark:from-blue-950/20"
+            class="px-5 py-4 border-b border-n-border-glass-soft rounded-t-xl bg-gradient-to-r from-blue-50/60 to-transparent dark:from-blue-950/20"
           >
             <div class="flex items-center gap-2.5">
               <div
@@ -521,7 +523,7 @@ onMounted(async () => {
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="text-sm font-semibold text-n-slate-12">
+                  <h3 class="text-sm font-semibold text-n-text-display">
                     {{ t('NOTIFICATION_TEMPLATES.CASCADE.SERVICE.TITLE') }}
                   </h3>
                   <span
@@ -546,10 +548,10 @@ onMounted(async () => {
               <div
                 v-for="(inbox, index) in serviceChain"
                 :key="inbox.id"
-                class="flex items-center gap-3 rounded-lg bg-n-alpha-1 border border-n-weak px-3 py-2.5 group"
+                class="flex items-center gap-3 rounded-lg bg-n-alpha-1 border border-n-border-glass-soft px-3 py-2.5 group"
               >
                 <div
-                  class="flex items-center justify-center size-5 rounded-full bg-n-alpha-2 text-[11px] font-semibold text-n-slate-10 flex-shrink-0"
+                  class="flex items-center justify-center size-5 rounded-full bg-n-alpha-2 text-[11px] font-semibold text-n-text-body/60 flex-shrink-0"
                 >
                   {{ index + 1 }}
                 </div>
@@ -558,7 +560,7 @@ onMounted(async () => {
                   class="size-5 flex-shrink-0 text-n-slate-9"
                 />
                 <span
-                  class="flex-1 text-sm font-medium text-n-slate-12 truncate min-w-0"
+                  class="flex-1 text-sm font-medium text-n-text-display truncate min-w-0"
                 >
                   {{ inbox.name }}
                 </span>
@@ -585,12 +587,12 @@ onMounted(async () => {
               />
               <div
                 v-if="showServicePicker && availableForService.length"
-                class="absolute top-full left-0 mt-1 z-20 bg-n-solid-3 border border-n-weak rounded-lg shadow-lg py-1 min-w-52 max-h-60 overflow-y-auto"
+                class="absolute top-full left-0 mt-1 z-20 bg-n-solid-3 border border-n-border-glass-soft rounded-lg shadow-lg py-1 min-w-52 max-h-60 overflow-y-auto"
               >
                 <button
                   v-for="inbox in availableForService"
                   :key="inbox.id"
-                  class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-slate-12 text-left"
+                  class="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-n-alpha-1 text-sm text-n-text-display text-left"
                   @click="
                     addToChain(serviceChain, inbox);
                     showServicePicker = false;

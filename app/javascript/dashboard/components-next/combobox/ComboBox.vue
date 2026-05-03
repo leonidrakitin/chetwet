@@ -97,16 +97,14 @@ watch(
     <OnClickOutside @trigger="open = false">
       <Button
         variant="outline"
-        :color="hasError && !open ? 'ruby' : open ? 'blue' : 'slate'"
+        :color="hasError && !open ? 'ruby' : open ? 'black' : 'slate'"
         :label="selectedLabel"
         trailing-icon
         :disabled="disabled"
         no-animation
-        class="justify-between w-full !px-3 !py-2.5 text-n-slate-12 font-normal group-hover/combobox:border-n-slate-6 focus:outline-n-brand"
+        class="justify-between w-full !px-4 !py-2.5 text-n-text-display font-normal focus:outline-n-accent-active"
         :class="{
           focused: open,
-          '[&:not(.focused)]:dark:outline-n-weak [&:not(.focused)]:hover:enabled:outline-n-slate-6 [&:not(.focused)]:dark:hover:enabled:outline-n-slate-6':
-            !hasError,
         }"
         :icon="open ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
         @click="toggleDropdown"
@@ -129,7 +127,7 @@ watch(
         class="mt-2 mb-0 text-xs truncate transition-all duration-500 ease-in-out"
         :class="{
           'text-n-ruby-9': hasError,
-          'text-n-slate-11': !hasError,
+          'text-n-text-body': !hasError,
         }"
       >
         {{ message }}

@@ -133,7 +133,9 @@ export default {
       };
     },
     charLengthClass() {
-      return this.charactersRemaining < 0 ? 'text-n-ruby-9' : 'text-n-slate-11';
+      return this.charactersRemaining < 0
+        ? 'text-n-ruby-9'
+        : 'text-n-text-body';
     },
     characterLengthWarning() {
       return this.charactersRemaining < 0
@@ -186,7 +188,7 @@ export default {
       </div>
       <NextButton
         ghost
-        class="text-n-slate-11"
+        class="text-n-text-body"
         sm
         icon="i-lucide-maximize-2"
         @click="$emit('togglePopout')"

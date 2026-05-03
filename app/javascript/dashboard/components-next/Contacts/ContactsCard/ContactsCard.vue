@@ -113,7 +113,8 @@ const handleAvatarHover = isHovered => {
       :key="id"
       layout="row"
       :class="{
-        'outline-n-weak !bg-n-slate-3 dark:!bg-n-solid-3': isSelected,
+        'outline-n-border-glass-soft !bg-n-slate-3 dark:!bg-n-solid-3':
+          isSelected,
       }"
     >
       <div class="flex items-center justify-start flex-1 gap-4">
@@ -132,7 +133,7 @@ const handleAvatarHover = isHovered => {
           >
             <template v-if="selectable" #overlay="{ size }">
               <label
-                class="flex items-center justify-center rounded-full cursor-pointer absolute inset-0 z-10 backdrop-blur-[2px] border border-n-weak"
+                class="flex items-center justify-center rounded-full cursor-pointer absolute inset-0 z-10 backdrop-blur-[2px] border border-n-border-glass-soft"
                 :style="{ width: `${size}px`, height: `${size}px` }"
                 @click.stop
               >
@@ -146,17 +147,17 @@ const handleAvatarHover = isHovered => {
         </div>
         <div class="flex flex-col gap-0.5 flex-1">
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span class="text-base font-medium truncate text-n-slate-12">
+            <span class="text-base font-medium truncate text-n-text-display">
               {{ name }}
             </span>
             <span class="inline-flex items-center gap-1">
               <span
                 v-if="additionalAttributes?.companyName"
-                class="i-ph-building-light size-4 text-n-slate-10 mb-0.5"
+                class="i-ph-building-light size-4 text-n-text-body/60 mb-0.5"
               />
               <span
                 v-if="additionalAttributes?.companyName"
-                class="text-sm truncate text-n-slate-11"
+                class="text-sm truncate text-n-text-body"
               >
                 {{ additionalAttributes.companyName }}
               </span>
@@ -166,18 +167,18 @@ const handleAvatarHover = isHovered => {
             class="flex flex-wrap items-center justify-start gap-x-3 gap-y-1"
           >
             <div v-if="email" class="truncate max-w-72" :title="email">
-              <span class="text-sm text-n-slate-11">
+              <span class="text-sm text-n-text-body">
                 {{ email }}
               </span>
             </div>
             <div v-if="email" class="w-px h-3 truncate bg-n-slate-6" />
-            <span v-if="phoneNumber" class="text-sm truncate text-n-slate-11">
+            <span v-if="phoneNumber" class="text-sm truncate text-n-text-body">
               {{ phoneNumber }}
             </span>
             <div v-if="phoneNumber" class="w-px h-3 truncate bg-n-slate-6" />
             <span
               v-if="countryDetails"
-              class="inline-flex items-center gap-2 text-sm truncate text-n-slate-11"
+              class="inline-flex items-center gap-2 text-sm truncate text-n-text-body"
             >
               <Flag :country="countryDetails.countryCode" class="size-3.5" />
               {{ formattedLocation }}
@@ -212,7 +213,7 @@ const handleAvatarHover = isHovered => {
           "
         >
           <div class="overflow-hidden">
-            <div class="flex flex-col gap-6 p-6 border-t border-n-strong">
+            <div class="flex flex-col gap-6 p-6 border-t border-n-border-glass">
               <ContactsForm
                 ref="contactsFormRef"
                 :contact-data="contactData"

@@ -5,7 +5,7 @@ import Spinner from './Spinner.vue';
 <template>
   <Story title="Components/Spinner" :layout="{ type: 'grid', width: '400' }">
     <Variant title="Default">
-      <Spinner size="24" class="text-n-slate-10" />
+      <Spinner size="24" class="text-n-text-body/60" />
       <Spinner size="32" class="text-n-ruby-10" />
       <Spinner size="40" class="text-n-amber-10" />
       <Spinner size="48" class="text-n-teal-10" />

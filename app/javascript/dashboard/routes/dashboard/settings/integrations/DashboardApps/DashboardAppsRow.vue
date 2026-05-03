@@ -17,7 +17,7 @@ defineEmits(['edit', 'delete']);
     <template #default>
       <BaseTableCell>
         <span
-          class="text-body-main text-n-slate-12 truncate block"
+          class="text-body-main text-n-text-display truncate block"
           :title="app.title"
         >
           {{ app.title }}
@@ -26,7 +26,7 @@ defineEmits(['edit', 'delete']);
 
       <BaseTableCell>
         <span
-          class="text-body-main text-n-slate-11 truncate block"
+          class="text-body-main text-n-text-body truncate block"
           :title="app.content[0].url"
         >
           {{ app.content[0].url }}

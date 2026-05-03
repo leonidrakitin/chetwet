@@ -123,18 +123,18 @@ const selectModel = model => {
   <div v-on-clickaway="closeDropdown" class="relative flex-shrink-0">
     <button
       type="button"
-      class="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg border-n-weak dark:bg-n-solid-2 dark:hover:bg-n-solid-3 bg-n-alpha-2 hover:bg-n-alpha-1 min-w-[180px] justify-between"
+      class="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg border-n-border-glass-soft dark:bg-n-glass-strong dark:hover:bg-n-solid-3 bg-n-alpha-2 hover:bg-n-alpha-1 min-w-[180px] justify-between"
       @click="toggleDropdown"
     >
-      <span v-if="selectedModelDetails" class="text-n-slate-12">
+      <span v-if="selectedModelDetails" class="text-n-text-display">
         {{ selectedModelDetails.display_name }}
       </span>
-      <span v-else class="text-n-slate-10">
+      <span v-else class="text-n-text-body/60">
         {{ t('CAPTAIN_SETTINGS.MODEL_CONFIG.SELECT_MODEL') }}
       </span>
       <Icon
         icon="i-lucide-chevron-down"
-        class="size-4 text-n-slate-11 transition-transform"
+        class="size-4 text-n-text-body transition-transform"
         :class="{ 'rotate-180': isOpen }"
       />
     </button>
@@ -144,7 +144,7 @@ const selectModel = model => {
     >
       <template v-for="(models, provider) in groupedModels" :key="provider">
         <div
-          class="px-3 py-1.5 text-xs font-semibold text-n-slate-11 uppercase tracking-wide bg-n-slate-2 dark:bg-n-solid-3 sticky top-0"
+          class="px-3 py-1.5 text-xs font-semibold text-n-text-body uppercase tracking-wide bg-n-slate-2 dark:bg-n-solid-3 sticky top-0"
         >
           {{ providerNames[provider] || provider }}
         </div>
@@ -162,7 +162,7 @@ const selectModel = model => {
             <Icon :icon="iconForModel(model)" class="size-4 flex-shrink-0" />
             <div class="flex flex-col w-full text-left gap-1">
               <div
-                class="text-sm w-full font-medium leading-none text-n-slate-12 flex items-baseline justify-between"
+                class="text-sm w-full font-medium leading-none text-n-text-display flex items-baseline justify-between"
               >
                 {{ model.display_name }}
                 <span
@@ -172,12 +172,12 @@ const selectModel = model => {
                   {{ t('GENERAL.PREFERRED') }}
                 </span>
               </div>
-              <span v-if="model.coming_soon" class="text-xs text-n-slate-11">
+              <span v-if="model.coming_soon" class="text-xs text-n-text-body">
                 {{ t('CAPTAIN_SETTINGS.MODEL_CONFIG.COMING_SOON') }}
               </span>
               <span
                 v-else-if="isOnChatwootCloud"
-                class="text-xs text-n-slate-11"
+                class="text-xs text-n-text-body"
               >
                 {{ getCreditLabel(model) }}
               </span>

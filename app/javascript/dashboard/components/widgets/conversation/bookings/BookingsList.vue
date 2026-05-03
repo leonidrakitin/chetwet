@@ -79,7 +79,7 @@ const handleCancel = async bookingId => {
 </script>
 
 <template>
-  <div class="px-4 py-2 text-n-slate-12">
+  <div class="px-4 py-2 text-n-text-display">
     <div v-if="loading" class="flex justify-center items-center p-4">
       <Spinner size="32" class="text-n-brand" />
     </div>
@@ -91,7 +91,7 @@ const handleCancel = async bookingId => {
     <div v-else>
       <div v-if="upcomingBookings.length" class="pb-3">
         <p
-          class="pb-2 text-xs font-medium uppercase tracking-wide text-n-slate-10"
+          class="pb-2 text-xs font-medium uppercase tracking-wide text-n-text-body/60"
         >
           {{ $t('BOOKINGS.UPCOMING') }}
         </p>
@@ -104,7 +104,9 @@ const handleCancel = async bookingId => {
       </div>
 
       <div v-if="pastBookings.length" class="flex flex-col gap-2 pt-1">
-        <p class="text-xs font-medium uppercase tracking-wide text-n-slate-10">
+        <p
+          class="text-xs font-medium uppercase tracking-wide text-n-text-body/60"
+        >
           {{ $t('BOOKINGS.PAST') }}
         </p>
         <BookingItem
@@ -116,7 +118,7 @@ const handleCancel = async bookingId => {
         />
       </div>
 
-      <div v-if="!hasData" class="text-center text-n-slate-11 text-sm">
+      <div v-if="!hasData" class="text-center text-n-text-body text-sm">
         {{ $t('BOOKINGS.NO_BOOKINGS') }}
       </div>
     </div>

@@ -195,7 +195,7 @@ const addAllExample = () => {
         >
           <template #default="{ item }">
             <div class="flex items-center justify-between w-full">
-              <span class="text-sm text-n-slate-12">
+              <span class="text-sm text-n-text-display">
                 {{ item.content }}
               </span>
               <Button
@@ -205,7 +205,7 @@ const addAllExample = () => {
                 ghost
                 xs
                 slate
-                class="!text-sm !text-n-slate-11 flex-shrink-0"
+                class="!text-sm !text-n-text-body flex-shrink-0"
                 @click="addGuardrail(item.content)"
               />
             </div>
@@ -263,12 +263,12 @@ const addAllExample = () => {
           </div>
         </div>
         <div v-if="displayGuardrails.length === 0" class="mt-1 mb-2">
-          <span class="text-n-slate-11 text-sm">
+          <span class="text-n-text-body text-sm">
             {{ t('CAPTAIN.ASSISTANTS.GUARDRAILS.EMPTY_MESSAGE') }}
           </span>
         </div>
         <div v-else-if="filteredGuardrails.length === 0" class="mt-1 mb-2">
-          <span class="text-n-slate-11 text-sm">
+          <span class="text-n-text-body text-sm">
             {{ t('CAPTAIN.ASSISTANTS.GUARDRAILS.SEARCH_EMPTY_MESSAGE') }}
           </span>
         </div>

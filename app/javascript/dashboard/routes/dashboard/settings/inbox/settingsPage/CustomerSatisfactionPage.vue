@@ -136,7 +136,7 @@ const templateApprovalStatus = computed(() => {
   return {
     text: t('INBOX_MGMT.CSAT.TEMPLATE_STATUS.DEFAULT'),
     icon: 'i-lucide-stamp',
-    color: 'text-n-slate-11',
+    color: 'text-n-text-body',
   };
 });
 
@@ -545,17 +545,17 @@ const handleConfirmTemplateUpdate = async () => {
                     :disabled="!state.message?.trim()"
                     @click="analyzeTemplateUtility"
                   />
-                  <p class="text-xs text-n-slate-11">
+                  <p class="text-xs text-n-text-body">
                     {{ $t('INBOX_MGMT.CSAT.UTILITY_ANALYZER.HELPER_NOTE') }}
                   </p>
                 </div>
 
                 <div
                   v-if="utilityAnalysisResult"
-                  class="flex flex-col gap-3 p-3 rounded-xl outline outline-1 outline-n-weak bg-n-alpha-1"
+                  class="flex flex-col gap-3 p-3 rounded-xl outline outline-1 outline-n-border-glass-soft bg-n-alpha-1"
                 >
                   <div class="flex gap-2 items-center">
-                    <span class="text-sm font-medium text-n-slate-12">
+                    <span class="text-sm font-medium text-n-text-display">
                       {{ $t('INBOX_MGMT.CSAT.UTILITY_ANALYZER.RESULT_LABEL') }}
                     </span>
                     <span
@@ -573,7 +573,7 @@ const handleConfirmTemplateUpdate = async () => {
                       }}
                     </span>
                   </div>
-                  <p class="text-xs text-n-slate-11">
+                  <p class="text-xs text-n-text-body">
                     {{ $t('INBOX_MGMT.CSAT.UTILITY_ANALYZER.GUIDANCE_NOTE') }}
                   </p>
                   <div
@@ -583,12 +583,12 @@ const handleConfirmTemplateUpdate = async () => {
                     "
                     class="flex flex-col gap-2"
                   >
-                    <p class="text-xs font-medium text-n-slate-12">
+                    <p class="text-xs font-medium text-n-text-display">
                       {{
                         $t('INBOX_MGMT.CSAT.UTILITY_ANALYZER.SUGGESTION_LABEL')
                       }}
                     </p>
-                    <p class="text-sm text-n-slate-12">
+                    <p class="text-sm text-n-text-display">
                       {{ utilityAnalysisResult.optimized_message }}
                     </p>
                     <NextButton
@@ -637,10 +637,10 @@ const handleConfirmTemplateUpdate = async () => {
               </div>
 
               <div
-                class="flex flex-col flex-shrink-0 justify-start items-center p-6 mt-1 rounded-xl basis-2/5 bg-n-slate-2 outline outline-1 outline-n-weak"
+                class="flex flex-col flex-shrink-0 justify-start items-center p-6 mt-1 rounded-xl basis-2/5 bg-n-slate-2 outline outline-1 outline-n-border-glass-soft"
               >
                 <p
-                  class="inline-flex items-center text-sm font-medium text-n-slate-11"
+                  class="inline-flex items-center text-sm font-medium text-n-text-body"
                 >
                   {{ $t('INBOX_MGMT.CSAT.MESSAGE_PREVIEW.LABEL') }}
                   <Icon
@@ -681,7 +681,7 @@ const handleConfirmTemplateUpdate = async () => {
           >
             <div class="mb-4">
               <span
-                class="inline-flex flex-wrap gap-1.5 items-center text-sm text-n-slate-12"
+                class="inline-flex flex-wrap gap-1.5 items-center text-sm text-n-text-display"
               >
                 {{ $t('INBOX_MGMT.CSAT.SURVEY_RULE.DESCRIPTION_PREFIX') }}
                 <FilterSelect
@@ -717,7 +717,7 @@ const handleConfirmTemplateUpdate = async () => {
               </span>
             </div>
           </WithLabel>
-          <p class="text-sm italic text-n-slate-11">
+          <p class="text-sm italic text-n-text-body">
             {{
               isAnyWhatsAppChannel
                 ? $t('INBOX_MGMT.CSAT.WHATSAPP_NOTE')

@@ -23,13 +23,13 @@ const timeSlots = computed(() => {
 </script>
 
 <template>
-  <div class="flex-shrink-0 w-12 sm:w-16 border-r border-n-weak">
-    <div class="h-12 border-b border-n-weak" />
+  <div class="flex-shrink-0 w-12 sm:w-16 border-r border-n-border-glass-soft">
+    <div class="h-12 border-b border-n-border-glass-soft" />
     <div class="relative">
       <div
         v-for="slot in timeSlots"
         :key="`${slot.hour}-${slot.minute}`"
-        class="flex items-start justify-end pr-2 text-xs text-n-slate-10"
+        class="flex items-start justify-end pr-2 text-xs text-n-text-body/60"
         :style="`height: ${slotHeight}px;`"
       >
         {{ slot.label }}

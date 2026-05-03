@@ -36,7 +36,7 @@ const { filteredCurrentChatAttachments } = useMessageContext();
       >
         <Icon
           icon="i-teenyicons-play-small-solid"
-          class="size-7 text-n-slate-12/80 backdrop-blur"
+          class="size-7 text-n-text-display/80 backdrop-blur"
         />
       </div>
     </div>

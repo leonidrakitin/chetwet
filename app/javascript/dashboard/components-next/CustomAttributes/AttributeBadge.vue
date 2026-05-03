@@ -36,7 +36,7 @@ const config = computed(
 <template>
   <Label :label="t(config.labelKey)" :color="config.color" compact>
     <template #icon>
-      <Icon :icon="config.icon" class="size-3.5 text-n-slate-12" />
+      <Icon :icon="config.icon" class="size-3.5 text-n-text-display" />
     </template>
   </Label>
 </template>

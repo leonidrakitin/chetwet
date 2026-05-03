@@ -39,7 +39,7 @@ const { t } = useI18n();
   <div class="flex flex-col">
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between h-5 gap-2">
-        <label class="text-sm text-n-slate-12">
+        <label class="text-sm text-n-text-display">
           {{ t('CONTACTS_LAYOUT.SIDEBAR.MERGE.PRIMARY') }}
         </label>
         <span
@@ -72,7 +72,7 @@ const { t } = useI18n();
     <div class="relative flex justify-center gap-2 top-4">
       <div v-for="i in 3" :key="i" class="relative w-4 h-8">
         <div
-          class="absolute w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-n-strong ltr:translate-x-[4px] rtl:-translate-x-[4px] -translate-y-[4px]"
+          class="absolute w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-n-border-glass ltr:translate-x-[4px] rtl:-translate-x-[4px] -translate-y-[4px]"
         />
         <div
           class="absolute w-[1px] h-full bg-n-strong left-1/2 transform -translate-x-1/2"
@@ -81,7 +81,7 @@ const { t } = useI18n();
     </div>
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between h-5 gap-2">
-        <label class="text-sm text-n-slate-12">
+        <label class="text-sm text-n-text-display">
           {{ t('CONTACTS_LAYOUT.SIDEBAR.MERGE.PARENT') }}
         </label>
         <span
@@ -91,7 +91,7 @@ const { t } = useI18n();
         </span>
       </div>
       <div
-        class="border border-n-strong h-[60px] gap-2 flex items-center rounded-xl p-3"
+        class="border border-n-border-glass h-[60px] gap-2 flex items-center rounded-xl p-3"
       >
         <Avatar
           :name="selectedContact.name || ''"
@@ -100,10 +100,10 @@ const { t } = useI18n();
           rounded-full
         />
         <div class="flex flex-col w-full min-w-0 gap-1">
-          <span class="text-sm leading-4 truncate text-n-slate-11">
+          <span class="text-sm leading-4 truncate text-n-text-body">
             {{ selectedContact.name }}
           </span>
-          <span class="text-sm leading-4 truncate text-n-slate-11">
+          <span class="text-sm leading-4 truncate text-n-text-body">
             {{ selectedContact.email }}
           </span>
         </div>

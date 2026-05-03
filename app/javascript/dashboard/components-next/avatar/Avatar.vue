@@ -5,6 +5,7 @@ import { removeEmoji } from 'shared/helpers/emoji';
 
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ChannelIcon from 'dashboard/components-next/icon/ChannelIcon.vue';
+import { getInboxBadgePresentation } from 'dashboard/helper/inbox';
 import wootConstants from 'dashboard/constants/globals';
 
 const props = defineProps({
@@ -139,15 +140,42 @@ const avatarStyles = computed(() => ({
   '--dark-text': getColorsByNameLength.value.darkText,
 }));
 
-const badgeStyles = computed(() => {
-  const badgeSize = Math.max(props.size * 0.35, 8); // 35% of avatar size, minimum 8px
-  return {
-    width: `${badgeSize}px`,
-    height: `${badgeSize}px`,
-    top: `${props.size - badgeSize / 1.1}px`,
-    left: `${props.size - badgeSize / 1.1}px`,
-  };
+/** Small corner badge (presence or inbox); RTL via insetInline* */
+const cornerBadgePx = computed(() =>
+  Math.round(Math.max(props.size * 0.44, 12))
+);
+
+const cornerOffset = computed(() => {
+  const s = cornerBadgePx.value;
+  return `${-Math.max(Math.round(s * 0.15), 2)}px`;
 });
+
+const statusBadgePositionStyles = computed(() => {
+  const d = `${cornerBadgePx.value}px`;
+  const o = cornerOffset.value;
+  const base = { width: d, height: d };
+  if (!props.inbox) {
+    return { ...base, bottom: o, insetInlineEnd: o };
+  }
+  return { ...base, top: o, insetInlineStart: o };
+});
+
+const inboxBadgePositionStyles = computed(() => {
+  const d = `${cornerBadgePx.value}px`;
+  const o = cornerOffset.value;
+  return { width: d, height: d, bottom: o, insetInlineEnd: o };
+});
+
+const inboxBadgePresentation = computed(() =>
+  props.inbox ? getInboxBadgePresentation(props.inbox) : null
+);
+
+const inboxBadgeStyle = computed(() => ({
+  ...inboxBadgePositionStyles.value,
+  ...(inboxBadgePresentation.value?.backgroundColor
+    ? { backgroundColor: inboxBadgePresentation.value.backgroundColor }
+    : {}),
+}));
 
 const iconStyles = computed(() => ({
   fontSize: `${props.size / 1.6}px`,
@@ -200,30 +228,39 @@ watch(
     class="relative inline-flex group/avatar z-0 flex-shrink-0 align-middle"
     :style="containerStyles"
   >
-    <!-- Status Badge -->
+    <!-- Status + inbox: presence top-leading, channel bottom-trailing (conversation list / design preview parity) -->
     <slot name="badge" :size="size">
       <div
         v-if="status && STATUS_CLASSES[status]"
-        class="absolute z-20 border rounded-full border-n-slate-3"
-        :style="badgeStyles"
+        class="absolute z-20 border rounded-full border-n-glass-pane"
+        :style="statusBadgePositionStyles"
         :class="STATUS_CLASSES[status]"
       />
       <div
-        v-if="inbox && !(status && STATUS_CLASSES[status])"
-        :style="badgeStyles"
-        class="absolute z-20 flex items-center justify-center rounded-full bg-n-solid-1 border border-transparent flex-shrink-0"
+        v-if="inbox"
+        :style="inboxBadgeStyle"
+        class="absolute z-[21] flex items-center justify-center rounded-full shrink-0 p-0.5 border"
+        :class="
+          inboxBadgePresentation?.useNeutralChrome
+            ? 'bg-n-glass-strong border-n-border-glass-soft'
+            : 'border-white/20 shadow-sm'
+        "
       >
-        <ChannelIcon :inbox="inbox" class="w-full h-full text-n-slate-11" />
+        <ChannelIcon
+          :inbox="inbox"
+          class="size-full"
+          :class="inboxBadgePresentation?.iconClass || 'text-n-text-body'"
+        />
       </div>
     </slot>
 
     <!-- Delete Avatar Button -->
     <div
       v-if="src && allowUpload"
-      class="absolute z-20 flex items-center justify-center invisible w-6 h-6 transition-all duration-300 ease-in-out opacity-0 cursor-pointer outline outline-1 outline-n-container -top-2 ltr:-right-2 rtl:-left-2 rounded-xl bg-n-solid-3 group-hover/avatar:visible group-hover/avatar:opacity-100"
+      class="absolute z-20 flex items-center justify-center invisible w-6 h-6 transition-all duration-300 ease-in-out opacity-0 cursor-pointer outline outline-1 outline-n-border-glass-soft -top-2 ltr:-right-2 rtl:-left-2 rounded-full bg-n-glass-strong backdrop-blur-glass-rail backdrop-saturate-glass shadow-pill-soft group-hover/avatar:visible group-hover/avatar:opacity-100"
       @click="handleDismiss"
     >
-      <Icon icon="i-lucide-x" class="text-n-slate-11 size-4" />
+      <Icon icon="i-lucide-x" class="text-n-text-body size-4" />
     </div>
 
     <!-- Avatar Container -->

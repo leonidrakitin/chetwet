@@ -129,7 +129,7 @@ const closeMobileSidebar = () => {
     <!-- Desktop sidebar -->
     <div
       v-if="slots.sidebar"
-      class="hidden lg:block overflow-y-auto justify-end min-w-52 w-full py-6 max-w-md border-l border-n-weak bg-n-solid-2"
+      class="hidden lg:block overflow-y-auto justify-end min-w-52 w-full py-6 max-w-md border-l border-n-border-glass-soft bg-n-glass-strong"
     >
       <slot name="sidebar" />
     </div>
@@ -146,7 +146,7 @@ const closeMobileSidebar = () => {
           closeMobileSidebar,
           { ignore: ['#contact-sidebar-content'] },
         ]"
-        class="flex items-start p-1 w-fit h-fit relative order-1 xs:top-24 top-28 transition-all bg-n-solid-2 border border-n-weak duration-500 ease-in-out"
+        class="flex items-start p-1 w-fit h-fit relative order-1 xs:top-24 top-28 transition-all bg-n-glass-strong border border-n-border-glass-soft duration-500 ease-in-out"
         :class="[
           isContactSidebarOpen
             ? 'justify-end ltr:rounded-l-full rtl:rounded-r-full ltr:rounded-r-none rtl:rounded-l-none'
@@ -180,7 +180,7 @@ const closeMobileSidebar = () => {
         <div
           v-if="isContactSidebarOpen"
           id="contact-sidebar-content"
-          class="order-2 w-[85%] sm:w-[50%] bg-n-solid-2 ltr:border-l rtl:border-r border-n-weak overflow-y-auto py-6 shadow-lg"
+          class="order-2 w-[85%] sm:w-[50%] bg-n-glass-strong ltr:border-l rtl:border-r border-n-border-glass-soft overflow-y-auto py-6 shadow-lg"
         >
           <slot name="sidebar" />
         </div>

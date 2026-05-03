@@ -148,7 +148,7 @@ onMounted(() => {
       @close="closeContactPanel"
     />
     <ContactInfo :contact="contact" :channel-type="channelType" />
-    <div class="px-3 pb-6 list-group">
+    <div class="px-4 pb-4 list-group">
       <Draggable
         :list="conversationSidebarItems"
         animation="200"
@@ -346,11 +346,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-::v-deep {
-  .contact--profile {
-    @apply pb-3 border-b border-solid border-n-border-hairline;
-  }
-}
-</style>

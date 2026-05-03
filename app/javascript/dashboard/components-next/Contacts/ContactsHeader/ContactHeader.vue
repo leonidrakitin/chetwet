@@ -36,7 +36,7 @@ const emit = defineEmits([
     <div
       class="flex items-start sm:items-center justify-between w-full py-6 gap-2 mx-auto max-w-5xl"
     >
-      <span class="text-xl font-medium truncate text-n-slate-12">
+      <span class="text-xl font-medium truncate text-n-text-display">
         {{ headerTitle }}
       </span>
       <div class="flex items-center flex-col sm:flex-row flex-shrink-0 gap-4">
@@ -46,7 +46,7 @@ const emit = defineEmits([
             type="search"
             :placeholder="$t('CONTACTS_LAYOUT.HEADER.SEARCH_PLACEHOLDER')"
             :custom-input-class="[
-              'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
+              'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-glass-soft ltr:!pl-8 !py-1 rtl:!pr-8',
             ]"
             class="w-full"
             @input="emit('search', $event.target.value)"
@@ -54,7 +54,7 @@ const emit = defineEmits([
             <template #prefix>
               <Icon
                 icon="i-lucide-search"
-                class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
+                class="absolute -translate-y-1/2 text-n-text-body size-4 top-1/2 ltr:left-2 rtl:right-2"
               />
             </template>
           </Input>

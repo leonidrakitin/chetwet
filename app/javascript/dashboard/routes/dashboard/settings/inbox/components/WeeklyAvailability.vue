@@ -159,7 +159,7 @@ export default {
 
     <div v-if="isBusinessHoursEnabled" class="flex items-center my-8 py-1">
       <div class="flex-1 h-px bg-n-weak" />
-      <span class="text-body-main text-n-slate-11 px-2">
+      <span class="text-body-main text-n-text-body px-2">
         {{ $t('INBOX_MGMT.BUSINESS_HOURS.WEEKLY_TITLE') }}
       </span>
       <div class="flex-1 h-px bg-n-weak" />
@@ -181,28 +181,28 @@ export default {
       <div v-if="isBusinessHoursEnabled" class="mt-2">
         <div class="w-full">
           <table
-            class="min-w-full table-auto outline outline-1 -outline-offset-1 outline-n-weak rounded-xl"
+            class="min-w-full table-auto outline outline-1 -outline-offset-1 outline-n-border-glass-soft rounded-xl"
           >
             <thead>
-              <tr class="border-b border-n-weak">
+              <tr class="border-b border-n-border-glass-soft">
                 <th
-                  class="py-3 ltr:pl-4 ltr:pr-3 rtl:pl-3 rtl:pr-4 text-start text-heading-3 text-n-slate-12"
+                  class="py-3 ltr:pl-4 ltr:pr-3 rtl:pl-3 rtl:pr-4 text-start text-heading-3 text-n-text-display"
                 >
                   {{ $t('INBOX_MGMT.BUSINESS_HOURS.DAY.DAY') }}
                 </th>
                 <th
-                  class="py-3 ltr:pr-3 rtl:pl-3 text-start text-heading-3 text-n-slate-12"
+                  class="py-3 ltr:pr-3 rtl:pl-3 text-start text-heading-3 text-n-text-display"
                 >
                   {{ $t('INBOX_MGMT.BUSINESS_HOURS.DAY.AVAILABILITY') }}
                 </th>
                 <th
-                  class="py-3 ltr:pr-3 rtl:pl-3 text-start text-heading-3 text-n-slate-12"
+                  class="py-3 ltr:pr-3 rtl:pl-3 text-start text-heading-3 text-n-text-display"
                 >
                   {{ $t('INBOX_MGMT.BUSINESS_HOURS.DAY.HOURS') }}
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-n-weak">
+            <tbody class="divide-y divide-n-border-glass-soft">
               <BusinessDay
                 v-for="timeSlot in timeSlots"
                 :key="timeSlot.day"

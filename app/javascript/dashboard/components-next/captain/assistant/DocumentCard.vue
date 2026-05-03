@@ -126,7 +126,7 @@ const handleAction = ({ action, value }) => {
       <div class="flex flex-col min-w-0 flex-1 gap-1">
         <div class="flex gap-1 justify-between w-full items-start">
           <span
-            class="text-sm font-medium text-n-slate-12 line-clamp-2 leading-snug"
+            class="text-sm font-medium text-n-text-display line-clamp-2 leading-snug"
           >
             {{ name }}
           </span>
@@ -152,11 +152,13 @@ const handleAction = ({ action, value }) => {
           </div>
         </div>
         <div class="flex gap-3 items-center flex-wrap">
-          <span class="flex gap-1 items-center text-xs text-n-slate-10">
+          <span class="flex gap-1 items-center text-xs text-n-text-body/60">
             <i class="i-woot-captain size-3" />
             {{ assistant?.name || '' }}
           </span>
-          <span class="flex gap-1 items-center text-xs text-n-slate-10 min-w-0">
+          <span
+            class="flex gap-1 items-center text-xs text-n-text-body/60 min-w-0"
+          >
             <i :class="linkIcon" class="shrink-0 size-3" />
             <span class="truncate">{{ displayLink }}</span>
           </span>

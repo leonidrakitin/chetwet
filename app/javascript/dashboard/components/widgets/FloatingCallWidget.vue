@@ -95,7 +95,7 @@ watch(
     <div
       v-for="call in hasActiveCall ? incomingCalls : []"
       :key="call.callSid"
-      class="flex items-center gap-3 p-4 bg-n-solid-2 rounded-xl shadow-xl outline outline-1 outline-n-strong"
+      class="flex items-center gap-3 p-4 bg-n-glass-strong rounded-xl shadow-xl outline outline-1 outline-n-border-glass"
     >
       <div class="animate-pulse ring-2 ring-n-teal-9 rounded-full inline-flex">
         <Avatar
@@ -106,10 +106,10 @@ watch(
         />
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-n-slate-12 truncate mb-0">
+        <p class="text-sm font-medium text-n-text-display truncate mb-0">
           {{ getCallInfo(call).contactName }}
         </p>
-        <p class="text-xs text-n-slate-11 truncate">
+        <p class="text-xs text-n-text-body truncate">
           {{ getCallInfo(call).inboxName }}
         </p>
       </div>
@@ -132,7 +132,7 @@ watch(
     <!-- Main Call Widget -->
     <div
       v-if="hasActiveCall || incomingCalls.length"
-      class="flex items-center gap-3 p-4 bg-n-solid-2 rounded-xl shadow-xl outline outline-1 outline-n-strong"
+      class="flex items-center gap-3 p-4 bg-n-glass-strong rounded-xl shadow-xl outline outline-1 outline-n-border-glass"
     >
       <div
         class="ring-2 ring-n-teal-9 rounded-full inline-flex"
@@ -146,13 +146,13 @@ watch(
         />
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-n-slate-12 truncate mb-0">
+        <p class="text-sm font-medium text-n-text-display truncate mb-0">
           {{ getCallInfo(activeCall || incomingCalls[0]).contactName }}
         </p>
         <p v-if="hasActiveCall" class="font-mono text-sm text-n-teal-9">
           {{ formattedCallDuration }}
         </p>
-        <p v-else class="text-xs text-n-slate-11">
+        <p v-else class="text-xs text-n-text-body">
           {{
             incomingCalls[0]?.callDirection === 'outbound'
               ? $t('CONVERSATION.VOICE_WIDGET.OUTGOING_CALL')

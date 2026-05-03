@@ -35,7 +35,7 @@ const handleMouseEnter = () => {
       class="w-2 h-2 m-1 rounded-sm"
       :style="{ backgroundColor: label.color }"
     />
-    <span class="text-sm text-n-slate-12 ltr:mr-px rtl:ml-px">
+    <span class="text-sm text-n-text-display ltr:mr-px rtl:ml-px">
       {{ label.title }}
     </span>
     <div

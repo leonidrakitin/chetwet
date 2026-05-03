@@ -478,7 +478,7 @@ onMounted(() => {
         <!-- Mobile preview toggle -->
         <button
           type="button"
-          class="md:hidden inline-flex items-center gap-1.5 self-start rounded-md border border-n-weak px-2.5 py-1.5 text-xs text-n-slate-10 hover:border-n-strong hover:text-n-slate-12 transition-colors flex-shrink-0"
+          class="md:hidden inline-flex items-center gap-1.5 self-start rounded-md border border-n-border-glass-soft px-2.5 py-1.5 text-xs text-n-text-body/60 hover:border-n-border-glass hover:text-n-text-display transition-colors flex-shrink-0"
           @click="showMobilePreview = !showMobilePreview"
         >
           <span
@@ -502,11 +502,11 @@ onMounted(() => {
 
         <div class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem]">
           <div
-            class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+            class="flex flex-col gap-4 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-4"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="flex flex-col gap-1">
-                <p class="text-sm font-semibold text-n-slate-12">
+                <p class="text-sm font-semibold text-n-text-display">
                   {{ t('NOTIFICATION_TEMPLATES.SECTIONS.BASICS') }}
                 </p>
                 <p class="text-xs text-n-slate-9">
@@ -517,7 +517,7 @@ onMounted(() => {
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-sm font-medium text-n-text-display">
                   {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
                   <span class="text-n-ruby-9">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
@@ -529,7 +529,7 @@ onMounted(() => {
                   :placeholder="
                     t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')
                   "
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+                  class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
                   @input="nameError = ''"
                 />
                 <span v-if="nameError" class="text-xs text-n-ruby-11">
@@ -538,7 +538,7 @@ onMounted(() => {
               </div>
 
               <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-sm font-medium text-n-text-display">
                   {{ t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.LABEL') }}
                 </label>
                 <input
@@ -547,19 +547,19 @@ onMounted(() => {
                   :placeholder="
                     t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.PLACEHOLDER')
                   "
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+                  class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
                 />
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-sm font-medium text-n-text-display">
                   {{ t('NOTIFICATION_TEMPLATES.FORM.TYPE.LABEL') }}
                 </label>
                 <select
                   v-model="form.type"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                 >
                   <option
                     v-for="option in typeOptions"
@@ -572,14 +572,14 @@ onMounted(() => {
               </div>
 
               <div v-if="yclientsEnabled" class="flex flex-col gap-1">
-                <label class="text-sm font-medium text-n-slate-12">
+                <label class="text-sm font-medium text-n-text-display">
                   {{
                     t('NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.LABEL')
                   }}
                 </label>
                 <select
                   v-model="form.yclientsIntegrationId"
-                  class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                  class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                 >
                   <option value="">
                     {{
@@ -607,14 +607,14 @@ onMounted(() => {
 
           <!-- Trigger Settings (collapsible) -->
           <div
-            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
+            class="rounded-xl border border-n-border-glass-soft bg-n-alpha-1 overflow-hidden"
           >
             <button
               type="button"
               class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
               @click="toggleSection('trigger')"
             >
-              <span class="text-sm font-medium text-n-slate-12">
+              <span class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.SECTIONS.TRIGGER') }}
               </span>
               <span
@@ -628,12 +628,12 @@ onMounted(() => {
                 class="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.TRIGGER_EVENT.LABEL') }}
                   </label>
                   <select
                     v-model="form.triggerEvent"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   >
                     <option
                       v-for="option in triggerEventOptions"
@@ -646,13 +646,13 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.OFFSET_HOURS.LABEL') }}
                   </label>
                   <input
                     v-model.number="form.conditions.offsetHours"
                     type="number"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
               </div>
@@ -662,34 +662,34 @@ onMounted(() => {
                 class="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.SEND_AT.LABEL') }}
                   </label>
                   <input
                     v-model="form.schedule.sendAt"
                     type="datetime-local"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.TIMEZONE.LABEL') }}
                   </label>
                   <input
                     v-model="form.schedule.timezone"
                     type="text"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT.LABEL') }}
                   </label>
                   <select
                     v-model="form.schedule.repeat"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   >
                     <option
                       v-for="option in repeatOptions"
@@ -702,13 +702,13 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT_UNTIL.LABEL') }}
                   </label>
                   <input
                     v-model="form.schedule.repeatUntil"
                     type="date"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
               </div>
@@ -718,7 +718,7 @@ onMounted(() => {
                 class="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.INTERVAL.LABEL') }}
                   </label>
                   <div class="flex gap-2">
@@ -726,11 +726,11 @@ onMounted(() => {
                       v-model.number="form.conditions.intervalValue"
                       type="number"
                       min="1"
-                      class="h-9 w-24 rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                      class="h-9 w-24 rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                     />
                     <select
                       v-model="form.conditions.intervalUnit"
-                      class="h-9 flex-1 rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                      class="h-9 flex-1 rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                     >
                       <option
                         v-for="option in intervalUnitOptions"
@@ -744,12 +744,12 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.SINCE.LABEL') }}
                   </label>
                   <select
                     v-model="form.conditions.since"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   >
                     <option
                       v-for="option in intervalSinceOptions"
@@ -762,7 +762,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-1 md:col-span-2">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.MIN_INTERVAL.LABEL') }}
                   </label>
                   <div class="flex gap-2">
@@ -770,11 +770,11 @@ onMounted(() => {
                       v-model.number="form.limits.minIntervalValue"
                       type="number"
                       min="0"
-                      class="h-9 w-24 rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                      class="h-9 w-24 rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                     />
                     <select
                       v-model="form.limits.minIntervalUnit"
-                      class="h-9 flex-1 rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                      class="h-9 flex-1 rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                     >
                       <option
                         v-for="option in intervalUnitOptions"
@@ -793,14 +793,14 @@ onMounted(() => {
           <!-- YClients Filters (collapsible) -->
           <div
             v-if="yclientsEnabled"
-            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
+            class="rounded-xl border border-n-border-glass-soft bg-n-alpha-1 overflow-hidden"
           >
             <button
               type="button"
               class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
               @click="toggleSection('yclients')"
             >
-              <span class="text-sm font-medium text-n-slate-12">
+              <span class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.SECTIONS.YCLIENTS') }}
               </span>
               <span
@@ -811,7 +811,7 @@ onMounted(() => {
             <div v-show="!collapsedSections.yclients" class="px-4 pb-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.LABEL') }}
                   </label>
                   <input
@@ -820,12 +820,12 @@ onMounted(() => {
                     :placeholder="
                       t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.PLACEHOLDER')
                     "
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.LABEL') }}
                   </label>
                   <input
@@ -834,7 +834,7 @@ onMounted(() => {
                     :placeholder="
                       t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.PLACEHOLDER')
                     "
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
               </div>
@@ -843,14 +843,14 @@ onMounted(() => {
 
           <!-- Audience Settings (collapsible) -->
           <div
-            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
+            class="rounded-xl border border-n-border-glass-soft bg-n-alpha-1 overflow-hidden"
           >
             <button
               type="button"
               class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
               @click="toggleSection('audience')"
             >
-              <span class="text-sm font-medium text-n-slate-12">
+              <span class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.SECTIONS.AUDIENCE') }}
               </span>
               <span
@@ -861,12 +861,12 @@ onMounted(() => {
             <div v-show="!collapsedSections.audience" class="px-4 pb-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="flex flex-col gap-1 md:col-span-2">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX_FILTER.LABEL') }}
                   </label>
                   <select
                     v-model="form.inboxId"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   >
                     <option value="">
                       {{
@@ -889,7 +889,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.TAGS.LABEL') }}
                   </label>
                   <TagMultiSelect
@@ -902,7 +902,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.LABEL') }}
                   </label>
                   <TagMultiSelect
@@ -915,7 +915,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-1 md:col-span-2">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.SEGMENTS.LABEL') }}
                   </label>
                   <SegmentMultiSelect
@@ -931,7 +931,7 @@ onMounted(() => {
                   v-if="form.audience.segmentIds.length > 1"
                   class="flex flex-col gap-1 md:col-span-2"
                 >
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.SEGMENT_MATCH.LABEL') }}
                   </label>
                   <div class="flex gap-2">
@@ -943,7 +943,7 @@ onMounted(() => {
                       :class="
                         form.audience.segmentMatchMode === option.value
                           ? 'border-n-brand bg-n-brand/10 text-n-brand'
-                          : 'border-n-weak bg-n-solid-1 text-n-slate-11 hover:border-n-strong'
+                          : 'border-n-border-glass-soft bg-n-glass-soft text-n-text-body hover:border-n-border-glass'
                       "
                       @click="form.audience.segmentMatchMode = option.value"
                     >
@@ -955,10 +955,10 @@ onMounted(() => {
 
               <div
                 v-if="yclientsEnabled"
-                class="flex items-center gap-3 mt-3 pt-3 border-t border-n-weak"
+                class="flex items-center gap-3 mt-3 pt-3 border-t border-n-border-glass-soft"
               >
                 <Switch v-model="form.audience.requireMailingConsent" />
-                <label class="text-xs font-medium text-n-slate-11">
+                <label class="text-xs font-medium text-n-text-body">
                   {{
                     t(
                       'NOTIFICATION_TEMPLATES.FORM.REQUIRE_MAILING_CONSENT.LABEL'
@@ -971,14 +971,14 @@ onMounted(() => {
 
           <!-- Limits Settings (collapsible) -->
           <div
-            class="rounded-xl border border-n-weak bg-n-alpha-1 overflow-hidden"
+            class="rounded-xl border border-n-border-glass-soft bg-n-alpha-1 overflow-hidden"
           >
             <button
               type="button"
               class="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-n-alpha-2 transition-colors"
               @click="toggleSection('limits')"
             >
-              <span class="text-sm font-medium text-n-slate-12">
+              <span class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.SECTIONS.LIMITS') }}
               </span>
               <span
@@ -989,7 +989,7 @@ onMounted(() => {
             <div v-show="!collapsedSections.limits" class="px-4 pb-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{
                       t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_FROM.LABEL')
                     }}
@@ -997,26 +997,28 @@ onMounted(() => {
                   <input
                     v-model="form.limits.quietHoursFrom"
                     type="time"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
 
                 <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_TO.LABEL') }}
                   </label>
                   <input
                     v-model="form.limits.quietHoursTo"
                     type="time"
-                    class="h-9 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                    class="h-9 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div class="flex flex-col gap-2 mt-3 pt-3 border-t border-n-weak">
+              <div
+                class="flex flex-col gap-2 mt-3 pt-3 border-t border-n-border-glass-soft"
+              >
                 <div class="flex items-center gap-3">
                   <Switch v-model="form.limits.bypassGlobalLimits" />
-                  <label class="text-xs font-medium text-n-slate-11">
+                  <label class="text-xs font-medium text-n-text-body">
                     {{
                       t(
                         'NOTIFICATION_TEMPLATES.FORM.BYPASS_GLOBAL_LIMITS.LABEL'
@@ -1048,23 +1050,23 @@ onMounted(() => {
 
           <!-- Message Editor (always visible) -->
           <div
-            class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+            class="flex flex-col gap-4 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-4"
           >
-            <p class="text-sm font-semibold text-n-slate-12">
+            <p class="text-sm font-semibold text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
             </p>
 
             <div
               v-for="(block, idx) in form.messages"
               :key="idx"
-              class="flex flex-col gap-2 rounded-xl border border-n-weak bg-n-solid-1 p-3"
+              class="flex flex-col gap-2 rounded-xl border border-n-border-glass-soft bg-n-glass-soft p-3"
             >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-0.5">
                   <button
                     v-if="idx > 0"
                     type="button"
-                    class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12"
+                    class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display"
                     @click="moveMessageUp(idx)"
                   >
                     <span class="i-lucide-arrow-up size-3.5" />
@@ -1072,7 +1074,7 @@ onMounted(() => {
                   <button
                     v-if="idx < form.messages.length - 1"
                     type="button"
-                    class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12"
+                    class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display"
                     @click="moveMessageDown(idx)"
                   >
                     <span class="i-lucide-arrow-down size-3.5" />
@@ -1115,16 +1117,18 @@ onMounted(() => {
 
             <button
               type="button"
-              class="inline-flex items-center gap-1.5 self-start rounded-md border border-dashed border-n-weak px-2.5 py-1.5 text-xs text-n-slate-10 hover:border-n-strong hover:text-n-slate-12"
+              class="inline-flex items-center gap-1.5 self-start rounded-md border border-dashed border-n-border-glass-soft px-2.5 py-1.5 text-xs text-n-text-body/60 hover:border-n-border-glass hover:text-n-text-display"
               @click="addMessage"
             >
               <span class="i-lucide-plus size-3.5" />
               {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.ADD_MESSAGE') }}
             </button>
 
-            <div class="flex items-center gap-3 pt-2 border-t border-n-weak">
+            <div
+              class="flex items-center gap-3 pt-2 border-t border-n-border-glass-soft"
+            >
               <Switch v-model="form.enabled" />
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.ENABLED.LABEL') }}
               </label>
             </div>

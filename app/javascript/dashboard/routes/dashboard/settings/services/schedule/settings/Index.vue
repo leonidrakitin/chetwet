@@ -81,35 +81,37 @@ const handleProviderScheduleUpdate = async ({ providerId, data }) => {
 
     <template #body>
       <div class="flex flex-col gap-6">
-        <div class="flex rounded-lg border border-n-weak overflow-hidden w-fit">
+        <div
+          class="flex rounded-lg border border-n-border-glass-soft overflow-hidden w-fit"
+        >
           <button
             class="px-4 py-2 text-sm font-medium transition-colors"
             :class="[
               activeTab === 'account'
                 ? 'bg-n-brand text-white'
-                : 'bg-n-solid-1 text-n-slate-11 hover:bg-n-solid-2',
+                : 'bg-n-glass-soft text-n-text-body hover:bg-n-glass-strong',
             ]"
             @click="activeTab = 'account'"
           >
             {{ t('SCHEDULE.SETTINGS.ACCOUNT_SCHEDULE') }}
           </button>
           <button
-            class="px-4 py-2 text-sm font-medium transition-colors border-l border-n-weak"
+            class="px-4 py-2 text-sm font-medium transition-colors border-l border-n-border-glass-soft"
             :class="[
               activeTab === 'providers'
                 ? 'bg-n-brand text-white'
-                : 'bg-n-solid-1 text-n-slate-11 hover:bg-n-solid-2',
+                : 'bg-n-glass-soft text-n-text-body hover:bg-n-glass-strong',
             ]"
             @click="activeTab = 'providers'"
           >
             {{ t('SCHEDULE.SETTINGS.PROVIDER_SCHEDULES') }}
           </button>
           <button
-            class="px-4 py-2 text-sm font-medium transition-colors border-l border-n-weak"
+            class="px-4 py-2 text-sm font-medium transition-colors border-l border-n-border-glass-soft"
             :class="[
               activeTab === 'reports'
                 ? 'bg-n-brand text-white'
-                : 'bg-n-solid-1 text-n-slate-11 hover:bg-n-solid-2',
+                : 'bg-n-glass-soft text-n-text-body hover:bg-n-glass-strong',
             ]"
             @click="activeTab = 'reports'"
           >

@@ -101,7 +101,7 @@ defineExpose({
 
     <span
       class="text-sm truncate"
-      :class="isSlaMissed ? 'text-n-ruby-11' : 'text-n-slate-11'"
+      :class="isSlaMissed ? 'text-n-ruby-11' : 'text-n-text-body'"
     >
       {{ `${slaStatusText}: ${slaStatus.threshold}` }}
     </span>

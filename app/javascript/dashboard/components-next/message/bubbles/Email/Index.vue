@@ -114,7 +114,7 @@ const handleSeeOriginal = () => {
     <EmailMeta
       class="p-3"
       :class="{
-        'border-b border-n-strong': isIncoming,
+        'border-b border-n-border-glass': isIncoming,
         'border-b border-n-slate-8/20': isOutgoing,
       }"
     />
@@ -136,7 +136,7 @@ const handleSeeOriginal = () => {
           }"
         >
           <button
-            class="text-n-slate-12 py-2 px-8 mx-auto text-center flex items-center gap-2"
+            class="text-n-text-display py-2 px-8 mx-auto text-center flex items-center gap-2"
             @click="isExpanded = true"
           >
             <Icon icon="i-lucide-maximize-2" />
@@ -145,7 +145,7 @@ const handleSeeOriginal = () => {
         </div>
         <FormattedContent
           v-if="isOutgoing && content && !hasEmailContent"
-          class="text-n-slate-12"
+          class="text-n-text-display"
           :content="messageContent"
         />
         <template v-else>
@@ -176,7 +176,7 @@ const handleSeeOriginal = () => {
         </template>
         <button
           v-if="hasQuotedMessage"
-          class="text-n-slate-11 px-1 leading-none text-sm bg-n-alpha-black2 text-center flex items-center gap-1 mt-2"
+          class="text-n-text-body px-1 leading-none text-sm bg-n-alpha-black2 text-center flex items-center gap-1 mt-2"
           @click="showQuotedMessage = !showQuotedMessage"
         >
           <template v-if="showQuotedMessage">
@@ -219,7 +219,7 @@ const handleSeeOriginal = () => {
   @apply bg-n-slate-4 border-n-slate-6 rounded-md !important;
 
   a {
-    @apply text-n-slate-12 !important;
+    @apply text-n-text-display !important;
 
     img {
       display: inline-block;

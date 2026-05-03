@@ -31,7 +31,7 @@ const handleImgClick = () => {
     :layout="{ type: 'grid', width: '260px' }"
   >
     <Variant title="Single Card - With Image">
-      <div class="p-3 bg-n-solid-2 w-56">
+      <div class="p-3 bg-n-glass-strong w-56">
         <StackedChangelogCard
           :card="imageCards"
           is-active

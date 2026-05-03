@@ -41,10 +41,10 @@ function proceed() {
     >
       <Icon icon="i-lucide-message-square" class="size-8 text-n-brand" />
     </div>
-    <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
+    <h1 class="text-2xl font-bold text-n-text-display mb-2">
       {{ t('ONBOARDING.GREETING_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-2">
+    <p class="text-sm text-n-text-body/60 mb-2">
       {{ t('ONBOARDING.GREETING_STEP.SUBTITLE') }}
     </p>
     <p class="text-xs text-n-slate-9 mb-6">
@@ -54,7 +54,7 @@ function proceed() {
     <div class="w-full max-w-sm">
       <!-- Toggle -->
       <div class="flex items-center justify-between mb-4">
-        <label class="text-sm font-medium text-n-slate-11">
+        <label class="text-sm font-medium text-n-text-body">
           {{ t('ONBOARDING.GREETING_STEP.ENABLED_LABEL') }}
         </label>
         <button
@@ -71,14 +71,14 @@ function proceed() {
 
       <!-- Message textarea + Preview -->
       <div v-if="greetingEnabled" class="text-left">
-        <label class="text-sm font-medium text-n-slate-11 mb-1.5 block">
+        <label class="text-sm font-medium text-n-text-body mb-1.5 block">
           {{ t('ONBOARDING.GREETING_STEP.MESSAGE_LABEL') }}
         </label>
         <textarea
           v-model="greetingMessage"
           :placeholder="t('ONBOARDING.GREETING_STEP.MESSAGE_PLACEHOLDER')"
           rows="3"
-          class="w-full rounded-lg border border-n-weak bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand placeholder:text-n-slate-8 resize-none"
+          class="w-full rounded-lg border border-n-border-glass-soft bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-text-display outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand placeholder:text-n-slate-8 resize-none"
           :class="{ 'border-red-400': isOverLimit }"
         />
         <div class="flex justify-between items-center mt-1">

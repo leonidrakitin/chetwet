@@ -54,7 +54,7 @@ export default {
     class="flex-grow flex-shrink h-full px-4 py-8 overflow-hidden bg-n-background"
   >
     <div class="flex w-full items-center justify-between gap-2 mb-4">
-      <h6 class="text-xl font-medium text-n-slate-12">
+      <h6 class="text-xl font-medium text-n-text-display">
         {{ $t('NOTIFICATIONS_PAGE.HEADER') }}
       </h6>
       <NextButton
@@ -74,10 +74,10 @@ export default {
           :class="{
             'is-unread': notificationItem.read_at === null,
           }"
-          class="border-b border-n-weak"
+          class="border-b border-n-border-glass-soft"
           @click="() => onClickNotification(notificationItem)"
         >
-          <td class="p-2.5 text-n-slate-12">
+          <td class="p-2.5 text-n-text-display">
             <div
               class="overflow-hidden flex-view notification-contant--wrap whitespace-nowrap text-ellipsis"
             >
@@ -144,7 +144,7 @@ export default {
 
 <style lang="scss" scoped>
 .notification--title {
-  @apply text-sm m-0 text-n-slate-12;
+  @apply text-sm m-0 text-n-text-display;
 }
 
 .notifications-table {
@@ -186,7 +186,7 @@ export default {
 }
 
 .notification--created-at {
-  @apply text-n-slate-11 text-xs;
+  @apply text-n-text-body text-xs;
 }
 
 .notification--type {
@@ -206,6 +206,6 @@ export default {
 }
 
 .notification--message-title {
-  @apply text-n-slate-12;
+  @apply text-n-text-display;
 }
 </style>

@@ -91,10 +91,10 @@ const bgColor = computed(() => BG_COLOR_MAP[status.value] || 'bg-n-teal-9');
         </div>
 
         <div class="flex overflow-hidden flex-col flex-grow">
-          <span class="text-sm font-medium truncate text-n-slate-12">
+          <span class="text-sm font-medium truncate text-n-text-display">
             {{ $t(labelKey) }}
           </span>
-          <span class="text-xs text-n-slate-11">
+          <span class="text-xs text-n-text-body">
             {{ $t(subtextKey) }}
           </span>
         </div>

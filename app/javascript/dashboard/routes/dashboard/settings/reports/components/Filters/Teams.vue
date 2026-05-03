@@ -65,7 +65,7 @@ const closeDropdown = () => {
     <template v-if="showMenu" #dropdown>
       <div
         v-on-clickaway="closeDropdown"
-        class="absolute z-20 w-40 bg-n-solid-2 border-0 outline outline-1 outline-n-weak shadow rounded-xl max-h-[400px] flex flex-col w-[240px] overflow-y-auto left-0 md:left-auto md:right-0 top-10"
+        class="absolute z-20 w-40 bg-n-glass-strong border-0 outline outline-1 outline-n-border-glass-soft shadow rounded-xl max-h-[400px] flex flex-col w-[240px] overflow-y-auto left-0 md:left-auto md:right-0 top-10"
         @click.stop
       >
         <DropdownEmptyState

@@ -28,18 +28,18 @@ const onClickClose = () => {
 
 <template>
   <div
-    class="flex flex-col items-start self-stretch rounded-xl w-full overflow-hidden border border-dashed border-n-strong"
+    class="flex flex-col items-start self-stretch rounded-xl w-full overflow-hidden border border-dashed border-n-border-glass"
   >
     <div class="flex items-center justify-between w-full gap-3 px-4 pb-1 pt-4">
       <div class="flex items-center gap-3">
-        <h5 class="text-sm font-medium text-n-slate-11">{{ title }}</h5>
+        <h5 class="text-sm font-medium text-n-text-body">{{ title }}</h5>
         <span class="h-3 w-px bg-n-weak" />
         <Button
           :label="t('CAPTAIN.ASSISTANTS.GUARDRAILS.ADD.SUGGESTED.ADD')"
           ghost
           xs
           slate
-          class="!text-sm !text-n-slate-11 flex-shrink-0"
+          class="!text-sm !text-n-text-body flex-shrink-0"
           @click="onAddClick"
         />
       </div>
@@ -48,7 +48,7 @@ const onClickClose = () => {
         xs
         slate
         icon="i-lucide-x"
-        class="!text-sm !text-n-slate-11 flex-shrink-0"
+        class="!text-sm !text-n-text-body flex-shrink-0"
         @click="onClickClose"
       />
     </div>

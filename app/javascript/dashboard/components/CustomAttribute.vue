@@ -215,7 +215,7 @@ export default {
           <span
             class="w-full inline-flex gap-1.5 items-start font-medium whitespace-nowrap text-sm mb-0"
             :class="
-              v$.editedValue.$error ? 'text-n-ruby-11' : 'text-n-slate-12'
+              v$.editedValue.$error ? 'text-n-ruby-11' : 'text-n-text-display'
             "
           >
             {{ label }}

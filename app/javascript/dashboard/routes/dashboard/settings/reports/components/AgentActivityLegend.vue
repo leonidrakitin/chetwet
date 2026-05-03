@@ -18,7 +18,7 @@ const items = [
       class="flex items-center gap-2"
     >
       <span class="w-3 h-3 rounded-full" :class="item.color" />
-      <span class="text-n-slate-11">{{ item.label }}</span>
+      <span class="text-n-text-body">{{ item.label }}</span>
     </div>
   </div>
 </template>

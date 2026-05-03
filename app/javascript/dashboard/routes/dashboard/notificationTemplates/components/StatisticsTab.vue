@@ -66,7 +66,7 @@ const hasData = computed(() => rows.value.length > 0);
       >
         <span class="i-lucide-bar-chart-3 size-8 text-n-slate-9" />
       </div>
-      <p class="text-sm text-n-slate-10 text-center max-w-xs">
+      <p class="text-sm text-n-text-body/60 text-center max-w-xs">
         {{ t('NOTIFICATION_TEMPLATES.STATISTICS.EMPTY') }}
       </p>
     </div>
@@ -75,7 +75,7 @@ const hasData = computed(() => rows.value.length > 0);
     <div v-else class="flex flex-col gap-3">
       <!-- Headers -->
       <div
-        class="hidden md:flex items-center px-6 py-2 bg-n-alpha-1 rounded-xl text-xs font-semibold text-n-slate-10 uppercase tracking-wider"
+        class="hidden md:flex items-center px-6 py-2 bg-n-alpha-1 rounded-xl text-xs font-semibold text-n-text-body/60 uppercase tracking-wider"
       >
         <div class="flex-1">
           {{ t('NOTIFICATION_TEMPLATES.STATISTICS.COLUMNS.TEMPLATE') }}
@@ -101,10 +101,10 @@ const hasData = computed(() => rows.value.length > 0);
       <div
         v-for="row in rows"
         :key="row.id"
-        class="flex flex-col md:flex-row md:items-center p-4 md:px-6 md:py-4 rounded-xl border border-n-weak bg-n-solid-1 hover:border-n-strong hover:shadow-md transition-all gap-4"
+        class="flex flex-col md:flex-row md:items-center p-4 md:px-6 md:py-4 rounded-xl border border-n-border-glass-soft bg-n-glass-soft hover:border-n-border-glass hover:shadow-md transition-all gap-4"
       >
         <div class="flex-1 min-w-0">
-          <h3 class="text-sm font-semibold text-n-slate-12 truncate">
+          <h3 class="text-sm font-semibold text-n-text-display truncate">
             {{ row.name }}
           </h3>
         </div>
@@ -116,7 +116,7 @@ const hasData = computed(() => rows.value.length > 0);
             <span class="md:hidden text-[10px] uppercase text-n-slate-9 mb-0.5">
               {{ t('NOTIFICATION_TEMPLATES.STATISTICS.COLUMNS.SENT') }}
             </span>
-            <span class="text-sm font-medium text-n-slate-11 tabular-nums">
+            <span class="text-sm font-medium text-n-text-body tabular-nums">
               {{ row.sent }}
             </span>
           </div>
@@ -140,7 +140,7 @@ const hasData = computed(() => rows.value.length > 0);
           </div>
 
           <div class="w-24 flex flex-col md:text-right hidden lg:flex">
-            <span class="text-sm text-n-slate-11 tabular-nums">{{
+            <span class="text-sm text-n-text-body tabular-nums">{{
               row.replied
             }}</span>
           </div>
@@ -154,7 +154,7 @@ const hasData = computed(() => rows.value.length > 0);
               :class="
                 row.replyRate >= 20
                   ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
-                  : 'bg-n-alpha-2 text-n-slate-10'
+                  : 'bg-n-alpha-2 text-n-text-body/60'
               "
             >
               {{

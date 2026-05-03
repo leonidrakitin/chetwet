@@ -49,7 +49,7 @@ const action = computed(() => ({
     sender-translation-key="CONVERSATION.SHARED_ATTACHMENT.MEETING"
     :action="action"
   >
-    <div v-if="!sender" class="text-sm truncate text-n-slate-12">
+    <div v-if="!sender" class="text-sm truncate text-n-text-display">
       <!-- Added as a fallback, where the sender is not available (Deleted) -->
       <!-- Will show the content, if senderName in BaseAttachment.vue is empty -->
       {{ content }}

@@ -153,7 +153,7 @@ export default {
         feature-name="sla"
       >
         <template v-if="!isBehindAPaywall && records?.length" #count>
-          <span class="text-body-main text-n-slate-11">
+          <span class="text-body-main text-n-text-body">
             {{ $t('SLA.COUNT', { n: records.length }) }}
           </span>
         </template>
@@ -193,7 +193,7 @@ export default {
             <Icon
               v-tooltip.left="$t('SLA.LIST.RESPONSE_TYPES.FRT')"
               icon="i-lucide-info"
-              class="size-3.5 text-n-slate-10 cursor-help"
+              class="size-3.5 text-n-text-body/60 cursor-help"
             />
           </div>
         </template>
@@ -205,7 +205,7 @@ export default {
             <Icon
               v-tooltip.left="$t('SLA.LIST.RESPONSE_TYPES.NRT')"
               icon="i-lucide-info"
-              class="size-3.5 text-n-slate-10 cursor-help"
+              class="size-3.5 text-n-text-body/60 cursor-help"
             />
           </div>
         </template>
@@ -217,7 +217,7 @@ export default {
             <Icon
               v-tooltip.left="$t('SLA.LIST.RESPONSE_TYPES.RT')"
               icon="i-lucide-info"
-              class="size-3.5 text-n-slate-10 cursor-help"
+              class="size-3.5 text-n-text-body/60 cursor-help"
             />
           </div>
         </template>
@@ -226,10 +226,10 @@ export default {
             <template #default>
               <BaseTableCell>
                 <div class="flex flex-col gap-1 min-w-0">
-                  <span class="text-body-main text-n-slate-12 truncate">
+                  <span class="text-body-main text-n-text-display truncate">
                     {{ sla.name }}
                   </span>
-                  <span class="text-body-main text-n-slate-11 line-clamp-1">
+                  <span class="text-body-main text-n-text-body line-clamp-1">
                     {{ sla.description }}
                   </span>
                 </div>
@@ -256,7 +256,7 @@ export default {
                       :class="
                         sla.only_during_business_hours
                           ? 'text-n-teal-11'
-                          : 'text-n-slate-11'
+                          : 'text-n-text-body'
                       "
                     />
                   </template>
@@ -264,19 +264,19 @@ export default {
               </BaseTableCell>
 
               <BaseTableCell align="start" class="w-24">
-                <span class="text-body-main text-n-slate-12">
+                <span class="text-body-main text-n-text-display">
                   {{ displayTime(sla.first_response_time_threshold) }}
                 </span>
               </BaseTableCell>
 
               <BaseTableCell align="start" class="w-24">
-                <span class="text-body-main text-n-slate-12">
+                <span class="text-body-main text-n-text-display">
                   {{ displayTime(sla.next_response_time_threshold) }}
                 </span>
               </BaseTableCell>
 
               <BaseTableCell align="start" class="w-24">
-                <span class="text-body-main text-n-slate-12">
+                <span class="text-body-main text-n-text-display">
                   {{ displayTime(sla.resolution_time_threshold) }}
                 </span>
               </BaseTableCell>

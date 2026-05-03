@@ -124,16 +124,16 @@ const createService = async () => {
       />
 
       <div class="w-full mb-4">
-        <label class="text-sm font-medium text-n-slate-12">
+        <label class="text-sm font-medium text-n-text-display">
           {{ $t('SERVICES_MGMT.FORM.STATUS.LABEL') }}
         </label>
         <div class="flex items-center gap-2 mt-2">
           <input
             v-model="active"
             type="checkbox"
-            class="w-4 h-4 rounded border-n-weak-stroke"
+            class="w-4 h-4 rounded border-n-border-glass-soft-stroke"
           />
-          <span class="text-sm text-n-slate-11">
+          <span class="text-sm text-n-text-body">
             {{ $t('SERVICES_MGMT.FORM.STATUS.ACTIVE') }}
           </span>
         </div>

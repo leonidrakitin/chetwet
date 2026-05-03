@@ -369,7 +369,7 @@ const handleClose = () => {
       <!-- Mobile preview toggle -->
       <button
         type="button"
-        class="md:hidden inline-flex items-center gap-1.5 self-start rounded-md border border-n-weak px-2.5 py-1.5 text-xs text-n-slate-10 hover:border-n-strong hover:text-n-slate-12 transition-colors flex-shrink-0"
+        class="md:hidden inline-flex items-center gap-1.5 self-start rounded-md border border-n-border-glass-soft px-2.5 py-1.5 text-xs text-n-text-body/60 hover:border-n-border-glass hover:text-n-text-display transition-colors flex-shrink-0"
         @click="showMobilePreview = !showMobilePreview"
       >
         <span
@@ -395,7 +395,7 @@ const handleClose = () => {
         class="flex flex-col gap-4 flex-1 min-w-0 md:min-w-[22rem] md:overflow-y-auto"
       >
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-n-slate-12">
+          <label class="text-sm font-medium text-n-text-display">
             {{ t('NOTIFICATION_TEMPLATES.FORM.NAME.LABEL') }}
             <span class="text-n-ruby-9">
               {{ t('NOTIFICATION_TEMPLATES.FORM.REQUIRED_INDICATOR') }}
@@ -405,7 +405,7 @@ const handleClose = () => {
             v-model="form.name"
             type="text"
             :placeholder="t('NOTIFICATION_TEMPLATES.FORM.NAME.PLACEHOLDER')"
-            class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+            class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-alpha-1 px-3 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
             @input="nameError = ''"
           />
           <span v-if="nameError" class="text-xs text-n-ruby-11">
@@ -414,7 +414,7 @@ const handleClose = () => {
         </div>
 
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-n-slate-12">
+          <label class="text-sm font-medium text-n-text-display">
             {{ t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.LABEL') }}
           </label>
           <input
@@ -423,18 +423,18 @@ const handleClose = () => {
             :placeholder="
               t('NOTIFICATION_TEMPLATES.FORM.DESCRIPTION.PLACEHOLDER')
             "
-            class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 px-3 text-sm text-n-slate-12 placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
+            class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-alpha-1 px-3 text-sm text-n-text-display placeholder:text-n-slate-9 focus:border-n-brand focus:outline-none"
           />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.TYPE.LABEL') }}
             </label>
             <select
               v-model="form.type"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-alpha-1 pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in typeOptions"
@@ -447,12 +447,12 @@ const handleClose = () => {
           </div>
 
           <div v-if="yclientsEnabled" class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.YCLIENTS_INTEGRATION.LABEL') }}
             </label>
             <select
               v-model="form.yclientsIntegrationId"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-alpha-1 pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             >
               <option value="">
                 {{
@@ -478,15 +478,15 @@ const handleClose = () => {
 
         <div
           v-if="form.type === 'event'"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-4"
         >
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.TRIGGER_EVENT.LABEL') }}
             </label>
             <select
               v-model="form.triggerEvent"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in triggerEventOptions"
@@ -499,50 +499,50 @@ const handleClose = () => {
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.OFFSET_HOURS.LABEL') }}
             </label>
             <input
               v-model.number="form.conditions.offsetHours"
               type="number"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
         </div>
 
         <div
           v-if="form.type === 'time'"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-4"
         >
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.SEND_AT.LABEL') }}
             </label>
             <input
               v-model="form.schedule.sendAt"
               type="datetime-local"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.TIMEZONE.LABEL') }}
             </label>
             <input
               v-model="form.schedule.timezone"
               type="text"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT.LABEL') }}
             </label>
             <select
               v-model="form.schedule.repeat"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in repeatOptions"
@@ -555,40 +555,40 @@ const handleClose = () => {
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.REPEAT_UNTIL.LABEL') }}
             </label>
             <input
               v-model="form.schedule.repeatUntil"
               type="date"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
         </div>
 
         <div
           v-if="form.type === 'interval'"
-          class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-4"
         >
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.INTERVAL_DAYS.LABEL') }}
             </label>
             <input
               v-model.number="form.conditions.intervalDays"
               type="number"
               min="1"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.SINCE.LABEL') }}
             </label>
             <select
               v-model="form.conditions.since"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             >
               <option
                 v-for="option in intervalSinceOptions"
@@ -601,24 +601,24 @@ const handleClose = () => {
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.MIN_INTERVAL_HOURS.LABEL') }}
             </label>
             <input
               v-model.number="form.limits.minIntervalHours"
               type="number"
               min="0"
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
         </div>
 
         <div
           v-if="yclientsEnabled"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-4"
         >
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.LABEL') }}
             </label>
             <input
@@ -627,12 +627,12 @@ const handleClose = () => {
               :placeholder="
                 t('NOTIFICATION_TEMPLATES.FORM.SERVICE_NAME.PLACEHOLDER')
               "
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{ t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.LABEL') }}
             </label>
             <input
@@ -641,17 +641,17 @@ const handleClose = () => {
               :placeholder="
                 t('NOTIFICATION_TEMPLATES.FORM.STAFF_NAME.PLACEHOLDER')
               "
-              class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             />
           </div>
         </div>
 
         <div
-          class="flex flex-col gap-4 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
+          class="flex flex-col gap-4 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-4"
         >
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.TAGS.LABEL') }}
               </label>
               <TagMultiSelect
@@ -662,7 +662,7 @@ const handleClose = () => {
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.EXCLUDE_TAGS.LABEL') }}
               </label>
               <TagMultiSelect
@@ -675,50 +675,52 @@ const handleClose = () => {
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_FROM.LABEL') }}
               </label>
               <input
                 v-model="form.limits.quietHoursFrom"
                 type="time"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
               />
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.QUIET_HOURS_TO.LABEL') }}
               </label>
               <input
                 v-model="form.limits.quietHoursTo"
                 type="time"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
               />
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.MAX_PER_DAY.LABEL') }}
               </label>
               <input
                 v-model.number="form.limits.maxPerDay"
                 type="number"
                 min="1"
-                class="h-10 w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+                class="h-10 w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
               />
             </div>
           </div>
 
-          <div class="flex flex-col gap-3 border-t border-n-weak pt-4">
+          <div
+            class="flex flex-col gap-3 border-t border-n-border-glass-soft pt-4"
+          >
             <div class="flex items-center gap-3">
               <Switch v-model="form.limits.stopIfReplied" />
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.STOP_IF_REPLIED.LABEL') }}
               </label>
             </div>
             <div class="flex items-center gap-3">
               <Switch v-model="form.limits.skipIfHasActiveDialog" />
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{
                   t(
                     'NOTIFICATION_TEMPLATES.FORM.SKIP_IF_HAS_ACTIVE_DIALOG.LABEL'
@@ -728,7 +730,7 @@ const handleClose = () => {
             </div>
             <div v-if="yclientsEnabled" class="flex items-center gap-3">
               <Switch v-model="form.audience.requireMailingConsent" />
-              <label class="text-sm font-medium text-n-slate-12">
+              <label class="text-sm font-medium text-n-text-display">
                 {{
                   t('NOTIFICATION_TEMPLATES.FORM.REQUIRE_MAILING_CONSENT.LABEL')
                 }}
@@ -743,21 +745,21 @@ const handleClose = () => {
         </div>
 
         <div class="flex flex-col gap-3">
-          <label class="text-sm font-medium text-n-slate-12">
+          <label class="text-sm font-medium text-n-text-display">
             {{ t('NOTIFICATION_TEMPLATES.FORM.MESSAGE_TEXT.LABEL') }}
           </label>
 
           <div
             v-for="(block, idx) in form.messages"
             :key="idx"
-            class="flex flex-col gap-2 rounded-xl border border-n-weak bg-n-alpha-1 p-3"
+            class="flex flex-col gap-2 rounded-xl border border-n-border-glass-soft bg-n-alpha-1 p-3"
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-0.5">
                 <button
                   v-if="idx > 0"
                   type="button"
-                  class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12"
+                  class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display"
                   @click="moveMessageUp(idx)"
                 >
                   <span class="i-lucide-arrow-up size-3.5" />
@@ -765,7 +767,7 @@ const handleClose = () => {
                 <button
                   v-if="idx < form.messages.length - 1"
                   type="button"
-                  class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-slate-12"
+                  class="rounded p-1 text-n-slate-9 hover:bg-n-alpha-2 hover:text-n-text-display"
                   @click="moveMessageDown(idx)"
                 >
                   <span class="i-lucide-arrow-down size-3.5" />
@@ -808,7 +810,7 @@ const handleClose = () => {
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 self-start rounded-md border border-dashed border-n-weak px-2.5 py-1.5 text-xs text-n-slate-10 hover:border-n-strong hover:text-n-slate-12"
+            class="inline-flex items-center gap-1.5 self-start rounded-md border border-dashed border-n-border-glass-soft px-2.5 py-1.5 text-xs text-n-text-body/60 hover:border-n-border-glass hover:text-n-text-display"
             @click="addMessage"
           >
             <span class="i-lucide-plus size-3.5" />
@@ -818,7 +820,7 @@ const handleClose = () => {
 
         <div class="flex items-center gap-3">
           <Switch v-model="form.enabled" />
-          <label class="text-sm font-medium text-n-slate-12">
+          <label class="text-sm font-medium text-n-text-display">
             {{ t('NOTIFICATION_TEMPLATES.FORM.ENABLED.LABEL') }}
           </label>
         </div>

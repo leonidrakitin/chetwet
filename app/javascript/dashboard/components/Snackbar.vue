@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
     <!-- Content -->
     <div class="flex min-w-0 flex-1 items-center gap-3">
       <p
-        class="min-w-0 flex-1 text-sm font-medium leading-snug text-n-slate-12"
+        class="min-w-0 flex-1 text-sm font-medium leading-snug text-n-text-display"
       >
         {{ message }}
       </p>

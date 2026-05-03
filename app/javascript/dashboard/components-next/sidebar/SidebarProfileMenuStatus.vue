@@ -119,7 +119,7 @@ function changeAvailabilityStatus(availability) {
           <Icon
             v-tooltip.top="$t('SIDEBAR.SET_AUTO_OFFLINE.INFO_SHORT')"
             icon="i-lucide-info"
-            class="size-4 text-n-slate-10"
+            class="size-4 text-n-text-body/60"
           />
         </div>
         <ToggleSwitch v-model="autoOfflineToggle" />

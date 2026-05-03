@@ -81,21 +81,21 @@ const toggleSenderNameType = key => {
           <div class="flex items-center gap-1">
             <span
               v-if="isKeyOptionFriendly(keyOption.key)"
-              class="text-body-main text-n-slate-12"
+              class="text-body-main text-n-text-display"
             >
               {{ keyOption.preview.senderName }}
             </span>
             <span
               v-if="isKeyOptionFriendly(keyOption.key)"
-              class="text-body-main text-n-slate-11"
+              class="text-body-main text-n-text-body"
             >
               {{ t('INBOX_MGMT.EDIT.SENDER_NAME_SECTION.FRIENDLY.FROM') }}
             </span>
-            <span class="text-body-main text-n-slate-12">
+            <span class="text-body-main text-n-text-display">
               {{ props.businessName || keyOption.preview.businessName }}
             </span>
           </div>
-          <span class="text-label-small text-n-slate-11">
+          <span class="text-label-small text-n-text-body">
             {{ keyOption.preview.email }}
           </span>
         </div>

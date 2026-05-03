@@ -443,7 +443,7 @@ onMounted(() => {
           <template #item-actions="{ item }">
             <Policy :permissions="['administrator']">
               <button
-                class="flex-shrink-0 p-1 rounded text-n-slate-9 hover:text-n-slate-12 hover:bg-n-alpha-2 transition-colors"
+                class="flex-shrink-0 p-1 rounded text-n-slate-9 hover:text-n-text-display hover:bg-n-alpha-2 transition-colors"
                 :title="$t('CAPTAIN.CUSTOM_TOOLS.OPTIONS.EDIT_TOOL')"
                 @click.stop="handleEdit(item)"
               >

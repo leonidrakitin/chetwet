@@ -197,7 +197,7 @@ const tableHeaders = computed(() => {
         feature-name="automation"
       >
         <template v-if="records?.length" #count>
-          <span class="text-body-main text-n-slate-11">
+          <span class="text-body-main text-n-text-body">
             {{ $t('AUTOMATION.COUNT', { n: records.length }) }}
           </span>
         </template>

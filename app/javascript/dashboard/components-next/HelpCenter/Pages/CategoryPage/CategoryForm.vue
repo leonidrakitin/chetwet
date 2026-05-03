@@ -157,24 +157,24 @@ defineExpose({ state, isSubmitDisabled });
 <template>
   <div class="flex flex-col gap-4">
     <div
-      class="flex items-center justify-start gap-8 px-4 py-2 border rounded-lg border-n-strong"
+      class="flex items-center justify-start gap-8 px-4 py-2 border rounded-lg border-n-border-glass"
     >
       <div class="flex flex-col items-start w-full gap-2 py-2">
-        <span class="text-sm font-medium text-n-slate-11">
+        <span class="text-sm font-medium text-n-text-body">
           {{ t('HELP_CENTER.CATEGORY_PAGE.CATEGORY_DIALOG.HEADER.PORTAL') }}
         </span>
-        <span class="text-sm text-n-slate-12">
+        <span class="text-sm text-n-text-display">
           {{ portalName }}
         </span>
       </div>
       <div class="justify-start w-px h-10 bg-n-strong" />
       <div class="flex flex-col w-full gap-2 py-2">
-        <span class="text-sm font-medium text-n-slate-11">
+        <span class="text-sm font-medium text-n-text-body">
           {{ t('HELP_CENTER.CATEGORY_PAGE.CATEGORY_DIALOG.HEADER.LOCALE') }}
         </span>
         <span
           :title="`${activeLocaleName} (${activeLocaleCode})`"
-          class="text-sm line-clamp-1 text-n-slate-12"
+          class="text-sm line-clamp-1 text-n-text-display"
         >
           {{ `${activeLocaleName} (${activeLocaleCode})` }}
         </span>

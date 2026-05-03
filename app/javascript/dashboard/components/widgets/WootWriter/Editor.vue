@@ -892,7 +892,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
     <div ref="editor" />
     <div
       v-show="isImageNodeSelected && showImageResizeToolbar"
-      class="absolute shadow-md rounded-[6px] flex gap-1 py-1 px-1 bg-n-solid-3 outline outline-1 outline-n-weak text-n-slate-12"
+      class="absolute shadow-md rounded-[6px] flex gap-1 py-1 px-1 bg-n-solid-3 outline outline-1 outline-n-border-glass-soft text-n-text-display"
       :style="{
         top: toolbarPosition.top,
         left: toolbarPosition.left,
@@ -901,7 +901,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
       <button
         v-for="size in sizes"
         :key="size.name"
-        class="text-xs font-medium rounded-[4px] outline outline-1 outline-n-strong px-1.5 py-0.5 hover:bg-n-slate-5"
+        class="text-xs font-medium rounded-[4px] outline outline-1 outline-n-border-glass px-1.5 py-0.5 hover:bg-n-slate-5"
         @click="setURLWithQueryAndImageSize(size)"
       >
         {{ size.name }}
@@ -919,7 +919,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
 
   .ProseMirror-menubar {
     min-height: 1.25rem !important;
-    @apply items-center gap-4 flex pb-0 bg-transparent text-n-slate-11 relative ltr:-left-[3px] rtl:-right-[3px];
+    @apply items-center gap-4 flex pb-0 bg-transparent text-n-text-body relative ltr:-left-[3px] rtl:-right-[3px];
 
     .ProseMirror-menu-active {
       @apply bg-n-slate-5 dark:bg-n-solid-3 !important;
@@ -950,7 +950,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
   }
 
   > .ProseMirror {
-    @apply p-0 break-words text-n-slate-12;
+    @apply p-0 break-words text-n-text-display;
 
     h1,
     h2,
@@ -959,14 +959,14 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
     h5,
     h6,
     p {
-      @apply text-n-slate-12;
+      @apply text-n-text-display;
     }
 
     blockquote {
       @apply border-n-slate-7;
 
       p {
-        @apply text-n-slate-11;
+        @apply text-n-text-body;
       }
     }
 
@@ -985,10 +985,10 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
 }
 
 .ProseMirror-prompt {
-  @apply bg-n-alpha-3 border border-n-strong p-6 shadow-xl rounded-xl w-96 !important;
+  @apply bg-n-alpha-3 border border-n-border-glass p-6 shadow-xl rounded-xl w-96 !important;
 
   h5 {
-    @apply text-n-slate-12 mb-3;
+    @apply text-n-text-display mb-3;
   }
 
   .ProseMirror-prompt-buttons {
@@ -1000,7 +1000,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
       }
 
       &[type='button'] {
-        @apply bg-n-slate-9/10 text-n-slate-12 hover:bg-n-slate-9/20;
+        @apply bg-n-slate-9/10 text-n-text-display hover:bg-n-slate-9/20;
       }
     }
   }
@@ -1008,22 +1008,22 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
 
 .is-private {
   .prosemirror-mention-node {
-    @apply font-medium bg-n-amber-2/80 dark:bg-n-amber-2/80 text-n-slate-12 py-0 px-1;
+    @apply font-medium bg-n-amber-2/80 dark:bg-n-amber-2/80 text-n-text-display py-0 px-1;
   }
 
   .ProseMirror-menubar-wrapper {
     > .ProseMirror {
-      @apply text-n-slate-12;
+      @apply text-n-text-display;
 
       p {
-        @apply text-n-slate-12;
+        @apply text-n-text-display;
       }
     }
   }
 }
 
 .prosemirror-tools-node {
-  @apply font-medium text-n-slate-12 py-0;
+  @apply font-medium text-n-text-display py-0;
 }
 
 .editor-wrap {
@@ -1031,7 +1031,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
 }
 
 .message-editor {
-  @apply rounded-lg outline outline-1 outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 bg-n-alpha-black2 py-0 px-1 mb-0;
+  @apply rounded-lg outline outline-1 outline-n-border-glass-soft hover:outline-n-slate-6 dark:hover:outline-n-slate-6 bg-n-alpha-black2 py-0 px-1 mb-0;
 }
 
 .editor_warning {
@@ -1072,7 +1072,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
     }
 
     .ProseMirror-menubar {
-      @apply rounded-lg !px-3 !py-1.5 z-50 bg-n-background items-center gap-4 ml-0 mb-0 shadow-md outline outline-1 outline-n-weak;
+      @apply rounded-lg !px-3 !py-1.5 z-50 bg-n-background items-center gap-4 ml-0 mb-0 shadow-md outline outline-1 outline-n-border-glass-soft;
       display: flex;
       width: fit-content !important;
       position: absolute !important;

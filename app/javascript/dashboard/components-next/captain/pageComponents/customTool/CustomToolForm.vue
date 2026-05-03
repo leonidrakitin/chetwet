@@ -199,7 +199,7 @@ const handleTest = async () => {
 
     <div class="flex gap-2">
       <div class="flex flex-col gap-1 w-28">
-        <label class="mb-0.5 text-sm font-medium text-n-slate-12">
+        <label class="mb-0.5 text-sm font-medium text-n-text-display">
           {{ t('CAPTAIN.CUSTOM_TOOLS.FORM.HTTP_METHOD.LABEL') }}
         </label>
         <ComboBox
@@ -219,7 +219,7 @@ const handleTest = async () => {
     </div>
 
     <div class="flex flex-col gap-1">
-      <label class="mb-0.5 text-sm font-medium text-n-slate-12">
+      <label class="mb-0.5 text-sm font-medium text-n-text-display">
         {{ t('CAPTAIN.CUSTOM_TOOLS.FORM.AUTH_TYPE.LABEL') }}
       </label>
       <ComboBox
@@ -235,10 +235,10 @@ const handleTest = async () => {
     />
 
     <div class="flex flex-col gap-2">
-      <label class="text-sm font-medium text-n-slate-12">
+      <label class="text-sm font-medium text-n-text-display">
         {{ t('CAPTAIN.CUSTOM_TOOLS.FORM.PARAMETERS.LABEL') }}
       </label>
-      <p class="text-xs text-n-slate-11 -mt-1">
+      <p class="text-xs text-n-text-body -mt-1">
         {{ t('CAPTAIN.CUSTOM_TOOLS.FORM.PARAMETERS.HELP_TEXT') }}
       </p>
       <ul v-if="state.param_schema.length > 0" class="grid gap-2 list-none">
@@ -294,7 +294,7 @@ const handleTest = async () => {
         :disabled="isTesting || !state.endpoint_url || isTestDisabled"
         @click="handleTest"
       />
-      <p v-if="isTestDisabled" class="text-xs text-n-slate-11">
+      <p v-if="isTestDisabled" class="text-xs text-n-text-body">
         {{ t('CAPTAIN.CUSTOM_TOOLS.TEST.DISABLED_HINT') }}
       </p>
       <div

@@ -52,14 +52,16 @@ const targetInboxLabel = computed(() => {
   <div
     class="flex items-center flex-1 w-full gap-3 px-4 py-3 overflow-y-visible"
   >
-    <label class="mb-0.5 text-sm font-medium text-n-slate-11 whitespace-nowrap">
+    <label
+      class="mb-0.5 text-sm font-medium text-n-text-body whitespace-nowrap"
+    >
       {{ t('COMPOSE_NEW_CONVERSATION.FORM.INBOX_SELECTOR.LABEL') }}
     </label>
     <div
       v-if="targetInbox"
       class="flex items-center gap-1.5 rounded-md bg-n-alpha-2 truncate ltr:pl-3 rtl:pr-3 ltr:pr-1 rtl:pl-1 h-7 min-w-0"
     >
-      <span class="text-sm truncate text-n-slate-12">
+      <span class="text-sm truncate text-n-text-display">
         {{ targetInboxLabel }}
       </span>
       <Button

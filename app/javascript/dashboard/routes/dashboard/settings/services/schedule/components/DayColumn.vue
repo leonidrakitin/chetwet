@@ -101,21 +101,21 @@ const handleDragOver = e => {
 
 <template>
   <div
-    class="flex-1 min-w-[112px] sm:min-w-[140px] border-r border-n-weak last:border-r-0"
+    class="flex-1 min-w-[112px] sm:min-w-[140px] border-r border-n-border-glass-soft last:border-r-0"
   >
     <div
-      class="h-12 px-2 flex flex-col items-center justify-center border-b border-n-weak"
+      class="h-12 px-2 flex flex-col items-center justify-center border-b border-n-border-glass-soft"
       :class="isTodayDate ? 'bg-n-brand' : ''"
     >
       <span
         class="text-xs font-medium uppercase"
-        :class="isTodayDate ? 'text-white/90' : 'text-n-slate-10'"
+        :class="isTodayDate ? 'text-white/90' : 'text-n-text-body/60'"
       >
         {{ dayName }}
       </span>
       <span
         class="text-sm font-semibold"
-        :class="isTodayDate ? 'text-white' : 'text-n-slate-12'"
+        :class="isTodayDate ? 'text-white' : 'text-n-text-display'"
       >
         {{ dayNumber }}
       </span>
@@ -130,9 +130,9 @@ const handleDragOver = e => {
       <div
         v-for="slot in timeSlots"
         :key="`${slot.hour}-${slot.minute}`"
-        class="border-b border-n-weak transition-colors"
+        class="border-b border-n-border-glass-soft transition-colors"
         :class="{
-          'bg-n-solid-2': !workingSlotForTime(slot.hour, slot.minute),
+          'bg-n-glass-strong': !workingSlotForTime(slot.hour, slot.minute),
           'bg-n-slate-2': workingSlotForTime(slot.hour, slot.minute),
         }"
         :style="`height: ${SLOT_HEIGHT}px;`"

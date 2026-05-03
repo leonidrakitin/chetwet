@@ -33,10 +33,10 @@ const hasAnySetup = computed(() => {
     >
       <Icon icon="i-lucide-check-circle" class="size-8 text-green-500" />
     </div>
-    <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
+    <h1 class="text-2xl font-bold text-n-text-display mb-2">
       {{ t('ONBOARDING.COMPLETE_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-8">
+    <p class="text-sm text-n-text-body/60 mb-8">
       {{ t('ONBOARDING.COMPLETE_STEP.SUBTITLE') }}
     </p>
 
@@ -44,14 +44,14 @@ const hasAnySetup = computed(() => {
     <div v-if="hasAnySetup" class="flex flex-col gap-2 w-full max-w-xs mb-8">
       <div
         v-if="profileSet"
-        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-text-body"
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
         {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_PROFILE') }}
       </div>
       <div
         v-if="agentsInvited > 0"
-        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-text-body"
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
         {{
@@ -62,21 +62,21 @@ const hasAnySetup = computed(() => {
       </div>
       <div
         v-if="inboxCreated"
-        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-text-body"
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
         {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_INBOX') }}
       </div>
       <div
         v-if="greetingSet"
-        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-text-body"
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
         {{ t('ONBOARDING.COMPLETE_STEP.SUMMARY_GREETING') }}
       </div>
       <div
         v-if="cannedResponsesCreated > 0"
-        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-text-body"
       >
         <Icon icon="i-lucide-check" class="size-4 text-green-500 shrink-0" />
         {{
@@ -89,7 +89,7 @@ const hasAnySetup = computed(() => {
 
     <div v-else class="flex flex-col items-center gap-4 mb-8">
       <div
-        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-slate-11"
+        class="flex items-center gap-3 rounded-lg bg-n-alpha-1 px-4 py-2.5 text-sm text-n-text-body"
       >
         <Icon icon="i-lucide-rocket" class="size-4 text-n-brand shrink-0" />
         {{ t('ONBOARDING.COMPLETE_STEP.QUICK_START') }}

@@ -61,10 +61,10 @@ function proceed() {
     >
       <Icon icon="i-lucide-building-2" class="size-8 text-n-brand" />
     </div>
-    <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
+    <h1 class="text-2xl font-bold text-n-text-display mb-2">
       {{ t('ONBOARDING.ACCOUNT_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-8">
+    <p class="text-sm text-n-text-body/60 mb-8">
       {{ t('ONBOARDING.ACCOUNT_STEP.SUBTITLE') }}
     </p>
     <div class="w-full max-w-xs flex flex-col gap-4">
@@ -76,12 +76,12 @@ function proceed() {
         @enter="proceed"
       />
       <div>
-        <label class="text-sm font-medium text-n-slate-11 mb-1.5 block">
+        <label class="text-sm font-medium text-n-text-body mb-1.5 block">
           {{ t('ONBOARDING.ACCOUNT_STEP.LOCALE_LABEL') }}
         </label>
         <select
           v-model="locale"
-          class="w-full rounded-lg border border-n-weak bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+          class="w-full rounded-lg border border-n-border-glass-soft bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-text-display outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand"
         >
           <option
             v-for="lang in languageOptions"
@@ -94,12 +94,12 @@ function proceed() {
         </select>
       </div>
       <div>
-        <label class="text-sm font-medium text-n-slate-11 mb-1.5 block">
+        <label class="text-sm font-medium text-n-text-body mb-1.5 block">
           {{ t('ONBOARDING.ACCOUNT_STEP.TIMEZONE_LABEL') }}
         </label>
         <select
           v-model="timezone"
-          class="w-full rounded-lg border border-n-weak bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+          class="w-full rounded-lg border border-n-border-glass-soft bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-text-display outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand"
         >
           <option
             v-for="tz in timezoneOptions"

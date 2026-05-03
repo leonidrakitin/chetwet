@@ -43,10 +43,10 @@ function proceed() {
     >
       <Icon icon="i-lucide-zap" class="size-8 text-n-brand" />
     </div>
-    <h1 class="text-2xl font-bold text-n-slate-12 mb-2">
+    <h1 class="text-2xl font-bold text-n-text-display mb-2">
       {{ t('ONBOARDING.CANNED_STEP.TITLE') }}
     </h1>
-    <p class="text-sm text-n-slate-10 mb-6">
+    <p class="text-sm text-n-text-body/60 mb-6">
       {{ t('ONBOARDING.CANNED_STEP.SUBTITLE') }}
     </p>
 
@@ -64,20 +64,20 @@ function proceed() {
               :placeholder="t('ONBOARDING.CANNED_STEP.SHORT_CODE_PLACEHOLDER')"
             />
             <div class="text-left">
-              <label class="text-sm font-medium text-n-slate-11 mb-1.5 block">
+              <label class="text-sm font-medium text-n-text-body mb-1.5 block">
                 {{ t('ONBOARDING.CANNED_STEP.CONTENT_LABEL') }}
               </label>
               <textarea
                 v-model="response.content"
                 :placeholder="t('ONBOARDING.CANNED_STEP.CONTENT_PLACEHOLDER')"
                 rows="2"
-                class="w-full rounded-lg border border-n-weak bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand placeholder:text-n-slate-8 resize-none"
+                class="w-full rounded-lg border border-n-border-glass-soft bg-white dark:bg-n-solid-3 px-3 py-2 text-sm text-n-text-display outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand placeholder:text-n-slate-8 resize-none"
               />
             </div>
           </div>
           <button
             v-if="responses.length > 1"
-            class="mt-6 text-n-slate-9 hover:text-n-slate-12 transition-colors"
+            class="mt-6 text-n-slate-9 hover:text-n-text-display transition-colors"
             @click="removeRow(index)"
           >
             <Icon icon="i-lucide-x" class="size-4" />

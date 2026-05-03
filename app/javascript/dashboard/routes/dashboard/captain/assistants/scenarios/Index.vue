@@ -31,11 +31,11 @@ const scenarios = useMapGetter('captainScenarios/getRecords');
 const searchQuery = ref('');
 
 const LINK_INSTRUCTION_CLASS =
-  '[&_a[href^="tool://"]]:text-n-iris-11 [&_a:not([href^="tool://"])]:text-n-slate-12 [&_a]:pointer-events-none [&_a]:cursor-default';
+  '[&_a[href^="tool://"]]:text-n-iris-11 [&_a:not([href^="tool://"])]:text-n-text-display [&_a]:pointer-events-none [&_a]:cursor-default';
 
 const renderInstruction = instruction => () =>
   h('span', {
-    class: `text-sm text-n-slate-12 py-4 prose prose-sm min-w-0 break-words ${LINK_INSTRUCTION_CLASS}`,
+    class: `text-sm text-n-text-display py-4 prose prose-sm min-w-0 break-words ${LINK_INSTRUCTION_CLASS}`,
     innerHTML: instruction,
   });
 
@@ -210,7 +210,7 @@ onMounted(() => {
         >
           <template #default="{ item }">
             <div class="flex items-center gap-3 justify-between">
-              <span class="text-sm text-n-slate-12">
+              <span class="text-sm text-n-text-display">
                 {{ item.title }}
               </span>
               <Button
@@ -220,18 +220,18 @@ onMounted(() => {
                 ghost
                 xs
                 slate
-                class="!text-sm !text-n-slate-11 flex-shrink-0"
+                class="!text-sm !text-n-text-body flex-shrink-0"
                 @click="addScenario(item)"
               />
             </div>
             <div class="flex flex-col">
-              <span class="text-sm text-n-slate-11 mt-2">
+              <span class="text-sm text-n-text-body mt-2">
                 {{ item.description }}
               </span>
               <component
                 :is="renderInstruction(formatMessage(item.instruction, false))"
               />
-              <span class="text-sm text-n-slate-11 font-medium mb-1">
+              <span class="text-sm text-n-text-body font-medium mb-1">
                 {{ t('CAPTAIN.ASSISTANTS.SCENARIOS.ADD.SUGGESTED.TOOLS_USED') }}
                 {{ item.tools?.map(tool => `@${tool}`).join(', ') }}
               </span>
@@ -268,12 +268,12 @@ onMounted(() => {
           </div>
         </div>
         <div v-if="scenarios.length === 0" class="mt-1 mb-2">
-          <span class="text-n-slate-11 text-sm">
+          <span class="text-n-text-body text-sm">
             {{ t('CAPTAIN.ASSISTANTS.SCENARIOS.EMPTY_MESSAGE') }}
           </span>
         </div>
         <div v-else-if="filteredScenarios.length === 0" class="mt-1 mb-2">
-          <span class="text-n-slate-11 text-sm">
+          <span class="text-n-text-body text-sm">
             {{ t('CAPTAIN.ASSISTANTS.SCENARIOS.SEARCH_EMPTY_MESSAGE') }}
           </span>
         </div>

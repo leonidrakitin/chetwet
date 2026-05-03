@@ -37,21 +37,21 @@ const textColorClass = computed(() => {
     csv: 'text-n-amber-12',
     doc: 'dark:text-[#D6E1FF] text-[#1F2D5C]', // indigo-12
     docx: 'dark:text-[#D6E1FF] text-[#1F2D5C]', // indigo-12
-    json: 'text-n-slate-12',
+    json: 'text-n-text-display',
     odt: 'dark:text-[#D6E1FF] text-[#1F2D5C]', // indigo-12
-    pdf: 'text-n-slate-12',
+    pdf: 'text-n-text-display',
     ppt: 'dark:text-[#FFE0C2] text-[#582D1D]',
     pptx: 'dark:text-[#FFE0C2] text-[#582D1D]',
     rar: 'dark:text-[#EDEEF0] text-[#2F265F]',
     rtf: 'dark:text-[#D6E1FF] text-[#1F2D5C]', // indigo-12
     tar: 'dark:text-[#EDEEF0] text-[#2F265F]',
-    txt: 'text-n-slate-12',
+    txt: 'text-n-text-display',
     xls: 'text-n-teal-12',
     xlsx: 'text-n-teal-12',
     zip: 'dark:text-[#EDEEF0] text-[#2F265F]',
   };
 
-  return colorMap[fileDetails.value.type] || 'text-n-slate-12';
+  return colorMap[fileDetails.value.type] || 'text-n-text-display';
 });
 </script>
 
@@ -69,7 +69,7 @@ const textColorClass = computed(() => {
     </span>
     <a
       v-tooltip="t('CONVERSATION.DOWNLOAD')"
-      class="flex-shrink-0 size-9 grid place-content-center cursor-pointer text-n-slate-11 hover:text-n-slate-12 transition-colors"
+      class="flex-shrink-0 size-9 grid place-content-center cursor-pointer text-n-text-body hover:text-n-text-display transition-colors"
       :href="attachment.dataUrl"
       rel="noreferrer noopener nofollow"
       target="_blank"

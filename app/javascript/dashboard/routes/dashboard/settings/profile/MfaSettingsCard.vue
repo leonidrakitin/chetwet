@@ -24,13 +24,13 @@ const navigateToMfa = () => {
         <div class="flex items-center gap-2">
           <Icon
             icon="i-lucide-lock-keyhole"
-            class="size-4 text-n-slate-10 flex-shrink-0"
+            class="size-4 text-n-text-body/60 flex-shrink-0"
           />
-          <h5 class="text-heading-3 text-n-slate-12">
+          <h5 class="text-heading-3 text-n-text-display">
             {{ $t('MFA_SETTINGS.TITLE') }}
           </h5>
         </div>
-        <p class="text-body-para text-n-slate-11">
+        <p class="text-body-para text-n-text-body">
           {{ $t('MFA_SETTINGS.DESCRIPTION') }}
         </p>
       </div>

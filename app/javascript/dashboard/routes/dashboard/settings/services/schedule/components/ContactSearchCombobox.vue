@@ -76,7 +76,7 @@ const highlight = (text, token) => {
   const pattern = new RegExp(`(${escapeRegExp(safeToken)})`, 'ig');
   return safeText.replace(
     pattern,
-    '<mark class="bg-n-amber-4 text-n-slate-12 rounded-sm px-0.5">$1</mark>'
+    '<mark class="bg-n-amber-4 text-n-text-display rounded-sm px-0.5">$1</mark>'
   );
 };
 
@@ -203,7 +203,7 @@ onBeforeUnmount(() => {
     <div
       v-if="hasSelection"
       class="group flex items-center gap-3 px-3 py-2.5 border rounded-xl bg-n-alpha-1 shadow-sm transition-colors"
-      :class="hasError ? 'border-n-ruby-9' : 'border-n-weak'"
+      :class="hasError ? 'border-n-ruby-9' : 'border-n-border-glass-soft'"
     >
       <Avatar
         :name="modelValue.name || '?'"
@@ -211,12 +211,12 @@ onBeforeUnmount(() => {
         :size="40"
       />
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-n-slate-12 truncate">
+        <p class="text-sm font-semibold text-n-text-display truncate">
           {{ modelValue.name || '—' }}
         </p>
         <p
           v-if="subtitle(modelValue)"
-          class="text-xs text-n-slate-10 truncate font-mono mt-0.5"
+          class="text-xs text-n-text-body/60 truncate font-mono mt-0.5"
         >
           {{ subtitle(modelValue) }}
         </p>
@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
       <button
         type="button"
         :title="t('SCHEDULE.MODAL.CLEAR_CONTACT')"
-        class="flex items-center justify-center size-8 rounded-lg text-n-slate-11 hover:text-n-slate-12 hover:bg-n-alpha-2 transition-colors"
+        class="flex items-center justify-center size-8 rounded-lg text-n-text-body hover:text-n-text-display hover:bg-n-alpha-2 transition-colors"
         @click="clearSelection"
       >
         <Icon icon="i-lucide-x" class="size-4" />
@@ -235,7 +235,10 @@ onBeforeUnmount(() => {
       <div
         class="absolute left-0 top-0 flex items-center justify-center w-8 h-full pointer-events-none ltr:left-0 rtl:right-0"
       >
-        <Icon icon="i-lucide-search" class="size-4 text-n-slate-10 shrink-0" />
+        <Icon
+          icon="i-lucide-search"
+          class="size-4 text-n-text-body/60 shrink-0"
+        />
       </div>
       <input
         ref="inputRef"
@@ -244,7 +247,7 @@ onBeforeUnmount(() => {
         :placeholder="placeholder"
         autocomplete="off"
         spellcheck="false"
-        class="w-full h-8 [&:not(:focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8 outline-n-border-glass-soft dark:outline-n-border-glass-soft hover:outline-n-strong dark:hover:outline-n-slate-7 disabled:outline-n-border-glass-soft dark:disabled:outline-n-border-glass-soft focus:outline-n-brand dark:focus:outline-n-brand h-11 !px-4 !py-3 block w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-xl bg-n-glass-soft shadow-[0_1px_2px_rgba(15,23,42,0.04)] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-n-slate-10 dark:placeholder:text-n-slate-10 disabled:cursor-not-allowed disabled:opacity-50 text-n-text-display transition-all duration-200 ease-out [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        class="w-full h-8 [&:not(:focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-glass-soft ltr:!pl-8 !py-1 rtl:!pr-8 outline-n-border-glass-soft dark:outline-n-border-glass-soft hover:outline-n-border-glass dark:hover:outline-n-slate-7 disabled:outline-n-border-glass-soft dark:disabled:outline-n-border-glass-soft focus:outline-n-brand dark:focus:outline-n-brand h-11 !px-4 !py-3 block w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-xl bg-n-glass-soft shadow-[0_1px_2px_rgba(15,23,42,0.04)] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-n-text-body/60 dark:placeholder:text-n-text-body/60 disabled:cursor-not-allowed disabled:opacity-50 text-n-text-display transition-all duration-200 ease-out [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         @input="onInput"
         @focus="onFocus"
         @keydown="onKeydown"
@@ -254,7 +257,7 @@ onBeforeUnmount(() => {
         class="absolute right-0 top-0 flex items-center justify-center w-8 h-full pointer-events-none"
       >
         <span
-          class="i-lucide-loader-2 size-4 text-n-slate-10 animate-spin shrink-0"
+          class="i-lucide-loader-2 size-4 text-n-text-body/60 animate-spin shrink-0"
           aria-hidden="true"
         />
       </div>
@@ -262,7 +265,7 @@ onBeforeUnmount(() => {
         v-else-if="trimmedQuery"
         type="button"
         :title="t('SCHEDULE.MODAL.CLEAR_CONTACT')"
-        class="absolute right-0 top-0 flex items-center justify-center w-8 h-full text-n-slate-10 hover:text-n-slate-12 hover:bg-n-alpha-2 transition-colors shrink-0"
+        class="absolute right-0 top-0 flex items-center justify-center w-8 h-full text-n-text-body/60 hover:text-n-text-display hover:bg-n-alpha-2 transition-colors shrink-0"
         @click="clearQuery"
       >
         <Icon icon="i-lucide-x" class="size-3.5" />
@@ -271,30 +274,30 @@ onBeforeUnmount(() => {
 
     <div
       v-if="showDropdown"
-      class="absolute left-0 right-0 top-full mt-2 z-50 bg-n-solid-1 border border-n-weak rounded-xl shadow-xl overflow-hidden"
+      class="absolute left-0 right-0 top-full mt-2 z-50 bg-n-glass-soft border border-n-border-glass-soft rounded-xl shadow-xl overflow-hidden"
     >
       <div
         v-if="showMinLengthHint"
-        class="px-3 py-3 text-xs text-n-slate-10 text-center"
+        class="px-3 py-3 text-xs text-n-text-body/60 text-center"
       >
         {{ t('SCHEDULE.MODAL.SEARCH_CONTACT_HINT') }}
       </div>
       <div
         v-else-if="isLoading && !results.length"
-        class="flex items-center gap-2 justify-center px-3 py-4 text-xs text-n-slate-10"
+        class="flex items-center gap-2 justify-center px-3 py-4 text-xs text-n-text-body/60"
       >
         <span class="i-lucide-loader-2 size-3.5 animate-spin" />
         <span>{{ t('SCHEDULE.MODAL.SEARCH_CONTACT_LOADING') }}</span>
       </div>
       <div
         v-else-if="!results.length"
-        class="flex flex-col items-center gap-1.5 px-3 py-6 text-xs text-n-slate-10"
+        class="flex flex-col items-center gap-1.5 px-3 py-6 text-xs text-n-text-body/60"
       >
         <span class="i-lucide-user-search size-6 opacity-60" />
-        <span class="font-medium text-n-slate-11">
+        <span class="font-medium text-n-text-body">
           {{ t('SCHEDULE.MODAL.SEARCH_CONTACT_EMPTY') }}
         </span>
-        <span class="text-n-slate-10">
+        <span class="text-n-text-body/60">
           {{ t('SCHEDULE.MODAL.SEARCH_CONTACT_EMPTY_HINT') }}
         </span>
       </div>
@@ -320,25 +323,25 @@ onBeforeUnmount(() => {
               />
               <div class="flex-1 min-w-0">
                 <p
-                  class="text-sm font-medium text-n-slate-12 truncate"
+                  class="text-sm font-medium text-n-text-display truncate"
                   v-html="highlightName(contact)"
                 />
                 <p
                   v-if="subtitle(contact)"
-                  class="text-xs text-n-slate-10 truncate font-mono mt-0.5"
+                  class="text-xs text-n-text-body/60 truncate font-mono mt-0.5"
                   v-html="highlightSubtitle(contact)"
                 />
               </div>
               <span
                 v-if="index === highlightedIndex"
-                class="i-lucide-corner-down-left size-3.5 text-n-slate-10 shrink-0"
+                class="i-lucide-corner-down-left size-3.5 text-n-text-body/60 shrink-0"
                 aria-hidden="true"
               />
             </button>
           </li>
         </ul>
         <div
-          class="flex items-center justify-between gap-2 px-3 py-2 border-t border-n-weak bg-n-alpha-1 text-[11px] text-n-slate-10"
+          class="flex items-center justify-between gap-2 px-3 py-2 border-t border-n-border-glass-soft bg-n-alpha-1 text-[11px] text-n-text-body/60"
         >
           <span>{{
             t('SCHEDULE.MODAL.SEARCH_CONTACT_COUNT', {
@@ -347,19 +350,19 @@ onBeforeUnmount(() => {
           }}</span>
           <span class="flex items-center gap-1">
             <span
-              class="flex items-center justify-center rounded bg-n-solid-2 border border-n-weak size-4"
+              class="flex items-center justify-center rounded bg-n-glass-strong border border-n-border-glass-soft size-4"
               :title="t('SCHEDULE.MODAL.SEARCH_CONTACT_KBD_NAV')"
             >
               <Icon icon="i-lucide-arrow-up" class="size-3" />
             </span>
             <span
-              class="flex items-center justify-center rounded bg-n-solid-2 border border-n-weak size-4"
+              class="flex items-center justify-center rounded bg-n-glass-strong border border-n-border-glass-soft size-4"
               :title="t('SCHEDULE.MODAL.SEARCH_CONTACT_KBD_NAV')"
             >
               <Icon icon="i-lucide-arrow-down" class="size-3" />
             </span>
             <span
-              class="flex items-center justify-center rounded bg-n-solid-2 border border-n-weak size-4 ml-1"
+              class="flex items-center justify-center rounded bg-n-glass-strong border border-n-border-glass-soft size-4 ml-1"
               :title="t('SCHEDULE.MODAL.SEARCH_CONTACT_KBD_PICK')"
             >
               <Icon icon="i-lucide-corner-down-left" class="size-3" />

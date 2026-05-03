@@ -104,7 +104,7 @@ const startResize = e => {
   >
     <div class="p-1.5 h-full flex flex-col pointer-events-none">
       <div class="flex items-start justify-between gap-1">
-        <span class="text-xs font-medium text-n-slate-12 truncate">
+        <span class="text-xs font-medium text-n-text-display truncate">
           {{ servicesList }}
         </span>
         <span
@@ -115,16 +115,16 @@ const startResize = e => {
         </span>
       </div>
 
-      <div class="mt-0.5 text-xs text-n-slate-11 truncate">
+      <div class="mt-0.5 text-xs text-n-text-body truncate">
         {{ contactName }}
-        <span v-if="contactPhone" class="text-n-slate-10">
+        <span v-if="contactPhone" class="text-n-text-body/60">
           {{ ' · ' }}{{ contactPhone }}
         </span>
       </div>
 
       <div
         v-if="booking.customer_notes"
-        class="mt-auto pt-0.5 text-[10px] text-n-slate-10 truncate"
+        class="mt-auto pt-0.5 text-[10px] text-n-text-body/60 truncate"
       >
         {{ booking.customer_notes }}
       </div>

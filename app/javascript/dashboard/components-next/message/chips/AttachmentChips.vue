@@ -98,7 +98,7 @@ const markets = computed(() => {
   <div v-if="recordings.length" :class="classToApply">
     <div v-for="attachment in recordings" :key="attachment.id">
       <AudioChip
-        class="bg-n-alpha-3 dark:bg-n-alpha-2 text-n-slate-12"
+        class="bg-n-alpha-3 dark:bg-n-alpha-2 text-n-text-display"
         :attachment="attachment"
       />
     </div>

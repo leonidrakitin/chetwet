@@ -44,13 +44,13 @@ export default {
     <div class="flex flex-col w-full gap-1">
       <div
         v-if="isLoading"
-        class="text-center flex items-center justify-center px-4 py-8 text-n-slate-10 text-sm"
+        class="text-center flex items-center justify-center px-4 py-8 text-n-text-body/60 text-sm"
       >
         {{ $t('HELP_CENTER.ARTICLE_SEARCH_RESULT.SEARCH_LOADER') }}
       </div>
       <div
         v-else-if="showNoResults"
-        class="text-center flex items-center justify-center px-4 py-8 text-n-slate-10 text-sm"
+        class="text-center flex items-center justify-center px-4 py-8 text-n-text-body/60 text-sm"
       >
         {{ $t('HELP_CENTER.ARTICLE_SEARCH_RESULT.NO_RESULT') }}
       </div>

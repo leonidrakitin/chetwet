@@ -73,7 +73,7 @@ const score = computed(
 const scoreClass = computed(() => {
   if (score.value > 0) return 'text-n-teal-11';
   if (score.value < 0) return 'text-n-ruby-11';
-  return 'text-n-slate-11';
+  return 'text-n-text-body';
 });
 
 const formatDate = dateStr => {
@@ -123,7 +123,7 @@ const renderedDescription = computed(() => {
     <!-- Content -->
     <div class="flex-1 min-w-0 overflow-hidden">
       <div class="flex items-start justify-between gap-2 mb-1">
-        <span class="text-sm font-medium text-n-slate-12 truncate">
+        <span class="text-sm font-medium text-n-text-display truncate">
           {{ suggestion.title }}
         </span>
         <div class="flex items-center gap-2 shrink-0">
@@ -178,7 +178,7 @@ const renderedDescription = computed(() => {
       <div v-if="suggestion.description" class="mb-2">
         <div
           ref="descRef"
-          class="text-sm text-n-slate-11 break-words prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_p:first-child]:mt-0 [&_ul]:my-1 [&_ol]:my-1"
+          class="text-sm text-n-text-body break-words prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_p:first-child]:mt-0 [&_ul]:my-1 [&_ol]:my-1"
           :class="{ 'line-clamp-2': !expanded }"
         >
           <div v-dompurify-html="renderedDescription" />
@@ -196,7 +196,7 @@ const renderedDescription = computed(() => {
         <span
           v-for="tag in suggestion.tags || []"
           :key="tag"
-          class="rounded-full bg-n-alpha-2 px-2.5 py-0.5 text-xs font-medium text-n-slate-11"
+          class="rounded-full bg-n-alpha-2 px-2.5 py-0.5 text-xs font-medium text-n-text-body"
         >
           {{ tag }}
         </span>

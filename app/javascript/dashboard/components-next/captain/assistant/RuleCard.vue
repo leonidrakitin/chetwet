@@ -75,7 +75,7 @@ const saveEdit = () => {
       focus-on-mount
       @keyup.enter="saveEdit"
     />
-    <span v-else class="flex items-center gap-2 text-sm text-n-slate-12">
+    <span v-else class="flex items-center gap-2 text-sm text-n-text-display">
       {{ localContent }}
     </span>
     <div class="flex items-center gap-2">

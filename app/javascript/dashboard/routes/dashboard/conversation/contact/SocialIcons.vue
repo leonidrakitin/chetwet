@@ -38,7 +38,7 @@ export default {
       <fluent-icon
         :icon="`brand-${profile.key}`"
         size="16"
-        class="text-n-slate-11 hover:text-n-slate-10"
+        class="text-n-text-body hover:text-n-text-body/60"
       />
     </a>
   </div>

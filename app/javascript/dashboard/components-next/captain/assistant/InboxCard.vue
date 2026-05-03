@@ -72,7 +72,7 @@ const handleAction = ({ action, value }) => {
   <CardLayout>
     <div class="flex justify-between w-full gap-1">
       <span
-        class="text-base text-n-slate-12 line-clamp-1 flex items-center gap-2"
+        class="text-base text-n-text-display line-clamp-1 flex items-center gap-2"
       >
         <span :class="icon" />
         {{ inboxName }}

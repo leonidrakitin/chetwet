@@ -20,20 +20,20 @@ const isReasoningExpanded = ref(false);
 
 <template>
   <div
-    class="flex flex-col gap-2 p-3 rounded-lg bg-n-background/50 border border-n-weak hover:bg-n-background/80 transition-colors duration-200"
+    class="flex flex-col gap-2 p-3 rounded-lg bg-n-background/50 border border-n-border-glass-soft hover:bg-n-background/80 transition-colors duration-200"
   >
     <div class="flex items-start gap-2">
       <Icon
         icon="i-lucide-sparkles"
         class="w-4 h-4 mt-0.5 flex-shrink-0 text-n-slate-9"
       />
-      <div class="text-sm text-n-slate-12">
+      <div class="text-sm text-n-text-display">
         {{ content }}
       </div>
     </div>
     <div v-if="reasoning" class="ml-6">
       <button
-        class="flex items-center gap-1 text-xs text-n-slate-9 hover:text-n-slate-11 transition-colors"
+        class="flex items-center gap-1 text-xs text-n-slate-9 hover:text-n-text-body transition-colors"
         @click="isReasoningExpanded = !isReasoningExpanded"
       >
         <Icon
@@ -48,7 +48,7 @@ const isReasoningExpanded = ref(false);
       </button>
       <div
         v-show="isReasoningExpanded"
-        class="mt-1 text-xs text-n-slate-10 whitespace-pre-wrap leading-relaxed"
+        class="mt-1 text-xs text-n-text-body/60 whitespace-pre-wrap leading-relaxed"
       >
         {{ reasoning }}
       </div>

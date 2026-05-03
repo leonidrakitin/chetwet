@@ -141,7 +141,7 @@ defineExpose({ open, close });
   <TeleportWithDirection to="body">
     <dialog
       ref="dialogRef"
-      class="w-full transition-all duration-300 ease-in-out shadow-xl rounded-xl"
+      class="w-full transition-all duration-300 ease-in-out shadow-glass-deep rounded-card"
       :class="[
         maxWidthClass,
         positionClass,
@@ -155,7 +155,7 @@ defineExpose({ open, close });
     >
       <form
         ref="dialogContentRef"
-        class="flex flex-col w-full gap-6 p-6 text-start align-middle transition-all duration-300 ease-in-out transform bg-n-alpha-3 backdrop-blur-[100px] shadow-xl rounded-xl min-h-0"
+        class="flex flex-col w-full gap-6 p-6 text-start align-middle transition-all duration-300 ease-in-out transform bg-n-glass-pane backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass shadow-glass-deep rounded-card min-h-0"
         :class="
           maxHeight
             ? 'flex-1 min-h-0 min-w-0 overflow-x-visible overflow-y-hidden'
@@ -168,11 +168,11 @@ defineExpose({ open, close });
           v-if="title || description"
           class="flex flex-col gap-2 flex-shrink-0"
         >
-          <h3 class="text-base font-medium leading-6 text-n-slate-12">
+          <h3 class="text-base font-medium leading-6 text-n-text-display">
             {{ title }}
           </h3>
           <slot name="description">
-            <p v-if="description" class="mb-0 text-sm text-n-slate-11">
+            <p v-if="description" class="mb-0 text-sm text-n-text-body">
               {{ description }}
             </p>
           </slot>

@@ -64,7 +64,7 @@ const pickerRef = ref(null);
 
 <style scoped lang="scss">
 .colorpicker--chrome.vc-chrome {
-  @apply shadow-lg absolute bg-n-background z-[9999] border border-n-weak dark:border-n-weak rounded-[8px];
+  @apply shadow-lg absolute bg-n-background z-[9999] border border-n-border-glass-soft dark:border-n-border-glass-soft rounded-[8px];
 
   :deep() {
     .vc-chrome-saturation-wrap {
@@ -90,11 +90,11 @@ const pickerRef = ref(null);
 
     input,
     .vc-input__input {
-      @apply bg-n-background text-n-slate-12 rounded-md shadow-none;
+      @apply bg-n-background text-n-text-display rounded-md shadow-none;
     }
 
     .vc-input__label {
-      @apply text-n-slate-11 dark:text-n-slate-11;
+      @apply text-n-text-body dark:text-n-text-body;
     }
   }
 }

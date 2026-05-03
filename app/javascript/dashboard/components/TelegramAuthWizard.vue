@@ -145,7 +145,7 @@ const goToAgentsStep = () => {
       class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-n-alpha-2 mb-6"
     >
       <span class="w-2 h-2 rounded-full animate-pulse" :class="statusColor" />
-      <span class="text-xs font-medium text-n-slate-11">
+      <span class="text-xs font-medium text-n-text-body">
         {{
           $t(
             `INBOX_MGMT.ADD.TELEGRAM_PERSONAL.STATUS.${connectionStatus.toUpperCase()}`
@@ -183,7 +183,7 @@ const goToAgentsStep = () => {
       />
 
       <div>
-        <label class="mb-1 block text-heading-3 text-n-slate-12">
+        <label class="mb-1 block text-heading-3 text-n-text-display">
           {{ $t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.PHONE_NUMBER.LABEL') }}
         </label>
         <PhoneNumberInput
@@ -275,7 +275,7 @@ const goToAgentsStep = () => {
 
     <!-- Step: Ready -->
     <div v-else class="flex flex-col">
-      <p class="text-sm text-n-slate-11 mb-6">
+      <p class="text-sm text-n-text-body mb-6">
         {{ $t('INBOX_MGMT.ADD.TELEGRAM_PERSONAL.READY_MESSAGE') }}
       </p>
       <NextButton

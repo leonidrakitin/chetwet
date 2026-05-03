@@ -113,11 +113,11 @@ watch(
       :max-length="10000"
       :message-type="formErrors.answer ? 'error' : 'info'"
     />
-    <label class="flex items-center gap-2 text-sm text-n-slate-11">
+    <label class="flex items-center gap-2 text-sm text-n-text-body">
       <input
         v-model="state.requires_clarification"
         type="checkbox"
-        class="rounded border-n-weak"
+        class="rounded border-n-border-glass-soft"
       />
       {{ t('CAPTAIN.RESPONSES.FORM.REQUIRES_CLARIFICATION') }}
     </label>

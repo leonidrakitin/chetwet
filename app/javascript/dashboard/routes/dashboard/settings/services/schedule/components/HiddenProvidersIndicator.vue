@@ -45,7 +45,7 @@ const pick = provider => {
     </button>
     <div
       v-if="isOpen"
-      class="absolute right-0 mt-1 w-56 max-h-72 overflow-y-auto bg-n-solid-1 border border-n-weak rounded-lg shadow-lg"
+      class="absolute right-0 mt-1 w-56 max-h-72 overflow-y-auto bg-n-glass-soft border border-n-border-glass-soft rounded-lg shadow-lg"
     >
       <button
         v-for="provider in providers"
@@ -54,7 +54,7 @@ const pick = provider => {
         @click="pick(provider)"
       >
         <Avatar :name="provider.name" :src="provider.thumbnail" size="24" />
-        <span class="truncate text-n-slate-12">{{ provider.name }}</span>
+        <span class="truncate text-n-text-display">{{ provider.name }}</span>
       </button>
     </div>
   </div>

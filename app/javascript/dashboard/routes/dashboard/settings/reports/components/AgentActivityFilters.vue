@@ -100,7 +100,7 @@ const onTimeRangeChanged = ({ since: s, until: u }) => {
 
 <template>
   <div
-    class="p-4 rounded-xl bg-n-solid-2 outline outline-1 outline-n-container flex flex-col gap-3"
+    class="p-4 rounded-xl bg-n-glass-strong outline outline-1 outline-n-border-glass-soft flex flex-col gap-3"
   >
     <div class="flex items-center gap-3 flex-wrap">
       <DatePicker @date-range-changed="onDateChange" />

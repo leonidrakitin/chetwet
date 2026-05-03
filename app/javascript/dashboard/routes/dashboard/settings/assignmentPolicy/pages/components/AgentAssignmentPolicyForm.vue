@@ -192,7 +192,7 @@ defineExpose({
 
 <template>
   <form @submit.prevent="handleSubmit">
-    <div class="flex flex-col gap-4 divide-y divide-n-weak mb-4">
+    <div class="flex flex-col gap-4 divide-y divide-n-border-glass-soft mb-4">
       <BaseInfo
         v-model:policy-name="state.name"
         v-model:description="state.description"
@@ -234,10 +234,10 @@ defineExpose({
 
       <div class="pt-4 pb-2 flex-col flex gap-4">
         <div class="flex flex-col items-start gap-1 py-1">
-          <label class="text-sm font-medium text-n-slate-12 py-1">
+          <label class="text-sm font-medium text-n-text-display py-1">
             {{ t(`${BASE_KEY}.FORM.FAIR_DISTRIBUTION.LABEL`) }}
           </label>
-          <p class="mb-0 text-n-slate-11 text-sm">
+          <p class="mb-0 text-n-text-body text-sm">
             {{ t(`${BASE_KEY}.FORM.FAIR_DISTRIBUTION.DESCRIPTION`) }}
           </p>
         </div>
@@ -258,14 +258,14 @@ defineExpose({
 
     <div
       v-if="showInboxSection"
-      class="py-4 flex-col flex gap-4 border-t border-n-weak mt-6"
+      class="py-4 flex-col flex gap-4 border-t border-n-border-glass-soft mt-6"
     >
       <div class="flex items-end gap-4 w-full justify-between">
         <div class="flex flex-col items-start gap-1 py-1">
-          <label class="text-sm font-medium text-n-slate-12 py-1">
+          <label class="text-sm font-medium text-n-text-display py-1">
             {{ t(`${BASE_KEY}.FORM.INBOXES.LABEL`) }}
           </label>
-          <p class="mb-0 text-n-slate-11 text-sm">
+          <p class="mb-0 text-n-text-body text-sm">
             {{ t(`${BASE_KEY}.FORM.INBOXES.DESCRIPTION`) }}
           </p>
         </div>

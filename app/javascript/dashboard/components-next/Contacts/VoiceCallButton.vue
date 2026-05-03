@@ -133,10 +133,10 @@ const onPickInbox = async inbox => {
           @click="onPickInbox(inbox)"
         >
           <div class="flex items-center gap-2">
-            <span class="i-ri-phone-fill text-n-slate-10" />
-            <span class="text-sm text-n-slate-12">{{ inbox.name }}</span>
+            <span class="i-ri-phone-fill text-n-text-body/60" />
+            <span class="text-sm text-n-text-display">{{ inbox.name }}</span>
           </div>
-          <span v-if="inbox.phone_number" class="text-xs text-n-slate-10">
+          <span v-if="inbox.phone_number" class="text-xs text-n-text-body/60">
             {{ inbox.phone_number }}
           </span>
         </button>

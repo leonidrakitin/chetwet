@@ -30,13 +30,13 @@ const guidelinesExample = [
           :items="guidelinesExample"
         >
           <template #default="{ item }">
-            <span class="text-sm text-n-slate-12">{{ item.content }}</span>
+            <span class="text-sm text-n-text-display">{{ item.content }}</span>
             <Button
               label="Add this"
               ghost
               xs
               slate
-              class="!text-sm !text-n-slate-11 flex-shrink-0"
+              class="!text-sm !text-n-text-body flex-shrink-0"
             />
           </template>
         </SuggestedRules>

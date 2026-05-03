@@ -60,7 +60,7 @@ const useCopilotResponse = () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-1 text-n-slate-12">
+  <div class="flex flex-col gap-1 text-n-text-display">
     <div class="font-medium">{{ $t('CAPTAIN.NAME') }}</div>
     <span v-if="hasEmptyMessageContent" class="text-n-ruby-11">
       {{ $t('CAPTAIN.COPILOT.EMPTY_MESSAGE') }}
@@ -72,7 +72,7 @@ const useCopilotResponse = () => {
     />
     <div v-if="hasReasoning" class="mt-1">
       <button
-        class="flex items-center gap-1 text-xs text-n-slate-9 hover:text-n-slate-11 transition-colors"
+        class="flex items-center gap-1 text-xs text-n-slate-9 hover:text-n-text-body transition-colors"
         @click="isReasoningExpanded = !isReasoningExpanded"
       >
         <Icon
@@ -87,7 +87,7 @@ const useCopilotResponse = () => {
       </button>
       <div
         v-show="isReasoningExpanded"
-        class="mt-1 p-2 text-xs text-n-slate-10 whitespace-pre-wrap leading-relaxed rounded bg-n-background/50 border border-n-weak"
+        class="mt-1 p-2 text-xs text-n-text-body/60 whitespace-pre-wrap leading-relaxed rounded bg-n-background/50 border border-n-border-glass-soft"
       >
         {{ message.reasoning }}
       </div>

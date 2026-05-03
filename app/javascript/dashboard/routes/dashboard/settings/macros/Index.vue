@@ -85,7 +85,7 @@ const tableHeaders = computed(() => {
         feature-name="macros"
       >
         <template v-if="records?.length" #count>
-          <span class="text-body-main text-n-slate-11">
+          <span class="text-body-main text-n-text-body">
             {{ $t('MACROS.COUNT', { n: records.length }) }}
           </span>
         </template>

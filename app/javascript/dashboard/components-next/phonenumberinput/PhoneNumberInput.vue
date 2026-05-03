@@ -92,7 +92,7 @@ const inputBorderClass = computed(() => {
   const errorClass =
     'outline-n-ruby-8 dark:outline-n-ruby-8 hover:outline-n-ruby-9 dark:hover:outline-n-ruby-9 disabled:outline-n-ruby-8 dark:disabled:outline-n-ruby-8';
   const focusClass =
-    'has-[:focus]:outline-n-brand dark:has-[:focus]:outline-n-brand';
+    'has-[:focus]:outline-n-accent-active dark:has-[:focus]:outline-n-accent-active';
 
   if (!props.showBorder) {
     if (hasError.value) return errorClass;
@@ -102,7 +102,7 @@ const inputBorderClass = computed(() => {
   if (hasError.value) {
     return errorClass;
   }
-  return `${focusClass} outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 disabled:outline-n-weak dark:disabled:outline-n-weak`;
+  return `${focusClass} outline-n-border-glass-soft dark:outline-n-border-glass-soft hover:outline-n-border-glass dark:hover:outline-n-border-glass disabled:outline-n-border-glass-soft dark:disabled:outline-n-border-glass-soft`;
 });
 
 const phoneNumberError = computed(() => {
@@ -163,7 +163,7 @@ watch(
   <div>
     <div
       v-on-clickaway="() => closeCountryDropdown()"
-      class="relative flex items-center h-8 transition-all duration-500 ease-in-out outline outline-1 outline-offset-[-1px] rounded-lg bg-n-alpha-black2"
+      class="relative flex items-center h-9 transition-all duration-500 ease-in-out outline outline-1 outline-offset-[-1px] rounded-pill bg-n-glass-soft backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline"
       :class="[inputBorderClass, { 'cursor-not-allowed opacity-50': disabled }]"
     >
       <Input
@@ -186,7 +186,7 @@ watch(
               trailing-icon
               :disabled="disabled"
               type="button"
-              class="!h-[1.875rem] top-1 ltr:ml-px rtl:mr-px !px-2 outline-0 !outline-none !rounded-lg border-0 ltr:!rounded-r-none rtl:!rounded-l-none"
+              class="!h-[1.875rem] top-1 ltr:ml-px rtl:mr-px !px-2 outline-0 !outline-none !rounded-pill border-0 ltr:!rounded-r-none rtl:!rounded-l-none"
               @click="toggleCountryDropdown"
             >
               <span
@@ -198,7 +198,7 @@ watch(
             </Button>
             <span
               v-if="activeCountry"
-              class="text-sm left-[38px] top-2.5 text-n-slate-11 ltr:!pl-1 rtl:!pr-1"
+              class="text-sm left-[38px] top-2.5 text-n-text-body ltr:!pl-1 rtl:!pr-1"
             >
               {{ activeDialCode }}
             </span>

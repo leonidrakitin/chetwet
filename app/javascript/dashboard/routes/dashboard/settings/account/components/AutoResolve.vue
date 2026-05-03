@@ -125,18 +125,18 @@ const toggleAutoResolve = async () => {
 
 <template>
   <div
-    class="flex flex-col w-full outline-1 outline outline-n-container rounded-xl bg-n-solid-2 divide-y divide-n-weak"
+    class="flex flex-col w-full outline-1 outline outline-n-border-glass-soft rounded-xl bg-n-glass-strong divide-y divide-n-border-glass-soft"
   >
     <div class="flex flex-col gap-2 items-start px-5 py-4">
       <div class="flex justify-between items-center w-full">
-        <h3 class="text-heading-2 text-n-slate-12">
+        <h3 class="text-heading-2 text-n-text-display">
           {{ t('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.TITLE') }}
         </h3>
         <div class="flex justify-end">
           <Switch v-model="isEnabled" @change="toggleAutoResolve" />
         </div>
       </div>
-      <p class="mb-0 text-body-para text-n-slate-11">
+      <p class="mb-0 text-body-para text-n-text-body">
         {{ t('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.NOTE') }}
       </p>
     </div>
@@ -172,7 +172,7 @@ const toggleAutoResolve = async () => {
         </WithLabel>
         <WithLabel :label="t('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.PREFERENCES')">
           <div
-            class="rounded-xl border border-n-weak bg-n-solid-1 w-full text-sm text-n-slate-12 divide-y divide-n-weak"
+            class="rounded-xl border border-n-border-glass-soft bg-n-glass-soft w-full text-sm text-n-text-display divide-y divide-n-border-glass-soft"
           >
             <div class="p-3 h-12 flex items-center justify-between">
               <span>

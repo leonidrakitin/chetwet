@@ -142,13 +142,13 @@ const table = useVueTable({
 
 <template>
   <div
-    class="shadow outline-1 outline outline-n-container rounded-xl bg-n-solid-2 overflow-hidden"
+    class="shadow outline-1 outline outline-n-border-glass-soft rounded-xl bg-n-glass-strong overflow-hidden"
   >
     <CsatTableLoader v-if="isLoading" />
 
     <div v-else-if="tableData.length" class="overflow-x-auto">
       <table class="w-full">
-        <thead class="bg-n-solid-2 border-b border-n-border-hairline">
+        <thead class="bg-n-glass-strong border-b border-n-border-hairline">
           <tr>
             <th
               v-for="header in table.getFlatHeaders()"
@@ -156,7 +156,7 @@ const table = useVueTable({
               :style="{
                 width: header.getSize() ? `${header.getSize()}px` : 'auto',
               }"
-              class="text-left py-3 px-5 font-medium text-sm text-n-slate-12"
+              class="text-left py-3 px-5 font-medium text-sm text-n-text-display"
             >
               {{ header.column.columnDef.header }}
             </th>
@@ -187,7 +187,9 @@ const table = useVueTable({
                     backgroundColor: `${getRatingData(row.rating).color}20`,
                   }"
                 >
-                  <span class="text-sm font-medium text-n-slate-12 truncate">
+                  <span
+                    class="text-sm font-medium text-n-text-display truncate"
+                  >
                     {{ $t(getRatingData(row.rating).translationKey) }}
                   </span>
                 </div>
@@ -195,11 +197,11 @@ const table = useVueTable({
               <td class="py-4 px-5">
                 <span
                   v-if="!row.feedbackText"
-                  class="text-n-slate-10 italic text-sm"
+                  class="text-n-text-body/60 italic text-sm"
                 >
                   {{ $t('CSAT_REPORTS.NO_FEEDBACK') }}
                 </span>
-                <div v-else class="text-sm text-n-slate-12">
+                <div v-else class="text-sm text-n-text-display">
                   <ShowMore :text="row.feedbackText" :limit="100" />
                 </div>
               </td>
@@ -209,13 +211,13 @@ const table = useVueTable({
                   :user="row.assignedAgent"
                   :size="28"
                 />
-                <span v-else class="text-n-slate-10 text-sm italic">
+                <span v-else class="text-n-text-body/60 text-sm italic">
                   {{ $t('CSAT_REPORTS.NO_AGENT') }}
                 </span>
               </td>
               <td v-if="showExpandableRows" class="py-4 px-5">
                 <div
-                  class="p-1.5 rounded-md text-n-slate-10 group-hover:text-n-slate-12 transition-colors"
+                  class="p-1.5 rounded-md text-n-text-body/60 group-hover:text-n-text-display transition-colors"
                 >
                   <i
                     class="size-4 block transition-transform duration-200"
@@ -249,7 +251,7 @@ const table = useVueTable({
 
     <div
       v-if="metrics.totalResponseCount"
-      class="px-6 py-4 border-t border-n-weak"
+      class="px-6 py-4 border-t border-n-border-glass-soft"
     >
       <Pagination :table="table" />
     </div>

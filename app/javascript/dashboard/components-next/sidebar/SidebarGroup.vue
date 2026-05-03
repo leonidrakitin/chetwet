@@ -1,13 +1,10 @@
 <script setup>
-import { computed, onMounted, onUnmounted, watch, nextTick, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useSidebarContext, usePopoverState } from './provider';
 import { useRoute, useRouter } from 'vue-router';
 import Policy from 'dashboard/components/policy.vue';
 import Icon from 'next/icon/Icon.vue';
 import SidebarGroupHeader from './SidebarGroupHeader.vue';
-import SidebarGroupLeaf from './SidebarGroupLeaf.vue';
-import SidebarSubGroup from './SidebarSubGroup.vue';
-import SidebarGroupEmptyLeaf from './SidebarGroupEmptyLeaf.vue';
 import SidebarCollapsedPopover from './SidebarCollapsedPopover.vue';
 
 const props = defineProps({
@@ -21,8 +18,6 @@ const props = defineProps({
 });
 
 const {
-  expandedItem,
-  setExpandedItem,
   resolvePath,
   resolvePermissions,
   resolveFeatureFlag,
@@ -45,8 +40,6 @@ const navigableChildren = computed(() => {
 
 const route = useRoute();
 const router = useRouter();
-const isExpanded = computed(() => expandedItem.value === props.name);
-const isExpandable = computed(() => props.children);
 const hasChildren = computed(
   () => Array.isArray(props.children) && props.children.length > 0
 );
@@ -167,31 +160,17 @@ const hasActiveChild = computed(() => {
   return activeChild.value !== undefined;
 });
 
-const handleCollapsedClick = () => {
+const handleTriggerClick = () => {
   if (hasChildren.value && hasAccessibleChildren.value) {
-    const firstItem = accessibleItems.value[0];
-    router.push(firstItem.to);
+    if (!hasActiveChild.value) {
+      const firstItem = accessibleItems.value[0];
+      router.push(firstItem.to);
+    }
+    openPopover();
   }
 };
 
-const toggleTrigger = () => {
-  if (
-    hasAccessibleChildren.value &&
-    !isExpanded.value &&
-    !hasActiveChild.value
-  ) {
-    // if not already expanded, navigate to the first child
-    const firstItem = accessibleItems.value[0];
-    router.push(firstItem.to);
-  }
-  setExpandedItem(props.name);
-};
-
-onMounted(async () => {
-  await nextTick();
-  if (hasActiveChild.value) {
-    setExpandedItem(props.name);
-  }
+onMounted(() => {
   window.addEventListener('blur', handleWindowBlur);
   document.addEventListener('mouseleave', handleWindowBlur);
 });
@@ -200,16 +179,6 @@ onUnmounted(() => {
   window.removeEventListener('blur', handleWindowBlur);
   document.removeEventListener('mouseleave', handleWindowBlur);
 });
-
-watch(
-  hasActiveChild,
-  hasNewActiveChild => {
-    if (hasNewActiveChild && !isExpanded.value) {
-      setExpandedItem(props.name);
-    }
-  },
-  { once: true }
-);
 </script>
 
 <!-- eslint-disable-next-line vue/no-root-v-if -->
@@ -219,50 +188,41 @@ watch(
     :permissions="resolvePermissions(to)"
     :feature-flag="resolveFeatureFlag(to)"
     as="li"
-    class="grid gap-1 text-sm cursor-pointer select-none min-w-0"
+    class="text-sm cursor-pointer select-none min-w-0"
   >
-    <!-- Collapsed State -->
-    <template v-if="isCollapsed">
-      <div
-        class="relative"
-        @mouseenter="handleMouseEnter"
-        @mouseleave="handleMouseLeave"
-      >
+    <div
+      class="group relative"
+      :class="isCollapsed ? 'w-full flex justify-center' : 'w-full'"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+    >
+      <!-- Collapsed Trigger -->
+      <template v-if="isCollapsed">
         <component
           :is="to && !hasChildren ? 'router-link' : 'button'"
           ref="triggerRef"
           :to="to && !hasChildren ? to : undefined"
           type="button"
-          class="flex items-center justify-center size-10 rounded-xl transition-colors duration-100"
+          class="flex items-center justify-center size-12 rounded-full border backdrop-blur-glass-rail backdrop-saturate-glass transition-all duration-150"
           :class="{
-            'text-n-slate-12 bg-n-alpha-2': isActive || hasActiveChild,
-            'text-n-slate-11 hover:bg-n-alpha-1': !isActive && !hasActiveChild,
+            'text-n-accent-active-fg bg-n-accent-active border-n-accent-active shadow-pill-active':
+              isActive || hasActiveChild,
+            'text-n-text-body bg-n-glass-soft border-n-border-glass-soft shadow-inset-hairline hover:bg-n-glass-strong hover:border-n-border-glass':
+              !isActive && !hasActiveChild,
           }"
-          :title="label"
-          @click="hasChildren ? handleCollapsedClick() : undefined"
+          @click="hasChildren ? handleTriggerClick() : null"
         >
-          <Icon v-if="icon" :icon="icon" class="size-4" />
+          <Icon v-if="icon" :icon="icon" class="size-[18px]" />
         </component>
-        <SidebarCollapsedPopover
-          v-if="hasChildren && isPopoverOpen"
-          :label="label"
-          :children="children"
-          :active-child="activeChild"
-          :trigger-rect="triggerRect"
-          @close="closePopover"
-          @mouseenter="handlePopoverMouseEnter"
-          @mouseleave="handlePopoverMouseLeave"
-        />
-      </div>
-    </template>
-    <!-- Expanded State -->
-    <template v-else>
-      <div
-        class="rounded-xl transition-colors duration-150"
-        :class="{
-          'bg-n-slate-2 dark:bg-n-alpha-2 p-1': isExpanded && hasChildren,
-        }"
-      >
+        <span
+          v-if="!hasChildren"
+          class="pointer-events-none absolute z-50 ltr:left-[calc(100%+12px)] rtl:right-[calc(100%+12px)] top-1/2 bg-n-accent-active text-n-accent-active-fg px-2.5 py-[5px] rounded-lg text-xs font-medium whitespace-nowrap shadow-pill-active opacity-0 -translate-y-1/2 ltr:-translate-x-1 rtl:translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:-translate-y-1/2 transition-[opacity,transform] duration-150"
+        >
+          {{ label }}
+        </span>
+      </template>
+      <!-- Expanded Trigger -->
+      <div v-else ref="triggerRef">
         <SidebarGroupHeader
           :icon
           :name
@@ -272,91 +232,19 @@ watch(
           :is-active="isActive"
           :has-active-child="hasActiveChild"
           :expandable="hasChildren"
-          :is-expanded="isExpanded"
-          @toggle="toggleTrigger"
+          @toggle="handleTriggerClick"
         />
-        <ul
-          v-if="hasChildren"
-          v-show="isExpanded || hasActiveChild"
-          class="grid m-0 list-none sidebar-group-children min-w-0"
-        >
-          <template v-for="child in children" :key="child.name">
-            <SidebarSubGroup
-              v-if="child.children"
-              :label="child.label"
-              :icon="child.icon"
-              :children="child.children"
-              :is-expanded="isExpanded"
-              :active-child="activeChild"
-            />
-            <SidebarGroupLeaf
-              v-else-if="isAllowed(child.to)"
-              v-show="isExpanded || activeChild?.name === child.name"
-              v-bind="child"
-              :active="activeChild?.name === child.name"
-            />
-          </template>
-        </ul>
-        <ul v-else-if="isExpandable && isExpanded">
-          <SidebarGroupEmptyLeaf />
-        </ul>
       </div>
-    </template>
+      <SidebarCollapsedPopover
+        v-if="hasChildren && isPopoverOpen"
+        :label="label"
+        :children="children"
+        :active-child="activeChild"
+        :trigger-rect="triggerRect"
+        @close="closePopover"
+        @mouseenter="handlePopoverMouseEnter"
+        @mouseleave="handlePopoverMouseLeave"
+      />
+    </div>
   </Policy>
 </template>
-
-<style>
-.sidebar-group-children .child-item::before {
-  content: '';
-  position: absolute;
-  width: 0.125rem;
-  /* 0.5px */
-  height: 100%;
-}
-
-.sidebar-group-children .child-item:first-child::before {
-  border-radius: 4px 4px 0 0;
-}
-
-/* This selects the last child in a group */
-/* https://codepen.io/scmmishra/pen/yLmKNLW */
-.sidebar-group-children > .child-item:last-child::before,
-.sidebar-group-children
-  > *:last-child
-  > *:last-child
-  > .child-item:last-child::before {
-  height: 20%;
-}
-
-.sidebar-group-children > .child-item:last-child::after,
-.sidebar-group-children
-  > *:last-child
-  > *:last-child
-  > .child-item:last-child::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 12px;
-  bottom: calc(50% - 2px);
-  border-bottom-width: 0.125rem;
-  border-left-width: 0.125rem;
-  border-right-width: 0px;
-  border-top-width: 0px;
-  border-radius: 0 0 0 4px;
-  left: 0;
-}
-
-#app[dir='rtl'] .sidebar-group-children > .child-item:last-child::after,
-#app[dir='rtl']
-  .sidebar-group-children
-  > *:last-child
-  > *:last-child
-  > .child-item:last-child::after {
-  right: 0;
-  border-bottom-width: 0.125rem;
-  border-right-width: 0.125rem;
-  border-left-width: 0px;
-  border-top-width: 0px;
-  border-radius: 0 0 4px 0px;
-}
-</style>

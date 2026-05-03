@@ -36,10 +36,10 @@ const contextMenuPosition = ref({ x: null, y: null });
 const slaCardLabel = ref(null);
 
 const getMessageClasses = {
-  emphasis: 'text-sm font-medium text-n-slate-11',
-  emphasisUnread: 'text-sm font-medium text-n-slate-12',
-  normal: 'text-sm font-normal text-n-slate-11',
-  normalUnread: 'text-sm text-n-slate-12',
+  emphasis: 'text-sm font-medium text-n-text-body',
+  emphasisUnread: 'text-sm font-medium text-n-text-display',
+  normal: 'text-sm font-normal text-n-text-body',
+  normalUnread: 'text-sm text-n-text-display',
 };
 
 const primaryActor = computed(() => props.inboxItem?.primaryActor);
@@ -181,11 +181,11 @@ onBeforeMount(contextMenuActions.close);
                 : 'i-lucide-alarm-clock-off'
             "
             class="flex-shrink-0 size-4"
-            :class="!isUnread ? 'text-n-slate-11' : 'text-n-blue-11'"
+            :class="!isUnread ? 'text-n-text-body' : 'text-n-blue-11'"
           />
           <span
             class="text-xs font-medium truncate"
-            :class="!isUnread ? 'text-n-slate-11' : 'text-n-blue-11'"
+            :class="!isUnread ? 'text-n-text-body' : 'text-n-blue-11'"
           >
             {{ snoozedText }}
           </span>
@@ -196,12 +196,12 @@ onBeforeMount(contextMenuActions.close);
         >
           <Icon
             :icon="notificationDetails.icon"
-            :class="isUnread ? notificationDetails.color : 'text-n-slate-11'"
+            :class="isUnread ? notificationDetails.color : 'text-n-text-body'"
             class="flex-shrink-0 size-4"
           />
           <span
             class="text-xs font-medium truncate"
-            :class="isUnread ? notificationDetails.color : 'text-n-slate-11'"
+            :class="isUnread ? notificationDetails.color : 'text-n-text-body'"
           >
             {{ notificationDetails.text }}
           </span>
@@ -214,7 +214,7 @@ onBeforeMount(contextMenuActions.close);
           :conversation="primaryActor"
           class="[&>span]:text-xs"
           :class="
-            !isUnread && '[&>span]:text-n-slate-11 [&>div>svg]:fill-n-slate-11'
+            !isUnread && '[&>span]:text-n-text-body [&>div>svg]:fill-n-slate-11'
           "
         />
         <div v-if="hasSlaThreshold" class="w-px h-3 rounded-sm bg-n-slate-4" />
@@ -230,10 +230,10 @@ onBeforeMount(contextMenuActions.close);
         >
           <Icon
             :icon="inboxIcon"
-            class="flex-shrink-0 text-n-slate-11 size-2.5"
+            class="flex-shrink-0 text-n-text-body size-2.5"
           />
         </div>
-        <span class="text-xs text-n-slate-10">
+        <span class="text-xs text-n-text-body/60">
           {{ lastActivityAt }}
         </span>
       </div>

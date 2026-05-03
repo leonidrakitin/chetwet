@@ -15,7 +15,7 @@ const { t } = useI18n();
   <section
     class="grid grid-cols-1 pt-8 gap-5 [interpolate-size:allow-keywords]"
     :class="{
-      'border-t border-n-weak': withBorder,
+      'border-t border-n-border-glass-soft': withBorder,
       'pb-8': !hideContent,
     }"
   >
@@ -28,7 +28,7 @@ const { t } = useI18n();
       >
         <h4
           v-if="title || beta || $slots.title"
-          class="text-heading-2 text-n-slate-12 flex items-center gap-2"
+          class="text-heading-2 text-n-text-display flex items-center gap-2"
         >
           <slot name="title">{{ title }}</slot>
           <div
@@ -41,7 +41,7 @@ const { t } = useI18n();
         </h4>
         <p
           v-if="description || $slots.description"
-          class="text-n-slate-11 text-body-main mt-2"
+          class="text-n-text-body text-body-main mt-2"
         >
           <slot name="description">{{ description }}</slot>
         </p>
@@ -51,7 +51,7 @@ const { t } = useI18n();
       </div>
     </header>
     <div
-      class="transition-[height] duration-300 ease-in-out text-n-slate-12"
+      class="transition-[height] duration-300 ease-in-out text-n-text-display"
       :class="{ 'overflow-hidden h-0': hideContent, 'h-auto': !hideContent }"
     >
       <slot />

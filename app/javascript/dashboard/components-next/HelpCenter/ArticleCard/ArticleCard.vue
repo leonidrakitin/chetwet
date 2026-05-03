@@ -72,7 +72,7 @@ const articleMenuItems = computed(() => {
 const statusTextColor = computed(() => {
   switch (props.status) {
     case 'archived':
-      return 'text-n-slate-12';
+      return 'text-n-text-display';
     case 'draft':
       return 'text-n-amber-11';
     default:
@@ -126,7 +126,7 @@ const handleClick = id => {
   <CardLayout>
     <div class="flex justify-between w-full gap-1">
       <span
-        class="text-base cursor-pointer hover:underline underline-offset-2 hover:text-n-blue-11 text-n-slate-12 line-clamp-1"
+        class="text-base cursor-pointer hover:underline underline-offset-2 hover:text-n-blue-11 text-n-text-display line-clamp-1"
         @click="handleClick(id)"
       >
         {{ title }}
@@ -167,15 +167,15 @@ const handleClick = id => {
             :size="16"
             rounded-full
           />
-          <span class="text-sm truncate text-n-slate-11">
+          <span class="text-sm truncate text-n-text-body">
             {{ authorName || '-' }}
           </span>
         </div>
-        <span class="block text-sm whitespace-nowrap text-n-slate-11">
+        <span class="block text-sm whitespace-nowrap text-n-text-body">
           {{ categoryName }}
         </span>
         <div
-          class="inline-flex items-center gap-1 text-n-slate-11 whitespace-nowrap"
+          class="inline-flex items-center gap-1 text-n-text-body whitespace-nowrap"
         >
           <Icon icon="i-lucide-eye" class="size-4" />
           <span class="text-sm">
@@ -187,7 +187,7 @@ const handleClick = id => {
           </span>
         </div>
       </div>
-      <span class="text-sm text-n-slate-11 line-clamp-1">
+      <span class="text-sm text-n-text-body line-clamp-1">
         {{ lastUpdatedAt }}
       </span>
     </div>

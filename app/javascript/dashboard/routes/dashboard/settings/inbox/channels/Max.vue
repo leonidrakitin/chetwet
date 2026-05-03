@@ -79,24 +79,24 @@ const createChannel = async () => {
     <!-- Step 0: bot status selection -->
     <div v-if="hasBot === null" class="grid grid-cols-2 gap-4 mt-4">
       <button
-        class="text-left flex flex-col p-5 rounded-2xl outline outline-1 outline-n-weak hover:outline-n-brand transition-all cursor-pointer"
+        class="text-left flex flex-col p-5 rounded-2xl outline outline-1 outline-n-border-glass-soft hover:outline-n-brand transition-all cursor-pointer"
         @click="hasBot = true"
       >
-        <span class="font-semibold text-sm text-n-slate-12">
+        <span class="font-semibold text-sm text-n-text-display">
           {{ $t('INBOX_MGMT.ADD.MAX_CHANNEL.HAS_BOT.YES') }}
         </span>
-        <span class="text-xs text-n-slate-11 mt-1">
+        <span class="text-xs text-n-text-body mt-1">
           {{ $t('INBOX_MGMT.ADD.MAX_CHANNEL.HAS_BOT.YES_DESC') }}
         </span>
       </button>
       <button
-        class="text-left flex flex-col p-5 rounded-2xl outline outline-1 outline-n-weak hover:outline-n-brand transition-all cursor-pointer"
+        class="text-left flex flex-col p-5 rounded-2xl outline outline-1 outline-n-border-glass-soft hover:outline-n-brand transition-all cursor-pointer"
         @click="hasBot = false"
       >
-        <span class="font-semibold text-sm text-n-slate-12">
+        <span class="font-semibold text-sm text-n-text-display">
           {{ $t('INBOX_MGMT.ADD.MAX_CHANNEL.HAS_BOT.NO') }}
         </span>
-        <span class="text-xs text-n-slate-11 mt-1">
+        <span class="text-xs text-n-text-body mt-1">
           {{ $t('INBOX_MGMT.ADD.MAX_CHANNEL.HAS_BOT.NO_DESC') }}
         </span>
       </button>
@@ -105,9 +105,9 @@ const createChannel = async () => {
     <!-- Setup form (shown after bot status is selected) -->
     <template v-else>
       <div
-        class="rounded-2xl outline outline-1 outline-n-weak p-5 mb-6 bg-n-alpha-1 mt-4"
+        class="rounded-2xl outline outline-1 outline-n-border-glass-soft p-5 mb-6 bg-n-alpha-1 mt-4"
       >
-        <p class="text-sm font-semibold text-n-slate-12 mb-4">
+        <p class="text-sm font-semibold text-n-text-display mb-4">
           {{ stepsTitle }}
         </p>
         <ol class="space-y-3">
@@ -123,7 +123,7 @@ const createChannel = async () => {
             </span>
             <span
               v-dompurify-html="step"
-              class="text-sm text-n-slate-11 leading-5"
+              class="text-sm text-n-text-body leading-5"
             />
           </li>
         </ol>

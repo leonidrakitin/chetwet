@@ -40,11 +40,11 @@ const automationActive = computed({
     <template #default>
       <BaseTableCell class="max-w-0 w-full">
         <div class="flex items-center gap-2 min-w-0">
-          <span class="text-body-main text-n-slate-12 truncate">
+          <span class="text-body-main text-n-text-display truncate">
             {{ automation.name }}
           </span>
           <div class="w-px h-3 rounded-lg bg-n-weak flex-shrink-0" />
-          <span class="text-body-main text-n-slate-11 truncate">
+          <span class="text-body-main text-n-text-body truncate">
             {{ automation.description }}
           </span>
         </div>
@@ -55,7 +55,7 @@ const automationActive = computed({
       </BaseTableCell>
 
       <BaseTableCell :title="readableDateWithTime(automation.created_on)">
-        <span class="text-body-main text-n-slate-12 whitespace-nowrap">
+        <span class="text-body-main text-n-text-display whitespace-nowrap">
           {{ readableDate(automation.created_on) }}
         </span>
       </BaseTableCell>

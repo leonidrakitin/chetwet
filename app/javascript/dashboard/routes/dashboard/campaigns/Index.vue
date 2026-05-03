@@ -154,7 +154,7 @@ onMounted(() => {
         class="flex items-start sm:items-center justify-between w-full py-4 md:py-5 gap-4"
       >
         <div class="flex items-center gap-2 min-w-0">
-          <h1 class="text-lg font-semibold text-n-slate-12 truncate">
+          <h1 class="text-lg font-semibold text-n-text-display truncate">
             {{ t('CAMPAIGNS.HEADER') }}
           </h1>
           <span
@@ -176,7 +176,7 @@ onMounted(() => {
               type="search"
               :placeholder="t('CAMPAIGNS.SEARCH.PLACEHOLDER')"
               :custom-input-class="[
-                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
+                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-glass-soft ltr:!pl-8 !py-1 rtl:!pr-8',
               ]"
               class="w-full sm:w-48"
               @input="searchQuery = $event.target.value"
@@ -184,14 +184,14 @@ onMounted(() => {
               <template #prefix>
                 <Icon
                   icon="i-lucide-search"
-                  class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
+                  class="absolute -translate-y-1/2 text-n-text-body size-4 top-1/2 ltr:left-2 rtl:right-2"
                 />
               </template>
             </Input>
 
             <select
               v-model="inboxFilter"
-              class="h-8 w-full sm:w-40 rounded-lg border border-n-weak bg-n-alpha-1 pl-3 pr-8 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-8 w-full sm:w-40 rounded-lg border border-n-border-glass-soft bg-n-alpha-1 pl-3 pr-8 text-sm text-n-text-display focus:border-n-brand focus:outline-none"
             >
               <option value="">
                 {{ t('NOTIFICATION_TEMPLATES.FORM.INBOX.PLACEHOLDER') }}
@@ -223,7 +223,7 @@ onMounted(() => {
       <!-- Loading (list tab only; statistics tab handles its own loading and must not be unmounted by campaigns/get) -->
       <div
         v-if="uiFlags.isFetching && !isStatisticsTab"
-        class="flex justify-center items-center py-10 text-n-slate-11"
+        class="flex justify-center items-center py-10 text-n-text-body"
       >
         <Spinner />
       </div>
@@ -242,14 +242,14 @@ onMounted(() => {
           <span class="i-lucide-megaphone size-8 text-n-slate-9" />
         </div>
         <div class="flex flex-col items-center gap-1 text-center">
-          <p class="text-base font-medium text-n-slate-12">
+          <p class="text-base font-medium text-n-text-display">
             {{
               searchQuery
                 ? t('CAMPAIGNS.EMPTY_SEARCH_TITLE')
                 : t('CAMPAIGNS.EMPTY_TITLE')
             }}
           </p>
-          <p class="text-sm text-n-slate-10 max-w-sm">
+          <p class="text-sm text-n-text-body/60 max-w-sm">
             {{
               searchQuery
                 ? t('CAMPAIGNS.EMPTY_SEARCH_DESCRIPTION')

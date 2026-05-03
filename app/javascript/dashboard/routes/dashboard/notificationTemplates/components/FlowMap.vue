@@ -412,19 +412,19 @@ const preview = txt => {
     <!-- Zoom controls -->
     <div class="absolute bottom-4 right-4 z-30 flex flex-col gap-1">
       <button
-        class="size-8 rounded-lg bg-n-solid-1 border border-n-weak shadow-sm flex items-center justify-center text-n-slate-11 hover:text-n-slate-12 transition-colors"
+        class="size-8 rounded-lg bg-n-glass-soft border border-n-border-glass-soft shadow-sm flex items-center justify-center text-n-text-body hover:text-n-text-display transition-colors"
         @click.stop="zoomIn"
       >
         <span class="i-lucide-plus size-4" />
       </button>
       <button
-        class="size-8 rounded-lg bg-n-solid-1 border border-n-weak shadow-sm flex items-center justify-center text-n-slate-11 hover:text-n-slate-12 transition-colors"
+        class="size-8 rounded-lg bg-n-glass-soft border border-n-border-glass-soft shadow-sm flex items-center justify-center text-n-text-body hover:text-n-text-display transition-colors"
         @click.stop="zoomOut"
       >
         <span class="i-lucide-minus size-4" />
       </button>
       <button
-        class="size-8 rounded-lg bg-n-solid-1 border border-n-weak shadow-sm flex items-center justify-center text-n-slate-11 hover:text-n-slate-12 transition-colors"
+        class="size-8 rounded-lg bg-n-glass-soft border border-n-border-glass-soft shadow-sm flex items-center justify-center text-n-text-body hover:text-n-text-display transition-colors"
         @click.stop="zoomReset"
       >
         <span class="i-lucide-maximize size-4" />
@@ -483,7 +483,7 @@ const preview = txt => {
               else delete nodeRefs[tmpl.id];
             }
           "
-          class="w-60 rounded-2xl border border-n-strong bg-n-solid-1 shadow-sm overflow-hidden transition-shadow hover:shadow-md"
+          class="w-60 rounded-2xl border border-n-border-glass bg-n-glass-soft shadow-sm overflow-hidden transition-shadow hover:shadow-md"
           :class="[
             { 'opacity-50': !tmpl.enabled },
             isPanning ? '' : 'cursor-pointer',
@@ -495,7 +495,7 @@ const preview = txt => {
             class="px-4 py-2.5"
             :style="{ background: typeColor(tmpl.type) }"
           >
-            <p class="text-sm font-semibold text-n-slate-12 truncate">
+            <p class="text-sm font-semibold text-n-text-display truncate">
               {{ tmpl.name }}
             </p>
           </div>
@@ -503,7 +503,7 @@ const preview = txt => {
           <!-- Message preview row -->
           <div
             v-if="getMessageBlock(tmpl).text"
-            class="px-4 py-2.5 border-t border-n-weak text-xs text-n-slate-11 leading-relaxed"
+            class="px-4 py-2.5 border-t border-n-border-glass-soft text-xs text-n-text-body leading-relaxed"
           >
             {{ preview(getMessageBlock(tmpl).text) }}
           </div>
@@ -511,7 +511,7 @@ const preview = txt => {
           <!-- Attachments row -->
           <div
             v-if="getMessageBlock(tmpl).attachments.length"
-            class="px-4 py-2 border-t border-n-weak flex items-center gap-1.5 text-xs text-n-slate-9"
+            class="px-4 py-2 border-t border-n-border-glass-soft flex items-center gap-1.5 text-xs text-n-slate-9"
           >
             <span class="i-lucide-paperclip size-3 flex-shrink-0" />
             <span>{{ getMessageBlock(tmpl).attachments.length }}</span>
@@ -528,11 +528,11 @@ const preview = txt => {
                 else delete btnRefs[k];
               }
             "
-            class="px-4 py-2 border-t border-n-weak flex items-center gap-2 text-xs"
+            class="px-4 py-2 border-t border-n-border-glass-soft flex items-center gap-2 text-xs"
             :class="
               btn.type === 'template'
                 ? 'text-n-blue-11 font-medium'
-                : 'text-n-slate-10'
+                : 'text-n-text-body/60'
             "
           >
             <span

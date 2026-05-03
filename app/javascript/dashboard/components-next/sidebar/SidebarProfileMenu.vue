@@ -17,6 +17,11 @@ import CustomBrandPolicyWrapper from '../../components/CustomBrandPolicyWrapper.
 
 defineProps({
   isCollapsed: { type: Boolean, default: false },
+  dropdownPosition: {
+    type: String,
+    default: 'bottom',
+    validator: value => ['bottom', 'top'].includes(value),
+  },
 });
 
 const emit = defineEmits(['close', 'openKeyShortcutModal']);
@@ -148,16 +153,25 @@ const allowedMenuItems = computed(() => {
           rounded-full
         />
         <div v-if="!isCollapsed" class="min-w-0">
-          <div class="text-sm font-medium leading-4 truncate text-n-slate-12">
+          <div
+            class="text-sm font-medium leading-4 truncate text-n-text-display"
+          >
             {{ currentUser.available_name }}
           </div>
-          <div class="text-xs truncate text-n-slate-11">
+          <div class="text-xs truncate text-n-text-body">
             {{ currentUser.email }}
           </div>
         </div>
       </button>
     </template>
-    <DropdownBody class="bottom-12 z-50 mb-2 w-80 ltr:left-0 rtl:right-0">
+    <DropdownBody
+      class="z-50 w-80"
+      :class="
+        dropdownPosition === 'top'
+          ? 'top-full mt-2 ltr:right-0 rtl:left-0'
+          : 'bottom-12 mb-2 ltr:left-0 rtl:right-0'
+      "
+    >
       <SidebarProfileMenuStatus />
       <DropdownSeparator />
       <template v-for="item in allowedMenuItems" :key="item.label">

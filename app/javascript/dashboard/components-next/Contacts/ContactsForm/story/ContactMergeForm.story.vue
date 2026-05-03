@@ -17,7 +17,7 @@ const handleUpdate = value => {
     :layout="{ type: 'grid', width: '600px' }"
   >
     <Variant title="Default">
-      <div class="p-6 border rounded-lg border-n-strong">
+      <div class="p-6 border rounded-lg border-n-border-glass">
         <ContactMergeForm
           :selected-contact="contactData"
           :primary-contact-list="primaryContactList"
@@ -30,7 +30,7 @@ const handleUpdate = value => {
     </Variant>
 
     <Variant title="With Selected Primary Contact">
-      <div class="p-6 border rounded-lg border-n-strong">
+      <div class="p-6 border rounded-lg border-n-border-glass">
         <ContactMergeForm
           :selected-contact="contactData"
           :primary-contact-list="primaryContactList"
@@ -43,7 +43,7 @@ const handleUpdate = value => {
     </Variant>
 
     <Variant title="Error State">
-      <div class="p-6 border rounded-lg border-n-strong">
+      <div class="p-6 border rounded-lg border-n-border-glass">
         <ContactMergeForm
           :selected-contact="contactData"
           :primary-contact-list="primaryContactList"
@@ -58,7 +58,7 @@ const handleUpdate = value => {
     </Variant>
 
     <Variant title="Empty Primary Contact List">
-      <div class="p-6 border rounded-lg border-n-strong">
+      <div class="p-6 border rounded-lg border-n-border-glass">
         <ContactMergeForm
           :selected-contact="contactData"
           :primary-contact-list="[]"

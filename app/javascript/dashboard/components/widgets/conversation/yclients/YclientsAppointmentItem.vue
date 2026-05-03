@@ -39,7 +39,7 @@ const statusOptions = computed(() => [
   {
     attendance: 0,
     label: t('CONVERSATION_SIDEBAR.YCLIENTS.STATUS_PENDING'),
-    classes: 'bg-n-solid-3 text-n-slate-12',
+    classes: 'bg-n-solid-3 text-n-text-display',
   },
 ]);
 
@@ -87,7 +87,7 @@ const statusClass = computed(() => {
   if (currentAttendance.value === 1) return 'bg-n-teal-5 text-n-teal-12';
   if (currentAttendance.value === -1) return 'bg-n-ruby-5 text-n-ruby-12';
   if (currentAttendance.value === 2) return 'bg-n-blue-5 text-n-blue-12';
-  return 'bg-n-solid-3 text-n-slate-12';
+  return 'bg-n-solid-3 text-n-text-display';
 });
 
 const companyLabel = computed(() => {
@@ -125,10 +125,10 @@ const selectStatus = attendance => {
 
 <template>
   <div
-    class="py-3 border-b border-n-weak last:border-b-0 flex flex-col gap-1.5"
+    class="py-3 border-b border-n-border-glass-soft last:border-b-0 flex flex-col gap-1.5"
   >
     <div class="flex justify-between items-center">
-      <div class="font-medium text-n-slate-12 truncate">
+      <div class="font-medium text-n-text-display truncate">
         {{ serviceName }}
       </div>
       <div v-on-click-outside="closeDropdown" class="relative">
@@ -143,12 +143,12 @@ const selectStatus = attendance => {
         </button>
         <div
           v-if="showDropdown"
-          class="absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-lg border border-n-weak bg-n-solid-2 py-1 shadow-lg"
+          class="absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-lg border border-n-border-glass-soft bg-n-glass-strong py-1 shadow-lg"
         >
           <button
             v-for="option in statusOptions"
             :key="option.attendance"
-            class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-n-slate-12 hover:bg-n-alpha-1"
+            class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-n-text-display hover:bg-n-alpha-1"
             :class="{
               'font-semibold': option.attendance === currentAttendance,
             }"
@@ -163,15 +163,15 @@ const selectStatus = attendance => {
         </div>
       </div>
     </div>
-    <div class="text-sm text-n-slate-11">
-      <span v-if="recordDate" class="border-r border-n-weak pr-2">
+    <div class="text-sm text-n-text-body">
+      <span v-if="recordDate" class="border-r border-n-border-glass-soft pr-2">
         {{ recordDate }}
       </span>
       <span v-if="staffName" class="pl-2">
         {{ staffName }}
       </span>
     </div>
-    <div v-if="companyLabel" class="text-xs text-n-slate-10">
+    <div v-if="companyLabel" class="text-xs text-n-text-body/60">
       {{ companyLabel }}
     </div>
   </div>

@@ -57,11 +57,11 @@ export default {
 }
 
 .colorpicker--selected {
-  @apply border border-solid border-n-weak rounded cursor-pointer h-8 w-8 mb-4;
+  @apply border border-solid border-n-border-glass-soft rounded cursor-pointer h-8 w-8 mb-4;
 }
 
 .colorpicker--chrome.vc-chrome {
-  @apply shadow-lg -mt-2.5 absolute z-[9999] border border-solid border-n-weak rounded;
+  @apply shadow-lg -mt-2.5 absolute z-[9999] border border-solid border-n-border-glass-soft rounded;
 
   ::v-deep {
     input {

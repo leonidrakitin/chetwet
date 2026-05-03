@@ -116,7 +116,7 @@ onMounted(() => {
       <div
         class="flex items-start sm:items-center justify-between w-full py-6 gap-2 max-w-5xl mx-auto"
       >
-        <span class="text-heading-1 text-n-slate-12 truncate">
+        <span class="text-heading-1 text-n-text-display truncate">
           {{ t('SUGGESTIONS.TITLE') }}
         </span>
         <div
@@ -130,14 +130,14 @@ onMounted(() => {
               type="search"
               :placeholder="t('SUGGESTIONS.SEARCH_PLACEHOLDER')"
               :custom-input-class="[
-                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8',
+                'h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-glass-soft ltr:!pl-8 !py-1 rtl:!pr-8',
               ]"
               class="w-full"
             >
               <template #prefix>
                 <Icon
                   icon="i-lucide-search"
-                  class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2"
+                  class="absolute -translate-y-1/2 text-n-text-body size-4 top-1/2 ltr:left-2 rtl:right-2"
                 />
               </template>
             </Input>
@@ -160,15 +160,15 @@ onMounted(() => {
     <main class="flex-1 px-6 overflow-y-auto">
       <div class="w-full max-w-5xl mx-auto py-4">
         <div
-          class="flex w-fit gap-0.5 p-0.5 mb-4 rounded-lg bg-n-alpha-1 dark:bg-n-solid-1"
+          class="flex w-fit gap-0.5 p-0.5 mb-4 rounded-lg bg-n-alpha-1 dark:bg-n-glass-soft"
         >
           <button
             type="button"
             class="px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200"
             :class="
               listScope === 'all'
-                ? 'bg-n-solid-active text-n-blue-11 shadow-sm outline outline-1 outline-n-container'
-                : 'text-n-slate-10 hover:text-n-slate-12'
+                ? 'bg-n-glass-pane text-n-blue-11 shadow-sm outline outline-1 outline-n-border-glass-soft'
+                : 'text-n-text-body/60 hover:text-n-text-display'
             "
             @click="listScope = 'all'"
           >
@@ -179,8 +179,8 @@ onMounted(() => {
             class="px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200"
             :class="
               listScope === 'mine'
-                ? 'bg-n-solid-active text-n-blue-11 shadow-sm outline outline-1 outline-n-container'
-                : 'text-n-slate-10 hover:text-n-slate-12'
+                ? 'bg-n-glass-pane text-n-blue-11 shadow-sm outline outline-1 outline-n-border-glass-soft'
+                : 'text-n-text-body/60 hover:text-n-text-display'
             "
             @click="listScope = 'mine'"
           >
@@ -190,7 +190,7 @@ onMounted(() => {
 
         <div
           v-if="uiFlags.isFetching"
-          class="flex justify-center items-center py-10 text-n-slate-11"
+          class="flex justify-center items-center py-10 text-n-text-body"
         >
           <Spinner />
         </div>
@@ -199,7 +199,7 @@ onMounted(() => {
           v-else-if="filteredSuggestions.length === 0"
           class="flex flex-col items-center justify-center py-20"
         >
-          <span class="text-sm text-n-slate-11">
+          <span class="text-sm text-n-text-body">
             {{
               listScope === 'mine'
                 ? t('SUGGESTIONS.EMPTY_MINE')

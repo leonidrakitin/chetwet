@@ -184,27 +184,27 @@ const submitDisabled = computed(
     @click.self="emit('close')"
   >
     <div
-      class="w-full max-w-3xl max-h-[min(90vh,900px)] overflow-y-auto rounded-2xl bg-n-solid-2 p-6 shadow-xl border border-n-border-hairline"
+      class="w-full max-w-3xl max-h-[min(90vh,900px)] overflow-y-auto rounded-2xl bg-n-glass-strong p-6 shadow-xl border border-n-border-hairline"
     >
-      <h2 class="text-lg font-semibold text-n-slate-12 mb-4">
+      <h2 class="text-lg font-semibold text-n-text-display mb-4">
         {{ modalTitle }}
       </h2>
 
       <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
         <div>
-          <label class="block text-sm font-medium text-n-slate-11 mb-1">
+          <label class="block text-sm font-medium text-n-text-body mb-1">
             {{ t('SUGGESTIONS.FIELD_TITLE') }}
           </label>
           <input
             v-model="title"
             type="text"
             :placeholder="t('SUGGESTIONS.FIELD_TITLE_PLACEHOLDER')"
-            class="w-full rounded-xl border border-n-border-hairline bg-n-solid-3 px-4 py-2 text-sm text-n-slate-12 outline-none focus:border-woot-500"
+            class="w-full rounded-xl border border-n-border-hairline bg-n-solid-3 px-4 py-2 text-sm text-n-text-display outline-none focus:border-woot-500"
           />
         </div>
 
         <div class="min-h-[200px]">
-          <label class="block text-sm font-medium text-n-slate-11 mb-1">
+          <label class="block text-sm font-medium text-n-text-body mb-1">
             {{ t('SUGGESTIONS.FIELD_DESCRIPTION') }}
           </label>
           <Editor
@@ -223,7 +223,7 @@ const submitDisabled = computed(
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-n-slate-11 mb-1">
+          <label class="block text-sm font-medium text-n-text-body mb-1">
             {{ t('SUGGESTIONS.PHOTOS_LABEL') }}
           </label>
           <input
@@ -244,7 +244,7 @@ const submitDisabled = computed(
             :disabled="!canAddMoreImages || isUploading"
             @click="openFilePicker"
           />
-          <p class="text-xs text-n-slate-10 mt-1">
+          <p class="text-xs text-n-text-body/60 mt-1">
             {{ t('SUGGESTIONS.PHOTOS_HINT', { max: MAX_IMAGES }) }}
           </p>
 
@@ -297,7 +297,7 @@ const submitDisabled = computed(
         <div class="flex justify-end gap-3 mt-2">
           <button
             type="button"
-            class="rounded-xl border border-n-border-hairline px-4 py-2 text-sm font-medium text-n-slate-11 hover:bg-n-alpha-1"
+            class="rounded-xl border border-n-border-hairline px-4 py-2 text-sm font-medium text-n-text-body hover:bg-n-alpha-1"
             @click="emit('close')"
           >
             {{ t('SUGGESTIONS.CANCEL') }}

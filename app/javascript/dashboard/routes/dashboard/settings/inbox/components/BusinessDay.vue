@@ -158,7 +158,7 @@ export default {
           type="checkbox"
           :title="$t('INBOX_MGMT.BUSINESS_HOURS.DAY.ENABLE')"
         />
-        <span class="text-body-main text-n-slate-12 font-medium">
+        <span class="text-body-main text-n-text-display font-medium">
           {{ dayName }}
         </span>
       </div>
@@ -174,7 +174,7 @@ export default {
               type="checkbox"
               :title="$t('INBOX_MGMT.BUSINESS_HOURS.ALL_DAY')"
             />
-            <span class="text-body-main text-n-slate-12">{{
+            <span class="text-body-main text-n-text-display">{{
               $t('INBOX_MGMT.BUSINESS_HOURS.ALL_DAY')
             }}</span>
           </div>
@@ -198,7 +198,7 @@ export default {
           {{ $t('INBOX_MGMT.BUSINESS_HOURS.DAY.VALIDATION_ERROR') }}
         </span>
       </div>
-      <span v-else class="text-body-main text-n-slate-11">
+      <span v-else class="text-body-main text-n-text-body">
         {{ $t('INBOX_MGMT.BUSINESS_HOURS.DAY.UNAVAILABLE') }}
       </span>
     </td>

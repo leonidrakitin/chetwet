@@ -138,7 +138,7 @@ const STATUS_CONFIG = {
 };
 
 function statusBadgeClass(status) {
-  return STATUS_CONFIG[status]?.badge ?? 'bg-n-slate-6 text-n-slate-12';
+  return STATUS_CONFIG[status]?.badge ?? 'bg-n-slate-6 text-n-text-display';
 }
 
 function statusIcon(status) {
@@ -406,7 +406,7 @@ onUnmounted(() => {
       :class="
         props.embedded
           ? 'w-full flex flex-col min-h-0 overflow-hidden'
-          : 'w-full max-w-2xl mx-auto flex flex-col bg-white dark:bg-n-solid-2 rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden'
+          : 'w-full max-w-2xl mx-auto flex flex-col bg-white dark:bg-n-glass-strong rounded-2xl shadow-lg ring-1 ring-n-container/50 dark:ring-n-container overflow-hidden'
       "
     >
       <!-- Header -->
@@ -421,7 +421,7 @@ onUnmounted(() => {
             :class="
               activeView === 'form'
                 ? 'bg-n-brand/10 text-n-brand'
-                : 'text-n-slate-10 hover:text-n-slate-12'
+                : 'text-n-text-body/60 hover:text-n-text-display'
             "
             @click="activeView = 'form'"
           >
@@ -433,14 +433,14 @@ onUnmounted(() => {
             :class="
               activeView === 'list'
                 ? 'bg-n-brand/10 text-n-brand'
-                : 'text-n-slate-10 hover:text-n-slate-12'
+                : 'text-n-text-body/60 hover:text-n-text-display'
             "
             @click="activeView = 'list'"
           >
             {{ $t('CAPTAIN.MIGRATIONS.RECENT') }}
             <span
               v-if="migrations.length"
-              class="text-xs px-1.5 py-0.5 rounded-full bg-n-slate-4 text-n-slate-11"
+              class="text-xs px-1.5 py-0.5 rounded-full bg-n-slate-4 text-n-text-body"
             >
               {{ migrations.length }}
             </span>
@@ -448,7 +448,7 @@ onUnmounted(() => {
         </div>
         <button
           v-if="!props.embedded"
-          class="text-sm text-n-slate-10 hover:text-n-slate-12 transition-colors"
+          class="text-sm text-n-text-body/60 hover:text-n-text-display transition-colors"
           @click="goToDashboard"
         >
           {{ $t('ONBOARDING.SKIP') }}
@@ -485,10 +485,10 @@ onUnmounted(() => {
               >
                 <Icon icon="i-lucide-database" class="size-7 text-n-brand" />
               </div>
-              <h1 class="text-xl font-bold text-n-slate-12 mb-1">
+              <h1 class="text-xl font-bold text-n-text-display mb-1">
                 {{ $t('CAPTAIN.MIGRATIONS.HEADER') }}
               </h1>
-              <p class="text-sm text-n-slate-10 max-w-md">
+              <p class="text-sm text-n-text-body/60 max-w-md">
                 {{ $t('CAPTAIN.MIGRATIONS.DESCRIPTION') }}
               </p>
             </div>
@@ -496,7 +496,7 @@ onUnmounted(() => {
             <!-- Source selector -->
             <div>
               <p
-                class="text-xs font-medium text-n-slate-11 mb-2 uppercase tracking-wide"
+                class="text-xs font-medium text-n-text-body mb-2 uppercase tracking-wide"
               >
                 {{ $t('CAPTAIN.MIGRATIONS.SOURCE') }}
               </p>
@@ -508,7 +508,7 @@ onUnmounted(() => {
                   :class="
                     form.source === s.value
                       ? 'bg-n-brand/10 text-n-brand outline-n-brand/30'
-                      : 'bg-white dark:bg-n-solid-3 text-n-slate-11 outline-n-container hover:outline-n-brand/30'
+                      : 'bg-white dark:bg-n-solid-3 text-n-text-body outline-n-border-glass-soft hover:outline-n-brand/30'
                   "
                   @click="form.source = s.value"
                 >
@@ -521,7 +521,7 @@ onUnmounted(() => {
             <!-- Inbox select -->
             <div>
               <p
-                class="text-xs font-medium text-n-slate-11 mb-2 uppercase tracking-wide"
+                class="text-xs font-medium text-n-text-body mb-2 uppercase tracking-wide"
               >
                 {{ $t('CAPTAIN.MIGRATIONS.INBOX') }}
               </p>
@@ -546,7 +546,7 @@ onUnmounted(() => {
             <!-- Telegram personal: session select -->
             <div v-if="isTelegramLive">
               <p
-                class="text-xs font-medium text-n-slate-11 mb-2 uppercase tracking-wide"
+                class="text-xs font-medium text-n-text-body mb-2 uppercase tracking-wide"
               >
                 {{ $t('CAPTAIN.MIGRATIONS.TELEGRAM_SESSION') }}
               </p>
@@ -578,7 +578,7 @@ onUnmounted(() => {
                   $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN_PLACEHOLDER')
                 "
               />
-              <p class="mt-1 text-xs text-n-slate-10">
+              <p class="mt-1 text-xs text-n-text-body/60">
                 {{ $t('CAPTAIN.MIGRATIONS.VK_ACCESS_TOKEN_HELP') }}
               </p>
             </div>
@@ -586,7 +586,7 @@ onUnmounted(() => {
             <!-- File upload (file-based) -->
             <div v-if="!isLiveSource">
               <p
-                class="text-xs font-medium text-n-slate-11 mb-2 uppercase tracking-wide"
+                class="text-xs font-medium text-n-text-body mb-2 uppercase tracking-wide"
               >
                 {{ $t('CAPTAIN.MIGRATIONS.FILE') }}
               </p>
@@ -618,7 +618,9 @@ onUnmounted(() => {
                 <span
                   class="text-sm"
                   :class="
-                    form.file ? 'text-n-brand font-medium' : 'text-n-slate-10'
+                    form.file
+                      ? 'text-n-brand font-medium'
+                      : 'text-n-text-body/60'
                   "
                 >
                   {{
@@ -633,7 +635,7 @@ onUnmounted(() => {
             <!-- Date limit (live) -->
             <div v-if="isLiveSource">
               <p
-                class="text-xs font-medium text-n-slate-11 mb-2 uppercase tracking-wide"
+                class="text-xs font-medium text-n-text-body mb-2 uppercase tracking-wide"
               >
                 {{ $t('CAPTAIN.MIGRATIONS.DATE_LIMIT') }}
               </p>
@@ -669,7 +671,7 @@ onUnmounted(() => {
                     class="size-3 text-white"
                   />
                 </div>
-                <span class="text-sm text-n-slate-11">
+                <span class="text-sm text-n-text-body">
                   {{ $t('CAPTAIN.MIGRATIONS.DRY_RUN') }}
                 </span>
               </label>
@@ -689,7 +691,7 @@ onUnmounted(() => {
                     class="size-3 text-white"
                   />
                 </div>
-                <span class="text-sm text-n-slate-11">
+                <span class="text-sm text-n-text-body">
                   {{ $t('CAPTAIN.MIGRATIONS.INCLUDE_GROUPS') }}
                 </span>
               </label>
@@ -719,7 +721,7 @@ onUnmounted(() => {
             <div v-if="isLiveSource">
               <button
                 type="button"
-                class="flex items-center gap-1.5 text-sm text-n-slate-10 hover:text-n-slate-12 transition-colors"
+                class="flex items-center gap-1.5 text-sm text-n-text-body/60 hover:text-n-text-display transition-colors"
                 @click="showAdvanced = !showAdvanced"
               >
                 <Icon
@@ -784,7 +786,7 @@ onUnmounted(() => {
               >
                 <Icon icon="i-lucide-history" class="size-7 text-n-brand" />
               </div>
-              <h1 class="text-xl font-bold text-n-slate-12 mb-1">
+              <h1 class="text-xl font-bold text-n-text-display mb-1">
                 {{ $t('CAPTAIN.MIGRATIONS.RECENT') }}
               </h1>
             </div>
@@ -792,7 +794,7 @@ onUnmounted(() => {
             <!-- Loading -->
             <div
               v-if="isFetchingMigrations && !migrations.length"
-              class="flex items-center justify-center py-8 text-n-slate-10 text-sm gap-2"
+              class="flex items-center justify-center py-8 text-n-text-body/60 text-sm gap-2"
             >
               <Icon icon="i-lucide-loader-circle" class="size-4 animate-spin" />
               {{ $t('CAPTAIN.MIGRATIONS.LOADING') }}
@@ -808,7 +810,7 @@ onUnmounted(() => {
               >
                 <Icon icon="i-lucide-inbox" class="size-6 text-n-slate-9" />
               </div>
-              <p class="text-sm text-n-slate-10">
+              <p class="text-sm text-n-text-body/60">
                 {{ $t('CAPTAIN.MIGRATIONS.EMPTY_STATE') }}
               </p>
               <NextButton
@@ -830,7 +832,7 @@ onUnmounted(() => {
                 <!-- Card header -->
                 <div class="flex items-start justify-between gap-2 mb-3">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-sm font-semibold text-n-slate-12">
+                    <span class="text-sm font-semibold text-n-text-display">
                       {{ sourceLabel(m.source) }}
                     </span>
                     <span
@@ -869,7 +871,7 @@ onUnmounted(() => {
 
                 <!-- Processing -->
                 <template v-if="m.status === 'processing'">
-                  <p class="text-xs text-n-slate-10 mb-2">
+                  <p class="text-xs text-n-text-body/60 mb-2">
                     {{ $t('CAPTAIN.MIGRATIONS.PROCESSING_LABEL') }}
                   </p>
                   <div
@@ -880,7 +882,7 @@ onUnmounted(() => {
                       :style="{ width: (m.progress_percent ?? 0) + '%' }"
                     />
                   </div>
-                  <p class="text-xs text-n-slate-10">
+                  <p class="text-xs text-n-text-body/60">
                     {{
                       $t('CAPTAIN.MIGRATIONS.DIALOGS_PROGRESS_LINE', {
                         processed: m.processed ?? 0,
@@ -896,7 +898,7 @@ onUnmounted(() => {
                 <template v-else-if="m.status === 'completed'">
                   <div class="flex flex-wrap gap-2">
                     <span
-                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-slate-11"
+                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-text-body"
                     >
                       {{
                         $t('CAPTAIN.MIGRATIONS.DIALOG_STAT_FOUND', {
@@ -909,7 +911,7 @@ onUnmounted(() => {
                     </span>
                     <span
                       v-if="m.report?.preprocess_stats?.sessions_created"
-                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-slate-11"
+                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-text-body"
                     >
                       {{
                         $t('CAPTAIN.MIGRATIONS.DIALOG_STAT_SESSIONS', {
@@ -918,7 +920,7 @@ onUnmounted(() => {
                       }}
                     </span>
                     <span
-                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-slate-11"
+                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-text-body"
                     >
                       {{
                         $t('CAPTAIN.MIGRATIONS.DIALOG_STAT_CLEANED', {
@@ -928,7 +930,7 @@ onUnmounted(() => {
                       }}
                     </span>
                     <span
-                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-slate-11"
+                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-text-body"
                     >
                       {{
                         $t('CAPTAIN.MIGRATIONS.DIALOG_STAT_IMPORTED', {
@@ -937,7 +939,7 @@ onUnmounted(() => {
                       }}
                     </span>
                     <span
-                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-slate-11"
+                      class="flex items-center gap-1 px-2.5 py-1 bg-n-surface-3 rounded-lg text-xs text-n-text-body"
                     >
                       {{
                         $t('CAPTAIN.MIGRATIONS.DIALOG_STAT_FAQS', {
@@ -948,7 +950,7 @@ onUnmounted(() => {
                   </div>
                   <p
                     v-if="m.report?.summary"
-                    class="mt-2 text-xs text-n-slate-10"
+                    class="mt-2 text-xs text-n-text-body/60"
                   >
                     {{ m.report.summary }}
                   </p>
@@ -971,7 +973,9 @@ onUnmounted(() => {
 
                 <!-- Pending -->
                 <template v-else>
-                  <p class="text-xs text-n-slate-10 flex items-center gap-1.5">
+                  <p
+                    class="text-xs text-n-text-body/60 flex items-center gap-1.5"
+                  >
                     <Icon icon="i-lucide-clock" class="size-3.5" />
                     {{ $t('CAPTAIN.MIGRATIONS.PENDING_LABEL') }}
                   </p>

@@ -137,7 +137,7 @@ const formatTick = ts => {
     <div
       v-for="t in ticks"
       :key="t"
-      class="absolute -translate-x-1/2 whitespace-nowrap text-[11px] text-n-slate-11"
+      class="absolute -translate-x-1/2 whitespace-nowrap text-[11px] text-n-text-body"
       :style="{ left: percent(t) + '%' }"
     >
       {{ formatTick(t) }}

@@ -208,3 +208,135 @@ export const getInboxWarningIconClass = (type, reauthorizationRequired) => {
   }
   return '';
 };
+
+/** Brand / channel colors for small inbox badge on avatars (readable in light & dark UI chrome) */
+export const INBOX_BADGE_BACKGROUND_COLORS = {
+  [INBOX_TYPES.FB]: '#0084FF',
+  [INBOX_TYPES.TWITTER]: '#000000',
+  [INBOX_TYPES.WHATSAPP]: '#25D366',
+  [INBOX_TYPES.TWILIO]: '#F22F46',
+  [INBOX_TYPES.API]: '#6366F1',
+  [INBOX_TYPES.EMAIL]: '#8B5CF6',
+  [INBOX_TYPES.TELEGRAM]: '#229ED9',
+  [INBOX_TYPES.TELEGRAM_PERSONAL]: '#229ED9',
+  [INBOX_TYPES.VK]: '#0077FF',
+  [INBOX_TYPES.AVITO]: '#97CF26',
+  [INBOX_TYPES.MAX]: '#6B4EE2',
+  [INBOX_TYPES.LINE]: '#06C755',
+  [INBOX_TYPES.SMS]: '#57534E',
+  [INBOX_TYPES.INSTAGRAM]: '#E4405F',
+  [INBOX_TYPES.TIKTOK]: '#000000',
+  [INBOX_TYPES.VOICE]: '#0D9488',
+  [INBOX_TYPES.WEB]: '#5B7CFF',
+};
+
+function parseHexColorRgb(hex) {
+  if (!hex || typeof hex !== 'string') return null;
+  let h = hex.trim();
+  if (h.startsWith('#')) h = h.slice(1);
+  if (h.length === 3) {
+    return [
+      parseInt(h[0] + h[0], 16),
+      parseInt(h[1] + h[1], 16),
+      parseInt(h[2] + h[2], 16),
+    ];
+  }
+  if (h.length === 6) {
+    const r = Number.parseInt(h.slice(0, 2), 16);
+    const g = Number.parseInt(h.slice(2, 4), 16);
+    const b = Number.parseInt(h.slice(4, 6), 16);
+    if ([r, g, b].some(c => Number.isNaN(c))) return null;
+    return [r, g, b];
+  }
+  return null;
+}
+
+function hexRelativeLuminance(hex) {
+  const rgb = parseHexColorRgb(hex);
+  if (!rgb) return 0;
+
+  const lin = channel => {
+    const c = channel / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const [r, g, b] = rgb.map(lin);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/**
+ * Prefer dark foreground on very light inbox widget colors so the glyph stays visible.
+ */
+export function inboxBadgeUsesDarkIcon(backgroundHex) {
+  return hexRelativeLuminance(backgroundHex) > 0.62;
+}
+
+function resolveBadgeChannelKey(inbox) {
+  const channelType = inbox.channel_type || inbox.channelType;
+  const medium = inbox.medium;
+  let phoneNumber = '';
+  if (typeof inbox.phone_number === 'string') {
+    phoneNumber = inbox.phone_number;
+  } else if (typeof inbox.phoneNumber === 'string') {
+    phoneNumber = inbox.phoneNumber;
+  }
+
+  if (!channelType) return null;
+
+  if (channelType === INBOX_TYPES.TWILIO) {
+    if (
+      medium === TWILIO_CHANNEL_MEDIUM.WHATSAPP ||
+      phoneNumber.toLowerCase().startsWith('whatsapp')
+    ) {
+      return INBOX_TYPES.WHATSAPP;
+    }
+    return INBOX_TYPES.TWILIO;
+  }
+
+  return channelType;
+}
+
+/**
+ * @returns {{ backgroundColor: string | null, iconClass: string, useNeutralChrome: boolean }}
+ */
+export function getInboxBadgePresentation(inbox) {
+  if (!inbox) {
+    return {
+      backgroundColor: null,
+      iconClass: 'text-n-text-body',
+      useNeutralChrome: true,
+    };
+  }
+
+  const channelTypeRaw = inbox.channel_type || inbox.channelType;
+  const channelKey = resolveBadgeChannelKey(inbox);
+  const widgetColorRaw = inbox.widget_color ?? inbox.widgetColor;
+
+  let background = null;
+  if (
+    channelTypeRaw === INBOX_TYPES.WEB &&
+    widgetColorRaw &&
+    parseHexColorRgb(widgetColorRaw)
+  ) {
+    background = widgetColorRaw;
+  }
+
+  if (!background && channelKey) {
+    background = INBOX_BADGE_BACKGROUND_COLORS[channelKey] ?? null;
+  }
+
+  if (!background) {
+    return {
+      backgroundColor: null,
+      iconClass: 'text-n-text-body',
+      useNeutralChrome: true,
+    };
+  }
+
+  const darkIcon = inboxBadgeUsesDarkIcon(background);
+
+  return {
+    backgroundColor: background,
+    iconClass: darkIcon ? 'text-n-text-display' : 'text-white',
+    useNeutralChrome: false,
+  };
+}

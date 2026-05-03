@@ -92,15 +92,15 @@ const statusLabel = status =>
       v-if="upcomingBookings.length === 0"
       class="flex-1 flex items-center justify-center"
     >
-      <div class="text-center text-n-slate-10">
+      <div class="text-center text-n-text-body/60">
         <p class="text-lg font-medium">{{ t('BOOKINGS.NO_BOOKINGS') }}</p>
         <p class="text-sm mt-1">{{ t('SCHEDULE.NO_UPCOMING') }}</p>
       </div>
     </div>
 
-    <div v-else class="divide-y divide-n-weak">
+    <div v-else class="divide-y divide-n-border-glass-soft">
       <div v-for="group in dateGroups" :key="group.date" class="p-4">
-        <h3 class="text-sm font-semibold text-n-slate-12 mb-3">
+        <h3 class="text-sm font-semibold text-n-text-display mb-3">
           {{ group.label }}
         </h3>
 
@@ -108,14 +108,14 @@ const statusLabel = status =>
           <div
             v-for="booking in group.bookings"
             :key="booking.id"
-            class="p-3 bg-n-solid-1 rounded-lg border border-n-weak border-l-4 cursor-pointer hover:bg-n-solid-2 transition-colors"
+            class="p-3 bg-n-glass-soft rounded-lg border border-n-border-glass-soft border-l-4 cursor-pointer hover:bg-n-glass-strong transition-colors"
             :class="getStatusColor(booking.status)"
             @click="emit('bookingClick', booking)"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium text-n-slate-12">
+                  <span class="text-sm font-medium text-n-text-display">
                     {{ format(new Date(booking.scheduled_at), 'HH:mm') }}
                   </span>
                   <span
@@ -133,10 +133,10 @@ const statusLabel = status =>
                     {{ statusLabel(booking.status) }}
                   </span>
                 </div>
-                <p class="text-sm text-n-slate-12 mt-1">
+                <p class="text-sm text-n-text-display mt-1">
                   {{ booking.contact?.name || t('SCHEDULE.NO_CONTACT') }}
                 </p>
-                <p class="text-xs text-n-slate-10 mt-0.5">
+                <p class="text-xs text-n-text-body/60 mt-0.5">
                   {{ booking.service_provider?.name || '' }}
                   <span
                     v-if="booking.services?.length"
@@ -147,7 +147,7 @@ const statusLabel = status =>
                 </p>
               </div>
               <div class="text-right">
-                <span class="text-sm font-medium text-n-slate-12">
+                <span class="text-sm font-medium text-n-text-display">
                   {{ booking.total_duration_minutes }}
                   {{ t('SCHEDULE.SETTINGS.MINUTES') }}
                 </span>
@@ -160,23 +160,23 @@ const statusLabel = status =>
 
     <div
       v-if="pastBookings.length > 0"
-      class="mt-4 border-t border-n-weak pt-4"
+      class="mt-4 border-t border-n-border-glass-soft pt-4"
     >
-      <h3 class="px-4 text-sm font-semibold text-n-slate-10 mb-3">
+      <h3 class="px-4 text-sm font-semibold text-n-text-body/60 mb-3">
         {{ t('BOOKINGS.PAST') }}
       </h3>
       <div class="space-y-2 px-4 pb-4">
         <div
           v-for="booking in pastBookings.slice(0, 5)"
           :key="booking.id"
-          class="p-3 bg-n-solid-2 rounded-lg opacity-60"
+          class="p-3 bg-n-glass-strong rounded-lg opacity-60"
         >
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-sm text-n-slate-11">
+              <span class="text-sm text-n-text-body">
                 {{ format(new Date(booking.scheduled_at), 'd MMM, HH:mm') }}
               </span>
-              <p class="text-sm text-n-slate-10">
+              <p class="text-sm text-n-text-body/60">
                 {{ booking.contact?.name || t('SCHEDULE.NO_CONTACT') }}
               </p>
             </div>

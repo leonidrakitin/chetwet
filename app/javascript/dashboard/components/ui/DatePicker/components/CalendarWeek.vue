@@ -107,8 +107,8 @@ const isNextDayInRange = day => {
 };
 
 const dayClasses = day => ({
-  'text-n-slate-10 pointer-events-none': !isInCurrentMonth(day),
-  'text-n-slate-12 hover:text-n-slate-12 hover:bg-n-blue-6 dark:hover:bg-n-blue-7':
+  'text-n-text-body/60 pointer-events-none': !isInCurrentMonth(day),
+  'text-n-text-display hover:text-n-text-display hover:bg-n-blue-6 dark:hover:bg-n-blue-7':
     isInCurrentMonth(day),
   'bg-n-brand text-white':
     isSelectedStartOrEndDate(day) && isInCurrentMonth(day),

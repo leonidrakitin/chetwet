@@ -94,7 +94,7 @@ const secondaryCards = computed(() => [
       <div
         v-for="card in heroCards"
         :key="card.key"
-        class="relative flex flex-col gap-3 p-5 rounded-xl border border-n-weak bg-n-solid-1 overflow-hidden hover:border-n-strong transition-colors"
+        class="relative flex flex-col gap-3 p-5 rounded-xl border border-n-border-glass-soft bg-n-glass-soft overflow-hidden hover:border-n-border-glass transition-colors"
       >
         <div
           class="absolute -top-6 -right-6 size-20 rounded-full opacity-60"
@@ -102,14 +102,14 @@ const secondaryCards = computed(() => [
         />
         <div class="flex items-center justify-between relative">
           <span
-            class="text-xs font-medium text-n-slate-10 uppercase tracking-wide truncate"
+            class="text-xs font-medium text-n-text-body/60 uppercase tracking-wide truncate"
           >
             {{ card.label }}
           </span>
           <span class="size-4 shrink-0" :class="[card.icon, card.accent]" />
         </div>
         <span
-          class="text-2xl font-bold text-n-slate-12 tabular-nums relative leading-none"
+          class="text-2xl font-bold text-n-text-display tabular-nums relative leading-none"
         >
           {{ card.value }}
         </span>
@@ -120,7 +120,7 @@ const secondaryCards = computed(() => [
       <div
         v-for="card in secondaryCards"
         :key="card.key"
-        class="flex items-center gap-3 px-4 py-3 rounded-xl border border-n-weak bg-n-solid-1 hover:border-n-strong transition-colors"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl border border-n-border-glass-soft bg-n-glass-soft hover:border-n-border-glass transition-colors"
       >
         <div
           class="flex items-center justify-center size-9 rounded-lg bg-n-alpha-1"
@@ -129,11 +129,11 @@ const secondaryCards = computed(() => [
         </div>
         <div class="flex flex-col min-w-0">
           <span
-            class="text-lg font-semibold text-n-slate-12 tabular-nums leading-tight"
+            class="text-lg font-semibold text-n-text-display tabular-nums leading-tight"
           >
             {{ card.value }}
           </span>
-          <span class="text-xs text-n-slate-10 truncate">
+          <span class="text-xs text-n-text-body/60 truncate">
             {{ card.label }}
           </span>
         </div>

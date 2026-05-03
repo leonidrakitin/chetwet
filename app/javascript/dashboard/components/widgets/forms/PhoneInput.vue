@@ -179,7 +179,7 @@ export default {
       :class="
         error
           ? 'outline-n-ruby-8 dark:outline-n-ruby-8 hover:outline-n-ruby-9 dark:hover:outline-n-ruby-9 mb-1'
-          : 'mb-4 outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6'
+          : 'mb-4 outline-n-border-glass-soft dark:outline-n-border-glass-soft hover:outline-n-slate-6 dark:hover:outline-n-slate-6'
       "
     >
       <div
@@ -194,7 +194,7 @@ export default {
       </div>
       <span
         v-if="activeDialCode"
-        class="flex py-2 ltr:pl-2 rtl:pr-2 text-base font-normal leading-normal text-n-slate-12"
+        class="flex py-2 ltr:pl-2 rtl:pr-2 text-base font-normal leading-normal text-n-text-display"
       >
         {{ activeDialCode }}
       </span>
@@ -252,13 +252,13 @@ export default {
         >
           {{ country.name }}
         </span>
-        <span class="ml-1 text-xs text-n-slate-11">
+        <span class="ml-1 text-xs text-n-text-body">
           {{ country.dial_code }}
         </span>
       </div>
       <div v-if="filteredCountriesBySearch.length === 0">
         <span
-          class="flex items-center justify-center mt-4 text-sm text-n-slate-10"
+          class="flex items-center justify-center mt-4 text-sm text-n-text-body/60"
         >
           {{ $t('GENERAL.PHONE_INPUT.EMPTY_STATE') }}
         </span>

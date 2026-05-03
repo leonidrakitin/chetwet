@@ -31,10 +31,10 @@ function handleMigrationComplete() {
       >
         <div class="i-lucide-database size-7 text-n-brand" />
       </div>
-      <h1 class="text-xl font-bold text-n-slate-12 mb-1">
+      <h1 class="text-xl font-bold text-n-text-display mb-1">
         {{ t('CAPTAIN.MIGRATIONS.HEADER') }}
       </h1>
-      <p class="text-sm text-n-slate-10 max-w-md">
+      <p class="text-sm text-n-text-body/60 max-w-md">
         {{ t('ONBOARDING.MIGRATION_STEP.SUBTITLE') }}
       </p>
     </div>

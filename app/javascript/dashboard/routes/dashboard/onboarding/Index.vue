@@ -430,7 +430,7 @@ function handleRetry() {
         </span>
         <button
           v-if="!isLastStep"
-          class="text-sm text-n-slate-10 hover:text-n-slate-12 transition-colors"
+          class="text-sm text-n-text-body/60 hover:text-n-text-display transition-colors"
           :disabled="isSaving"
           @click="handleSkip"
         >

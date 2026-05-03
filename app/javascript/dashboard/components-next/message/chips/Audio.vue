@@ -166,7 +166,7 @@ const downloadAudio = async () => {
         class="border-0 w-10 h-6 grid place-content-center bg-n-alpha-2 hover:bg-alpha-3 rounded-2xl"
         @click="changePlaybackSpeed"
       >
-        <span class="text-xs text-n-slate-11 font-medium">
+        <span class="text-xs text-n-text-body font-medium">
           {{ playbackSpeedLabel }}
         </span>
       </button>
@@ -187,7 +187,7 @@ const downloadAudio = async () => {
 
     <div
       v-if="attachment.transcribedText && showTranscribedText"
-      class="text-n-slate-12 p-3 text-sm bg-n-alpha-1 rounded-lg w-full break-words"
+      class="text-n-text-display p-3 text-sm bg-n-alpha-1 rounded-lg w-full break-words"
     >
       {{ attachment.transcribedText }}
     </div>

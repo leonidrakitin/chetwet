@@ -68,7 +68,10 @@ const openDeleteDialog = assistant => {
         />
       </template>
       <DropdownBody class="bottom-9 min-w-64 z-50" strong>
-        <DropdownSection v-if="isAdmin" class="border-b border-n-weak pb-1">
+        <DropdownSection
+          v-if="isAdmin"
+          class="border-b border-n-border-glass-soft pb-1"
+        >
           <div class="px-2 py-1">
             <Button
               :label="t('CAPTAIN.COPILOT.NEW_ASSISTANT')"
@@ -91,10 +94,10 @@ const openDeleteDialog = assistant => {
             <template #label>
               <div class="flex gap-1 justify-between w-full">
                 <div class="items-start flex gap-1 flex-col">
-                  <span class="text-n-slate-12 text-sm">
+                  <span class="text-n-text-display text-sm">
                     {{ assistant.name }}
                   </span>
-                  <span class="line-clamp-2 text-n-slate-11 text-xs">
+                  <span class="line-clamp-2 text-n-text-body text-xs">
                     {{ assistant.description }}
                   </span>
                 </div>

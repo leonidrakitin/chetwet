@@ -20,7 +20,7 @@ const emit = defineEmits(['action']);
 
 const bannerClass = computed(() => {
   const classMap = {
-    slate: 'bg-n-slate-3 border-n-slate-4 text-n-slate-11',
+    slate: 'bg-n-slate-3 border-n-slate-4 text-n-text-body',
     amber: 'bg-n-amber-3 border-n-amber-4 text-n-amber-11',
     teal: 'bg-n-teal-3 border-n-teal-4 text-n-teal-11',
     ruby: 'bg-n-ruby-3 border-n-ruby-4 text-n-ruby-11',
@@ -32,7 +32,7 @@ const bannerClass = computed(() => {
 
 const buttonClass = computed(() => {
   const classMap = {
-    slate: 'bg-n-slate-4 hover:bg-n-slate-5 text-n-slate-11',
+    slate: 'bg-n-slate-4 hover:bg-n-slate-5 text-n-text-body',
     amber: 'bg-n-amber-4 hover:bg-n-amber-5 text-n-amber-11',
     teal: 'bg-n-teal-4 hover:bg-n-teal-5 text-n-teal-11',
     ruby: 'bg-n-ruby-4 hover:bg-n-ruby-5 text-n-ruby-11',
@@ -49,7 +49,7 @@ const triggerAction = () => {
 
 <template>
   <div
-    class="text-sm rounded-xl flex items-center justify-between gap-2 border"
+    class="text-sm rounded-card flex items-center justify-between gap-2 border backdrop-blur-glass-rail backdrop-saturate-glass shadow-inset-hairline"
     :class="[
       bannerClass,
       {
@@ -64,7 +64,7 @@ const triggerAction = () => {
     <div>
       <button
         v-if="actionLabel"
-        class="px-3 py-1 w-auto grid place-content-center rounded-lg"
+        class="px-3 py-1 w-auto grid place-content-center rounded-pill"
         :class="buttonClass"
         @click="triggerAction"
       >

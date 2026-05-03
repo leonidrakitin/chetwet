@@ -23,7 +23,7 @@ export default {
     isActive(key) {
       return this.macroVisibility === key
         ? 'bg-n-blue-2 dark:bg-n-blue-1 border-n-blue-3 dark:border-n-blue-4'
-        : 'bg-white dark:bg-n-solid-2 border-n-weak dark:border-n-strong';
+        : 'bg-white dark:bg-n-glass-strong border-n-border-glass-soft dark:border-n-border-glass';
     },
     onUpdateName(value) {
       this.$emit('update:name', value);
@@ -37,7 +37,7 @@ export default {
 
 <template>
   <div
-    class="p-4 bg-n-solid-2 border border-n-weak rounded-lg shadow-sm h-full flex flex-col"
+    class="p-4 bg-n-glass-strong border border-n-border-glass-soft rounded-lg shadow-sm h-full flex flex-col"
   >
     <div>
       <woot-input
@@ -50,7 +50,9 @@ export default {
       />
     </div>
     <div class="mt-2">
-      <p class="block m-0 text-sm font-medium leading-[1.8] text-n-slate-12">
+      <p
+        class="block m-0 text-sm font-medium leading-[1.8] text-n-text-display"
+      >
         {{ $t('MACROS.EDITOR.VISIBILITY.LABEL') }}
       </p>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -60,7 +62,9 @@ export default {
           @click="onUpdateVisibility('global')"
         >
           <div class="flex items-center gap-2 min-w-0 justify-between w-full">
-            <p class="block m-0 text-heading-3 text-n-slate-12 line-clamp-1">
+            <p
+              class="block m-0 text-heading-3 text-n-text-display line-clamp-1"
+            >
               {{ $t('MACROS.EDITOR.VISIBILITY.GLOBAL.LABEL') }}
             </p>
             <Icon
@@ -69,7 +73,7 @@ export default {
               class="text-n-brand size-4"
             />
           </div>
-          <p class="text-n-slate-11 text-label-small">
+          <p class="text-n-text-body text-label-small">
             {{ $t('MACROS.EDITOR.VISIBILITY.GLOBAL.DESCRIPTION') }}
           </p>
         </button>
@@ -79,7 +83,9 @@ export default {
           @click="onUpdateVisibility('personal')"
         >
           <div class="flex items-center gap-2 min-w-0 justify-between w-full">
-            <p class="block m-0 text-heading-3 text-n-slate-12 line-clamp-1">
+            <p
+              class="block m-0 text-heading-3 text-n-text-display line-clamp-1"
+            >
               {{ $t('MACROS.EDITOR.VISIBILITY.PERSONAL.LABEL') }}
             </p>
             <Icon
@@ -88,7 +94,7 @@ export default {
               class="text-n-brand size-4"
             />
           </div>
-          <p class="text-n-slate-11 text-label-small">
+          <p class="text-n-text-body text-label-small">
             {{ $t('MACROS.EDITOR.VISIBILITY.PERSONAL.DESCRIPTION') }}
           </p>
         </button>
@@ -98,9 +104,9 @@ export default {
       >
         <Icon
           icon="i-lucide-info"
-          class="flex-shrink-0 mt-0.5 size-4 text-n-slate-11"
+          class="flex-shrink-0 mt-0.5 size-4 text-n-text-body"
         />
-        <p class="mb-0 text-n-slate-11 text-body-para">
+        <p class="mb-0 text-n-text-body text-body-para">
           {{ $t('MACROS.ORDER_INFO') }}
         </p>
       </div>

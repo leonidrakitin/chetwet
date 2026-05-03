@@ -30,9 +30,12 @@ const onClickAdd = () => {
 
 <template>
   <div
-    class="flex py-3 ltr:pl-3 h-16 rtl:pr-3 ltr:pr-4 rtl:pl-4 items-center gap-3 rounded-xl bg-n-solid-2 outline-1 outline outline-n-container"
+    class="flex py-3 ltr:pl-3 h-16 rtl:pr-3 ltr:pr-4 rtl:pl-4 items-center gap-3 rounded-xl bg-n-glass-strong outline-1 outline outline-n-border-glass-soft"
   >
-    <Icon icon="i-lucide-plus" class="text-n-slate-10 size-5 flex-shrink-0" />
+    <Icon
+      icon="i-lucide-plus"
+      class="text-n-text-body/60 size-5 flex-shrink-0"
+    />
 
     <InlineInput
       v-model="modelValue"
@@ -44,7 +47,7 @@ const onClickAdd = () => {
       ghost
       xs
       slate
-      class="!text-sm !text-n-slate-11 flex-shrink-0"
+      class="!text-sm !text-n-text-body flex-shrink-0"
       @click="onClickAdd"
     />
   </div>

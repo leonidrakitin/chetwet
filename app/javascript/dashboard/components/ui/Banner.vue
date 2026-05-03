@@ -122,9 +122,9 @@ export default {
   }
 
   &.secondary {
-    @apply bg-n-slate-3 dark:bg-n-solid-3 text-n-slate-12;
+    @apply bg-n-slate-3 dark:bg-n-solid-3 text-n-text-display;
     a {
-      @apply text-n-slate-12;
+      @apply text-n-text-display;
     }
   }
 

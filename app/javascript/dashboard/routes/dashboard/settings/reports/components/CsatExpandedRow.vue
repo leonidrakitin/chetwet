@@ -75,7 +75,7 @@ const saveReviewNotes = async () => {
     <div v-else-if="isFeatureEnabled" class="flex flex-col gap-3">
       <div class="flex items-start gap-4">
         <div
-          class="flex items-center gap-1.5 text-n-slate-11 shrink-0 w-36 pt-3"
+          class="flex items-center gap-1.5 text-n-text-body shrink-0 w-36 pt-3"
         >
           <i class="i-lucide-notebook-pen size-4" />
           <span class="text-sm font-medium">
@@ -91,10 +91,10 @@ const saveReviewNotes = async () => {
           >
             <p
               v-dompurify-html="formatMessage(response.csat_review_notes || '')"
-              class="flex-1 text-sm text-n-slate-12 prose-sm prose-p:text-sm prose-p:leading-relaxed prose-p:mb-1 prose-p:mt-0"
+              class="flex-1 text-sm text-n-text-display prose-sm prose-p:text-sm prose-p:leading-relaxed prose-p:mb-1 prose-p:mt-0"
             />
             <i
-              class="i-lucide-pencil size-4 text-n-slate-10 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5"
+              class="i-lucide-pencil size-4 text-n-text-body/60 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5"
             />
           </div>
 
@@ -141,18 +141,18 @@ const saveReviewNotes = async () => {
         "
         class="flex items-center gap-4"
       >
-        <div class="flex items-center gap-1.5 text-n-slate-11 shrink-0 w-36">
+        <div class="flex items-center gap-1.5 text-n-text-body shrink-0 w-36">
           <i class="i-lucide-user-pen size-4" />
           <span class="text-sm font-medium">
             {{ $t('CSAT_REPORTS.REVIEW_NOTES.UPDATED_BY_LABEL') }}
           </span>
         </div>
         <div class="flex items-center gap-1 flex-1 max-w-2xl px-3">
-          <span class="text-sm text-n-slate-12">
+          <span class="text-sm text-n-text-display">
             {{ response.review_notes_updated_by.name }}
           </span>
-          <span class="text-n-slate-10">·</span>
-          <span class="text-sm text-n-slate-10">
+          <span class="text-n-text-body/60">·</span>
+          <span class="text-sm text-n-text-body/60">
             {{ dynamicTime(response.review_notes_updated_at) }}
           </span>
         </div>

@@ -284,11 +284,11 @@ export default {
         hide-toggle
       >
         <template #editor>
-          <p class="mb-1 text-sm font-medium text-n-slate-12">
+          <p class="mb-1 text-sm font-medium text-n-text-display">
             {{ $t('INBOX_MGMT.SETTINGS_POPUP.IDENTITY_VALIDATION.SECRET_KEY') }}
           </p>
           <woot-code :script="inbox.hmac_token" />
-          <p class="mt-1.5 text-label-small text-n-slate-11">
+          <p class="mt-1.5 text-label-small text-n-text-body">
             {{ $t('INBOX_MGMT.SETTINGS_POPUP.HMAC_DESCRIPTION') }}
             <a
               target="_blank"
@@ -342,7 +342,7 @@ export default {
           type="checkbox"
           @change="handleHmacFlag"
         />
-        <label for="hmacMandatory" class="text-body-main text-n-slate-12">
+        <label for="hmacMandatory" class="text-body-main text-n-text-display">
           {{ $t('INBOX_MGMT.EDIT.ENABLE_HMAC.LABEL') }}
         </label>
       </div>

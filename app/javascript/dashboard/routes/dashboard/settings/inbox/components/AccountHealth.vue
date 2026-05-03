@@ -24,7 +24,7 @@ const QUALITY_COLORS = {
   GREEN: 'text-n-teal-11',
   YELLOW: 'text-n-amber-11',
   RED: 'text-n-ruby-11',
-  UNKNOWN: 'text-n-slate-12',
+  UNKNOWN: 'text-n-text-display',
 };
 
 const STATUS_COLORS = {
@@ -37,7 +37,7 @@ const STATUS_COLORS = {
 
 const MODE_COLORS = {
   LIVE: 'text-n-teal-11',
-  SANDBOX: 'text-n-slate-11',
+  SANDBOX: 'text-n-text-body',
 };
 
 const healthItems = computed(() => {
@@ -136,9 +136,11 @@ const formatStatusDisplay = status =>
 const formatModeDisplay = mode =>
   t(`INBOX_MGMT.ACCOUNT_HEALTH.VALUES.MODES.${mode}`) || mode;
 
-const getModeStatusTextColor = mode => MODE_COLORS[mode] || 'text-n-slate-12';
+const getModeStatusTextColor = mode =>
+  MODE_COLORS[mode] || 'text-n-text-display';
 
-const getStatusTextColor = status => STATUS_COLORS[status] || 'text-n-slate-12';
+const getStatusTextColor = status =>
+  STATUS_COLORS[status] || 'text-n-text-display';
 
 const showWebhookSection = computed(
   () => props.healthData?.webhook_configuration !== undefined
@@ -166,16 +168,16 @@ const handleRegisterWebhook = () => {
 <template>
   <div class="gap-4 mx-6">
     <div
-      class="px-5 py-5 space-y-6 rounded-xl outline outline-1 -outline-offset-1 outline-n-weak bg-n-solid-2"
+      class="px-5 py-5 space-y-6 rounded-xl outline outline-1 -outline-offset-1 outline-n-border-glass-soft bg-n-glass-strong"
     >
       <div
         class="flex flex-col gap-5 justify-between items-start w-full md:flex-row"
       >
         <div>
-          <span class="text-heading-3 text-n-slate-12">
+          <span class="text-heading-3 text-n-text-display">
             {{ t('INBOX_MGMT.ACCOUNT_HEALTH.TITLE') }}
           </span>
-          <p class="mt-1 text-body-main text-n-slate-11">
+          <p class="mt-1 text-body-main text-n-text-body">
             {{ t('INBOX_MGMT.ACCOUNT_HEALTH.DESCRIPTION') }}
           </p>
         </div>
@@ -194,10 +196,10 @@ const handleRegisterWebhook = () => {
         <div
           v-for="item in healthItems"
           :key="item.key"
-          class="flex flex-col gap-2 p-4 rounded-lg border border-n-weak bg-n-solid-1"
+          class="flex flex-col gap-2 p-4 rounded-lg border border-n-border-glass-soft bg-n-glass-soft"
         >
           <div class="flex gap-2 items-center">
-            <span class="text-body-main font-medium text-n-slate-11">
+            <span class="text-body-main font-medium text-n-text-body">
               {{ item.label }}
             </span>
             <Icon
@@ -230,11 +232,11 @@ const handleRegisterWebhook = () => {
             </span>
             <span
               v-else-if="item.type === 'tier'"
-              class="text-label text-n-slate-12"
+              class="text-label text-n-text-display"
             >
               {{ formatTierDisplay(item.value) }}
             </span>
-            <span v-else class="text-label text-n-slate-12">{{
+            <span v-else class="text-label text-n-text-display">{{
               item.value
             }}</span>
           </div>
@@ -243,10 +245,10 @@ const handleRegisterWebhook = () => {
         <!-- Webhook configuration card -->
         <div
           v-if="showWebhookSection"
-          class="flex flex-col gap-2 p-4 rounded-lg border border-n-weak bg-n-solid-1"
+          class="flex flex-col gap-2 p-4 rounded-lg border border-n-border-glass-soft bg-n-glass-soft"
         >
           <div class="flex gap-2 items-center">
-            <span class="text-body-main font-medium text-n-slate-11">
+            <span class="text-body-main font-medium text-n-text-body">
               {{ t('INBOX_MGMT.ACCOUNT_HEALTH.WEBHOOK.TITLE') }}
             </span>
             <Icon
@@ -292,11 +294,11 @@ const handleRegisterWebhook = () => {
 
       <div v-else class="pt-8">
         <div
-          class="flex justify-center items-center p-8 text-center text-n-slate-11"
+          class="flex justify-center items-center p-8 text-center text-n-text-body"
         >
           <div>
             <Icon icon="i-lucide-activity" class="mb-2 w-8 h-8" />
-            <p class="text-body-main text-n-slate-11">
+            <p class="text-body-main text-n-text-body">
               {{ t('INBOX_MGMT.ACCOUNT_HEALTH.NO_DATA') }}
             </p>
           </div>

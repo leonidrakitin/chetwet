@@ -139,14 +139,14 @@ const onClickSend = email => {
 <template>
   <div class="flex flex-col w-full gap-6">
     <div class="flex flex-col gap-2">
-      <h6 class="text-base font-medium text-n-slate-12">
+      <h6 class="text-base font-medium text-n-text-display">
         {{
           t(
             'HELP_CENTER.PORTAL_SETTINGS.CONFIGURATION_FORM.CUSTOM_DOMAIN.HEADER'
           )
         }}
       </h6>
-      <span class="text-sm text-n-slate-11">
+      <span class="text-sm text-n-text-body">
         {{
           t(
             'HELP_CENTER.PORTAL_SETTINGS.CONFIGURATION_FORM.CUSTOM_DOMAIN.DESCRIPTION'
@@ -158,20 +158,20 @@ const onClickSend = email => {
       <div class="flex items-center justify-between w-full gap-2">
         <div v-if="customDomainAddress" class="flex flex-col gap-1">
           <div class="flex items-center w-full h-8 gap-4">
-            <label class="text-sm font-medium text-n-slate-12">
+            <label class="text-sm font-medium text-n-text-display">
               {{
                 t(
                   'HELP_CENTER.PORTAL_SETTINGS.CONFIGURATION_FORM.CUSTOM_DOMAIN.LABEL'
                 )
               }}
             </label>
-            <span class="text-sm text-n-slate-12">
+            <span class="text-sm text-n-text-display">
               {{ customDomainAddress }}
             </span>
           </div>
           <span
             v-if="!isLive && isOnChatwootCloud"
-            class="text-sm text-n-slate-11"
+            class="text-sm text-n-text-body"
           >
             {{
               t(

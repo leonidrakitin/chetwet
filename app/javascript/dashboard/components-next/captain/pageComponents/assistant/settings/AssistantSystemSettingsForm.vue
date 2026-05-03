@@ -185,7 +185,7 @@ watch(
 
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
       <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-n-slate-12">
+        <label class="text-sm font-medium text-n-text-display">
           {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.LABEL') }}
         </label>
         <div class="flex items-center gap-4">
@@ -197,15 +197,17 @@ watch(
             step="0.1"
             class="w-full"
           />
-          <span class="text-sm text-n-slate-12">{{ state.temperature }}</span>
+          <span class="text-sm text-n-text-display">{{
+            state.temperature
+          }}</span>
         </div>
-        <p class="text-sm text-n-slate-11 italic">
+        <p class="text-sm text-n-text-body italic">
           {{ t('CAPTAIN.ASSISTANTS.FORM.TEMPERATURE.DESCRIPTION') }}
         </p>
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-n-slate-12">
+        <label class="text-sm font-medium text-n-text-display">
           {{ t('CAPTAIN.ASSISTANTS.FORM.MESSAGE_BUFFER.LABEL') }}
         </label>
         <div class="flex items-center gap-4">
@@ -218,7 +220,7 @@ watch(
             class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-n-weak accent-n-blue-11"
             @change="handleMessageBufferChange(bufferSecondsInput)"
           />
-          <span class="text-sm font-medium text-n-slate-12 shrink-0 w-10">
+          <span class="text-sm font-medium text-n-text-display shrink-0 w-10">
             {{
               t('CAPTAIN.ASSISTANTS.FORM.MESSAGE_BUFFER.SECONDS', {
                 count: bufferSecondsInput,
@@ -226,18 +228,18 @@ watch(
             }}
           </span>
         </div>
-        <p class="text-sm text-n-slate-11 italic">
+        <p class="text-sm text-n-text-body italic">
           {{ t('CAPTAIN.ASSISTANTS.FORM.MESSAGE_BUFFER.DESCRIPTION') }}
         </p>
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-n-slate-12">
+        <label class="text-sm font-medium text-n-text-display">
           {{ t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.LABEL') }}
         </label>
         <select
           v-model="state.knowledgeMode"
-          class="w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 py-2 text-sm text-n-slate-12 focus:border-n-blue-11 focus:outline-none"
+          class="w-full rounded-lg border border-n-border-glass-soft bg-n-glass-soft px-3 py-2 text-sm text-n-text-display focus:border-n-blue-11 focus:outline-none"
         >
           <option value="balanced">
             {{ t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.OPTIONS.BALANCED') }}
@@ -251,7 +253,7 @@ watch(
             }}
           </option>
         </select>
-        <p class="text-sm text-n-slate-11 italic">
+        <p class="text-sm text-n-text-body italic">
           {{ t('CAPTAIN.ASSISTANTS.FORM.KNOWLEDGE_MODE.DESCRIPTION') }}
         </p>
       </div>
@@ -261,10 +263,10 @@ watch(
       <div class="flex items-start gap-3">
         <Switch v-model="state.handoffApprovalEnabled" />
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-n-slate-12">
+          <label class="text-sm font-medium text-n-text-display">
             {{ t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_APPROVAL.LABEL') }}
           </label>
-          <p class="text-sm text-n-slate-11 italic">
+          <p class="text-sm text-n-text-body italic">
             {{ t('CAPTAIN.ASSISTANTS.FORM.HANDOFF_APPROVAL.DESCRIPTION') }}
           </p>
         </div>

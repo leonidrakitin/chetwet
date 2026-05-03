@@ -19,7 +19,8 @@ const props = defineProps({
 });
 
 const COLOR_CLASSES = {
-  slate: 'bg-n-label-color outline-n-label-border text-n-slate-12',
+  slate:
+    'bg-n-glass-strong outline-n-border-glass-soft text-n-text-display backdrop-blur-glass-rail backdrop-saturate-glass',
   amber: 'bg-n-amber-2 outline-n-amber-4 text-n-amber-11',
   teal: 'bg-n-teal-2 outline-n-teal-4 text-n-teal-11',
   ruby: 'bg-n-ruby-2 outline-n-ruby-4 text-n-ruby-11',
@@ -47,10 +48,10 @@ const colorClasses = computed(() => COLOR_CLASSES[props.color]);
 <template>
   <div
     :title="labelDescription"
-    class="rounded-lg -outline-offset-1 outline outline-1 inline-flex items-center flex-shrink-0"
+    class="rounded-pill -outline-offset-1 outline outline-1 inline-flex items-center flex-shrink-0"
     :class="[
       colorClasses,
-      compact ? 'px-1.5 h-6 gap-1 rounded-md' : 'px-2.5 h-8 gap-1.5 rounded-lg',
+      compact ? 'px-2 h-6 gap-1 rounded-pill' : 'px-3 h-8 gap-1.5 rounded-pill',
     ]"
   >
     <span

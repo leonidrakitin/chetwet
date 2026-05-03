@@ -142,10 +142,10 @@ const handleReassign = async () => {
   >
     <div
       v-if="hasSelection"
-      class="fixed left-3 right-3 z-50 flex flex-col gap-3 px-3 py-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:max-w-[min(100vw-2rem,48rem)] sm:flex-row sm:items-center sm:gap-4 sm:px-4 bg-n-solid-1 border border-n-weak rounded-lg shadow-lg bottom-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:bottom-4"
+      class="fixed left-3 right-3 z-50 flex flex-col gap-3 px-3 py-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:max-w-[min(100vw-2rem,48rem)] sm:flex-row sm:items-center sm:gap-4 sm:px-4 bg-n-glass-soft border border-n-border-glass-soft rounded-lg shadow-lg bottom-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:bottom-4"
     >
       <span
-        class="text-sm font-medium text-n-slate-12 text-center sm:text-left"
+        class="text-sm font-medium text-n-text-display text-center sm:text-left"
       >
         {{ t('SCHEDULE.BULK.SELECTED', { count: selectedCount }) }}
       </span>
@@ -187,7 +187,7 @@ const handleReassign = async () => {
     @close="showConfirmDialog = false"
   >
     <template #body>
-      <p class="text-sm text-n-slate-11">
+      <p class="text-sm text-n-text-body">
         {{ t('SCHEDULE.BULK.CONFIRM_PROMPT', { count: selectedCount }) }}
       </p>
     </template>
@@ -213,16 +213,16 @@ const handleReassign = async () => {
     @close="showCancelDialog = false"
   >
     <template #body>
-      <p class="text-sm text-n-slate-11 mb-3">
+      <p class="text-sm text-n-text-body mb-3">
         {{ t('SCHEDULE.BULK.CANCEL_PROMPT', { count: selectedCount }) }}
       </p>
-      <label class="block text-sm font-medium text-n-slate-12 mb-1">
+      <label class="block text-sm font-medium text-n-text-display mb-1">
         {{ t('SCHEDULE.MODAL.CANCEL_REASON') }}
       </label>
       <textarea
         v-model="cancelReason"
         rows="2"
-        class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
+        class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand resize-none"
       />
     </template>
     <template #footer>
@@ -249,7 +249,7 @@ const handleReassign = async () => {
     @close="showCompleteDialog = false"
   >
     <template #body>
-      <p class="text-sm text-n-slate-11">
+      <p class="text-sm text-n-text-body">
         {{ t('SCHEDULE.BULK.COMPLETE_PROMPT', { count: selectedCount }) }}
       </p>
     </template>
@@ -278,7 +278,7 @@ const handleReassign = async () => {
     <template #body>
       <select
         v-model="selectedProviderId"
-        class="w-full px-3 py-2 border border-n-weak rounded-md bg-n-solid-1 text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+        class="w-full px-3 py-2 border border-n-border-glass-soft rounded-md bg-n-glass-soft text-n-text-display focus:outline-none focus:ring-2 focus:ring-n-brand"
       >
         <option :value="null" disabled>
           {{ t('SCHEDULE.MODAL.PROVIDER') }}

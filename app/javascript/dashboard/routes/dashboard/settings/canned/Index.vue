@@ -155,7 +155,7 @@ const tableHeaders = computed(() => {
         feature-name="canned_responses"
       >
         <template v-if="records?.length" #count>
-          <span class="text-body-main text-n-slate-11">
+          <span class="text-body-main text-n-text-body">
             {{ $t('CANNED_MGMT.COUNT', { n: records.length }) }}
           </span>
         </template>
@@ -190,7 +190,7 @@ const tableHeaders = computed(() => {
               {{ tableHeaders[0] }}
             </span>
             <Icon
-              class="size-5 text-n-slate-11 flex-shrink-0"
+              class="size-5 text-n-text-body flex-shrink-0"
               :icon="
                 sortOrder === 'desc'
                   ? 'i-woot-sort-descending'
@@ -212,10 +212,12 @@ const tableHeaders = computed(() => {
             <template #default>
               <BaseTableCell class="max-w-0">
                 <div class="flex flex-col gap-2 min-w-0">
-                  <span class="text-heading-3 text-n-slate-12 truncate block">
+                  <span
+                    class="text-heading-3 text-n-text-display truncate block"
+                  >
                     {{ cannedItem.short_code }}
                   </span>
-                  <p class="text-body-main text-n-slate-11 line-clamp-5">
+                  <p class="text-body-main text-n-text-body line-clamp-5">
                     {{ getPlainText(cannedItem.content) }}
                   </p>
                 </div>
