@@ -153,11 +153,13 @@ COPY --from=pre-builder /app /app
 # Copy .git_sha file from pre-builder stage
 COPY --from=pre-builder /app/.git_sha /app/.git_sha
 
-# Copy prebuilt tdlib shared library
-COPY libtdjson.so /usr/local/lib/libtdjson.so
-
+## Copy prebuilt tdlib shared library
+#COPY libtdjson.so /usr/local/lib/libtdjson.so
+COPY --from=pre-builder /app/libtdjson.so /usr/local/lib/libtdjson.so
+RUN chmod 644 /usr/local/lib/libtdjson.so && \
+    ldconfig
 ENV TDLIB_LIB_PATH="/usr/local/lib"
-ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH:-}"
 
 WORKDIR /app
 
