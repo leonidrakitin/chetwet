@@ -16,7 +16,7 @@ class Enterprise::Api::V1::AccountsController < Api::BaseController
     limits = if default_plan?(@account)
                {
                  'conversation' => {
-                   'allowed' => 500,
+                   'allowed' => 400,
                    'consumed' => conversations_this_month(@account)
                  },
                  'non_web_inboxes' => {
