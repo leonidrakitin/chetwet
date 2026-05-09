@@ -157,7 +157,7 @@ COPY --from=pre-builder /app/.git_sha /app/.git_sha
 #COPY libtdjson.so /usr/local/lib/libtdjson.so
 COPY --from=pre-builder /app/libtdjson.so /usr/local/lib/libtdjson.so
 RUN chmod 644 /usr/local/lib/libtdjson.so && \
-    ldconfig
+    (command -v ldconfig >/dev/null 2>&1 && ldconfig || true)
 ENV TDLIB_LIB_PATH="/usr/local/lib"
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
