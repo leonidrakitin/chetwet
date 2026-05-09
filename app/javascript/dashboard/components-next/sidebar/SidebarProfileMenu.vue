@@ -165,20 +165,53 @@ const allowedMenuItems = computed(() => {
       </button>
     </template>
     <DropdownBody
-      class="z-50 w-80"
+      strong
+      class="z-50 w-[min(20rem,calc(100vw-1.5rem))] !gap-0 !py-0 shadow-glass-deep"
       :class="
         dropdownPosition === 'top'
-          ? 'top-full mt-2 ltr:right-0 rtl:left-0'
+          ? 'top-full mt-1.5 ltr:right-0 rtl:left-0'
           : 'bottom-12 mb-2 ltr:left-0 rtl:right-0'
       "
     >
+      <li
+        class="n-dropdown-item col-span-full -mx-2 -mt-2 !mb-0 !p-0 !list-none"
+      >
+        <div
+          class="px-4 py-3.5 bg-n-glass-soft/90 border-b border-n-border-glass-soft rounded-t-xl"
+        >
+          <div class="flex gap-3 items-center min-w-0">
+            <Avatar
+              :size="40"
+              :name="currentUser.available_name"
+              :src="currentUser.avatar_url"
+              :status="currentUserAvailability"
+              class="flex-shrink-0 ring-2 ring-n-border-glass/40"
+              rounded-full
+            />
+            <div class="min-w-0 flex-1">
+              <div
+                class="text-sm font-semibold leading-snug text-n-text-display truncate"
+              >
+                {{ currentUser.available_name }}
+              </div>
+              <div class="text-xs text-n-text-body/85 truncate mt-0.5">
+                {{ currentUser.email }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
       <SidebarProfileMenuStatus />
       <DropdownSeparator />
       <template v-for="item in allowedMenuItems" :key="item.label">
         <CustomBrandPolicyWrapper
           :show-on-custom-branded-instance="item.showOnCustomBrandedInstance"
         >
-          <DropdownItem v-if="item.show" v-bind="item" />
+          <DropdownItem
+            v-if="item.show"
+            v-bind="item"
+            class="!mx-0.5 !rounded-[10px]"
+          />
         </CustomBrandPolicyWrapper>
       </template>
     </DropdownBody>

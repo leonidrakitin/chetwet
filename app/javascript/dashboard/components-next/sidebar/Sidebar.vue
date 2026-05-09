@@ -786,10 +786,7 @@ const menuItems = computed(() => {
     ]"
     :style="isMobile ? undefined : { width: `${sidebarWidth}px` }"
   >
-    <div
-      class="flex flex-col flex-1 gap-4 min-h-0 min-w-0 pt-3 pb-3"
-      :class="isEffectivelyCollapsed ? 'px-1.5' : 'px-2'"
-    >
+    <div class="flex flex-col flex-1 gap-4 min-h-0 min-w-0 pt-3 pb-3 px-2">
       <div
         class="flex flex-shrink-0 gap-2"
         :class="isEffectivelyCollapsed ? 'flex-col items-center' : ''"

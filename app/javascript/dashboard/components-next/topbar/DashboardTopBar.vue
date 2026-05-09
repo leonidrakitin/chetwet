@@ -9,10 +9,10 @@ const emit = defineEmits(['showCreateAccountModal', 'openKeyShortcutModal']);
 
 <template>
   <header
-    class="relative z-50 flex items-center gap-2.5 px-3.5 py-3 min-h-[60px] flex-shrink-0"
+    class="relative z-50 flex items-center gap-2 px-3 py-2 min-h-0 flex-shrink-0"
   >
     <div
-      class="inline-flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-pill bg-n-glass-strong border border-n-border-glass backdrop-blur-glass-rail backdrop-saturate-glass shadow-pill-soft min-w-0 max-w-[280px]"
+      class="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-pill bg-n-glass-strong border border-n-border-glass backdrop-blur-glass-rail backdrop-saturate-glass shadow-pill-soft min-w-0 max-w-[280px]"
     >
       <span
         class="grid flex-shrink-0 place-content-center size-8 rounded-full bg-n-brand/10 text-n-blue-11"

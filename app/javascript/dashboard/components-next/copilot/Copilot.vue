@@ -128,7 +128,7 @@ watch(
 
 <template>
   <div
-    class="flex flex-col flex-1 min-h-0 h-full text-sm leading-6 tracking-tight w-full"
+    class="flex flex-col flex-1 min-h-0 min-w-0 h-full text-sm leading-6 tracking-tight w-full"
   >
     <div class="flex-shrink-0">
       <SidebarActionsHeader
@@ -140,7 +140,7 @@ watch(
     </div>
     <div
       ref="chatContainer"
-      class="flex min-h-0 flex-1 px-4 py-4 overflow-y-auto overflow-x-hidden items-start"
+      class="flex min-h-0 flex-1 px-3 py-3 sm:px-4 sm:py-4 overflow-y-auto overflow-x-hidden items-start min-w-0"
     >
       <div v-if="hasMessages" class="space-y-6 flex-1 flex flex-col w-full">
         <template v-for="(item, index) in groupedMessages" :key="item.id">
@@ -171,7 +171,7 @@ watch(
     </div>
 
     <div
-      class="flex flex-shrink-0 flex-col px-4 pt-2 pb-4 border-t border-n-border-hairline/60"
+      class="flex flex-shrink-0 flex-col gap-2 px-3 pb-3 pt-3 sm:px-4 bg-n-alpha-2/35"
     >
       <div class="flex items-center gap-2 justify-between w-full mb-2">
         <ToggleCopilotAssistant

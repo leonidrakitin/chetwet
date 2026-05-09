@@ -70,7 +70,7 @@ const openDeleteDialog = assistant => {
       <DropdownBody class="bottom-9 min-w-64 z-50" strong>
         <DropdownSection
           v-if="isAdmin"
-          class="border-b border-n-border-glass-soft pb-1"
+          class="border-b border-n-border-glass-soft/40 pb-1.5 mb-0.5"
         >
           <div class="px-2 py-1">
             <Button

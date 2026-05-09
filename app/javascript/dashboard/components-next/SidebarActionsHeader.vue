@@ -19,7 +19,7 @@ const handleButtonClick = button => {
 
 <template>
   <div
-    class="flex items-center justify-between px-4 py-3.5 border-b border-n-border-hairline bg-transparent"
+    class="flex items-center justify-between px-4 py-3 border-b border-n-border-glass-soft/60 bg-n-alpha-2/25"
   >
     <div class="flex items-center justify-between gap-2 flex-1">
       <span

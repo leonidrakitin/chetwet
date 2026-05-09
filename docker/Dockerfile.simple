@@ -1,0 +1,68 @@
+# Упрощённая production-сборка на Debian Bookworm (glibc).
+# Проще, чем Alpine-образ: меньше сюрпризов с нативными гемами, но размер образа больше.
+#
+#   docker build -f docker/Dockerfile.simple -t chatwoot:simple .
+#   docker run --rm -p 3000:3000 --env-file .env chatwoot:simple
+
+FROM node:24-bookworm-slim AS node
+FROM ruby:3.4.4-bookworm
+
+ARG BUNDLER_VERSION=2.7.2
+ARG PNPM_VERSION=10.2.0
+
+ENV RAILS_ENV=production \
+    NODE_ENV=production \
+    BUNDLE_WITHOUT=development:test \
+    RAILS_SERVE_STATIC_FILES=true \
+    NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider" \
+    TDLIB_LIB_PATH=/usr/local/lib \
+    LD_LIBRARY_PATH=/usr/local/lib
+
+RUN apt-get update -qq \
+  && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    imagemagick \
+    libpq-dev \
+    libvips-dev \
+    libyaml-dev \
+    libssl-dev \
+    postgresql-client \
+    zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && gem install bundler -v "${BUNDLER_VERSION}"
+
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+  && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+  && npm install -g "pnpm@${PNPM_VERSION}"
+
+WORKDIR /app
+
+COPY Gemfile Gemfile.lock ./
+COPY vendor/gems/tdlib-ruby /app/vendor/gems/tdlib-ruby
+
+RUN bundle config set --local without 'development:test' \
+  && bundle install -j 2
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
+
+COPY . .
+
+RUN mkdir -p log \
+  && install -m 0644 /app/libtdjson.so /usr/local/lib/libtdjson.so \
+  && ldconfig
+
+RUN SECRET_KEY_BASE=precompile_placeholder RAILS_LOG_TO_STDOUT=enabled \
+  bundle exec rake assets:precompile \
+  && rm -rf node_modules tmp/cache
+
+RUN (git rev-parse HEAD 2>/dev/null || echo "unknown") > /app/.git_sha
+
+ENTRYPOINT ["docker/entrypoints/rails.sh"]
+CMD ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+
+EXPOSE 3000

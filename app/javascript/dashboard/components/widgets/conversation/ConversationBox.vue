@@ -91,7 +91,7 @@ export default {
 
 <template>
   <div
-    class="conversation-details-wrap flex flex-col min-w-0 w-full relative bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card mt-2.5 mb-2.5 mr-2.5 shadow-glass-deep overflow-hidden"
+    class="conversation-details-wrap flex flex-col min-w-0 w-full relative bg-n-glass-strong backdrop-blur-glass-card backdrop-saturate-glass border border-n-border-glass rounded-card mt-1 mb-2.5 mr-2.5 shadow-glass-deep overflow-hidden"
   >
     <ConversationHeader
       v-if="currentChat.id"

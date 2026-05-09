@@ -41,21 +41,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <form class="relative" @submit.prevent="sendMessage">
+  <form class="relative min-w-0 w-full" @submit.prevent="sendMessage">
     <textarea
       ref="textareaRef"
       v-model="message"
       :placeholder="$t('CAPTAIN.COPILOT.SEND_MESSAGE')"
-      class="w-full reset-base bg-n-alpha-3 ltr:pl-4 ltr:pr-12 rtl:pl-12 rtl:pr-4 py-3 text-sm border border-n-border-glass-soft rounded-lg focus:outline-0 focus:outline-none focus:ring-2 focus:ring-n-blue-11 focus:border-n-blue-11 resize-none overflow-hidden max-h-[200px] mb-0 text-n-text-display"
+      class="w-full min-w-0 reset-base bg-n-solid-1 dark:bg-n-solid-2 ltr:pl-3.5 ltr:pr-11 rtl:pl-11 rtl:pr-3.5 py-2.5 text-sm border border-n-border-glass rounded-xl shadow-inset-hairline focus:outline-none focus:ring-2 focus:ring-n-blue-11/25 focus:border-n-blue-11 resize-none overflow-y-auto max-h-[200px] mb-0 text-n-text-display placeholder:text-n-text-body/50"
       rows="1"
       @input="handleInput"
       @keydown.enter.exact="handleEnterKey"
     />
     <button
-      class="absolute ltr:right-1 rtl:left-1 top-1/2 -translate-y-1/2 h-9 w-10 flex items-center justify-center text-n-text-body hover:text-n-blue-11"
+      class="absolute ltr:right-2 rtl:left-2 top-1/2 -translate-y-1/2 h-8 w-9 flex items-center justify-center rounded-lg text-n-text-body bg-n-alpha-2 hover:bg-n-alpha-3 hover:text-n-blue-11 transition-colors"
       type="submit"
     >
-      <i class="i-ph-arrow-up" />
+      <i class="i-ph-arrow-up size-5" />
     </button>
   </form>
 </template>

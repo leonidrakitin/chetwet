@@ -76,54 +76,71 @@ function changeAvailabilityStatus(availability) {
 </script>
 
 <template>
-  <DropdownSection class="[&>ul]:overflow-visible">
-    <div class="grid gap-0">
-      <DropdownItem preserve-open>
-        <div class="flex-grow flex items-center gap-1">
-          {{ $t('SIDEBAR.SET_YOUR_AVAILABILITY') }}
-        </div>
-        <DropdownContainer>
-          <template #trigger="{ toggle }">
-            <Button
-              size="sm"
-              color="slate"
-              variant="faded"
-              class="min-w-[96px]"
-              icon="i-lucide-chevron-down"
-              trailing-icon
-              @click="toggle"
-            >
-              <div class="flex gap-1 items-center flex-grow text-sm">
-                <div class="p-1 flex-shrink-0">
-                  <div class="size-2 rounded-sm" :class="activeStatus.color" />
+  <DropdownSection
+    :title="$t('SIDEBAR.SET_YOUR_AVAILABILITY')"
+    class="[&>ul]:overflow-visible !px-0"
+  >
+    <li class="n-dropdown-item col-span-full !p-0 !block list-none">
+      <div
+        class="mx-1.5 mb-2 rounded-xl border border-n-border-glass-soft bg-n-alpha-2/50 p-3 space-y-3"
+      >
+        <div class="flex items-center justify-end gap-2 min-w-0">
+          <DropdownContainer>
+            <template #trigger="{ toggle }">
+              <Button
+                size="sm"
+                color="slate"
+                variant="faded"
+                class="w-full min-w-0 max-w-full sm:max-w-[14rem]"
+                icon="i-lucide-chevron-down"
+                trailing-icon
+                @click="toggle"
+              >
+                <div
+                  class="flex gap-1.5 items-center min-w-0 justify-center text-sm"
+                >
+                  <div
+                    class="p-0.5 flex-shrink-0 rounded-sm ring-1 ring-n-border-glass-soft"
+                  >
+                    <div
+                      class="size-2 rounded-sm"
+                      :class="activeStatus.color"
+                    />
+                  </div>
+                  <span class="truncate">{{ activeStatus.label }}</span>
                 </div>
-                <span>{{ activeStatus.label }}</span>
-              </div>
-            </Button>
-          </template>
-          <DropdownBody class="min-w-32 z-20">
-            <DropdownItem
-              v-for="status in availabilityStatuses"
-              :key="status.value"
-              :label="status.label"
-              :icon="status.icon"
-              class="cursor-pointer"
-              @click="changeAvailabilityStatus(status.value)"
-            />
-          </DropdownBody>
-        </DropdownContainer>
-      </DropdownItem>
-      <DropdownItem>
-        <div class="flex-grow flex items-center gap-1">
-          {{ $t('SIDEBAR.SET_AUTO_OFFLINE.TEXT') }}
-          <Icon
-            v-tooltip.top="$t('SIDEBAR.SET_AUTO_OFFLINE.INFO_SHORT')"
-            icon="i-lucide-info"
-            class="size-4 text-n-text-body/60"
-          />
+              </Button>
+            </template>
+            <DropdownBody class="min-w-36 z-20" strong>
+              <DropdownItem
+                v-for="status in availabilityStatuses"
+                :key="status.value"
+                :label="status.label"
+                :icon="status.icon"
+                class="cursor-pointer"
+                @click="changeAvailabilityStatus(status.value)"
+              />
+            </DropdownBody>
+          </DropdownContainer>
         </div>
-        <ToggleSwitch v-model="autoOfflineToggle" />
-      </DropdownItem>
-    </div>
+        <div
+          class="flex items-center justify-between gap-3 pt-2 border-t border-n-border-glass-soft/70"
+        >
+          <div
+            class="flex items-center gap-1.5 min-w-0 text-xs text-n-text-body"
+          >
+            <span class="leading-snug">{{
+              $t('SIDEBAR.SET_AUTO_OFFLINE.TEXT')
+            }}</span>
+            <Icon
+              v-tooltip.top="$t('SIDEBAR.SET_AUTO_OFFLINE.INFO_SHORT')"
+              icon="i-lucide-info"
+              class="size-3.5 text-n-text-body/60 flex-shrink-0"
+            />
+          </div>
+          <ToggleSwitch v-model="autoOfflineToggle" class="flex-shrink-0" />
+        </div>
+      </div>
+    </li>
   </DropdownSection>
 </template>
